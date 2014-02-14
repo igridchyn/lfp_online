@@ -1,7 +1,8 @@
 #include <SDL2/SDL.h>
+#include <SDL2_ttf/SDL_ttf.h>
 
 const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 1024;
+const int SCREEN_HEIGHT = 600;
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -31,8 +32,12 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     int x_prev = 1;
     int plot_hor_scale = 10;
     int plot_scale = 40;
+    const int SHIFT = 11000;
     
-    for (int i = 0; i < 4000; ++i){
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+    
+    for (int i = 0; i < 100000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
         
         // iterate throug 3 batches in 1 chunk
@@ -42,7 +47,6 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
             printf("%d \n", val);
             
             // scale for plotting
-            const int SHIFT = 11000;
             val = val + SHIFT;
             val = val > 0 ? val / plot_scale : 1;
             val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
@@ -65,6 +69,8 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
                     SDL_SetRenderTarget(renderer, texture);
                     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                     SDL_RenderClear(renderer);
+                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                    SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
                     SDL_RenderPresent(renderer);
                 }
             }
@@ -95,7 +101,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
                             plot_hor_scale += 2;
                             break;
                         case SDLK_LEFT:
-                            plot_scale = plot_scale > 2  ? plot_scale - 2 : 2;
+                            plot_hor_scale = plot_hor_scale > 2  ? plot_hor_scale - 2 : 2;
                             break;
                             
                         case SDLK_ESCAPE:
@@ -149,9 +155,10 @@ int get_image(){
     window = SDL_CreateWindow("SDL2 Test", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
+    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
     
     SDL_SetRenderTarget(renderer, texture);
- 
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     
