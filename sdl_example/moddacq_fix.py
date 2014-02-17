@@ -83,8 +83,7 @@ DWORD attributes, HANDLE template )
 				 openbin = TRUE;
 			  }
           }
-          /* open the file */		
-		  //MessageBoxW(0, filename, "Oops!", 0);
+          /* open the file */
           tmph = CreateFileW(filename, access, sharing, sa, creation,
 attributes, template);
           /* did just we open a .BIN file? */
@@ -175,7 +174,6 @@ def process_import_dump(f):
   return retval
 
 
-# ================================================================================================================================================================
 # use dumpbin to find the binary imports in dacqUSB.exe and DacqUSB.dll
 os.system(r"dumpbin /imports dacqUSB.exe > dacqusb_imports.txt")
 os.system(r"dumpbin /imports DacqUSB.dll > dacqusbdll_imports.txt")
@@ -224,14 +222,6 @@ os.system("del Mod__k32.c");
 os.system("del dacqusbdll_imports.txt");
 os.system("del dacqusb_imports.txt");
 
-f = open("DacqUSB.dll","rb")
-bytecode = f.read()
-f.close()
-bytecode = string.replace(bytecode,"kernel32.dll","Mod__k32.dll");
-f = open("Mod_USB.dll","wb")
-f.write(bytecode) # I hope this doesn't violate Axona's copyright !!!
-f.close()
-
 # write the new mod_DacqUSB.exe file
 f = open("dacqUSB.exe","rb")
 bytecode = f.read()
@@ -239,6 +229,15 @@ f.close()
 bytecode = string.replace(bytecode,"kernel32.dll","Mod__k32.dll");
 bytecode = string.replace(bytecode,"DacqUSB.dll","Mod_USB.dll");
 f = open("mod_dacqUSB.exe","wb")
+f.write(bytecode) # I hope this doesn't violate Axona's copyright !!!
+f.close()
+
+# write the new Mod_USB.dll file
+f = open("DacqUSB.dll","rb")
+bytecode = f.read()
+f.close()
+bytecode = string.replace(bytecode,"kernel32.dll","Mod__k32.dll");
+f = open("Mod_USB.dll","wb")
 f.write(bytecode) # I hope this doesn't violate Axona's copyright !!!
 f.close()
 
