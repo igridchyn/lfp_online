@@ -181,8 +181,8 @@ nNumberOfBytesToWrite,
 						
 						// TRANSFORM FOR DISPLAY
 						// 11000, 5
-						const int SHIFT = 2000;
-						int plot_scale = 4;
+						const int SHIFT = 5000;
+						int plot_scale = 20;
 						val = val + SHIFT;
 						val = val > 0 ? val / plot_scale : 1;
 						val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
@@ -200,6 +200,16 @@ nNumberOfBytesToWrite,
 
 							SDL_SetRenderTarget(renderer, NULL);
 							SDL_RenderCopy(renderer, texture, NULL, NULL);
+							SDL_RenderPresent(renderer);
+
+							// not to hang up
+							SDL_PumpEvents();
+						}
+						else{
+							// reset screen
+							SDL_SetRenderTarget(renderer, texture);
+							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+							SDL_RenderClear(renderer);
 							SDL_RenderPresent(renderer);
 						}
 						
