@@ -6,8 +6,7 @@ import string
 
 def proxy_Includes():
   C = """
-      #include <windows.h>
-	  
+      #include <windows.h>  
       #pragma comment(lib, "kernel32")
       #pragma comment(lib, "user32")
   """
@@ -46,7 +45,6 @@ DWORD attributes, HANDLE template )
           HANDLE *tmph;
           BOOL openbin = FALSE;
           /* is dacq opening a .BIN file for writing? */
-		  MessageBoxA(0, "Creating File!!!", "Oops!", 0);
           if( (access & GENERIC_WRITE) && (strlen(filename) > 4)) {
               tmpc = filename + strlen(filename) - 4;
               if ( !strcmp(tmpc,".BIN") || !strcmp(tmpc,".bin") ) openbin = TRUE;
@@ -110,7 +108,6 @@ nNumberOfBytesToWrite,
           LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped )
       {
           BOOL retval;
-		  
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
 			if (counter_message == 0){
@@ -127,7 +124,6 @@ write the packet to the .BIN file, just like dacq,
               retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
 lpNumberOfBytesWritten, lpOverlapped);
                          }  else /* not USB packet, just proxy */{
-
 								retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
 lpNumberOfBytesWritten, lpOverlapped);}
           return retval;
@@ -166,8 +162,7 @@ def process_import_dump(f):
   while len(strlist) > 0:
       sp = strlist[0].split()
       if len(sp) == 1:
-          if sp[0] == "kernel32.dll":
-		  
+          if sp[0] == "kernel32.dll":  
               while (strlist[0].split()):
                 strlist.pop(0)
               strlist.pop(0)				
@@ -189,7 +184,6 @@ os.system(r"dumpbin /imports DacqUSB.dll > dacqusbdll_imports.txt")
 k32imports = list()
 k32imports.extend( process_import_dump("dacqusb_imports.txt") )
 k32imports.extend( process_import_dump("dacqusbdll_imports.txt") )
-
 k32imports_entries = set(k32imports)
 k32imports = sorted([s for s in k32imports_entries])
 
