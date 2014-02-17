@@ -224,18 +224,14 @@ f.close()
 # os.system("cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I\"C:\Program Files (x86)\Windows Kits\8.1\Include\um\"");
 os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I"C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include" /link /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\\x86" /LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib"')
 
-# clean up os.system("del Mod__k32.def");
+# clean up 
+os.system("del Mod__k32.def");
 os.system("del Mod__k32.obj");
 os.system("del Mod__k32.lib");
 os.system("del Mod__k32.exp");
-#os.system("del Mod__k32.c");
+os.system("del Mod__k32.c");
 os.system("del dacqusbdll_imports.txt");
 os.system("del dacqusb_imports.txt");
-
-# !!! - this writing first (to be clear what is Mod_USB in the next block)
-# write the new Mod_USB.dll file
-# !!! error: DacqUSB.dll instead of Mod_USB.dll
-# f = open("Mod_USB.dll","rb")
 
 f = open("DacqUSB.dll","rb")
 bytecode = f.read()
