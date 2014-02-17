@@ -7,7 +7,6 @@ import string
 def proxy_Includes():
   C = """
       #include <windows.h>
-	  #include "SDL.h"
 	  
       #pragma comment(lib, "kernel32")
       #pragma comment(lib, "user32")
@@ -177,8 +176,7 @@ def process_import_dump(f):
                   entry = strlist[0].split()[1];                         
                   retval.append(entry)
                   strlist.pop(0)
-      strlist.pop(0)   
-  #print retval	  
+      strlist.pop(0)  
   return retval
 
 
@@ -197,7 +195,6 @@ k32imports.extend(['CreateFileA', 'GetLogicalProcessorInformation', 'IsWow64Proc
 k32imports_entries = set(k32imports)
 k32imports = sorted([s for s in k32imports_entries])
 
-#k32imports.remove('time')
 k32imports.remove('Unload')
 
 print k32imports
@@ -229,7 +226,7 @@ f.close()
 
 # compile the overriding DLL with Microsoft Visual C++
 # os.system("cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I\"C:\Program Files (x86)\Windows Kits\8.1\Include\um\"");
-os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I"D:\data\igor\src\sdl_test\SDL2" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include" /link /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\\x86" /LIBPATH:"D:\data\igor\src\sdl_test\lib\\x86" /DYNAMICBASE "SDL2.lib" /LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib"')
+os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I"C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include" /link /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\\x86" /LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib"')
 
 # clean up os.system("del Mod__k32.def");
 os.system("del Mod__k32.obj");
