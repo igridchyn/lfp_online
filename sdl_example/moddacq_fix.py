@@ -173,11 +173,10 @@ def process_import_dump(f):
               strlist.pop(0)				
 
               while (strlist[0].split()):
-                  print strlist[0].split()
                   entry = strlist[0].split()[-1];
                   retval.append(entry)
                   strlist.pop(0)
-      strlist.pop(0)  
+      strlist.pop(0)
   return retval
 
 
@@ -193,8 +192,6 @@ k32imports.extend( process_import_dump("dacqusbdll_imports.txt") )
 
 k32imports_entries = set(k32imports)
 k32imports = sorted([s for s in k32imports_entries])
-
-print k32imports
 
 # write the def-file for the api hijacking DLL
 f = open("Mod__k32.def","wt")
@@ -221,7 +218,7 @@ f.write("\n\n")
 f.close()
 
 # compile the overriding DLL with Microsoft Visual C++
-# os.system("cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I\"C:\Program Files (x86)\Windows Kits\8.1\Include\um\"");
+#os.system("cl -O2 -W3 -LD Mod__k32.c Mod__k32.def");
 os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I"C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include" /link /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\\x86" /LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib"')
 
 # clean up 
