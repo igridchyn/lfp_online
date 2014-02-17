@@ -162,18 +162,19 @@ def process_import_dump(f):
   f = open(f)
   strlist = f.readlines()
   f.close()
+
   while len(strlist) > 0:
       sp = strlist[0].split()
       if len(sp) == 1:
           if sp[0] == "kernel32.dll":
-              strlist.pop(0)
-              strlist.pop(0)
-              strlist.pop(0)
-              strlist.pop(0)
-              strlist.pop(0)
-              strlist.pop(0)
+		  
               while (strlist[0].split()):
-                  entry = strlist[0].split()[1];                         
+                strlist.pop(0)
+              strlist.pop(0)				
+
+              while (strlist[0].split()):
+                  print strlist[0].split()
+                  entry = strlist[0].split()[-1];
                   retval.append(entry)
                   strlist.pop(0)
       strlist.pop(0)  
@@ -190,12 +191,8 @@ k32imports = list()
 k32imports.extend( process_import_dump("dacqusb_imports.txt") )
 k32imports.extend( process_import_dump("dacqusbdll_imports.txt") )
 
-k32imports.extend(['CreateFileA', 'GetLogicalProcessorInformation', 'IsWow64Process', 'GetFinalPathNameByHandleW', 'LocaleNameToLCID', 'GetNativeSystemInfo'])
-
 k32imports_entries = set(k32imports)
 k32imports = sorted([s for s in k32imports_entries])
-
-k32imports.remove('Unload')
 
 print k32imports
 
@@ -218,7 +215,6 @@ f.write( proxy_Includes() )    #include and linker pragmas
 f.write( proxy_Globals() )     #global variable(s) needed for the hijack
 f.write( proxy_CreateFileA() ) #hijack of CreateFileA
 f.write( proxy_CreateFileW() ) #hijack of CreateFileA
-# !!! was mistake: f.write ( starting in the comment
 f.write( proxy_WriteFile() )   #hijack of WriteFile
 f.write( proxy_CloseHandle() ) #hijack of CloseHandle
 f.write("\n\n")
