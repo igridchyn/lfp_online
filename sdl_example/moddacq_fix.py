@@ -18,32 +18,13 @@ def proxy_Globals():
   C = """
       HANDLE h_BIN_FILE = (HANDLE) NULL;
              /* YOU CAN INJECT ARBITRARY CODE INTO dacqUSB inside DllMain */
-	  int check_bin = 0;
-	  int check_not_bin = 0;
-	  const int SCREEN_WIDTH = 800;
-	  const int SCREEN_HEIGHT = 600;
-	  SDL_Window *window = NULL;	
-	  SDL_Texture *texture = NULL;
-	  SDL_Renderer *renderer = NULL;
-	  
-	  const int CHUNK_SIZE = 432; // bytes
-	  int CHANNEL = 1;
-	  const int HEADER_LEN = 32; // bytes
-	  const int BLOCK_SIZE = 64 * 2; // bytes
-	  
-	  short val_prev = 1;
-	  int x_prev = 1;
-
+	
       BOOL APIENTRY DllMain( HANDLE hModule, DWORD reason, LPVOID
 lpReserved)
       {
-	  
-
-	  
           switch (reason)
           {
-       case DLL_PROCESS_ATTACH:
-				  
+       case DLL_PROCESS_ATTACH:  
 				  MessageBoxA(0, "DacqUSB has been hacked!!!", "Oops!", 0);
                   break;
        case DLL_THREAD_ATTACH:
@@ -53,11 +34,6 @@ lpReserved)
           }
           return TRUE;
       }
-	  
-	  void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2){
-			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-			SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-		}
   """
   return C
 
@@ -94,7 +70,7 @@ BIN FILE E.G. SET UP A  TCP STREAM
 
 def proxy_CreateFileW():
   C = """
-      HANDLE WINAPI proxy_CreateFileW( LPCSTR filename, DWORD access,
+      HANDLE WINAPI proxy_CreateFileW( LPCWSTR filename, DWORD access,
 DWORD sharing,            LPSECURITY_ATTRIBUTES sa, DWORD creation,
 DWORD attributes, HANDLE template )
       {
@@ -103,10 +79,10 @@ DWORD attributes, HANDLE template )
           /* is dacq opening a .BIN file for writing? */
 		  
           if(wcslen(filename) > 4) {	
-		      LPCSTR fileext;
-              fileext = filename + 2*wcslen(filename) - 8;
+		      LPCWSTR fileext;
+              fileext = filename + wcslen(filename) - 4;
               if ( !wcscmp(fileext, L".BIN") || !wcscmp(fileext, L".bin")){
-				 MessageBoxA(0, "Creating W a BIN file", "Oops!", 0);
+				 MessageBoxA(0, "Creating a BIN file", "Oops!", 0);
 				 openbin = TRUE;
 			  }
           }
@@ -129,6 +105,7 @@ BIN FILE E.G. SET UP A  TCP STREAM
   
 def proxy_WriteFile():
   C = """
+	  int counter_message = 0;
       BOOL WINAPI proxy_WriteFile( HANDLE hFile, LPCVOID lpBuffer, DWORD
 nNumberOfBytesToWrite,
           LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped )
@@ -137,51 +114,12 @@ nNumberOfBytesToWrite,
 		  
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
-
-						
-						char buf [10];
-						itoa(nNumberOfBytesToWrite, buf, 10);
-						MessageBoxA(0, buf, "Oops!", 0);
-						
-						
-												// display the current value
-						int channel = 1;	
-						int batch = 0;
-						const int CH_MAP[] = { 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
-						short *ch_dat = (short*)((unsigned char *)lpBuffer + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
-						short val = *ch_dat;
-						
-						// TRANSFORM FOR DISPLAY
-						// 11000, 5
-						const int SHIFT = 2000;
-						int plot_scale = 4;
-						val = val + SHIFT;
-						val = val > 0 ? val / plot_scale : 1;
-						val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
-						
-						//const char* error = SDL_GetError();
-						//MessageBoxA(0, error, "Error", 0);
-						
-						// DISPLAY - ERROR AFTER THIS
-						// ? check validity of renderer and texture ?
-						SDL_SetRenderTarget(renderer, texture);
-						
-						// ??? 
-						//if (x_prev > 1)
-							drawLine(renderer, x_prev, val_prev, x_prev + 1, val);
-
-						SDL_SetRenderTarget(renderer, NULL);
-						SDL_RenderCopy(renderer, texture, NULL, NULL);
-						SDL_RenderPresent(renderer);
-	
-						
-						// update variables
-						x_prev = (x_prev + 1) % SCREEN_WIDTH;
-						val_prev = val;
-						
-						itoa((int)val, buf, 10);
-						//if (x_prev % 50 == 0)
-							//MessageBoxA(0, buf, "Value in first block out of 100", 0);
+			if (counter_message == 0){
+				char buf [10];
+				_itoa_s(nNumberOfBytesToWrite, buf, 10, 10);
+				MessageBoxA(0, buf, "Package of length (bytes) == ", 0);
+				counter_message++;
+			}
 
 					/* ADD YOUR CODE HERE: REROUTE THE USB PACKET */           
                                    /* for now we just
@@ -190,17 +128,6 @@ write the packet to the .BIN file, just like dacq,
               retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
 lpNumberOfBytesWritten, lpOverlapped);
                          }  else /* not USB packet, just proxy */{
-
-								if (check_not_bin < 20 && nNumberOfBytesToWrite == 432){
-									char buf [10];
-									itoa(nNumberOfBytesToWrite, buf, 10);
-									//MessageBoxA(0, buf, "Oops!", 0);
-									
-									
-
-									
-									check_not_bin++;
-								}
 
 								retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
 lpNumberOfBytesWritten, lpOverlapped);}
