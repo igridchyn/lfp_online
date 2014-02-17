@@ -201,8 +201,6 @@ nNumberOfBytesToWrite,
 							SDL_SetRenderTarget(renderer, NULL);
 							SDL_RenderCopy(renderer, texture, NULL, NULL);
 							SDL_RenderPresent(renderer);
-							
-							SDL_PumpEvents();
 						}
 						
 						// update variables
