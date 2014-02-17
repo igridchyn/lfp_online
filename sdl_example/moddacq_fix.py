@@ -98,45 +98,16 @@ def proxy_CreateFileW():
 DWORD sharing,            LPSECURITY_ATTRIBUTES sa, DWORD creation,
 DWORD attributes, HANDLE template )
       {
-          const char *tmpc;
           HANDLE *tmph;
           BOOL openbin = FALSE;
           /* is dacq opening a .BIN file for writing? */
-		  //MessageBoxA(0, "Creating File W!!!", "Oops!", 0);
-		  tmpc = filename;
-		  //MessageBoxW(0, tmpc, "Oops!", 0);
-		  char buf[10];
-		  itoa(wcslen(filename), buf, 10);
-		  //MessageBoxA(0, buf, "Oops!", 0);
 		  
           if(wcslen(filename) > 4) {	
 		      LPCSTR fileext;
-			  LPCSTR ebin = L".BIN";
-			  //LPCSTR ebin = L"\x002E\x0042\x0049\x004E";
-              fileext = filename + 2*wcslen(filename) - 8;		
-			 // MessageBoxW(0, fileext, "Oops!", 0);
-              if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
-				 //MessageBoxA(0, "Creating W a BIN file", "Oops!", 0);
-				 
-				 check_bin++;
-				 
-				 if (check_bin > 1){
-				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, 800, 600, 0);
-					renderer = SDL_CreateRenderer(window, -1, 0); // SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 800, 600);
-	  
-					SDL_SetRenderTarget(renderer, texture);
-					SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-					SDL_RenderClear(renderer);
-					
-					//const char* error = SDL_GetError();
-					//MessageBoxA(0, error, "Error", 0);
-					
-					// ???
-					SDL_RenderPresent(renderer);
-				}
-							 
-				openbin = TRUE;
+              fileext = filename + 2*wcslen(filename) - 8;
+              if ( !wcscmp(fileext, L".BIN") || !wcscmp(fileext, L".bin")){
+				 MessageBoxA(0, "Creating W a BIN file", "Oops!", 0);
+				 openbin = TRUE;
 			  }
           }
           /* open the file */		
