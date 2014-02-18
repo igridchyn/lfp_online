@@ -8,6 +8,11 @@ def proxy_Includes():
   C = """
       #include <windows.h>
 	  #include "SDL.h"
+	 
+#include "conio.h"
+#include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
 	  
       #pragma comment(lib, "kernel32")
       #pragma comment(lib, "user32")
@@ -36,9 +41,6 @@ def proxy_Globals():
       BOOL APIENTRY DllMain( HANDLE hModule, DWORD reason, LPVOID
 lpReserved)
       {
-	  
-
-	  
           switch (reason)
           {
        case DLL_PROCESS_ATTACH:
@@ -119,7 +121,7 @@ DWORD attributes, HANDLE template )
 				 
 				 check_bin++;
 				 
-				 if (check_bin > 1){
+				 if (check_bin > 2){
 				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, 800, 600, 0);
 					renderer = SDL_CreateRenderer(window, -1, 0); // SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 800, 600);
@@ -166,10 +168,11 @@ nNumberOfBytesToWrite,
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
 
-						
-						//char buf [10];
-						//itoa(nNumberOfBytesToWrite, buf, 10);
-						//MessageBoxA(0, buf, "Oops!", 0);
+						//if (x_prev == 1){
+						//	char buf [10];
+						//	itoa(nNumberOfBytesToWrite, buf, 10);
+						//	MessageBoxA(0, buf, "Oops!", 0);
+						//}
 						
 						
 												// display the current value
@@ -180,12 +183,14 @@ nNumberOfBytesToWrite,
 						short val = *ch_dat;
 						
 						// TRANSFORM FOR DISPLAY
-						// 11000, 5
-						const int SHIFT = 5000;
-						int plot_scale = 20;
+						// 11000, 40; 5000 / 20; 
+						const int SHIFT = 11000;
+						int plot_scale = 40;
 						val = val + SHIFT;
 						val = val > 0 ? val / plot_scale : 1;
 						val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
+						
+					
 						
 						//const char* error = SDL_GetError();
 						//MessageBoxA(0, error, "Error", 0);
