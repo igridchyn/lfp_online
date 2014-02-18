@@ -300,7 +300,7 @@ k32imports = sorted([s for s in k32imports_entries])
 #k32imports.remove('time')
 k32imports.remove('Unload')
 
-print k32imports
+# print k32imports
 
 # write the def-file for the api hijacking DLL
 f = open("Mod__k32.def","wt")
@@ -329,7 +329,7 @@ f.close()
 
 # compile the overriding DLL with Microsoft Visual C++
 # os.system("cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I\"C:\Program Files (x86)\Windows Kits\8.1\Include\um\"");
-os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I"D:\data\igor\src\sdl_test\SDL2" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\um" -I"C:\Program Files (x86)\Windows Kits\8.1\Include\shared" -I"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include" /link /LIBPATH:"C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\\x86" /LIBPATH:"D:\data\igor\src\sdl_test\lib\\x86" /DYNAMICBASE "SDL2.lib" /LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib"')
+os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def /link /DYNAMICBASE "SDL2.lib"')
 
 # clean up os.system("del Mod__k32.def");
 os.system("del Mod__k32.obj");
