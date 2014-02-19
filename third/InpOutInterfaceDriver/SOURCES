@@ -1,0 +1,13 @@
+#
+# setup visualC++ source browsing
+#
+BROWSER_INFO=1
+BSCMAKE_FLAGS=$(BSCMAKE_FLAGS) -n
+
+
+TARGETNAME=hwinterfacex64
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+INCLUDES=..\
+
+SOURCES=hwinterfacedrv.c hwinterfacedrv.rc
