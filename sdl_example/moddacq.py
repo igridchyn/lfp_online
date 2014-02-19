@@ -328,7 +328,6 @@ f.write("\n\n")
 f.close()
 
 # compile the overriding DLL with Microsoft Visual C++
-# os.system("cl -O2 -W3 -LD Mod__k32.c Mod__k32.def -I\"C:\Program Files (x86)\Windows Kits\8.1\Include\um\"");
 os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def /link /DYNAMICBASE "SDL2.lib"')
 
 # clean up os.system("del Mod__k32.def");
