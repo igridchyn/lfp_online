@@ -1,0 +1,30 @@
+#include <windows.h>
+
+#include <ntverp.h>
+
+#define VER_FILETYPE				VFT_DRV
+#define VER_FILESUBTYPE				VFT2_DRV_SYSTEM
+#define VER_FILEDESCRIPTION_STR     "hwinterfacex64.sys x64 hwinterface Driver"
+#define VER_INTERNALNAME_STR        "hwinterfacex64.sys"
+#define VER_ORIGINALFILENAME_STR    "hwinterfacex64.sys"
+#define VER_LEGALCOPYRIGHT_STR      "Copyrighted by Logix4u"
+
+#ifdef VER_FILEVERSTRING
+#undef VER_FILEVERSTRING
+#define VER_FILEVERSTRING			"1.1 x64"
+#endif
+
+#ifdef VER_PRODUCTVERSTRING
+#undef VER_PRODUCTVERSTRING
+#define VER_PRODUCTVERSTRING		"1.1"
+#endif
+
+#ifdef VER_COMPANYNAME_STR
+#undef VER_COMPANYNAME_STR
+#define VER_COMPANYNAME_STR         "Logix4u"
+#endif
+
+#undef VER_PRODUCTNAME_STR
+#define VER_PRODUCTNAME_STR         "hwinterfacex64 Driver Version 1.1                        x64 port by Highresolution Enterprises www.highrez.co.uk"
+
+#include "common.ver"
