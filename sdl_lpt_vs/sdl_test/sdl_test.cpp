@@ -25,6 +25,7 @@ char path[MAX_PATH];
 HINSTANCE hmodule;
 
 // was LPCTSTR
+// isntall a driver for the LPT port
 int inst(LPCSTR pszDriver)
 {
 	char szDriverSys[MAX_PATH];
