@@ -106,6 +106,7 @@ int inst(LPCSTR pszDriver)
 
 HANDLE hdriver = NULL;
 /// !!! was LPCTSTR
+// start driver service
 int start(LPCSTR pszDriver)
 {
 	SC_HANDLE  Mgr;
@@ -155,6 +156,7 @@ int start(LPCSTR pszDriver)
 
 #define DRIVERNAMEx64 "hwinterfacex64\0"
 #define DRIVERNAMEi386 "hwinterface\0"
+// open driver - after starting service?
 int Opendriver(BOOL bX64)
 {
 	OutputDebugStringW(L"Attempting to open InpOut driver...\n");
@@ -242,6 +244,77 @@ void _stdcall Out32(short PortAddress, short data)
 			printf("Write error %ld :", error);
 			wprintf(L"%s", lpMsgBuf);
 		}
+}
+
+#define SRVICE_PERMISS (SC_MANAGER_CREATE_SERVICE | SERVICE_START | SERVICE_STOP | DELETE | SERVICE_CHANGE_CONFIG)
+int write_ltp_logic_analyzer(){
+	LPTSTR s_Driver = L"\\\\.\\WinRing0_1_2_0";
+
+	// ? register service first ?
+	SC_HANDLE h_SCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	if (!h_SCManager){
+		printf("Cannot open SC manager!\n");
+		return 3;
+	}
+
+	bool regservice = false;
+	// run only once to register service
+	if (regservice){
+		LPTSTR DriverId = L"WinRing0_1_2_0";
+		SC_HANDLE h_Service = CreateService(h_SCManager, DriverId, DriverId,
+			SRVICE_PERMISS, SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
+			L"C:\\Windows\\System32\\drivers\\WinRing0.sys", NULL, NULL, NULL, NULL, NULL);
+		if (!h_Service)
+		{
+			unsigned int error = GetLastError();
+
+			LPTSTR lpMsgBuf;
+
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				error,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR)&lpMsgBuf,
+				0, NULL);
+
+			printf("Cannot register service: ");
+			wprintf(L"%s\n", lpMsgBuf);
+			return 4;
+		}
+		else{
+			CloseServiceHandle(h_Service);
+		}
+	}
+
+	HANDLE mh_Driver = CreateFile(s_Driver, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (mh_Driver == INVALID_HANDLE_VALUE){
+		printf("Driver open error !\n");
+		return 1;
+	}
+
+	DWORD u32_RetLen;
+	WRITE_IO_PORT_INPUT k_In;
+	// 0xFF: all high
+	k_In.CharData = 0x00;
+	// base port 1 address: 0x0378
+	k_In.PortNumber = 0x0378;
+
+	DWORD IOCTL_WRITE_IO_PORT_BYTE = CTL_CODE(40000, 0x836, METHOD_BUFFERED, FILE_WRITE_ACCESS);
+
+	for (int i = 0; i < 3000000; ++i){
+		if (!DeviceIoControl(mh_Driver, IOCTL_WRITE_IO_PORT_BYTE, &k_In, sizeof(k_In),
+			NULL, 0, &u32_RetLen, NULL)){
+			printf("Writing error!\n");
+			return 2;
+		}
+	}
+
+	return 0;
 }
 
 void write_ltp(){
@@ -497,8 +570,10 @@ int get_image(){
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Opendriver(true);
-	Out32(0x0378, 0xFFFF);
+	//Opendriver(true);
+	//Out32(0x0378, 0xFFFF);
+
+	write_ltp_logic_analyzer();
 
 	//write_ltp();
 	//get_image();
