@@ -339,7 +339,12 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	// InpOut32 - way
 	Opendriver(true);
-	Out32(0x0378, 0xFFFF);
+
+	//To place a TTL pulse use the command
+	//>> calllib('inpout32', 'Out32', 888, 255)
+	// 888 = x0378, 255 = 0xFF
+
+	Out32(0x0378, 0xFF);
 
 	//write_ltp_logic_analyzer();
 

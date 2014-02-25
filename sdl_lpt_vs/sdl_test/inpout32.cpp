@@ -2,7 +2,8 @@
 
 #define IDR_BIN1                        101
 #define IOCTL_READ_PORT_UCHAR	 -1673519100 //CTL_CODE(40000, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_WRITE_PORT_UCHAR	 -1673519096 //CTL_CODE(40000, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
+//#define IOCTL_WRITE_PORT_UCHAR	 -1673519096 //CTL_CODE(40000, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_WRITE_PORT_UCHAR	 CTL_CODE(40000, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define DRIVERNAMEx64 "hwinterfacex64\0"
 #define DRIVERNAMEi386 "hwinterface\0"
 
@@ -221,7 +222,21 @@ void _stdcall Out32(short PortAddress, short data)
 	unsigned short * pBuffer;
 	pBuffer = (unsigned short *)&Buffer[0];
 	*pBuffer = LOWORD(PortAddress);
-	Buffer[2] = LOBYTE(data);
+
+	for (int i = 0; i < 200000; ++i){
+		Buffer[2] = (i % 2) ? 0xFF : 0x00;
+
+		DeviceIoControl(hdriver,
+			IOCTL_WRITE_PORT_UCHAR,
+			&Buffer,
+			3,
+			NULL,
+			0,
+			&BytesReturned,
+			NULL);
+
+		Sleep(2);
+	}
 
 	if (!DeviceIoControl(hdriver,
 		IOCTL_WRITE_PORT_UCHAR,
