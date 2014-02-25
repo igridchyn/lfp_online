@@ -100,6 +100,9 @@ int inst(LPCSTR pszDriver)
 			NULL,
 			NULL
 			);
+
+		if (!Ser)
+			ReportError();
 	}
 	CloseServiceHandle(Ser);
 	CloseServiceHandle(Mgr);
@@ -145,6 +148,7 @@ int start(LPCSTR pszDriver)
 			if (!StartService(Ser, 0, NULL))
 			{
 				CloseServiceHandle(Ser);
+				ReportError();
 				return 3; // opened the Service handle with full access permission, but unable to start
 			}
 			else
