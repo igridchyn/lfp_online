@@ -28,6 +28,11 @@ def proxy_Globals():
 	  const int SCREEN_HEIGHT = 600;
 	  const int SHIFT = 11000;
 	  const int plot_scale = 40;
+	  
+	  FILE *out = NULL;
+	  
+	  int pkg_id = 0;
+	  
 	  SDL_Window *window = NULL;	
 	  SDL_Texture *texture = NULL;
 	  SDL_Renderer *renderer = NULL;
@@ -126,12 +131,8 @@ DWORD attributes, HANDLE template )
           if(wcslen(filename) > 4) {	
 		      LPCSTR fileext;
 			  LPCSTR ebin = L".BIN";
-			  //LPCSTR ebin = L"\x002E\x0042\x0049\x004E";
               fileext = filename + 2*wcslen(filename) - 8;		
-			 // MessageBoxW(0, fileext, "Oops!", 0);
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
-				 //MessageBoxA(0, "Creating W a BIN file", "Oops!", 0);
-				 
 				 check_bin++;
 				 
 				 if (check_bin > 2 && !window){
@@ -143,17 +144,16 @@ DWORD attributes, HANDLE template )
 					SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 					SDL_RenderClear(renderer);
 					
-					//const char* error = SDL_GetError();
-					//MessageBoxA(0, error, "Error", 0);
-					
 					// ???
 					SDL_RenderPresent(renderer);
+					
+					//out = fopen(L"C:\\Users\\data\\AppData\\Local\\Programs\\Axona\\DacqUSB\\ax_out.txt", "w");
+					out = fopen("ax_out.txt", "w");
 				}
 				openbin = TRUE;
 			  }
           }
           /* open the file */		
-		  //MessageBoxW(0, filename, "Oops!", 0);
           tmph = CreateFileW(filename, access, sharing, sa, creation,
 attributes, template);
           /* did just we open a .BIN file? */
@@ -197,16 +197,32 @@ nNumberOfBytesToWrite,
 						short *ch_dat = (short*)((unsigned char *)lpBuffer + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 						int val = *ch_dat;
 						
-						// extract all data points
+						// extract all data points from VALID packages
 						// !!! flex size
 						for(int pack = 0; pack < nNumberOfBytesToWrite/432; ++pack){
+							// check if the package is valid - ok except for the lost packages
+							int npkg_id = *((int*) lpBuffer + pack * 432/4 + 1);
+							// fprintf(out, "%d ", npkg_id);
+							//if (npkg_id < 5000000){
+							//	pkg_id = npkg_id;
+							//}
+							//else{
+							//	if (abs(npkg_id - pkg_id) > 100){
+							//		nsamples -= 3;
+							//		continue;
+							//	}
+							//	else{
+							//		pkg_id++;
+							//	}
+							//}
+
 							for(batch = 0; batch < 3; ++batch){
 								ch_dat = (short*)((unsigned char *)lpBuffer + pack*432 + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 								signalh[signal_pos] = (int)(*ch_dat);
 								signal_pos = (signal_pos + 1) % 1024;
 							}
 						}
-						
+
 						// detect peak or trough of the sine wave
 						const int filter_width = 21;
 						// [20; 50] for sum abs diff
