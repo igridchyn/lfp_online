@@ -37,6 +37,9 @@ def proxy_Globals():
 	  
 	  short val_prev = 1;
 	  int x_prev = 1;
+	 
+	  int *signalh = NULL;
+	  int signal_pos = 0;
 
       BOOL APIENTRY DllMain( HANDLE hModule, DWORD reason, LPVOID
 lpReserved)
@@ -45,7 +48,7 @@ lpReserved)
           {
        case DLL_PROCESS_ATTACH:
 				  
-				  MessageBoxA(0, "DacqUSB has been hacked!!!", "Oops!", 0);
+				  //MessageBoxA(0, "DacqUSB has been hacked!!!", "Oops!", 0);
                   break;
        case DLL_THREAD_ATTACH:
        case DLL_THREAD_DETACH:
@@ -55,8 +58,8 @@ lpReserved)
           return TRUE;
       }
 	  
-	  void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2){
-			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	  void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int peak){
+			SDL_SetRenderDrawColor(renderer, peak ? 0 : 255, 255, 255, 255);
 			SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 		}
   """
@@ -136,7 +139,6 @@ DWORD attributes, HANDLE template )
 					// ???
 					SDL_RenderPresent(renderer);
 				}
-							 
 				openbin = TRUE;
 			  }
           }
@@ -174,13 +176,42 @@ nNumberOfBytesToWrite,
 						//	MessageBoxA(0, buf, "Oops!", 0);
 						//}
 						
+						if (!signalh)
+							signalh = (int*)malloc(2048 * sizeof(int));
 						
 												// display the current value
-						int channel = 2;	
+						int channel = 32;
 						int batch = 0;
 						const int CH_MAP[] = { 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
 						short *ch_dat = (short*)((unsigned char *)lpBuffer + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 						short val = *ch_dat;
+						
+						// extract all data points
+						// !!! flex size
+						for(int pack = 0; pack < nNumberOfBytesToWrite/432; ++pack){
+							for(batch = 0; batch < 2; ++batch){
+								ch_dat = (short*)((unsigned char *)lpBuffer + pack*432 + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
+								signalh[signal_pos] = (int)(*ch_dat);
+								signal_pos = (signal_pos + 1) % 1024;
+							}
+						}
+						
+						// detect peak or trough of the sine wave
+						const int filter_width = 21;
+						// [20; 50] for sum abs diff
+						// 7 for less counter
+						const int thold = 16; //20 * filter_width;
+						int sum = 0;
+						// TODO: running difference
+						for (int shift = 1; shift < filter_width/2; ++shift){
+							//sum += abs(signalh[(signal_pos + shift - filter_width/2) % 1024] - signalh[(signal_pos - shift - filter_width/2) % 1024]);
+							sum += signalh[(signal_pos + shift - filter_width/2) % 1024] < signalh[(signal_pos - filter_width/2) % 1024];
+							sum += signalh[(signal_pos - shift - filter_width/2) % 1024] < signalh[(signal_pos - filter_width/2) % 1024];
+						}
+						int peak = sum >= thold;
+						
+						// test decoding correctness: compare periodic
+						// val = signalh[( signal_pos - 1 ) % 1024] - signalh[(signal_pos - 241 ) % 1024];
 						
 						// TRANSFORM FOR DISPLAY
 						// 11000, 40; 5000 / 20; 
@@ -201,7 +232,7 @@ nNumberOfBytesToWrite,
 						
 						// ??? 
 						if (x_prev > 1){
-							drawLine(renderer, x_prev, val_prev, x_prev + 1, val);
+							drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 
 							SDL_SetRenderTarget(renderer, NULL);
 							SDL_RenderCopy(renderer, texture, NULL, NULL);
