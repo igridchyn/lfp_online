@@ -58,6 +58,16 @@ lpReserved)
           return TRUE;
       }
 	  
+	  int scaleToScreen(val){
+		const int SHIFT = 11000;
+		int plot_scale = 40;
+		val = val + SHIFT;
+		val = val > 0 ? val / plot_scale : 1;
+		val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
+		
+		return val;
+	  }
+	  
 	  void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int peak){
 			SDL_SetRenderDrawColor(renderer, peak ? 0 : 255, 255, 255, 255);
 			SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
@@ -125,9 +135,9 @@ DWORD attributes, HANDLE template )
 				 check_bin++;
 				 
 				 if (check_bin > 2){
-				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, 800, 600, 0);
+				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 					renderer = SDL_CreateRenderer(window, -1, 0); // SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 800, 600);
+					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
 	  
 					SDL_SetRenderTarget(renderer, texture);
 					SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -179,6 +189,7 @@ nNumberOfBytesToWrite,
 						if (!signalh)
 							signalh = (int*)malloc(2048 * sizeof(int));
 						
+						int nsamples = nNumberOfBytesToWrite / 432 * 3;
 												// display the current value
 						int channel = 32;
 						int batch = 0;
@@ -215,14 +226,9 @@ nNumberOfBytesToWrite,
 						
 						// TRANSFORM FOR DISPLAY
 						// 11000, 40; 5000 / 20; 
-						const int SHIFT = 11000;
-						int plot_scale = 40;
-						val = val + SHIFT;
-						val = val > 0 ? val / plot_scale : 1;
-						val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
 						
-					
-						
+						val = scaleToScreen(val);
+
 						//const char* error = SDL_GetError();
 						//MessageBoxA(0, error, "Error", 0);
 						
@@ -232,7 +238,14 @@ nNumberOfBytesToWrite,
 						
 						// ??? 
 						if (x_prev > 1){
-							drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
+							// draw all points
+							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
+								val = scaleToScreen(signalh[signal_pos - nsamples + i]);
+								drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
+								val_prev = val;
+							}
+						
+							// drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 
 							SDL_SetRenderTarget(renderer, NULL);
 							SDL_RenderCopy(renderer, texture, NULL, NULL);
