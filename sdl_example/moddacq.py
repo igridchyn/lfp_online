@@ -26,6 +26,8 @@ def proxy_Globals():
 	  int check_bin = 0;
 	  const int SCREEN_WIDTH = 800;
 	  const int SCREEN_HEIGHT = 600;
+	  const int SHIFT = 11000;
+	  const int plot_scale = 40;
 	  SDL_Window *window = NULL;	
 	  SDL_Texture *texture = NULL;
 	  SDL_Renderer *renderer = NULL;
@@ -35,7 +37,7 @@ def proxy_Globals():
 	  const int HEADER_LEN = 32; // bytes
 	  const int BLOCK_SIZE = 64 * 2; // bytes
 	  
-	  short val_prev = 1;
+	  int val_prev = 1;
 	  int x_prev = 1;
 	 
 	  int *signalh = NULL;
@@ -58,9 +60,7 @@ lpReserved)
           return TRUE;
       }
 	  
-	  int scaleToScreen(val){
-		const int SHIFT = 11000;
-		int plot_scale = 40;
+	  int scaleToScreen(int val){
 		val = val + SHIFT;
 		val = val > 0 ? val / plot_scale : 1;
 		val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
@@ -134,7 +134,7 @@ DWORD attributes, HANDLE template )
 				 
 				 check_bin++;
 				 
-				 if (check_bin > 2){
+				 if (check_bin > 2 && !window){
 				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 					renderer = SDL_CreateRenderer(window, -1, 0); // SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 					texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -195,12 +195,12 @@ nNumberOfBytesToWrite,
 						int batch = 0;
 						const int CH_MAP[] = { 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
 						short *ch_dat = (short*)((unsigned char *)lpBuffer + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
-						short val = *ch_dat;
+						int val = *ch_dat;
 						
 						// extract all data points
 						// !!! flex size
 						for(int pack = 0; pack < nNumberOfBytesToWrite/432; ++pack){
-							for(batch = 0; batch < 2; ++batch){
+							for(batch = 0; batch < 3; ++batch){
 								ch_dat = (short*)((unsigned char *)lpBuffer + pack*432 + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 								signalh[signal_pos] = (int)(*ch_dat);
 								signal_pos = (signal_pos + 1) % 1024;
@@ -228,9 +228,6 @@ nNumberOfBytesToWrite,
 						// 11000, 40; 5000 / 20; 
 						
 						val = scaleToScreen(val);
-
-						//const char* error = SDL_GetError();
-						//MessageBoxA(0, error, "Error", 0);
 						
 						// DISPLAY - ERROR AFTER THIS
 						// ? check validity of renderer and texture ?
@@ -240,7 +237,7 @@ nNumberOfBytesToWrite,
 						if (x_prev > 1){
 							// draw all points
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
-								val = scaleToScreen(signalh[signal_pos - nsamples + i]);
+								val = scaleToScreen(signalh[(signal_pos - nsamples + i) % 1024]);
 								drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 								val_prev = val;
 							}
@@ -259,6 +256,8 @@ nNumberOfBytesToWrite,
 							SDL_SetRenderTarget(renderer, texture);
 							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 							SDL_RenderClear(renderer);
+							SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+							SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
 							SDL_RenderPresent(renderer);
 						}
 						
