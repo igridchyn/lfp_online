@@ -28,6 +28,7 @@ def proxy_Globals():
 	  const int SCREEN_HEIGHT = 600;
 	  const int SHIFT = 11000;
 	  const int plot_scale = 40;
+	  const int SIG_BUF_LEN = 8192;
 	  
 	  FILE *out = NULL;
 	  
@@ -187,7 +188,7 @@ nNumberOfBytesToWrite,
 						//}
 						
 						if (!signalh)
-							signalh = (int*)malloc(2048 * sizeof(int));
+							signalh = (int*)malloc(SIG_BUF_LEN * sizeof(int));
 						
 						int nsamples = nNumberOfBytesToWrite / 432 * 3;
 												// display the current value
@@ -219,7 +220,7 @@ nNumberOfBytesToWrite,
 							for(batch = 0; batch < 3; ++batch){
 								ch_dat = (short*)((unsigned char *)lpBuffer + pack*432 + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 								signalh[signal_pos] = (int)(*ch_dat);
-								signal_pos = (signal_pos + 1) % 1024;
+								signal_pos = (signal_pos + 1) % SIG_BUF_LEN;
 							}
 						}
 
@@ -232,13 +233,13 @@ nNumberOfBytesToWrite,
 						// TODO: running difference
 						for (int shift = 1; shift < filter_width/2; ++shift){
 							//sum += abs(signalh[(signal_pos + shift - filter_width/2) % 1024] - signalh[(signal_pos - shift - filter_width/2) % 1024]);
-							sum += signalh[(signal_pos + shift - filter_width/2) % 1024] < signalh[(signal_pos - filter_width/2) % 1024];
-							sum += signalh[(signal_pos - shift - filter_width/2) % 1024] < signalh[(signal_pos - filter_width/2) % 1024];
+							sum += signalh[(signal_pos + shift - filter_width/2) % SIG_BUF_LEN] < signalh[(signal_pos - filter_width/2) % SIG_BUF_LEN];
+							sum += signalh[(signal_pos - shift - filter_width/2) % SIG_BUF_LEN] < signalh[(signal_pos - filter_width/2) % SIG_BUF_LEN];
 						}
 						int peak = sum >= thold;
 						
 						// test decoding correctness: compare periodic
-						// val = signalh[( signal_pos - 1 ) % 1024] - signalh[(signal_pos - 241 ) % 1024];
+						// val = signalh[( signal_pos - 1 ) % SIG_BUF_LEN] - signalh[(signal_pos - 241 ) % SIG_BUF_LEN];
 						
 						// TRANSFORM FOR DISPLAY
 						// 11000, 40; 5000 / 20; 
@@ -253,7 +254,7 @@ nNumberOfBytesToWrite,
 						if (x_prev > 1){
 							// draw all points
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
-								val = scaleToScreen(signalh[(signal_pos - nsamples + i) % 1024]);
+								val = scaleToScreen(signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN]);
 								drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 								val_prev = val;
 							}
