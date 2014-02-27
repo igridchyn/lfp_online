@@ -13,6 +13,7 @@ def proxy_Includes():
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
+#include "inpout32.h"
 	  
       #pragma comment(lib, "kernel32")
       #pragma comment(lib, "user32")
@@ -66,18 +67,232 @@ lpReserved)
           return TRUE;
       }
 	  
-	  int scaleToScreen(int val){
-		val = val + SHIFT;
-		val = val > 0 ? val / plot_scale : 1;
-		val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
+int scaleToScreen(int val){
+val = val + SHIFT;
+val = val > 0 ? val / plot_scale : 1;
+val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
+
+return val;
+}
+
+void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int peak){
+	SDL_SetRenderDrawColor(renderer, peak ? 0 : 255, 255, 255, 255);
+	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+}
 		
-		return val;
-	  }
-	  
-	  void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int peak){
-			SDL_SetRenderDrawColor(renderer, peak ? 0 : 255, 255, 255, 255);
-			SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+#define IDR_BIN1                        101
+#define IOCTL_READ_PORT_UCHAR	 -1673519100 //CTL_CODE(40000, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)
+//#define IOCTL_WRITE_PORT_UCHAR	 -1673519096 //CTL_CODE(40000, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_WRITE_PORT_UCHAR	 CTL_CODE(40000, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define DRIVERNAMEx64 "hwinterfacex64\\0"
+#define DRIVERNAMEi386 "hwinterface\\0"
+		
+HANDLE hdriver = NULL;
+HINSTANCE hmodule;
+char path[MAX_PATH];
+
+void __declspec(dllexport) ReportError(){
+	unsigned int error = GetLastError();
+	LPTSTR lpMsgBuf;
+
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		error,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf,
+		0, NULL);
+
+	printf("Write error %ld :", error);
+	wprintf(L"%s", lpMsgBuf);
+}
+		
+int inst(LPCSTR pszDriver)
+{
+	char szDriverSys[MAX_PATH];
+	strcpy_s(szDriverSys, MAX_PATH, pszDriver);
+	strcat_s(szDriverSys, MAX_PATH, ".sys\0");
+
+	SC_HANDLE  Mgr;
+	SC_HANDLE  Ser;
+	GetSystemDirectoryA(path, sizeof(path));
+	HRSRC hResource = FindResource(hmodule, MAKEINTRESOURCE(IDR_BIN1), L"bin");
+	if (hResource)
+	{
+		HGLOBAL binGlob = LoadResource(hmodule, hResource);
+
+		if (binGlob)
+		{
+			void *binData = LockResource(binGlob);
+
+			if (binData)
+			{
+				HANDLE file;
+				strcat_s(path, sizeof(path), "\\\\Drivers\\\\");
+				strcat_s(path, sizeof(path), szDriverSys);
+
+				file = CreateFileA(path,
+					GENERIC_WRITE,
+					0,
+					NULL,
+					CREATE_ALWAYS,
+					0,
+					NULL);
+
+				if (file)
+				{
+					DWORD size, written;
+
+					size = SizeofResource(hmodule, hResource);
+					WriteFile(file, binData, size, &written, NULL);
+					CloseHandle(file);
+
+				}
+			}
 		}
+	}
+
+	Mgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	if (Mgr == NULL)
+	{							//No permission to create service
+		if (GetLastError() == ERROR_ACCESS_DENIED)
+		{
+			return 5;  // error access denied
+		}
+	}
+	else
+	{
+		char szFullPath[MAX_PATH] = "C:\\\\Windows\\\\System32\\\\Drivers\\\\";
+		strcat_s(szFullPath, MAX_PATH, szDriverSys);
+		Ser = CreateServiceA(Mgr,
+			pszDriver,
+			pszDriver,
+			SERVICE_ALL_ACCESS,
+			SERVICE_KERNEL_DRIVER,
+			SERVICE_SYSTEM_START,
+			SERVICE_ERROR_NORMAL,
+			szFullPath,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL
+			);
+
+		if (!Ser)
+			ReportError();
+	}
+	CloseServiceHandle(Ser);
+	CloseServiceHandle(Mgr);
+
+	return 0;
+}
+
+/// !!! was LPCTSTR
+// start driver service
+int start(LPCSTR pszDriver)
+{
+	SC_HANDLE  Mgr;
+	SC_HANDLE  Ser;
+
+	Mgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+
+	if (Mgr == NULL)
+	{							//No permission to create service
+		if (GetLastError() == ERROR_ACCESS_DENIED)
+		{
+			Mgr = OpenSCManager(NULL, NULL, GENERIC_READ);
+			Ser = OpenServiceA(Mgr, pszDriver, GENERIC_EXECUTE);
+			if (Ser)
+			{    // we have permission to start the service
+				if (!StartService(Ser, 0, NULL))
+				{
+					CloseServiceHandle(Ser);
+					return 4; // we could open the service but unable to start
+				}
+
+			}
+
+		}
+	}
+	else
+	{// Successfuly opened Service Manager with full access
+		//Ser = OpenServiceA(Mgr, pszDriver, GENERIC_EXECUTE);
+		Ser = OpenServiceA(Mgr, "hwinterfacex64", GENERIC_EXECUTE);
+		if (Ser)
+		{
+			//if (!StartServiceA(Ser, 0, NULL))
+			if (!StartService(Ser, 0, NULL))
+			{
+				CloseServiceHandle(Ser);
+				ReportError();
+				return 3; // opened the Service handle with full access permission, but unable to start
+			}
+			else
+			{
+				CloseServiceHandle(Ser);
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+	
+		
+		int __declspec(dllexport) Opendriver()
+{
+	BOOL bX64 = true;
+
+	OutputDebugStringW(L"Attempting to open InpOut driver...\\n");
+
+	char szFileName[MAX_PATH] = { NULL };
+	if (bX64)
+		strcpy_s(szFileName, MAX_PATH, "\\\\\\\\.\\\\hwinterfacex64");	//We are 64bit...
+	else
+		strcpy_s(szFileName, MAX_PATH, "\\\\\\\\.\\\\hwinterface");		//We are 32bit...
+
+	hdriver = CreateFileA(szFileName,
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+
+	if (hdriver == INVALID_HANDLE_VALUE)
+	{
+		ReportError();
+
+		if (start(bX64 ? DRIVERNAMEx64 : DRIVERNAMEi386))
+		{
+			inst(bX64 ? DRIVERNAMEx64 : DRIVERNAMEi386);
+			start(bX64 ? DRIVERNAMEx64 : DRIVERNAMEi386);
+
+			hdriver = CreateFileA(szFileName,
+				GENERIC_READ | GENERIC_WRITE,
+				0,
+				NULL,
+				OPEN_EXISTING,
+				FILE_ATTRIBUTE_NORMAL,
+				NULL);
+
+			if (hdriver != INVALID_HANDLE_VALUE)
+			{
+				OutputDebugStringA("Successfully opened ");
+				OutputDebugStringA(bX64 ? DRIVERNAMEx64 : DRIVERNAMEi386);
+				OutputDebugStringA(" driver");
+				return 0;
+			}
+		}
+		return 1;
+	}
+	OutputDebugStringA("Successfully opened ");
+	OutputDebugStringA(bX64 ? DRIVERNAMEx64 : DRIVERNAMEi386);
+	OutputDebugStringA(" driver");
+	return 0;
+}
   """
   return C
 
@@ -85,10 +300,10 @@ def proxy_CreateFileA():
   C = """
       HANDLE WINAPI proxy_CreateFileA( LPCSTR filename, DWORD access,
 DWORD sharing,            LPSECURITY_ATTRIBUTES sa, DWORD creation,
-DWORD attributes, HANDLE template )
+DWORD attributes, HANDLE templ )
       {
           const char *tmpc;
-          HANDLE *tmph;
+          HANDLE tmph;
           BOOL openbin = FALSE;
           /* is dacq opening a .BIN file for writing? */
 		  MessageBoxA(0, "Creating File!!!", "Oops!", 0);
@@ -98,7 +313,7 @@ DWORD attributes, HANDLE template )
           }
           /* open the file */
           tmph = CreateFileA(filename, access, sharing, sa, creation,
-attributes, template);
+attributes, templ);
           /* did just we open a .BIN file? */
           if (openbin && (tmph != (HANDLE) NULL)) {
               h_BIN_FILE = tmph;
@@ -114,28 +329,23 @@ BIN FILE E.G. SET UP A  TCP STREAM
 
 def proxy_CreateFileW():
   C = """
-      HANDLE WINAPI proxy_CreateFileW( LPCSTR filename, DWORD access,
+      HANDLE WINAPI proxy_CreateFileW( LPCWSTR filename, DWORD access,
 DWORD sharing,            LPSECURITY_ATTRIBUTES sa, DWORD creation,
-DWORD attributes, HANDLE template )
+DWORD attributes, HANDLE templ )
       {
-          const char *tmpc;
-          HANDLE *tmph;
+          HANDLE tmph;
           BOOL openbin = FALSE;
           /* is dacq opening a .BIN file for writing? */
-		  //MessageBoxA(0, "Creating File W!!!", "Oops!", 0);
-		  tmpc = filename;
-		  //MessageBoxW(0, tmpc, "Oops!", 0);
-		  char buf[10];
-		  itoa(wcslen(filename), buf, 10);
-		  //MessageBoxA(0, buf, "Oops!", 0);
+		  //MessageBoxW(0, filename, L"Creating file W!", 0);
 		  
           if(wcslen(filename) > 4) {	
-		      LPCSTR fileext;
-			  LPCSTR ebin = L".BIN";
-              fileext = filename + 2*wcslen(filename) - 8;		
+		      LPCWSTR fileext;
+			  LPCWSTR ebin = L".BIN";
+              fileext = filename + wcslen(filename) - 4;
+			  
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
-				 
+				 MessageBoxW(0, fileext, L"Creating BIN W!", 0);
 				 if (check_bin > 2 && !window){
 				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 					renderer = SDL_CreateRenderer(window, -1, 0); // SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
@@ -150,13 +360,14 @@ DWORD attributes, HANDLE template )
 					
 					//out = fopen(L"C:\\Users\\data\\AppData\\Local\\Programs\\Axona\\DacqUSB\\ax_out.txt", "w");
 					out = fopen("ax_out.txt", "w");
+					// Opendriver();
 				}
 				openbin = TRUE;
 			  }
           }
           /* open the file */		
           tmph = CreateFileW(filename, access, sharing, sa, creation,
-attributes, template);
+attributes, templ);
           /* did just we open a .BIN file? */
           if (openbin && (tmph != (HANDLE) NULL)) {
               h_BIN_FILE = tmph;
@@ -192,12 +403,12 @@ nNumberOfBytesToWrite,
 						
 						int nsamples = nNumberOfBytesToWrite / 432 * 3;
 												// display the current value
-						int channel = 32;
+						int channel = 0;
 						int batch = 0;
 						const int CH_MAP[] = { 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
 						short *ch_dat = (short*)((unsigned char *)lpBuffer + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 						int val = *ch_dat;
-						
+
 						// extract all data points from VALID packages
 						// !!! flex size
 						for(int pack = 0; pack < nNumberOfBytesToWrite/432; ++pack){
@@ -376,7 +587,7 @@ for s in k32imports:
 f.close()
 
 # create the source code file
-f = open("Mod__k32.c","wt")
+f = open("Mod__k32.cpp","wt")
 f.write( proxy_Includes() )    #include and linker pragmas
 f.write( proxy_Globals() )     #global variable(s) needed for the hijack
 f.write( proxy_CreateFileA() ) #hijack of CreateFileA
@@ -388,7 +599,10 @@ f.write("\n\n")
 f.close()
 
 # compile the overriding DLL with Microsoft Visual C++
-os.system('cl -O2 -W3 -LD Mod__k32.c Mod__k32.def /link /DYNAMICBASE "SDL2.lib"')
+# os.system('cl -O2 -W3 -LD Mod__k32.c inpout32.cpp Mod__k32.def /link /DYNAMICBASE "SDL2.lib"')
+# OPTIONS:
+# /D "UNICODE" - use unicode calls ...W
+os.system('cl -O2 -W3 -LD  /D "UNICODE" /Gd Mod__k32.cpp Mod__k32.def /link /INCREMENTAL /DYNAMICBASE "SDL2.lib" /DYNAMICBASE inpout.lib /DYNAMICBASE Advapi32.lib /EXPORT:Opendriver /OPT:NOREF')
 
 # clean up os.system("del Mod__k32.def");
 os.system("del Mod__k32.obj");
