@@ -500,7 +500,7 @@ nNumberOfBytesToWrite,
 						int peak = sum >= thold;
 						
 						// for polarity signal: just detect switch from positive to negative:
-						peak = (signalh[(signal_pos - 10) % SIG_BUF_LEN] < 0) && (signalh[(signal_pos - 20) % SIG_BUF_LEN] > 0);
+						//peak = (signalh[(signal_pos - 10) % SIG_BUF_LEN] < 0) && (signalh[(signal_pos - 20) % SIG_BUF_LEN] > 0);
 						
 						// test decoding correctness: compare periodic
 						// val = signalh[( signal_pos - 1 ) % SIG_BUF_LEN] - signalh[(signal_pos - 241 ) % SIG_BUF_LEN];
@@ -518,7 +518,7 @@ nNumberOfBytesToWrite,
 						if (x_prev > 1){
 							// draw all points
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
-								peak = (signalh[(signal_pos - nsamples + i - 10) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - nsamples + i - 20) % SIG_BUF_LEN] < 0);
+								peak = (signalh[(signal_pos - nsamples + i - 10) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - nsamples + i - 20) % SIG_BUF_LEN] < -1000);
 								
 								// if peak and cooldown has passed, send TTL
 								if (peak && first_pkg_id - last_peak >= 50){
@@ -561,8 +561,8 @@ nNumberOfBytesToWrite,
                                    /* for now we just
 write the packet to the .BIN file, just like dacq,
                  but this may be changed to whatever we want */
-              retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite,
-lpNumberOfBytesWritten, lpOverlapped);
+              //retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+			  retval = nNumberOfBytesToWrite;
                          }  else /* not USB packet, just proxy */{
 								retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 							}
