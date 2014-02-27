@@ -30,8 +30,11 @@ def proxy_Globals():
 	  const int SHIFT = 11000;
 	  const int plot_scale = 40;
 	  const int SIG_BUF_LEN = 8192;
+	  // in packets number 
+	  const int PEAK_COOLDOWN = 100;
 	  
 	  unsigned char ttl_status = 0xFF;
+	  int last_peak = 0;
 	  
 	  FILE *out = NULL;
 	  
@@ -78,7 +81,7 @@ return val;
 }
 
 void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int peak){
-	SDL_SetRenderDrawColor(renderer, peak ? 0 : 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(renderer, 255,  peak ? 0 : 255,  peak ? 0 : 255, 255);
 	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 		
@@ -448,6 +451,7 @@ nNumberOfBytesToWrite,
 						const int CH_MAP[] = { 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
 						short *ch_dat = (short*)((unsigned char *)lpBuffer + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 						int val = *ch_dat;
+						int first_pkg_id = *((int*) lpBuffer + 1); 
 
 						// extract all data points from VALID packages
 						// !!! flex size
@@ -468,10 +472,11 @@ nNumberOfBytesToWrite,
 							//	}
 							//}
 
-							if (npkg_id % 24000 == 0){
-								ttl_status = 0xFF - ttl_status;
-								Out32(0x0378, ttl_status);
-							}
+							//test TTL pulse every second
+							//if (npkg_id % 8000 == 0){
+								//ttl_status = 0xFF - ttl_status;
+								//Out32(0x0378, ttl_status);
+							//}
 							
 							for(batch = 0; batch < 3; ++batch){
 								ch_dat = (short*)((unsigned char *)lpBuffer + pack*432 + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
@@ -494,6 +499,9 @@ nNumberOfBytesToWrite,
 						}
 						int peak = sum >= thold;
 						
+						// for polarity signal: just detect switch from positive to negative:
+						peak = (signalh[(signal_pos - 10) % SIG_BUF_LEN] < 0) && (signalh[(signal_pos - 20) % SIG_BUF_LEN] > 0);
+						
 						// test decoding correctness: compare periodic
 						// val = signalh[( signal_pos - 1 ) % SIG_BUF_LEN] - signalh[(signal_pos - 241 ) % SIG_BUF_LEN];
 						
@@ -510,6 +518,17 @@ nNumberOfBytesToWrite,
 						if (x_prev > 1){
 							// draw all points
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
+								peak = (signalh[(signal_pos - nsamples + i - 10) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - nsamples + i - 20) % SIG_BUF_LEN] < 0);
+								
+								// if peak and cooldown has passed, send TTL
+								if (peak && first_pkg_id - last_peak >= 50){
+									//ttl_status = 0xFF - ttl_status;
+									Out32(0x0378, 0xFF);
+									last_peak = first_pkg_id;
+								}else if (first_pkg_id - last_peak < 100){
+									Out32(0x0378, 0x00);
+								}
+								
 								val = scaleToScreen(signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN]);
 								drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 								val_prev = val;
