@@ -31,6 +31,8 @@ def proxy_Globals():
 	  const int plot_scale = 40;
 	  const int SIG_BUF_LEN = 8192;
 	  
+	  unsigned char ttl_status = 0xFF;
+	  
 	  FILE *out = NULL;
 	  
 	  int pkg_id = 0;
@@ -293,6 +295,44 @@ int start(LPCSTR pszDriver)
 	OutputDebugStringA(" driver");
 	return 0;
 }
+
+void __declspec(dllexport) Out32(short PortAddress, short data)
+{
+	unsigned int error;
+	DWORD BytesReturned;
+	BYTE Buffer[3];
+	unsigned short * pBuffer;
+	pBuffer = (unsigned short *)&Buffer[0];
+	*pBuffer = LOWORD(PortAddress);
+	Buffer[2] = data;
+
+	if (!DeviceIoControl(hdriver,
+		IOCTL_WRITE_PORT_UCHAR,
+		&Buffer,
+		3,
+		NULL,
+		0,
+		&BytesReturned,
+		NULL)){
+
+		error = GetLastError();
+
+		LPTSTR lpMsgBuf;
+
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			error,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpMsgBuf,
+			0, NULL);
+
+		printf("Write error %ld :", error);
+		wprintf(L"%s", lpMsgBuf);
+	}
+}
   """
   return C
 
@@ -345,7 +385,7 @@ DWORD attributes, HANDLE templ )
 			  
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
-				 MessageBoxW(0, fileext, L"Creating BIN W!", 0);
+				 //MessageBoxW(0, fileext, L"Creating BIN W!", 0);
 				 if (check_bin > 2 && !window){
 				 	window = SDL_CreateWindow("SDL2 Test", 50, 50, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 					renderer = SDL_CreateRenderer(window, -1, 0); // SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
@@ -360,7 +400,7 @@ DWORD attributes, HANDLE templ )
 					
 					//out = fopen(L"C:\\Users\\data\\AppData\\Local\\Programs\\Axona\\DacqUSB\\ax_out.txt", "w");
 					out = fopen("ax_out.txt", "w");
-					// Opendriver();
+					Opendriver();
 				}
 				openbin = TRUE;
 			  }
@@ -428,6 +468,11 @@ nNumberOfBytesToWrite,
 							//	}
 							//}
 
+							if (npkg_id % 24000 == 0){
+								ttl_status = 0xFF - ttl_status;
+								Out32(0x0378, ttl_status);
+							}
+							
 							for(batch = 0; batch < 3; ++batch){
 								ch_dat = (short*)((unsigned char *)lpBuffer + pack*432 + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[channel]);
 								signalh[signal_pos] = (int)(*ch_dat);
