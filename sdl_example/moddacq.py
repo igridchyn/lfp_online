@@ -518,13 +518,13 @@ nNumberOfBytesToWrite,
 						if (x_prev > 1){
 							// draw all points
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
-								peak = (signalh[(signal_pos - nsamples + i - 10) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - nsamples + i - 20) % SIG_BUF_LEN] < -1000);
+								peak = (signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - 10 - nsamples + i) % SIG_BUF_LEN] < -1000);
 								
 								// if peak and cooldown has passed, send TTL
-								if (peak && first_pkg_id - last_peak >= 50){
+								if (peak && (first_pkg_id + i) - last_peak >= 50){
 									//ttl_status = 0xFF - ttl_status;
 									Out32(0x0378, 0xFF);
-									last_peak = first_pkg_id;
+									last_peak = first_pkg_id + i;
 								}else if (first_pkg_id - last_peak < 100){
 									Out32(0x0378, 0x00);
 								}
