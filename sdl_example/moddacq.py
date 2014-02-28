@@ -434,13 +434,6 @@ nNumberOfBytesToWrite,
 		  
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
-
-						//if (x_prev == 1){
-						//	char buf [10];
-						//	itoa(nNumberOfBytesToWrite, buf, 10);
-						//	MessageBoxA(0, buf, "Oops!", 0);
-						//}
-						
 						if (!signalh)
 							signalh = (int*)malloc(SIG_BUF_LEN * sizeof(int));
 						
@@ -454,25 +447,11 @@ nNumberOfBytesToWrite,
 						int first_pkg_id = *((int*) lpBuffer + 1); 
 
 						// extract all data points from VALID packages
-						// !!! flex size
 						for(int pack = 0; pack < nNumberOfBytesToWrite/432; ++pack){
 							// check if the package is valid - ok except for the lost packages
 							int npkg_id = *((int*) lpBuffer + pack * 432/4 + 1);
-							// fprintf(out, "%d ", npkg_id);
-							//if (npkg_id < 5000000){
-							//	pkg_id = npkg_id;
-							//}
-							//else{
-							//	if (abs(npkg_id - pkg_id) > 100){
-							//		nsamples -= 3;
-							//		continue;
-							//	}
-							//	else{
-							//		pkg_id++;
-							//	}
-							//}
 
-							//test TTL pulse every second
+							//VALIDATE: TTL pulse every second
 							//if (npkg_id % 8000 == 0){
 								//ttl_status = 0xFF - ttl_status;
 								//Out32(0x0378, ttl_status);
@@ -499,30 +478,19 @@ nNumberOfBytesToWrite,
 						}
 						int peak = sum >= thold;
 						
-						// for polarity signal: just detect switch from positive to negative:
-						//peak = (signalh[(signal_pos - 10) % SIG_BUF_LEN] < 0) && (signalh[(signal_pos - 20) % SIG_BUF_LEN] > 0);
-						
-						// test decoding correctness: compare periodic
+						// VALIDATE decoding: compare periodic
 						// val = signalh[( signal_pos - 1 ) % SIG_BUF_LEN] - signalh[(signal_pos - 241 ) % SIG_BUF_LEN];
 						
-						// TRANSFORM FOR DISPLAY
-						// 11000, 40; 5000 / 20; 
-						
 						val = scaleToScreen(val);
-						
-						// DISPLAY - ERROR AFTER THIS
-						// ? check validity of renderer and texture ?
+
 						SDL_SetRenderTarget(renderer, texture);
-						
-						// ??? 
 						if (x_prev > 1){
-							// draw all points
+							// DISPLAY all points / TTL on the peak
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
 								peak = (signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - 10 - nsamples + i) % SIG_BUF_LEN] < -1000);
 								
 								// if peak and cooldown has passed, send TTL
 								if (peak && (first_pkg_id + i) - last_peak >= 50){
-									//ttl_status = 0xFF - ttl_status;
 									Out32(0x0378, 0xFF);
 									last_peak = first_pkg_id + i;
 								}else if (first_pkg_id - last_peak < 100){
@@ -533,8 +501,6 @@ nNumberOfBytesToWrite,
 								drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 								val_prev = val;
 							}
-						
-							// drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 
 							SDL_SetRenderTarget(renderer, NULL);
 							SDL_RenderCopy(renderer, texture, NULL, NULL);
