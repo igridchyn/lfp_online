@@ -14,6 +14,10 @@ def proxy_Includes():
 #include "string.h"
 #include "stdlib.h"
 #include "inpout32.h"
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
 	  
       #pragma comment(lib, "kernel32")
       #pragma comment(lib, "user32")
@@ -404,6 +408,29 @@ DWORD attributes, HANDLE templ )
 					//out = fopen(L"C:\\Users\\data\\AppData\\Local\\Programs\\Axona\\DacqUSB\\ax_out.txt", "w");
 					out = fopen("ax_out.txt", "w");
 					Opendriver();
+					
+					
+					// read config aand set parameters. otf == On-the-fly
+					std::ifstream file( "C:/Users/data/AppData/Local/Programs/Axona/DacqUSB/otf.cfg" );
+					std::stringstream buffer;
+					buffer << file.rdbuf();
+					file.close();
+					
+					std::string line;
+					while( std::getline(buffer, line) )
+					{
+					  std::istringstream is_line(line);
+					  std::string key;
+					  if( std::getline(is_line, key, '=') )
+					  {
+						std::string value;
+						if( std::getline(is_line, value) ) 
+						  // store_line(key, value);
+						  //MessageBoxA(0, key.c_str(), "Param!", 0);
+						  // TODO: process config values here
+					  }
+					}
+					
 				}
 				openbin = TRUE;
 			  }
@@ -498,13 +525,13 @@ nNumberOfBytesToWrite,
 								}
 								
 								val = scaleToScreen(signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN]);
-								drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
+								//drawLine(renderer, x_prev, val_prev, x_prev + 1, val, peak);
 								val_prev = val;
 							}
 
-							SDL_SetRenderTarget(renderer, NULL);
-							SDL_RenderCopy(renderer, texture, NULL, NULL);
-							SDL_RenderPresent(renderer);
+							//SDL_SetRenderTarget(renderer, NULL);
+							//SDL_RenderCopy(renderer, texture, NULL, NULL);
+							//SDL_RenderPresent(renderer);
 
 							// not to hang up
 							SDL_PumpEvents();
