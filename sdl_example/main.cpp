@@ -21,14 +21,14 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     FILE *f = fopen(path, "rb");
     
     const int CHUNK_SIZE = 432; // bytes
-    int CHANNEL = 1;
+    int CHANNEL = 32;
     const int HEADER_LEN = 32; // bytes
     const int BLOCK_SIZE = 64 * 2; // bytes
     
     unsigned char block[ CHUNK_SIZE ];
     const int CH_MAP[] = {32, 33, 34, 35, 36, 37, 38, 39,0, 1, 2, 3, 4, 5, 6, 7,40, 41, 42, 43, 44, 45, 46, 47,8, 9, 10, 11, 12, 13, 14, 15,48, 49, 50, 51, 52, 53, 54, 55,16, 17, 18, 19, 20, 21, 22, 23,56, 57, 58, 59, 60, 61, 62, 63,24, 25, 26, 27, 28, 29, 30, 31};
     
-    t_bin val_prev = 1;
+    int val_prev = 1;
     int x_prev = 1;
     int plot_hor_scale = 10;
     int plot_scale = 40;
@@ -37,14 +37,16 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
     
-    for (int i = 0; i < 100000; ++i){
+    for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
         
         // iterate throug 3 batches in 1 chunk
         for (int batch = 0; batch < 3; ++batch){
             t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
-            t_bin val = *ch_dat;
-            printf("%d \n", val);
+            int val = *ch_dat;
+            int pack_num = *((int*)block + 1);
+            
+            printf("%d - %d\n", val, (int)pack_num);
             
             // scale for plotting
             val = val + SHIFT;
@@ -56,9 +58,12 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
                 SDL_SetRenderTarget(renderer, texture);
                 drawLine(renderer, x_prev, val_prev, x_prev + 1, val);
                 
-                SDL_SetRenderTarget(renderer, NULL);
-                SDL_RenderCopy(renderer, texture, NULL, NULL);
-                SDL_RenderPresent(renderer);
+                // render every N samples
+                if (sample_number % (5 * plot_hor_scale) == 0){
+                    SDL_SetRenderTarget(renderer, NULL);
+                    SDL_RenderCopy(renderer, texture, NULL, NULL);
+                    SDL_RenderPresent(renderer);
+                }
                 
                 val_prev = val;
                 x_prev++;
@@ -163,7 +168,8 @@ int get_image(){
     SDL_RenderClear(renderer);
     
     // draw_test(window, renderer, texture);
-    draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
+    //draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
+    draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     SDL_Delay( 2000 );
     
     return 0;
