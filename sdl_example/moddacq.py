@@ -411,7 +411,7 @@ DWORD attributes, HANDLE templ )
 					
 					
 					// read config aand set parameters. otf == On-the-fly
-					std::ifstream file( "C:/Users/data/AppData/Local/Programs/Axona/DacqUSB/otf.cfg" );
+					std::ifstream file( "C:/Users/data/igor/code/sdl_example/sdl_example/otf.cfg" );
 					std::stringstream buffer;
 					buffer << file.rdbuf();
 					file.close();
