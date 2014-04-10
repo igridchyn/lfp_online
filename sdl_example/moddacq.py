@@ -29,13 +29,13 @@ def proxy_Globals():
       HANDLE h_BIN_FILE = (HANDLE) NULL;
              /* YOU CAN INJECT ARBITRARY CODE INTO dacqUSB inside DllMain */
 	  int check_bin = 0;
-	  const int SCREEN_WIDTH = 800;
-	  const int SCREEN_HEIGHT = 600;
-	  const int SHIFT = 11000;
-	  const int plot_scale = 40;
-	  const int SIG_BUF_LEN = 8192;
+	  int SCREEN_WIDTH = 800;
+	  int SCREEN_HEIGHT = 600;
+	  int SHIFT = 11000;
+	  int plot_scale = 40;
+	  int SIG_BUF_LEN = 8192;
 	  // in packets number 
-	  const int PEAK_COOLDOWN = 100;
+	  int PEAK_COOLDOWN = 100;
 	  
 	  unsigned char ttl_status = 0xFF;
 	  int last_peak = 0;
@@ -58,6 +58,9 @@ def proxy_Globals():
 	 
 	  int *signalh = NULL;
 	  int signal_pos = 0;
+	  
+	  bool visualize = false;
+	  int peak_value = 1000;
 
       BOOL APIENTRY DllMain( HANDLE hModule, DWORD reason, LPVOID
 lpReserved)
@@ -408,8 +411,7 @@ DWORD attributes, HANDLE templ )
 					//out = fopen(L"C:\\Users\\data\\AppData\\Local\\Programs\\Axona\\DacqUSB\\ax_out.txt", "w");
 					out = fopen("ax_out.txt", "w");
 					Opendriver();
-					
-					
+
 					// read config aand set parameters. otf == On-the-fly
 					std::ifstream file( "C:/Users/data/igor/code/sdl_example/sdl_example/otf.cfg" );
 					std::stringstream buffer;
@@ -424,10 +426,31 @@ DWORD attributes, HANDLE templ )
 					  if( std::getline(is_line, key, '=') )
 					  {
 						std::string value;
-						if( std::getline(is_line, value) ) 
-						  // store_line(key, value);
-						  //MessageBoxA(0, key.c_str(), "Param!", 0);
-						  // TODO: process config values here
+						if( std::getline(is_line, value) ){
+						  std::istringstream valss;
+						  
+						  if (key == "peak.value"){
+							valss >> peak_value;
+						  }else if (key == "screen.width"){
+							valss >> SCREEN_WIDTH;
+						  }else if (key == "screen.height"){
+							valss >> SCREEN_HEIGHT;
+						  }else if (key == "channel.show"){
+							valss >> CHANNEL;
+						  }else if (key == "plot.scale"){
+							valss >> plot_scale;
+						  }else if (key == "plot.shift"){
+							valss >> SHIFT;
+						  }else if (key == "signal.buffer.length"){
+							valss >> SIG_BUF_LEN;
+						  }else if (key == "peak.cooldown"){
+							valss >> PEAK_COOLDOWN;
+						  }else if (key == "visualize"){
+							int tmp;
+							valss >> tmp;
+							visualize = (tmp == 1);
+						  }
+						}
 					  }
 					}
 					
