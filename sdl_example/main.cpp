@@ -21,7 +21,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     FILE *f = fopen(path, "rb");
     
     const int CHUNK_SIZE = 432; // bytes
-    int CHANNEL = 32;
+    int CHANNEL = 1; //32
     const int HEADER_LEN = 32; // bytes
     const int BLOCK_SIZE = 64 * 2; // bytes
     
@@ -59,7 +59,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
                 drawLine(renderer, x_prev, val_prev, x_prev + 1, val);
                 
                 // render every N samples
-                if (sample_number % (5 * plot_hor_scale) == 0){
+                if (sample_number % (30 * plot_hor_scale) == 0){
                     SDL_SetRenderTarget(renderer, NULL);
                     SDL_RenderCopy(renderer, texture, NULL, NULL);
                     SDL_RenderPresent(renderer);
@@ -168,8 +168,8 @@ int get_image(){
     SDL_RenderClear(renderer);
     
     // draw_test(window, renderer, texture);
-    //draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
-    draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
+    draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
+    //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     SDL_Delay( 2000 );
     
     return 0;
