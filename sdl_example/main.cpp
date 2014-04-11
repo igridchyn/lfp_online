@@ -38,11 +38,16 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
     
+    LFPBuffer *buf = new LFPBuffer();
+
     LFPPipeline *pipeline = new LFPPipeline();
-    pipeline->add_processor(new PackageExractorProcessor());
+    pipeline->add_processor(new PackageExractorProcessor(buf));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
+        
+        buf->chunk_ptr = block;
+        buf->num_chunks = 1;
         
         pipeline->process(block, 1);
         continue;

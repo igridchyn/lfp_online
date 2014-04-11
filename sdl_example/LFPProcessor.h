@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <vector>
+#include <SDL2/SDL.h>
 
 class Spike{
     static const int WL_LENGTH = 16;
@@ -42,9 +43,10 @@ public:
     static const int CHANNEL_NUM = 64;
     static const int LFP_BUF_LEN = 2048;
     
-    // in shorts
-    const int CHUNK_SIZE = 432 >> 1;
-    const int HEADER_LEN = 32 >> 1;
+    // in bytes
+    const int CHUNK_SIZE = 432;
+    const int HEADER_LEN = 32;
+    const int TAIL_LEN = 16;
     const int BLOCK_SIZE = 64;
     
     static const int CH_MAP[];
@@ -61,7 +63,7 @@ public:
     int buf_pos;
     int last_pkg_id;
     
-    short *chunk_ptr;
+    unsigned char *chunk_ptr;
     int num_chunks;
     
     //====================================================================================================
@@ -76,6 +78,8 @@ protected:
     
 public:
     virtual void process() = 0;
+    LFPProcessor(LFPBuffer *buf)
+    :buffer(buf){}
 };
 
 class SpikeDetectorProcessor : public LFPProcessor{
@@ -100,14 +104,32 @@ class SpikeDetectorProcessor : public LFPProcessor{
     std::vector<Spike*> spikes;
     
 public:
-    SpikeDetectorProcessor(const char* filter_path, const int channel, const float detection_threshold);
+    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const int channel, const float detection_threshold);
     virtual void process(LFPBuffer* buffer);
 };
 
 class PackageExractorProcessor : public LFPProcessor{
 public:
     virtual void process();
+    PackageExractorProcessor(LFPBuffer *buffer)
+    :LFPProcessor(buffer){}
 };
+
+class SDLSignalDisplayProcessor : public LFPProcessor{
+    SDL_Window *window_;
+    SDL_Texture *texture_;
+    SDL_Renderer *renderer_;
+    
+public:
+    virtual void process();
+    SDLSignalDisplayProcessor(LFPBuffer *buffer, SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* texture)
+        :LFPProcessor(buffer)
+        , window_(window)
+        , texture_(texture)
+        , renderer_(renderer){}
+};
+
+//==========================================================================================
 
 class LFPPipeline{
     std::vector<LFPProcessor*> processors;

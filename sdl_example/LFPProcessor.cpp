@@ -37,7 +37,9 @@ const int LFPBuffer::CH_MAP[] = {32, 33, 34, 35, 36, 37, 38, 39,0, 1, 2, 3, 4, 5
 // ============================================================================================================
 
 void LFPPipeline::process(unsigned char *data, int nchunks){
-    for (std::vector<LFPProcessor*>::const_iterator piter; piter != processors.end(); ++piter) {
+    // TODO: put data into buffer
+    
+    for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
         (*piter)->process();
     }
 }
@@ -45,8 +47,9 @@ void LFPPipeline::process(unsigned char *data, int nchunks){
 
 // ============================================================================================================
 
-SpikeDetectorProcessor::SpikeDetectorProcessor(const char* filter_path, const int channel, const float detection_threshold)
-    : last_processed_id(0)
+SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const int channel, const float detection_threshold)
+    : LFPProcessor(buffer)
+    ,last_processed_id(0)
     , channel(channel)
     , detection_threshold(detection_threshold)
 {
@@ -61,7 +64,8 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(const char* filter_path, const in
     filter_len = fpos;
 }
 
-void SpikeDetectorProcessor::process(LFPBuffer* buffer){
+void SpikeDetectorProcessor::process(LFPBuffer* buffer)
+{
     bool spike_detected = false;
     int det_start = 0;
     int pow_max = 0;
@@ -108,16 +112,20 @@ void SpikeDetectorProcessor::process(LFPBuffer* buffer){
 void PackageExractorProcessor::process(){
 
     // modify only in the Package Extractor !!!
-    buffer->buf_pos++;
+    buffer->buf_pos = (buffer->buf_pos+1) % buffer->LFP_BUF_LEN;
     
-    short *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
-    for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->CHUNK_SIZE) {
-        for (int block=0; block < 3; ++block, bin_ptr += buffer->BLOCK_SIZE) {
-            for (int c=0; c < buffer->CHANNEL_NUM; ++c, ++bin_ptr) {
+    unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
+    for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN) {
+        for (int block=0; block < 3; ++block) {
+            for (int c=0; c < buffer->CHANNEL_NUM; ++c, bin_ptr += 2) {
                 // ??? is it necessary to order the channels?
                 // ??? filter directly the data in bin buffer? [for better performance]
                 
-                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos] = *(bin_ptr);
+                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos] = *((short*)bin_ptr);
+                
+                // DEBUG
+                if (c == 0)
+                    printf("%d\n", *((short*)bin_ptr));
             }
         }
     }
