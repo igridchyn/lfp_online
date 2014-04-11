@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
+#include "LFPProcessor.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 600;
@@ -37,8 +38,14 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
     
+    LFPPipeline *pipeline = new LFPPipeline();
+    pipeline->add_processor(new PackageExractorProcessor());
+    
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
+        
+        pipeline->process(block, 1);
+        continue;
         
         // iterate throug 3 batches in 1 chunk
         for (int batch = 0; batch < 3; ++batch){
