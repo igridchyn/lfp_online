@@ -42,6 +42,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
         
         // iterate throug 3 batches in 1 chunk
         for (int batch = 0; batch < 3; ++batch){
+
             t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
             int val = *ch_dat;
             int pack_num = *((int*)block + 1);

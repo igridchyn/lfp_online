@@ -26,21 +26,60 @@
 //  NO
 // put spikes into buffer ? (has to be available later)
 
-class LFPBuffer{
-    static const int CHANNEL_NUM = 32;
-    static const int LFP_BUF_LEN = 2048;
-    
-    int signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
+class TetrodesInfo{
     
 public:
+    
+    // number of tetrodes = channel groups
+    int tetrodes_number;
+    
+    // number of channels in each group
+    int *channels_numbers;
+    
+    // of size tetrodes_number, indices of channels in each group
+    int **tetrode_channels;
+};
+
+class LFPBuffer{
+    
+public:
+    static const int CHANNEL_NUM = 64;
+    static const int LFP_BUF_LEN = 2048;
+    
+    // in shorts
+    const int CHUNK_SIZE = 432 >> 1;
+    const int HEADER_LEN = 32 >> 1;
+    const int BLOCK_SIZE = 64;
+
+    static const int CH_MAP[];
+    
+    // which channel is at i-th position in the BIN chunk
+    static const int CH_MAP_INV[];
+    
+public:
+    int signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
+    int filtered_signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
+    int power_buf[CHANNEL_NUM][LFP_BUF_LEN];
+    
+    // ??? for all arrays ?
     int buf_pos;
     int last_pkg_id;
     
+    short *chunk_ptr;
+    int num_chunks;
+    
+    //==================================================
+    
     inline int get_signal(int channel, int pkg_id);
 };
-    
+
+const int LFPBuffer::CH_MAP_INV[] = {8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63,0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23,32,33,34,35,36,37,38,39,48,49,50,51,52,53,54,55};
+
+const int LFPBuffer::CH_MAP[] = {32, 33, 34, 35, 36, 37, 38, 39,0, 1, 2, 3, 4, 5, 6, 7,40, 41, 42, 43, 44, 45, 46, 47,8, 9, 10, 11, 12, 13, 14, 15,48, 49, 50, 51, 52, 53, 54, 55,16, 17, 18, 19, 20, 21, 22, 23,56, 57, 58, 59, 60, 61, 62, 63,24, 25, 26, 27, 28, 29, 30, 31};
+
+
 class Spike{
-    static const int WL_LENGTH = 32;
+    static const int WL_LENGTH = 16;
     
 public:
     int pkg_id;
@@ -53,16 +92,23 @@ class LFPPipeline{
     
 };
 
+// ============================================================================================================
+
 class LFPProcessor{
-    virtual void process(LFPBuffer* buffer) = 0;
+    
+protected:
+    LFPBuffer* buffer;
+    
+public:
+    virtual void process() = 0;
 };
 
 class SpikeDetectorProcessor : LFPProcessor{
     // TODO: read from config
     
-    static const int POWER_BUF_LEN = 1024;
-    static const int SAMPLE_RATE = 24000;
-    static const int REFR_LEN = (int)SAMPLE_RATE / 1000;
+    static const int POWER_BUF_LEN = 2 << 10;
+    static const int SAMPLING_RATE = 24000;
+    static const int REFR_LEN = (int)SAMPLING_RATE / 1000;
     
     float filter[ 2 << 7];
     int filter_len;
@@ -78,9 +124,17 @@ class SpikeDetectorProcessor : LFPProcessor{
     
     std::vector<Spike*> spikes;
     
+public:
     SpikeDetectorProcessor(const char* filter_path, const int channel, const float detection_threshold);
     virtual void process(LFPBuffer* buffer);
 };
+
+class PackageExractorProcessor : LFPProcessor{
+public:
+    virtual void process();
+};
+
+// ============================================================================================================
 
 SpikeDetectorProcessor::SpikeDetectorProcessor(const char* filter_path, const int channel, const float detection_threshold)
     : last_processed_id(0)
@@ -140,6 +194,27 @@ void SpikeDetectorProcessor::process(LFPBuffer* buffer){
         }
     }
 }
+
+// ============================================================================================================
+void PackageExractorProcessor::process(){
+
+    // modify only in the Package Extractor !!!
+    buffer->buf_pos++;
+    
+    short *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
+    for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->CHUNK_SIZE) {
+        for (int block=0; block < 3; ++block, bin_ptr += buffer->BLOCK_SIZE) {
+            for (int c=0; c < buffer->CHANNEL_NUM; ++c, ++bin_ptr) {
+                // ??? is it necessary to order the channels?
+                // ??? filter directly the data in bin buffer? [for better performance]
+                
+                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos] = *(bin_ptr);
+            }
+        }
+    }
+}
+
+// ============================================================================================================
 
 Spike::Spike(LFPBuffer *buffer, int pkg_id, int channel)
     : pkg_id(pkg_id)
