@@ -88,8 +88,21 @@ void SpikeDetectorProcessor::process()
 // ============================================================================================================
 void PackageExractorProcessor::process(){
 
-    // modify only in the Package Extractor !!!
-    buffer->buf_pos = (buffer->buf_pos+1) % buffer->LFP_BUF_LEN;
+    // see if buffer reinit is needed
+    if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
+        for (int c=0; c < buffer->CHANNEL_NUM; ++c){
+            memccpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN, sizeof(unsigned char));
+        }
+
+        buffer->zero_level = buffer->buf_pos + 1;
+        buffer->buf_pos = buffer->BUF_HEAD_LEN;
+        
+        // DEBUG
+        printf("reinit buffer\n");
+    }
+    else{
+        buffer->zero_level = 0;
+    }
     
     // data extraction:
     // t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
@@ -101,7 +114,7 @@ void PackageExractorProcessor::process(){
                 // ??? is it necessary to order the channels?
                 // ??? filter directly the data in bin buffer? [for better performance]
                 
-                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos] = *((short*)bin_ptr);
+                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *((short*)bin_ptr);
                 
                 // DEBUG
                 if (c == 0)
@@ -109,24 +122,23 @@ void PackageExractorProcessor::process(){
             }
         }
     }
+    
+    buffer->buf_pos += 3 * buffer->num_chunks;
 }
 
 void SDLSignalDisplayProcessor::process(){
+    // buffer has been reinitizlied
+    if ( buffer->zero_level > 0 )
+    {
+        last_disp_pos = buffer->BUF_HEAD_LEN - (buffer->BUF_HEAD_LEN - buffer->zero_level) % plot_hor_scale;
+    }
+    
     // whether to display
-    if (!(buffer->buf_pos % plot_hor_scale)){
-        
-        int val_prev = transform_to_y_coord(buffer->signal_buf[target_channel_][(buffer->buf_pos - plot_hor_scale) % buffer->LFP_BUF_LEN]);
-        int val = transform_to_y_coord(buffer->signal_buf[target_channel_][buffer->buf_pos]);
+    for (int pos = last_disp_pos + plot_hor_scale; pos < buffer->buf_pos; pos += plot_hor_scale){
+        int val = transform_to_y_coord(buffer->signal_buf[target_channel_][pos]);
         
         SDL_SetRenderTarget(renderer_, texture_);
         drawLine(renderer_, current_x, val_prev, current_x + 1, val);
-        
-        // whether to render
-        if (!(buffer->buf_pos % DISP_FREQ * plot_hor_scale)){
-            SDL_SetRenderTarget(renderer_, NULL);
-            SDL_RenderCopy(renderer_, texture_, NULL, NULL);
-            SDL_RenderPresent(renderer_);
-        }
         
         current_x++;
         
@@ -141,7 +153,49 @@ void SDLSignalDisplayProcessor::process(){
             SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
             SDL_RenderPresent(renderer_);
         }
+        
+        last_disp_pos = pos;
+        val_prev = val;
     }
+    
+    // whether to render
+    if (unrendered > DISP_FREQ * plot_hor_scale){
+        SDL_SetRenderTarget(renderer_, NULL);
+        SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+        SDL_RenderPresent(renderer_);
+        
+        unrendered = 0;
+    }
+    else{
+        unrendered += buffer->buf_pos - last_disp_pos;
+    }
+    
+    return;
+    
+    if (!(buffer->buf_pos % plot_hor_scale)){
+        
+        // whether to render
+        if (!(buffer->buf_pos % DISP_FREQ * plot_hor_scale)){
+            SDL_SetRenderTarget(renderer_, NULL);
+            SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+            SDL_RenderPresent(renderer_);
+        }
+
+        
+        if (current_x == SCREEN_WIDTH - 1){
+            current_x = 1;
+            
+            // reset screen
+            SDL_SetRenderTarget(renderer_, texture_);
+            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+            SDL_RenderClear(renderer_);
+            SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+            SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+            SDL_RenderPresent(renderer_);
+        }
+    }
+    
+    
 }
 
 int SDLSignalDisplayProcessor::transform_to_y_coord(int voltage){

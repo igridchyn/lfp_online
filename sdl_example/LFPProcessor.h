@@ -41,7 +41,8 @@ class LFPBuffer{
     
 public:
     static const int CHANNEL_NUM = 64;
-    static const int LFP_BUF_LEN = 2048;
+    static const int LFP_BUF_LEN = 2 << 11;
+    static const int BUF_HEAD_LEN = 2 << 6;
     
     // in bytes
     const int CHUNK_SIZE = 432;
@@ -62,6 +63,9 @@ public:
     // ??? for all arrays ?
     int buf_pos;
     int last_pkg_id;
+    
+    // if shift has happened, what was the previous zero level;
+    int zero_level;
     
     unsigned char *chunk_ptr;
     int num_chunks;
@@ -154,6 +158,14 @@ class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputPro
     void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);
     int current_x;
     
+    // last disaplued position in buffer
+    int last_disp_pos;
+    
+    // number of unrendered signal samples (subject to threshold)
+    int unrendered = 0;
+    
+    // previous displayed value
+    int val_prev = 0;
     
 public:
     virtual void process();
@@ -163,7 +175,8 @@ public:
         , texture_(texture)
         , renderer_(renderer)
         , target_channel_(target_channel)
-        , current_x(0){}
+        , current_x(0)
+        , last_disp_pos(0){}
     
     virtual void process_SDL_control_input(const SDL_Event& e);
 };
