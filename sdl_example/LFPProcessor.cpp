@@ -74,11 +74,11 @@ void SpikeDetectorProcessor::process()
     // TODO: parallelize
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
-        for (int fpos = filt_pos; fpos < buffer->buf_pos - buffer->HEADER_LEN - filter_len / 2; ++fpos) {
+        for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len / 2; ++fpos) {
             
             // filter with high-pass spike filter
             float filtered = 0;
-            int *chan_sig_buf = buffer->signal_buf[channel] + buffer->HEADER_LEN + fpos - filter_len / 2;
+            int *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len / 2;
             
             for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered += *(chan_sig_buf) * filter[j];
@@ -99,7 +99,7 @@ void SpikeDetectorProcessor::process()
         }
     }
     
-    filt_pos = buffer->buf_pos - buffer->HEADER_LEN - filter_len / 2;
+    filt_pos = buffer->buf_pos - filter_len / 2;
 }
 
 // ============================================================================================================
@@ -109,6 +109,7 @@ void PackageExractorProcessor::process(){
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (int c=0; c < buffer->CHANNEL_NUM; ++c){
             memccpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN, sizeof(unsigned char));
+            memccpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN, sizeof(unsigned char));
         }
 
         buffer->zero_level = buffer->buf_pos + 1;
