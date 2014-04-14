@@ -29,6 +29,11 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+
+    TetrodesInfo *tetr_inf = new TetrodesInfo();
+    tetr_inf->tetrodes_number = 1;
+    tetr_inf->channels_numbers = new int[1]{4};
+    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
     
     LFPBuffer *buf = new LFPBuffer();
 
