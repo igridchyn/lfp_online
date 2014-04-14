@@ -76,6 +76,7 @@ void SpikeDetectorProcessor::process()
 
         for (int fpos = filt_pos; fpos < buffer->buf_pos - buffer->HEADER_LEN - filter_len / 2; ++fpos) {
             
+            // filter with high-pass spike filter
             float filtered = 0;
             int *chan_sig_buf = buffer->signal_buf[channel] + buffer->HEADER_LEN + fpos - filter_len / 2;
             
@@ -85,9 +86,16 @@ void SpikeDetectorProcessor::process()
             
             buffer->filtered_signal_buf[channel][fpos] = filtered;
             
+            // power in window of 4
+            float pw = 0;
+            for(int i=0;i<4;++i){
+                pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
+            }
+            buffer->power_buf[channel][fpos] = sqrt(pw);
+            
             // DEBUG
             if (channel == 8)
-                printf("%d\n", (int)filtered);
+                printf("%d\n", (int)sqrt(pw));
         }
     }
     
