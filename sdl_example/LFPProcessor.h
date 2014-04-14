@@ -106,9 +106,12 @@ class SpikeDetectorProcessor : public LFPProcessor{
     
     float filter[ 2 << 7];
     int filter_len;
-    
-    const int channel;
+
     const int detection_threshold;
+    
+    // position of last processed position in filter array
+    // after process() should be equal to buf_pos
+    int filt_pos;
     
     int powerBufPos = 0;
     float powerBuf[POWER_BUF_LEN];
@@ -119,8 +122,8 @@ class SpikeDetectorProcessor : public LFPProcessor{
     std::vector<Spike*> spikes;
     
 public:
-    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const int channel, const float detection_threshold);
-    virtual void process(LFPBuffer* buffer);
+    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float detection_threshold);
+    virtual void process();
 };
 
 class PackageExractorProcessor : public LFPProcessor{
@@ -132,7 +135,7 @@ public:
 
 class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputProcessor{
     static const int SCREEN_HEIGHT = 600;
-    static const int SCREEN_WIDTH = 800;
+    static const int SCREEN_WIDTH = 1280;
     
     static const int DISP_FREQ = 30;
     
@@ -148,7 +151,7 @@ class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputPro
     int target_channel_;
     
     int transform_to_y_coord(int voltage);
-    void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);    
+    void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);
     int current_x;
     
     

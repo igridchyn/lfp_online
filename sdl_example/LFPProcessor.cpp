@@ -47,10 +47,9 @@ void LFPPipeline::process(unsigned char *data, int nchunks){
 
 // ============================================================================================================
 
-SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const int channel, const float detection_threshold)
+SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float detection_threshold)
     : LFPProcessor(buffer)
     ,last_processed_id(0)
-    , channel(channel)
     , detection_threshold(detection_threshold)
 {
     // load spike filter
@@ -64,48 +63,26 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     filter_len = fpos;
 }
 
-void SpikeDetectorProcessor::process(LFPBuffer* buffer)
+void SpikeDetectorProcessor::process()
 {
-    bool spike_detected = false;
-    int det_start = 0;
-    int pow_max = 0;
-    int pow_max_id = 0;
-    
-    for (int pkg_id = last_processed_id; pkg_id < buffer->last_pkg_id; ++pkg_id) {
-        float pow = 0;
-        for (int j=0; j < filter_len; ++j) {
-            pow += filter[j] * buffer->get_signal(channel, pkg_id - filter_len + j);
-        }
-        
-        powerSum -= powerBuf[(powerBufPos-filter_len) % POWER_BUF_LEN];
-        powerSum += pow;
-        powerBuf[powerBufPos] = pow;
-        
-        powerBufPos++ ;
-        powerBufPos %= POWER_BUF_LEN;
-        
-        if (powerSum > detection_threshold){
-            // align peak - jsut a local max value, store [snpeakb]
-            // TODO: accross all electrodes of a tetrode
-            if (!spike_detected){
-                spike_detected = true;
-                det_start = pkg_id;
-                pow_max = powerSum;
-                pow_max_id = pkg_id;
+    // for all channels
+    // TODO: parallelize
+    for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+
+        for (int fpos = filt_pos; fpos < buffer->buf_pos; ++fpos) {
+            
+            float filtered = 0;
+            int *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len / 2;
+            
+            for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
+                filtered += *(chan_sig_buf) * filter[j];
             }
-            else{
-                if (powerSum > pow_max){
-                    pow_max = powerSum;
-                    pow_max_id = pkg_id;
-                }
-            }
-        }
-        
-        if (spike_detected && pkg_id - det_start >= REFR_LEN){
-            spike_detected = false;
-            spikes.push_back(new Spike(buffer->signal_buf[0], pow_max_id, channel));
+            
+            buffer->filtered_signal_buf[channel][fpos] = filtered;
         }
     }
+    
+    filt_pos = buffer->buf_pos;
 }
 
 // ============================================================================================================
