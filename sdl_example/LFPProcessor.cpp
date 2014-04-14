@@ -58,9 +58,14 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     
     int fpos = 0;
     while(!filter_stream.eof()){
-         filter_stream >> filter[fpos];
+         filter_stream >> filter[fpos++];
+        
+        // DEBUG
+        // printf("filt: %f\n", filter[fpos-1]);
     }
-    filter_len = fpos;
+    filter_len = fpos - 1;
+    
+    //printf("filt len: %d\n", filter_len);
 }
 
 void SpikeDetectorProcessor::process()
@@ -69,20 +74,24 @@ void SpikeDetectorProcessor::process()
     // TODO: parallelize
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
-        for (int fpos = filt_pos; fpos < buffer->buf_pos; ++fpos) {
+        for (int fpos = filt_pos; fpos < buffer->buf_pos - buffer->HEADER_LEN - filter_len / 2; ++fpos) {
             
             float filtered = 0;
-            int *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len / 2;
+            int *chan_sig_buf = buffer->signal_buf[channel] + buffer->HEADER_LEN + fpos - filter_len / 2;
             
             for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered += *(chan_sig_buf) * filter[j];
             }
             
             buffer->filtered_signal_buf[channel][fpos] = filtered;
+            
+            // DEBUG
+            if (channel == 8)
+                printf("%d\n", (int)filtered);
         }
     }
     
-    filt_pos = buffer->buf_pos;
+    filt_pos = buffer->buf_pos - buffer->HEADER_LEN - filter_len / 2;
 }
 
 // ============================================================================================================
@@ -96,9 +105,6 @@ void PackageExractorProcessor::process(){
 
         buffer->zero_level = buffer->buf_pos + 1;
         buffer->buf_pos = buffer->BUF_HEAD_LEN;
-        
-        // DEBUG
-        printf("reinit buffer\n");
     }
     else{
         buffer->zero_level = 0;
@@ -114,11 +120,12 @@ void PackageExractorProcessor::process(){
                 // ??? is it necessary to order the channels?
                 // ??? filter directly the data in bin buffer? [for better performance]
                 
-                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *((short*)bin_ptr);
+                // !!!??? +1 to make similar to *.dat
+                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *((short*)bin_ptr) + 1;
                 
                 // DEBUG
-                if (c == 0)
-                    printf("%d\n", *((short*)bin_ptr));
+                //if (c == 0)
+                //    printf("%d\n", *((short*)bin_ptr) + 1);
             }
         }
     }

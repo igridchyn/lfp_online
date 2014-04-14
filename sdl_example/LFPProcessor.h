@@ -41,7 +41,7 @@ class LFPBuffer{
     
 public:
     static const int CHANNEL_NUM = 64;
-    static const int LFP_BUF_LEN = 2 << 11;
+    static const int LFP_BUF_LEN = 2 << 16; // 11
     static const int BUF_HEAD_LEN = 2 << 6;
     
     // in bytes
@@ -143,14 +143,14 @@ class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputPro
     
     static const int DISP_FREQ = 30;
     
-    
-    static const int SHIFT = 11000;
+    // 11000
+    static const int SHIFT = 1300;
     
     SDL_Window *window_;
     SDL_Texture *texture_;
     SDL_Renderer *renderer_;
     
-    int plot_scale = 40;
+    int plot_scale = 1; // 40
     int plot_hor_scale = 10;
     int target_channel_;
     

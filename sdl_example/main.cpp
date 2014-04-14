@@ -25,7 +25,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     
     unsigned char block[ CHUNK_SIZE ];
     int plot_scale = 40;
-    const int SHIFT = 11000;
+    const int SHIFT = 3000;
     
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
@@ -87,7 +87,8 @@ int get_image(){
     SDL_RenderClear(renderer);
     
     // draw_test(window, renderer, texture);
-    draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
+    draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
+    //draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     SDL_Delay( 2000 );
     
