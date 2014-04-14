@@ -82,6 +82,21 @@ public:
     :buffer(buf){}
 };
 
+//====================================================================================================
+
+class SDLControlInputProcessor{
+public:
+    virtual void process_SDL_control_input(const SDL_Event& e) = 0;
+};
+
+class SDLControlInputMetaProcessor : public LFPProcessor{
+    SDLControlInputProcessor* control_processor_;
+    
+public:
+    virtual void process();
+    SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor* control_processor);
+};
+
 class SpikeDetectorProcessor : public LFPProcessor{
     // TODO: read from config
     
@@ -115,25 +130,27 @@ public:
     :LFPProcessor(buffer){}
 };
 
-class SDLSignalDisplayProcessor : public LFPProcessor{
+class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputProcessor{
     static const int SCREEN_HEIGHT = 600;
     static const int SCREEN_WIDTH = 800;
     
     static const int DISP_FREQ = 30;
     
-    static const int plot_hor_scale = 10;
-    static const int plot_scale = 40;
+    
     static const int SHIFT = 11000;
     
     SDL_Window *window_;
     SDL_Texture *texture_;
     SDL_Renderer *renderer_;
     
+    int plot_scale = 40;
+    int plot_hor_scale = 10;
     int target_channel_;
     
     int transform_to_y_coord(int voltage);
     void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);    
     int current_x;
+    
     
 public:
     virtual void process();
@@ -144,6 +161,8 @@ public:
         , renderer_(renderer)
         , target_channel_(target_channel)
         , current_x(0){}
+    
+    virtual void process_SDL_control_input(const SDL_Event& e);
 };
 
 //==========================================================================================

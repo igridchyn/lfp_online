@@ -114,6 +114,9 @@ void PackageExractorProcessor::process(){
     // modify only in the Package Extractor !!!
     buffer->buf_pos = (buffer->buf_pos+1) % buffer->LFP_BUF_LEN;
     
+    // data extraction:
+    // t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
+    
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
     for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN) {
         for (int block=0; block < 3; ++block) {
@@ -178,6 +181,71 @@ void SDLSignalDisplayProcessor::drawLine(SDL_Renderer *renderer, int x1, int y1,
     SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
 }
 
+void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
+    //User requests quit
+    if( e.type == SDL_KEYDOWN )
+    {
+        //Select surfaces based on key press
+        switch( e.key.keysym.sym )
+        {
+            case SDLK_UP:
+                plot_scale += 5;
+                break;
+            case SDLK_DOWN:
+                plot_scale = plot_scale > 5  ? plot_scale - 5 : 5;
+                break;
+                
+            case SDLK_RIGHT:
+                plot_hor_scale += 2;
+                break;
+            case SDLK_LEFT:
+                plot_hor_scale = plot_hor_scale > 2  ? plot_hor_scale - 2 : 2;
+                break;
+                
+            case SDLK_ESCAPE:
+                exit(0);
+                break;
+            case SDLK_1:
+                target_channel_ = 1;
+                break;
+            case SDLK_2:
+                target_channel_ = 5;
+                break;
+            case SDLK_3:
+                target_channel_ = 9;
+                break;
+            case SDLK_4:
+                target_channel_ = 13;
+                break;
+            case SDLK_5:
+                target_channel_ = 17;
+                break;
+        }
+    }
+}
+
+void SDLControlInputMetaProcessor::process(){
+    // check meta-events, control change, pass control to current processor
+ 
+    SDL_Event e;
+    bool quit = false;
+    while( SDL_PollEvent( &e ) != 0 )
+    {
+        //User requests quit
+        if( e.type == SDL_QUIT )
+        {
+            quit = true;
+        }
+        else{
+            control_processor_->process_SDL_control_input(e);
+        }
+    }
+}
+
+SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor* control_processor)
+    : LFPProcessor(buffer)
+    , control_processor_(control_processor)
+{}
 
 // ============================================================================================================
 
