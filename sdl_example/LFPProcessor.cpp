@@ -131,6 +131,54 @@ void PackageExractorProcessor::process(){
     }
 }
 
+void SDLSignalDisplayProcessor::process(){
+    // whether to display
+    if (!(buffer->buf_pos % plot_hor_scale)){
+        
+        int val_prev = transform_to_y_coord(buffer->signal_buf[target_channel_][(buffer->buf_pos - plot_hor_scale) % buffer->LFP_BUF_LEN]);
+        int val = transform_to_y_coord(buffer->signal_buf[target_channel_][buffer->buf_pos]);
+        
+        SDL_SetRenderTarget(renderer_, texture_);
+        drawLine(renderer_, current_x, val_prev, current_x + 1, val);
+        
+        // whether to render
+        if (!(buffer->buf_pos % DISP_FREQ * plot_hor_scale)){
+            SDL_SetRenderTarget(renderer_, NULL);
+            SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+            SDL_RenderPresent(renderer_);
+        }
+        
+        current_x++;
+        
+        if (current_x == SCREEN_WIDTH - 1){
+            current_x = 1;
+            
+            // reset screen
+            SDL_SetRenderTarget(renderer_, texture_);
+            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+            SDL_RenderClear(renderer_);
+            SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+            SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+            SDL_RenderPresent(renderer_);
+        }
+    }
+}
+
+int SDLSignalDisplayProcessor::transform_to_y_coord(int voltage){
+    // scale for plotting
+    int val = voltage + SHIFT;
+    val = val > 0 ? val / plot_scale : 1;
+    val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
+    
+    return val;
+}
+
+void SDLSignalDisplayProcessor::drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2){
+    SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
+    SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+}
+
+
 // ============================================================================================================
 
 Spike::Spike(int *buffer, int pkg_id, int channel)

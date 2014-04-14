@@ -116,17 +116,34 @@ public:
 };
 
 class SDLSignalDisplayProcessor : public LFPProcessor{
+    static const int SCREEN_HEIGHT = 600;
+    static const int SCREEN_WIDTH = 800;
+    
+    static const int DISP_FREQ = 30;
+    
+    static const int plot_hor_scale = 10;
+    static const int plot_scale = 40;
+    static const int SHIFT = 11000;
+    
     SDL_Window *window_;
     SDL_Texture *texture_;
     SDL_Renderer *renderer_;
     
+    int target_channel_;
+    
+    int transform_to_y_coord(int voltage);
+    void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);    
+    int current_x;
+    
 public:
     virtual void process();
-    SDLSignalDisplayProcessor(LFPBuffer *buffer, SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* texture)
+    SDLSignalDisplayProcessor(LFPBuffer *buffer, SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* texture, int target_channel)
         :LFPProcessor(buffer)
         , window_(window)
         , texture_(texture)
-        , renderer_(renderer){}
+        , renderer_(renderer)
+        , target_channel_(target_channel)
+        , current_x(0){}
 };
 
 //==========================================================================================

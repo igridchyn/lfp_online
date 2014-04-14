@@ -42,6 +42,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
 
     LFPPipeline *pipeline = new LFPPipeline();
     pipeline->add_processor(new PackageExractorProcessor(buf));
+    pipeline->add_processor(new SDLSignalDisplayProcessor(buf, window, renderer, texture, 0));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
