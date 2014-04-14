@@ -37,6 +37,28 @@ public:
     int **tetrode_channels;
 };
 
+//==========================================================================================
+
+template<class T>
+class OnlineEstimator{
+    static const int BUF_SIZE = 2 << 8;
+    
+    T buf[BUF_SIZE];
+    unsigned int buf_pos = 0;
+    unsigned int num_samples = 0;
+    
+    T sum = 0;
+    T sumsq = 0;
+    
+public:
+    //OnlineEstimator();
+    void push(T value);
+    T get_mean_estimate();
+    T get_std_estimate();
+};
+
+//==========================================================================================
+
 class LFPBuffer{
     
 public:
@@ -55,6 +77,9 @@ public:
     // which channel is at i-th position in the BIN chunk
     static const int CH_MAP_INV[];
     
+    // TODO: move to context class
+    TetrodesInfo *tetr_info_;
+    
 public:
     int signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
     int filtered_signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
@@ -70,8 +95,13 @@ public:
     unsigned char *chunk_ptr;
     int num_chunks;
     
+    OnlineEstimator<float> powerEstimator;
+    
     //====================================================================================================
     
+    LFPBuffer(TetrodesInfo* tetr_info)
+        :tetr_info_(tetr_info)
+    {}
     inline int get_signal(int channel, int pkg_id);
 };
 
@@ -115,7 +145,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
-    int filt_pos;
+    int filt_pos = 0;
     
     int powerBufPos = 0;
     float powerBuf[POWER_BUF_LEN];
@@ -190,5 +220,7 @@ public:
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
     void process(unsigned char *data, int nchunks);
 };
+
+//==========================================================================================
 
 #endif /* defined(__sdl_example__LFPProcessor__) */

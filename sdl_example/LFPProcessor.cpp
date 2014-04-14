@@ -93,9 +93,12 @@ void SpikeDetectorProcessor::process()
             }
             buffer->power_buf[channel][fpos] = sqrt(pw);
             
+            // std estimation
+            buffer->powerEstimator.push((float)sqrt(pw));
+            
             // DEBUG
             if (channel == 8)
-                printf("%d\n", (int)sqrt(pw));
+                printf("%d\n", (int)buffer->powerEstimator.get_std_estimate());
         }
     }
     
@@ -196,7 +199,6 @@ void SDLSignalDisplayProcessor::process(){
             SDL_RenderCopy(renderer_, texture_, NULL, NULL);
             SDL_RenderPresent(renderer_);
         }
-
         
         if (current_x == SCREEN_WIDTH - 1){
             current_x = 1;
@@ -308,4 +310,38 @@ Spike::Spike(int *buffer, int pkg_id, int channel)
 
 inline int LFPBuffer::get_signal(int channel, int pkg_id){
     return signal_buf[channel][(pkg_id - last_pkg_id + buf_pos) % LFP_BUF_LEN];
+}
+
+// ============================================================================================================
+
+template<class T>
+T OnlineEstimator<T>::get_mean_estimate(){
+    return sumsq / num_samples;
+}
+
+template<class T>
+T OnlineEstimator<T>::get_std_estimate(){
+    // printf("sumsq: %f, num samp: %d\n", sumsq, num_samples);
+    return (T)(sumsq / num_samples - (sum / num_samples) * (sum / num_samples));
+}
+
+template<class T>
+void OnlineEstimator<T>::push(T value){
+    printf("push %f\n", value);
+    
+    // TODO: ignore to optimize ?
+    if (num_samples < BUF_SIZE){
+        num_samples ++;
+    }
+    else{
+        sum -= buf[buf_pos];
+        sumsq -= buf[buf_pos] * buf[buf_pos];
+    }
+        
+    // update estimates
+    buf[buf_pos] = value;
+    sum += buf[buf_pos];
+    sumsq += buf[buf_pos] * buf[buf_pos];
+    
+    buf_pos = (buf_pos + 1) % BUF_SIZE;
 }

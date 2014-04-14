@@ -35,7 +35,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     tetr_inf->channels_numbers = new int[1]{4};
     tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
     
-    LFPBuffer *buf = new LFPBuffer();
+    LFPBuffer *buf = new LFPBuffer(tetr_inf);
 
     LFPPipeline *pipeline = new LFPPipeline();
     SDLSignalDisplayProcessor *sdlSigDispProc = new SDLSignalDisplayProcessor(buf, window, renderer, texture, 0);
