@@ -397,11 +397,11 @@ void SpikeAlignmentProcessor::process(){
                     memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));
                     
                     // DEBUG
-                    printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
-                    for (int i=0; i<spike->WS_LENGTH_ALIGNED;++i){
-                        printf("%d ", spike->waveshape[ch][i]);
-                    }
-                    printf("\n");
+//                    printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
+//                    for (int i=0; i<spike->WS_LENGTH_ALIGNED;++i){
+//                        printf("%d ", spike->waveshape[ch][i]);
+//                    }
+//                    printf("\n");
                 }
             }
             

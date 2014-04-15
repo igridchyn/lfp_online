@@ -102,6 +102,25 @@ void WaveShapeReconstructionProcessor::load_restore_one_spike(Spike *spike){
     }
 }
 
+void WaveShapeReconstructionProcessor::find_one_peak(Spike* spike, int *ptmout,int peakp,int peakgit,int *ptmval){
+    int pmax,ptm,i,j;
+    // !!! why channel 0 ???
+    pmax=spike->waveshape[0][peakp];
+    ptm=peakp;
+    
+    for(i=0;i<spike->num_channels_;i++) {
+        for(j=peakp-peakgit;j<peakp+peakgit;j++)  {
+            if (j<0) continue;
+            if (spike->waveshape[i][j] < pmax){
+                ptm=j;
+                pmax=spike->waveshape[i][j];
+            }
+        }
+    }
+    *ptmout=ptm;
+    *ptmval=pmax;
+}
+
 WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul)
 :LFPProcessor(buffer)
 , mul(mul){
@@ -112,14 +131,40 @@ WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer* bu
 void WaveShapeReconstructionProcessor::process(){
     // make sure alignment has been performed
     while (buffer->spike_buf_no_rec < buffer->spike_buf_nows_pos){
-        load_restore_one_spike(buffer->spike_buffer_[buffer->spike_buf_no_rec]);
+        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_rec];
+        load_restore_one_spike(spike);
         
         // DEBUG: reconstructed waveshape, channel 0
-        printf("Rec ws: ");
-        for (int i=0; i < 128; ++i){
-            printf("%d ", buffer->spike_buffer_[buffer->spike_buf_no_rec]->waveshape[0][i]);
+//        printf("Rec ws: ");
+//        for (int i=0; i < 128; ++i){
+//            printf("%d ", buffer->spike_buffer_[buffer->spike_buf_no_rec]->waveshape[0][i]);
+//        }
+//        printf("\n");
+        
+        // find peak
+        int peak_time, peak_value;
+        find_one_peak(spike, &peak_time, 64, 4, &peak_value);
+        
+        // form final waveshape
+
+        spike->waveshape_final = new int*[spike->num_channels_];
+        for(int i=0;i<spike->num_channels_;i++) {
+            spike->waveshape_final[i] = new int[16];
+            for(int j=0;j<16;j++) {
+                // TODO: calclulate density, shift
+                spike->waveshape_final[i][j] = spike->waveshape[i][peak_time-32+j*4];
+                // eigpoi[j]=avb[i][ptm-eis_kk+j*eisk];
+            }
         }
-        printf("\n");
+        
+        // DEBUG
+        for (int i=0; i < spike->num_channels_; ++i){
+            printf("Final WS, channel #%d :", i);
+            for (int j=0; j < 16; ++j){
+                printf("%d ", spike->waveshape_final[i][j]);
+            }
+            printf("\n");
+        }
         
         buffer->spike_buf_no_rec++;
     }

@@ -20,7 +20,7 @@ public:
     
     int pkg_id_;
     int **waveshape;
-    int ** waveshape_aligned;
+    int **waveshape_final;
     
     int tetrode_;
     int num_channels_;
@@ -258,6 +258,7 @@ class WaveShapeReconstructionProcessor : public LFPProcessor{
     void construct_lookup_table();
     int optimized_value(int num_sampl,int *sampl,int h);
     void load_restore_one_spike(Spike *spike);
+    void find_one_peak(Spike* spike, int *ptmout,int peakp,int peakgit,int *ptmval);
     
     int rec_tmp_[64][128];
     
