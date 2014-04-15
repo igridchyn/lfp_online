@@ -41,7 +41,7 @@ public:
 
 template<class T>
 class OnlineEstimator{
-    static const int BUF_SIZE = 2 << 19;
+    static const int BUF_SIZE = 2 << 24;
     
     T buf[BUF_SIZE];
     unsigned int buf_pos = 0;

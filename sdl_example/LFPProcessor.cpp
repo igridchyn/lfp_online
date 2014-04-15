@@ -95,13 +95,14 @@ void SpikeDetectorProcessor::process()
             }
             buffer->power_buf[channel][fpos] = sqrt(pw);
             
-            // std estimation
-            buffer->powerEstimator.push((float)sqrt(pw));
             
             // DEBUG
-            if (channel == 8)
+            if (channel >= 8 && channel <= 11){
+                // std estimation
+                buffer->powerEstimator.push((float)sqrt(pw));
                 //printf("%d\n", (int)sqrt(pw));
                 printf("std estimate: %d\n", (int)buffer->powerEstimator.get_std_estimate());
+            }
         }
     }
     
