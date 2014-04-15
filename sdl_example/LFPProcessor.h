@@ -15,12 +15,13 @@
 
 class Spike{
 public:
-    static const int WL_LENGTH = 20;
+    static const int WL_LENGTH = 22;
     
     int pkg_id_;
     int **waveshape;
     
     int tetrode_;
+    int num_channels_;
     
     Spike(int pkg_id, int tetrode);
 };
@@ -233,6 +234,9 @@ public:
 };
 
 class SpikeAlignmentProcessor : public LFPProcessor{
+    unsigned int prev_spike_pos_ = -16;
+    int prev_max_val_ = 0;
+    
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer)
     : LFPProcessor(buffer){}
