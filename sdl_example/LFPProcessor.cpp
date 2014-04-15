@@ -119,7 +119,8 @@ void SpikeDetectorProcessor::process()
             if (buffer->power_buf[channel][fpos] > threshold && spike_pos - buffer->last_spike_pos_ > refractory_)
             {
                 printf("Spike: %d...\n", spike_pos);
-                buffer->last_spike_pos_ = spike_pos;
+                buffer->last_spike_pos_ = spike_pos + 1;
+                buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
             }
         }
     }
@@ -325,14 +326,10 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
 
 // ============================================================================================================
 
-Spike::Spike(int *buffer, int pkg_id, int channel)
-    : pkg_id(pkg_id)
+Spike::Spike(int pkg_id, int tetrode)
+    : pkg_id_(pkg_id)
+    , tetrode_(tetrode)
 {
-    // pos is where spike has been detected -> so, approx. middle of the spike
-    for (int s = -WL_LENGTH/2; s < WL_LENGTH/2; ++s){
-        // BS
-        waveshape[s + WL_LENGTH/2] = buffer[pkg_id];
-    }
 }
 
 // ============================================================================================================

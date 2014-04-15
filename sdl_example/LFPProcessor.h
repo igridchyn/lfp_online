@@ -17,10 +17,12 @@ class Spike{
     static const int WL_LENGTH = 16;
     
 public:
-    int pkg_id;
+    int pkg_id_;
     int waveshape[WL_LENGTH];
     
-    Spike(int *buffer, int pkg_id, int channel);
+    int tetrode_;
+    
+    Spike(int pkg_id, int tetrode);
 };
 
 class TetrodesInfo{
@@ -69,6 +71,9 @@ public:
     static const int LFP_BUF_LEN = 2 << 16; // 11
     static const int BUF_HEAD_LEN = 2 << 6;
     
+    static const int SPIKE_BUF_LEN = 2 << 16;
+    static const int SPIKE_BUF_HEAD_LEN = 2 << 6;
+    
     // in bytes
     const int CHUNK_SIZE = 432;
     const int HEADER_LEN = 32;
@@ -82,6 +87,14 @@ public:
     
     // TODO: move to context class
     TetrodesInfo *tetr_info_;
+    
+    // spikes buffer
+    Spike* spike_buffer_[SPIKE_BUF_LEN];
+    // position, at which next spike will be put
+    unsigned int spike_buf_pos = SPIKE_BUF_HEAD_LEN;
+    // position of first spike, not populated with original waveshape data (due to signal lag)
+    unsigned int spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
+    
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];
