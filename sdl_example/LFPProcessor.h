@@ -15,7 +15,7 @@
 
 class Spike{
 public:
-    static const int WL_LENGTH = 32;
+    static const int WL_LENGTH = 20;
     
     int pkg_id_;
     int **waveshape;

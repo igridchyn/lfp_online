@@ -326,8 +326,9 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
 {}
 
 void SpikeAlignmentProcessor::process(){
-    // try to populate unpopulated spikes
-    while (buffer->spike_buf_nows_pos < buffer->spike_buf_pos && buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 16){
+    // try to populate unpopulated spikes -
+    while (buffer->spike_buf_nows_pos < buffer->spike_buf_pos &&
+           buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_nows_pos];
         int num_of_ch = buffer->tetr_info_->channels_numbers[spike->tetrode_];
         spike->waveshape = new int*[num_of_ch];
@@ -336,7 +337,9 @@ void SpikeAlignmentProcessor::process(){
             spike->waveshape[ch] = new int[Spike::WL_LENGTH];
             
             // copy signal for the channel from buffer to spike object
-            memcpy(spike->waveshape[ch], buffer->signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2, Spike::WL_LENGTH * sizeof(int));
+            //memcpy(spike->waveshape[ch], buffer->signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2, Spike::WL_LENGTH * sizeof(int));
+            
+            memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2 - 1, Spike::WL_LENGTH * sizeof(int));
             
             // DEBUG
             printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
