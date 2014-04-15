@@ -335,12 +335,13 @@ void SpikeAlignmentProcessor::process(){
         spike->num_channels_ = num_of_ch;
         
         for (int ch=0; ch < num_of_ch; ++ch){
-            spike->waveshape[ch] = new int[Spike::WL_LENGTH];
-            
+            spike->waveshape[ch] = new int[Spike::WS_LENGTH_ALIGNED];
+
             // copy signal for the channel from buffer to spike object
             //memcpy(spike->waveshape[ch], buffer->signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2, Spike::WL_LENGTH * sizeof(int));
             
             memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2 - 1, Spike::WL_LENGTH * sizeof(int));
+
             
             // DEBUG
 //            printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
@@ -386,9 +387,21 @@ void SpikeAlignmentProcessor::process(){
         
         if (peak_pos - prev_spike_pos_ > 16)
     	{
-            if (prev_spike_pos_ > 0)
+            if (prev_spike_pos_ > 0){
                 printf("Aligned spike pos: %d\n", prev_spike_pos_);
-                // fprintf(fpo,"%li\n",pkpospr);
+                
+                
+                for(int ch=0; ch < num_of_ch; ++ch){
+                    memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));
+                    
+                    // DEBUG
+                    printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
+                    for (int i=0; i<spike->WS_LENGTH_ALIGNED;++i){
+                        printf("%d ", spike->waveshape[ch][i]);
+                    }
+                    printf("\n");
+                }
+            }
             
             prev_spike_pos_ = peak_pos;
             prev_max_val_ = max_val;

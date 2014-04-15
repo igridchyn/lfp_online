@@ -16,9 +16,11 @@
 class Spike{
 public:
     static const int WL_LENGTH = 22;
+    static const int WS_LENGTH_ALIGNED = 32;
     
     int pkg_id_;
     int **waveshape;
+    int ** waveshape_aligned;
     
     int tetrode_;
     int num_channels_;
