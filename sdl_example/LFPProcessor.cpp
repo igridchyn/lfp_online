@@ -47,10 +47,10 @@ void LFPPipeline::process(unsigned char *data, int nchunks){
 
 // ============================================================================================================
 
-SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float detection_threshold)
+SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd)
     : LFPProcessor(buffer)
     ,last_processed_id(0)
-    , detection_threshold(detection_threshold)
+    , nstd_(nstd)
 {
     // load spike filter
     std::ifstream filter_stream;
@@ -76,6 +76,9 @@ void SpikeDetectorProcessor::process()
     // TODO: parallelize
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
+        if (!buffer->is_valid_channel(channel))
+            continue;
+
         for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
             
             // filter with high-pass spike filter
@@ -94,14 +97,21 @@ void SpikeDetectorProcessor::process()
                 pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
             }
             buffer->power_buf[channel][fpos] = sqrt(pw);
-            
+
+            // std estimation
+            if (buffer->powerEstimatorsMap_[channel] != NULL)
+                buffer->powerEstimatorsMap_[channel]->push((float)sqrt(pw));
             
             // DEBUG
-            if (channel >= 8 && channel <= 11){
-                // std estimation
-                buffer->powerEstimator.push((float)sqrt(pw));
-                //printf("%d\n", (int)sqrt(pw));
-                printf("std estimate: %d\n", (int)buffer->powerEstimator.get_std_estimate());
+            if (channel == 8){
+                printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
+            }
+
+            float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
+            // detection via threshold nstd * std
+            if (buffer->power_buf[channel][fpos] > threshold)
+            {
+                printf("Spike detected...\n");
             }
         }
     }
@@ -316,6 +326,8 @@ Spike::Spike(int *buffer, int pkg_id, int channel)
     }
 }
 
+// ============================================================================================================
+
 inline int LFPBuffer::get_signal(int channel, int pkg_id){
     return signal_buf[channel][(pkg_id - last_pkg_id + buf_pos) % LFP_BUF_LEN];
 }
@@ -327,7 +339,22 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
         memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
         memset(filtered_signal_buf[c], LFP_BUF_LEN, sizeof(int));
         memset(power_buf[c], LFP_BUF_LEN, sizeof(int));
+        powerEstimatorsMap_[c] = NULL;
     }
+    
+    powerEstimators_ = new OnlineEstimator<float>[tetr_info_->tetrodes_number];
+    
+    // create a map of pointer to tetrode power estimators for each electrode
+    for (int tetr = 0; tetr < tetr_info_->tetrodes_number; ++tetr ){
+        for (int ci = 0; ci < tetr_info_->channels_numbers[tetr]; ++ci){
+            powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = powerEstimators_ + tetr;
+            is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
+        }
+    }
+}
+
+inline bool LFPBuffer::is_valid_channel(int channel_num){
+    return is_valid_channel_[channel_num];
 }
 
 // ============================================================================================================

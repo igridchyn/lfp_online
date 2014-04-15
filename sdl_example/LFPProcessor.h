@@ -80,6 +80,9 @@ public:
     // TODO: move to context class
     TetrodesInfo *tetr_info_;
     
+private:
+    bool is_valid_channel_[CHANNEL_NUM];
+    
 public:
     int signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
     int filtered_signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
@@ -95,13 +98,15 @@ public:
     unsigned char *chunk_ptr;
     int num_chunks;
     
-    OnlineEstimator<float> powerEstimator;
+    OnlineEstimator<float>* powerEstimators_;
+    OnlineEstimator<float>* powerEstimatorsMap_[CHANNEL_NUM];
     
     //====================================================================================================
     
     LFPBuffer(TetrodesInfo* tetr_info);
     
     inline int get_signal(int channel, int pkg_id);
+    inline bool is_valid_channel(int channel_num);
 };
 
 class LFPProcessor{
@@ -140,7 +145,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     float filter[ 2 << 7];
     int filter_len;
 
-    const int detection_threshold;
+    float nstd_;
     
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
@@ -155,7 +160,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     std::vector<Spike*> spikes;
     
 public:
-    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float detection_threshold);
+    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd);
     virtual void process();
 };
 
