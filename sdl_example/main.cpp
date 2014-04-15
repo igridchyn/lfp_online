@@ -44,6 +44,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new PackageExractorProcessor(buf));
     pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
     pipeline->add_processor(new SpikeAlignmentProcessor(buf));
+    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
     pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     

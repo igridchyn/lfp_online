@@ -97,6 +97,8 @@ public:
     unsigned int spike_buf_pos = SPIKE_BUF_HEAD_LEN;
     // position of first spike, not populated with original waveshape data (due to signal lag)
     unsigned int spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
+    // position of first spike without reconstructed waveshape
+    unsigned int spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
     
     
 private:
@@ -242,6 +244,25 @@ class SpikeAlignmentProcessor : public LFPProcessor{
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer)
     : LFPProcessor(buffer){}
+    virtual void process();
+};
+
+class WaveShapeReconstructionProcessor : public LFPProcessor{
+    unsigned int mul;
+    
+    double *sin_table;
+    double *t_table;
+    int *it_table;
+    double **sztable;
+    
+    void construct_lookup_table();
+    int optimized_value(int num_sampl,int *sampl,int h);
+    void load_restore_one_spike(Spike *spike);
+    
+    int rec_tmp_[64][128];
+    
+public:
+    WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul);
     virtual void process();
 };
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */; };
 		B052743E18A9375500193EAA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B052743D18A9375500193EAA /* main.cpp */; };
 		B052744018A9375500193EAA /* sdl_example.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = B052743F18A9375500193EAA /* sdl_example.1 */; };
 		B052747E18A943A700193EAA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747D18A943A700193EAA /* Cocoa.framework */; };
@@ -29,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WaveshapeReconstructionProcessor.cpp; sourceTree = "<group>"; };
 		B052743A18A9375500193EAA /* sdl_example */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sdl_example; sourceTree = BUILT_PRODUCTS_DIR; };
 		B052743D18A9375500193EAA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		B052743F18A9375500193EAA /* sdl_example.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = sdl_example.1; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 				B052743F18A9375500193EAA /* sdl_example.1 */,
 				B0CA797A18E952D600144950 /* LFPProcessor.cpp */,
 				B0CA797B18E952D600144950 /* LFPProcessor.h */,
+				B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */,
 			);
 			path = sdl_example;
 			sourceTree = "<group>";
@@ -135,6 +138,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B052743E18A9375500193EAA /* main.cpp in Sources */,
+				B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

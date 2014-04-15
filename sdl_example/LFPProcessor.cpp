@@ -335,7 +335,9 @@ void SpikeAlignmentProcessor::process(){
         spike->num_channels_ = num_of_ch;
         
         for (int ch=0; ch < num_of_ch; ++ch){
-            spike->waveshape[ch] = new int[Spike::WS_LENGTH_ALIGNED];
+            // for reconstructed ws
+            spike->waveshape[ch] = new int[128];
+            memset(spike->waveshape[ch], 128, sizeof(int));
 
             // copy signal for the channel from buffer to spike object
             //memcpy(spike->waveshape[ch], buffer->signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2, Spike::WL_LENGTH * sizeof(int));
@@ -417,6 +419,8 @@ void SpikeAlignmentProcessor::process(){
         buffer-> spike_buf_nows_pos++;
     }
 }
+
+
 
 // ============================================================================================================
 
