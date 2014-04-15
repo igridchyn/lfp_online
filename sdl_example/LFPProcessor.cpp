@@ -121,6 +121,7 @@ void SpikeDetectorProcessor::process()
                 printf("Spike: %d...\n", spike_pos);
                 buffer->last_spike_pos_ = spike_pos + 1;
                 buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
+                buffer->spike_buf_pos++;
             }
         }
     }
@@ -138,8 +139,8 @@ void PackageExractorProcessor::process(){
     // see if buffer reinit is needed
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (int c=0; c < buffer->CHANNEL_NUM; ++c){
-            memccpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN, sizeof(unsigned char));
-            memccpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN, sizeof(unsigned char));
+            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN * sizeof(unsigned char));
+            memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN * sizeof(unsigned char));
         }
 
         buffer->zero_level = buffer->buf_pos + 1;
@@ -323,6 +324,31 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
     : LFPProcessor(buffer)
     , control_processor_(control_processor)
 {}
+
+void SpikeAlignmentProcessor::process(){
+    // try to populate unpopulated spikes
+    while (buffer->spike_buf_nows_pos < buffer->spike_buf_pos && buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 16){
+        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_nows_pos];
+        int num_of_ch = buffer->tetr_info_->channels_numbers[spike->tetrode_];
+        spike->waveshape = new int*[num_of_ch];
+        
+        for (int ch=0; ch < num_of_ch; ++ch){
+            spike->waveshape[ch] = new int[Spike::WL_LENGTH];
+            
+            // copy signal for the channel from buffer to spike object
+            memcpy(spike->waveshape[ch], buffer->signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2, Spike::WL_LENGTH * sizeof(int));
+            
+            // DEBUG
+            printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
+            for (int i=0; i<spike->WL_LENGTH;++i){
+                printf("%d ", spike->waveshape[ch][i]);
+            }
+            printf("\n");
+        }
+        
+        buffer-> spike_buf_nows_pos++;
+    }
+}
 
 // ============================================================================================================
 

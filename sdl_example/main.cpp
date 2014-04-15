@@ -43,6 +43,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));
     pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
+    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
     pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     

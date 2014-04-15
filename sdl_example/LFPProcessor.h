@@ -14,11 +14,11 @@
 #include <SDL2/SDL.h>
 
 class Spike{
-    static const int WL_LENGTH = 16;
-    
 public:
+    static const int WL_LENGTH = 32;
+    
     int pkg_id_;
-    int waveshape[WL_LENGTH];
+    int **waveshape;
     
     int tetrode_;
     
@@ -230,6 +230,13 @@ public:
         , last_disp_pos(0){}
     
     virtual void process_SDL_control_input(const SDL_Event& e);
+};
+
+class SpikeAlignmentProcessor : public LFPProcessor{
+public:
+    SpikeAlignmentProcessor(LFPBuffer* buffer)
+    : LFPProcessor(buffer){}
+    virtual void process();
 };
 
 //==========================================================================================
