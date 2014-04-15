@@ -267,6 +267,21 @@ public:
     virtual void process();
 };
 
+class PCAExtractionProcessor : public LFPProcessor{
+    float ***prm;
+    
+    void tred(float **a,int n,float d[],float e[]);
+    void tqli(float d[],float e[],int n,float **z);
+    void eigenc(float **m,float ev[], int ftno);
+    void final(float **cor,float mea[],int ftno, int num_obj,float **prm, int prno);
+    
+public:
+    PCAExtractionProcessor(LFPBuffer *buffer)
+    : LFPProcessor(buffer)
+    {}
+    virtual void process();
+};
+
 //==========================================================================================
 
 class LFPPipeline{
