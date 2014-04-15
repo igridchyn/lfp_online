@@ -47,10 +47,11 @@ void LFPPipeline::process(unsigned char *data, int nchunks){
 
 // ============================================================================================================
 
-SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd)
+SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory)
     : LFPProcessor(buffer)
     ,last_processed_id(0)
     , nstd_(nstd)
+    , refractory_(refractory)
 {
     // load spike filter
     std::ifstream filter_stream;
@@ -67,6 +68,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     
     filt_pos = buffer->HEADER_LEN;
     
+    buffer->last_spike_pos_ = - refractory_;
     //printf("filt len: %d\n", filter_len);
 }
 
@@ -74,6 +76,7 @@ void SpikeDetectorProcessor::process()
 {
     // for all channels
     // TODO: parallelize
+    
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
         if (!buffer->is_valid_channel(channel))
@@ -104,14 +107,19 @@ void SpikeDetectorProcessor::process()
             
             // DEBUG
             if (channel == 8){
-                printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
+                // printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
             }
 
-            float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
+            //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
+            // DEBUG
+            float threshold = 43.491423979974343 * nstd_;
+            
             // detection via threshold nstd * std
-            if (buffer->power_buf[channel][fpos] > threshold)
+            int spike_pos = buffer->last_pkg_id - buffer->buf_pos + fpos;
+            if (buffer->power_buf[channel][fpos] > threshold && spike_pos - buffer->last_spike_pos_ > refractory_)
             {
-                printf("Spike detected...\n");
+                printf("Spike: %d...\n", spike_pos);
+                buffer->last_spike_pos_ = spike_pos;
             }
         }
     }
@@ -161,6 +169,7 @@ void PackageExractorProcessor::process(){
     }
     
     buffer->buf_pos += 3 * buffer->num_chunks;
+    buffer->last_pkg_id += 3 * buffer->num_chunks;
 }
 
 void SDLSignalDisplayProcessor::process(){
@@ -328,10 +337,6 @@ Spike::Spike(int *buffer, int pkg_id, int channel)
 
 // ============================================================================================================
 
-inline int LFPBuffer::get_signal(int channel, int pkg_id){
-    return signal_buf[channel][(pkg_id - last_pkg_id + buf_pos) % LFP_BUF_LEN];
-}
-
 LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
     :tetr_info_(tetr_info)
 {
@@ -343,14 +348,19 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
     }
     
     powerEstimators_ = new OnlineEstimator<float>[tetr_info_->tetrodes_number];
+
+    tetr_info_->tetrode_by_channel = new int[CHANNEL_NUM];
     
-    // create a map of pointer to tetrode power estimators for each electrode
+    // create a map of pointers to tetrode power estimators for each electrode
     for (int tetr = 0; tetr < tetr_info_->tetrodes_number; ++tetr ){
         for (int ci = 0; ci < tetr_info_->channels_numbers[tetr]; ++ci){
             powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = powerEstimators_ + tetr;
             is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
+            
+            tetr_info_->tetrode_by_channel[tetr_info_->tetrode_channels[tetr][ci]] = tetr;
         }
     }
+    
 }
 
 inline bool LFPBuffer::is_valid_channel(int channel_num){

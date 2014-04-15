@@ -35,6 +35,9 @@ public:
     
     // of size tetrodes_number, indices of channels in each group
     int **tetrode_channels;
+    
+    // group by electrode
+    int *tetrode_by_channel;
 };
 
 //==========================================================================================
@@ -90,7 +93,8 @@ public:
     
     // ??? for all arrays ?
     int buf_pos;
-    int last_pkg_id;
+    int last_pkg_id = 0;
+    int last_spike_pos_;
     
     // if shift has happened, what was the previous zero level;
     int zero_level;
@@ -105,7 +109,6 @@ public:
     
     LFPBuffer(TetrodesInfo* tetr_info);
     
-    inline int get_signal(int channel, int pkg_id);
     inline bool is_valid_channel(int channel_num);
 };
 
@@ -146,6 +149,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     int filter_len;
 
     float nstd_;
+    int refractory_;
     
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
@@ -160,7 +164,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     std::vector<Spike*> spikes;
     
 public:
-    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd);
+    SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory);
     virtual void process();
 };
 
