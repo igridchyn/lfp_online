@@ -65,6 +65,8 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     }
     filter_len = fpos - 1;
     
+    filt_pos = buffer->HEADER_LEN;
+    
     //printf("filt len: %d\n", filter_len);
 }
 
@@ -74,11 +76,11 @@ void SpikeDetectorProcessor::process()
     // TODO: parallelize
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
-        for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len / 2; ++fpos) {
+        for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
             
             // filter with high-pass spike filter
             float filtered = 0;
-            int *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len / 2;
+            int *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
             
             for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered += *(chan_sig_buf) * filter[j];
@@ -98,11 +100,16 @@ void SpikeDetectorProcessor::process()
             
             // DEBUG
             if (channel == 8)
-                printf("%d\n", (int)buffer->powerEstimator.get_std_estimate());
+                //printf("%d\n", (int)sqrt(pw));
+                printf("std estimate: %d\n", (int)buffer->powerEstimator.get_std_estimate());
         }
     }
     
     filt_pos = buffer->buf_pos - filter_len / 2;
+    
+    //
+    if (filt_pos < buffer->HEADER_LEN)
+        filt_pos = buffer->HEADER_LEN;
 }
 
 // ============================================================================================================
@@ -312,6 +319,16 @@ inline int LFPBuffer::get_signal(int channel, int pkg_id){
     return signal_buf[channel][(pkg_id - last_pkg_id + buf_pos) % LFP_BUF_LEN];
 }
 
+LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
+    :tetr_info_(tetr_info)
+{
+    for(int c=0; c < CHANNEL_NUM; ++c){
+        memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
+        memset(filtered_signal_buf[c], LFP_BUF_LEN, sizeof(int));
+        memset(power_buf[c], LFP_BUF_LEN, sizeof(int));
+    }
+}
+
 // ============================================================================================================
 
 template<class T>
@@ -322,12 +339,12 @@ T OnlineEstimator<T>::get_mean_estimate(){
 template<class T>
 T OnlineEstimator<T>::get_std_estimate(){
     // printf("sumsq: %f, num samp: %d\n", sumsq, num_samples);
-    return (T)(sumsq / num_samples - (sum / num_samples) * (sum / num_samples));
+    return (T)sqrt(sumsq / num_samples - (sum / num_samples) * (sum / num_samples));
 }
 
 template<class T>
 void OnlineEstimator<T>::push(T value){
-    printf("push %f\n", value);
+    // printf("push %f\n", value);
     
     // TODO: ignore to optimize ?
     if (num_samples < BUF_SIZE){

@@ -41,7 +41,7 @@ public:
 
 template<class T>
 class OnlineEstimator{
-    static const int BUF_SIZE = 2 << 8;
+    static const int BUF_SIZE = 2 << 19;
     
     T buf[BUF_SIZE];
     unsigned int buf_pos = 0;
@@ -99,9 +99,8 @@ public:
     
     //====================================================================================================
     
-    LFPBuffer(TetrodesInfo* tetr_info)
-        :tetr_info_(tetr_info)
-    {}
+    LFPBuffer(TetrodesInfo* tetr_info);
+    
     inline int get_signal(int channel, int pkg_id);
 };
 
