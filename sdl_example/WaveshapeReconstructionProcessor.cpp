@@ -158,13 +158,13 @@ void WaveShapeReconstructionProcessor::process(){
         }
         
         // DEBUG
-        for (int i=0; i < spike->num_channels_; ++i){
-            printf("Final WS, channel #%d :", i);
-            for (int j=0; j < 16; ++j){
-                printf("%d ", spike->waveshape_final[i][j]);
-            }
-            printf("\n");
-        }
+//        for (int i=0; i < spike->num_channels_; ++i){
+//            printf("Final WS, channel #%d :", i);
+//            for (int j=0; j < 16; ++j){
+//                printf("%d ", spike->waveshape_final[i][j]);
+//            }
+//            printf("\n");
+//        }
         
         buffer->spike_buf_no_rec++;
     }

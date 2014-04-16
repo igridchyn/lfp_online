@@ -285,11 +285,29 @@ class PCAExtractionProcessor : public LFPProcessor{
     // [channel][ws1]
     int **mean_;
     
+    // for PCA computation
+    float **corf_;
+    float *meanf_;
+    
     // number of objects accumulated in means / cors
     unsigned int num_spikes;
     
+    // number of components per channel
+    unsigned int num_pc_;
+    
+    // number of waveshape samples
+    unsigned int waveshape_samples_;
+    
+    // transform matrices : from waveshape to PC
+    // [channel][ws][pc]
+    float ***pc_transform_;
+    
+    // WORKAROUND
+    // TODO: recalc PCA periodically using online estimators
+    bool pca_done_ = false;
+    
 public:
-    PCAExtractionProcessor(LFPBuffer *buffer);
+    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples);
     virtual void process();
 };
 

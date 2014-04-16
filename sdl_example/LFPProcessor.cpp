@@ -79,6 +79,8 @@ void SpikeDetectorProcessor::process()
     // for all channels
     // TODO: parallelize
     
+    // printf("Spike detect...");
+    
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
         if (!buffer->is_valid_channel(channel))

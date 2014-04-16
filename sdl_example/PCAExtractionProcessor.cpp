@@ -175,9 +175,6 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     ev=(float*)malloc(ftno*sizeof(float));
     ind=(int*)malloc(ftno*sizeof(int));
     
-    // num_obj = n_spikes * n_channels
-    num_obj /= 4;
-    
     printf("\nMeans, num_obj: %d: ", num_obj);
     for (i=0;i<ftno;i++){
         mea[i]=mea[i]/(float)num_obj;
@@ -243,35 +240,60 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     
 }
 
-PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer)
+PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples)
 : LFPProcessor(buffer)
+, num_pc_(num_pc)
+, waveshape_samples_(waveshape_samples)
+, num_spikes(0)
 {
+    printf("Create PCA extrator...");
+    
     const int nchan = 64;
-    const int wave_len = 16;
     
     cor_ = new int**[nchan];
     mean_ = new int*[nchan];
     
-    for (int c=0; c<nchan; ++c) {
-        cor_[c] = new int*[wave_len];
-        for (int w=0; w<wave_len; ++w) {
-            cor_[c][w] = new int[wave_len];
-        }
-        mean_[c] = new int[wave_len];
+    corf_ = new float*[waveshape_samples_];
+    for (int w=0; w<waveshape_samples_; ++w) {
+        corf_[w] = new float[waveshape_samples_];
+        memset(corf_[w], 0, sizeof(float)*waveshape_samples_);
     }
+    
+    meanf_ = new float[waveshape_samples_];
+    
+    for (int c=0; c<nchan; ++c) {
+        cor_[c] = new int*[waveshape_samples_];
+        for (int w=0; w<waveshape_samples_; ++w) {
+            cor_[c][w] = new int[waveshape_samples_];
+            memset(cor_[c][w], 0, sizeof(int)*waveshape_samples_);
+        }
+        mean_[c] = new int[waveshape_samples_];
+        memset(mean_[c], 0, sizeof(int)*waveshape_samples_);
+    }
+    
+    pc_transform_ = new float**[nchan];
+    for (int c=0;c<nchan; ++c) {
+        pc_transform_[c] = new float*[waveshape_samples_];
+        for (int w=0; w<waveshape_samples_; ++w) {
+            pc_transform_[c][w] = new float[num_pc_];
+            memset(pc_transform_[c][w], 0, num_pc_ * sizeof(float));
+        }
+    }
+    
+    printf("done\n");
 }
 
 void PCAExtractionProcessor::process(){
-    while (buffer->spike_buf_pos_unproc_ < buffer->spike_buf_pos){
+    while (buffer->spike_buf_pos_unproc_ < buffer->spike_buf_no_rec){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_];
         
         for (int chani = 0; chani < buffer->tetr_info_->number_of_channels(spike); ++chani) {
             int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
             
-            for (int w=0; w < 16; ++w) {
+            for (int w=0; w < waveshape_samples_; ++w) {
                 mean_[chan][w] += spike->waveshape_final[chani][w];
-                for (int w2=0; w2 < w; ++w2) {
-                    cor_[chani][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
+                for (int w2=w; w2 < waveshape_samples_; ++w2) {
+                    cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
                 }
             }
         }
@@ -282,9 +304,28 @@ void PCAExtractionProcessor::process(){
     }
     
     // TODO: when to redo PCA?
-    // TODO: channel-wise counting !!! and check
-    if (buffer->spike_buf_nows_pos >= 100000){
-        //for (int channel = 0; channel < )
-        // final(cor[i], mea[i], 16, buffer->spike_buf_nows_pos, prm[i], 3);
+    // TODO: tetrode-wise counting !!! and check
+    if (num_spikes >= 100 && !pca_done_){
+        for (int channel = 0; channel < 64; ++channel){
+            if (!buffer->is_valid_channel(channel)){
+                continue;
+            }
+            
+            // copy cor and mean to float arrays
+            for (int w = 0; w < waveshape_samples_; ++w){
+                meanf_[w] = mean_[channel][w];
+                for (int w2 = w; w2 < waveshape_samples_; ++w2){
+                    corf_[w][w2] = (float)cor_[channel][w][w2];
+                    corf_[w2][w] = cor_[channel][w][w2];
+                }
+            }
+            
+            // prm - projection matrix, prm[j][i] = contribution of j-th wave feature to i-th PC
+            final(corf_, meanf_, waveshape_samples_, num_spikes, pc_transform_[channel], num_pc_);
+            
+            exit(0);
+        }
+        
+        pca_done_ = true;
     }
 }
