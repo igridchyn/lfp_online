@@ -13,14 +13,16 @@
 #include <vector>
 #include <SDL2/SDL.h>
 
+// object size:
 class Spike{
 public:
     static const int WL_LENGTH = 22;
     static const int WS_LENGTH_ALIGNED = 32;
     
     int pkg_id_;
-    int **waveshape;
-    int **waveshape_final;
+    int **waveshape = NULL;
+    int **waveshape_final = NULL;
+    float **pc = NULL;
     
     int tetrode_;
     int num_channels_;
@@ -278,6 +280,8 @@ class PCAExtractionProcessor : public LFPProcessor{
     void tqli(float d[],float e[],int n,float **z);
     void eigenc(float **m,float ev[], int ftno);
     void final(float **cor,float mea[],int ftno, int num_obj,float **prm, int prno);
+    
+    void compute_pcs(Spike* spike);
     
     // TODO: use online estimators
     // [channel][ws1][ws2]

@@ -283,19 +283,49 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     printf("done\n");
 }
 
+void PCAExtractionProcessor::compute_pcs(Spike *spike){
+    int numchan = buffer->tetr_info_->number_of_channels(spike);
+    if (spike->pc == NULL){
+        spike->pc = new float*[numchan];
+        for (int ci=0; ci < numchan; ++ci) {
+            spike->pc[ci] = new float[num_pc_];
+        }
+    }
+    
+    for (int c=0; c < numchan; ++c) {
+        int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][c];
+        for (int pc=0; pc < num_pc_; ++pc) {
+            spike->pc[c][pc] = 0;
+            for (int w=0; w < waveshape_samples_; ++w) {
+                spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][c][w];
+            }
+        }
+    }
+}
+
 void PCAExtractionProcessor::process(){
+    // TODO: review logic
+    // CURRENT LOGIC: PCA is computed once after required number of spikes has been collected,
+    //  computed for all spikes and all new-coming
+    
     while (buffer->spike_buf_pos_unproc_ < buffer->spike_buf_no_rec){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_];
         
-        for (int chani = 0; chani < buffer->tetr_info_->number_of_channels(spike); ++chani) {
-            int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
-            
-            for (int w=0; w < waveshape_samples_; ++w) {
-                mean_[chan][w] += spike->waveshape_final[chani][w];
-                for (int w2=w; w2 < waveshape_samples_; ++w2) {
-                    cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
+        if (!pca_done_){
+            for (int chani = 0; chani < buffer->tetr_info_->number_of_channels(spike); ++chani) {
+                int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
+                
+                for (int w=0; w < waveshape_samples_; ++w) {
+                    mean_[chan][w] += spike->waveshape_final[chani][w];
+                    for (int w2=w; w2 < waveshape_samples_; ++w2) {
+                        cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
+                    }
                 }
             }
+        }
+        else{
+            // compute PCs
+            compute_pcs(spike);
         }
         
         num_spikes++;
@@ -322,10 +352,18 @@ void PCAExtractionProcessor::process(){
             
             // prm - projection matrix, prm[j][i] = contribution of j-th wave feature to i-th PC
             final(corf_, meanf_, waveshape_samples_, num_spikes, pc_transform_[channel], num_pc_);
-            
-            exit(0);
         }
         
         pca_done_ = true;
+        
+        // get PCs for all past spikes
+        for (int s=0; s < buffer->spike_buf_pos_unproc_; ++s) {
+            Spike *spike = buffer->spike_buffer_[s];
+            if (spike == NULL){
+                continue;
+            }
+            
+            compute_pcs(spike);
+        }
     }
 }
