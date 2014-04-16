@@ -32,7 +32,9 @@ const int LFPBuffer::CH_MAP_INV[] = {8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,
 const int LFPBuffer::CH_MAP[] = {32, 33, 34, 35, 36, 37, 38, 39,0, 1, 2, 3, 4, 5, 6, 7,40, 41, 42, 43, 44, 45, 46, 47,8, 9, 10, 11, 12, 13, 14, 15,48, 49, 50, 51, 52, 53, 54, 55,16, 17, 18, 19, 20, 21, 22, 23,56, 57, 58, 59, 60, 61, 62, 63,24, 25, 26, 27, 28, 29, 30, 31};
 
 
-
+int TetrodesInfo::number_of_channels(Spike *spike){
+    return channels_numbers[spike->tetrode_];
+}
 
 // ============================================================================================================
 
@@ -122,6 +124,17 @@ void SpikeDetectorProcessor::process()
                 buffer->last_spike_pos_ = spike_pos + 1;
                 buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
                 buffer->spike_buf_pos++;
+                
+                // check if rewind is requried
+                if (buffer->spike_buf_pos == buffer->SPIKE_BUF_HEAD_LEN - 1){
+                    memcpy(buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN, buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN - 1 - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
+                    
+                    buffer->spike_buf_no_rec = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_rec);
+                    buffer->spike_buf_nows_pos = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_nows_pos);
+                    buffer->spike_buf_pos_unproc_ = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_unproc_);
+                    
+                    buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
+                }
             }
         }
     }
