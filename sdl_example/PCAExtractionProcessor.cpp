@@ -184,7 +184,7 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
         printf("%f ", mea[i]);
     }
     printf("\n");
-    
+
     printf("Correlation matrix:\n");
     for (i=0;i<ftno;i++){
         for ( j=i;j<ftno;j++) {
@@ -193,18 +193,19 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
         }
         printf("\n");
     }
-	
-    
-    
+
     printf("Solving Eigen equation...");
     eigenc(cor,ev,ftno);
     printf("finished!\n");
     
     // bubble sort eigenvalues
     sz1=0.;
-    for(i=0;i<ftno;i++) { ind[i]=i;sz1+=ev[i];}
+    for(i=0;i<ftno;i++) {
+        ind[i]=i;
+        sz1+=ev[i];
+    }
     
-    for(i=0;i<ftno-1;i++)
+    for(i=0;i<ftno-1;i++){
         for(j=0;j<ftno-1-i;j++)
             if (ev[j]<ev[j+1]) {
                 seg=ev[j];
@@ -214,6 +215,7 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
                 ind[j]=ind[j+1];
                 ind[j+1]=sei;
             }
+    }
     
     printf("\nEigenvalues: ");
     for(i=0;i<ftno;i++){
@@ -221,13 +223,18 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     }
     printf("\n");
     
-    for(j=0;j<prno;j++)
+    for(j=0;j<prno;j++){
         for(i=0;i<ftno;i++)         {
             prm[j][i]=cor[i][ind[j]];
         }
+    }
+    
     sz2=0.;
     printf("Variances per feature:  ");
-    for(j=0;j<prno;j++) {printf("%5.4f ",ev[j]/sz1);sz2+=ev[j];}
+    for(j=0;j<prno;j++){
+        printf("%5.4f ",ev[j]/sz1);
+        sz2+=ev[j];
+    }
     
     printf("\nOverall projected variances : %f5.4\n",sz2/sz1);
     
@@ -236,7 +243,44 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     
 }
 
+PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer)
+: LFPProcessor(buffer)
+{
+    const int nchan = 64;
+    const int wave_len = 16;
+    
+    cor_ = new int**[nchan];
+    mean_ = new int*[nchan];
+    
+    for (int c=0; c<nchan; ++c) {
+        cor_[c] = new int*[wave_len];
+        for (int w=0; w<wave_len; ++w) {
+            cor_[c][w] = new int[wave_len];
+        }
+        mean_[c] = new int[wave_len];
+    }
+}
+
 void PCAExtractionProcessor::process(){
+    while (buffer->spike_buf_pos_unproc_ < buffer->spike_buf_pos){
+        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_];
+        
+        for (int chani = 0; chani < buffer->tetr_info_->number_of_channels(spike); ++chani) {
+            int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
+            
+            for (int w=0; w < 16; ++w) {
+                mean_[chan][w] += spike->waveshape_final[chani][w];
+                for (int w2=0; w2 < w; ++w2) {
+                    cor_[chani][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
+                }
+            }
+        }
+        
+        num_spikes++;
+        // TODO: account for buffer rewind
+        buffer->spike_buf_pos_unproc_++;
+    }
+    
     // TODO: when to redo PCA?
     // TODO: channel-wise counting !!! and check
     if (buffer->spike_buf_nows_pos >= 100000){

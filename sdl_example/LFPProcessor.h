@@ -43,6 +43,8 @@ public:
     
     // group by electrode
     int *tetrode_by_channel;
+    
+    int number_of_channels(Spike* spike);
 };
 
 //==========================================================================================
@@ -100,6 +102,8 @@ public:
     // position of first spike without reconstructed waveshape
     unsigned int spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
     
+    // last unprocessed
+    unsigned int spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];
@@ -275,10 +279,17 @@ class PCAExtractionProcessor : public LFPProcessor{
     void eigenc(float **m,float ev[], int ftno);
     void final(float **cor,float mea[],int ftno, int num_obj,float **prm, int prno);
     
+    // TODO: use online estimators
+    // [channel][ws1][ws2]
+    int ***cor_;
+    // [channel][ws1]
+    int **mean_;
+    
+    // number of objects accumulated in means / cors
+    unsigned int num_spikes;
+    
 public:
-    PCAExtractionProcessor(LFPBuffer *buffer)
-    : LFPProcessor(buffer)
-    {}
+    PCAExtractionProcessor(LFPBuffer *buffer);
     virtual void process();
 };
 
