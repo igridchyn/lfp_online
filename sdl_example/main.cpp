@@ -30,6 +30,24 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
 
+    
+    // ======= CP
+    SDL_Window *window2;
+    SDL_Texture *texture2;
+    SDL_Renderer *renderer2;
+    
+    window2 = SDL_CreateWindow("PCA", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    renderer2 = SDL_CreateRenderer(window2, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+    texture2 = SDL_CreateTexture(renderer2, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
+    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
+    
+    SDL_SetRenderTarget(renderer2, texture2);
+    
+    SDL_SetRenderDrawColor(renderer2, 0, 0, 0, 255);
+    SDL_RenderClear(renderer2);
+    // =======
+    
+    
     TetrodesInfo *tetr_inf = new TetrodesInfo();
     tetr_inf->tetrodes_number = 1;
     tetr_inf->channels_numbers = new int[1]{4};
@@ -48,7 +66,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16));
     pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
-    pipeline->add_processor(new SDLPCADisplayProcessor(buf, window, renderer, texture));
+    pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
