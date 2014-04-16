@@ -103,6 +103,8 @@ public:
     unsigned int spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
     // position of first spike without reconstructed waveshape
     unsigned int spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
+    // position of first non-displayed PCA
+    unsigned int spike_buf_no_disp_pca = SPIKE_BUF_HEAD_LEN;
     
     // last unprocessed
     unsigned int spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
@@ -312,6 +314,16 @@ class PCAExtractionProcessor : public LFPProcessor{
     
 public:
     PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples);
+    virtual void process();
+};
+
+class SDLPCADisplayProcessor : public LFPProcessor{
+    SDL_Window *window_;
+    SDL_Renderer *renderer_;
+    SDL_Texture *texture_;
+    
+public:
+    SDLPCADisplayProcessor(LFPBuffer *buffer, SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture);
     virtual void process();
 };
 
