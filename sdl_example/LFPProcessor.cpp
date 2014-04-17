@@ -116,13 +116,15 @@ void SpikeDetectorProcessor::process()
 
             //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
             // DEBUG
-            float threshold = 43.491423979974343 * nstd_;
+            int threshold = (int)(43.491423979974343 * nstd_);
             
             // detection via threshold nstd * std
             int spike_pos = buffer->last_pkg_id - buffer->buf_pos + fpos;
             if (buffer->power_buf[channel][fpos] > threshold && spike_pos - buffer->last_spike_pos_ > refractory_)
             {
-                printf("Spike: %d...\n", spike_pos);
+                // printf("Spike: %d...\n", spike_pos);
+                // printf("%d ", spike_pos);
+                
                 buffer->last_spike_pos_ = spike_pos + 1;
                 buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
                 buffer->spike_buf_pos++;
@@ -135,6 +137,7 @@ void SpikeDetectorProcessor::process()
                     buffer->spike_buf_nows_pos = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_nows_pos);
                     buffer->spike_buf_pos_unproc_ = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_unproc_);
                     buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_disp_pca);
+                    buffer->spike_buf_pos_out = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_out);
                     
                     buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
                 }
@@ -278,8 +281,8 @@ void SpikeAlignmentProcessor::process(){
         if (peak_pos - prev_spike_pos_ > 16)
     	{
             if (prev_spike_pos_ > 0){
-                printf("Aligned spike pos: %d\n", prev_spike_pos_);
-                
+                // printf("Aligned spike pos: %d\n", prev_spike_pos_);
+                printf("%d ", prev_spike_pos_);
                 
                 for(int ch=0; ch < num_of_ch; ++ch){
                     memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));
@@ -319,19 +322,20 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buf, SDL_Window *windo
 void SDLPCADisplayProcessor::process(){
     // TODO: parametrize displayed channels and pc numbers
     
-    const int rend_freq = 20;
+    const int rend_freq = 5;
     bool render = false;
     
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         if (spike->pc == NULL)
         {
-            buffer->spike_buf_no_disp_pca++;
-            continue;
+            break;
+            // buffer->spike_buf_no_disp_pca++;
+            // continue;
         }
 
         int x = spike->pc[0][0] + 600;
-        int y = spike->pc[1][0] + 300;
+        int y = spike->pc[0][1] + 300;
         
         SDL_SetRenderTarget(renderer_, texture_);
         SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
@@ -347,6 +351,25 @@ void SDLPCADisplayProcessor::process(){
         SDL_SetRenderTarget(renderer_, NULL);
         SDL_RenderCopy(renderer_, texture_, NULL, NULL);
         SDL_RenderPresent(renderer_);
+    }
+}
+
+FileOutputProcessor::FileOutputProcessor(LFPBuffer* buf)
+    : LFPProcessor(buf){
+        f_ = fopen("/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection/cpp/cppout.txt", "w");
+}
+
+void FileOutputProcessor::process(){
+    while (buffer->spike_buf_pos_out < buffer->spike_buf_pos_unproc_){
+        Spike* spike = buffer->spike_buffer_[buffer->spike_buf_pos_out];
+        for(int c=0;c<4;++c){
+            for(int w=0; w<16; ++w){
+                fprintf(f_, "%d ", spike->waveshape_final[c][w]);
+            }
+            fprintf(f_, "\n");
+        }
+        
+        buffer->spike_buf_pos_out++;
     }
 }
 

@@ -260,6 +260,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     }
     
     meanf_ = new float[waveshape_samples_];
+    memset(meanf_, 0, sizeof(float)*waveshape_samples_);
     
     for (int c=0; c<nchan; ++c) {
         cor_[c] = new int*[waveshape_samples_];
@@ -317,6 +318,11 @@ void PCAExtractionProcessor::process(){
                 
                 for (int w=0; w < waveshape_samples_; ++w) {
                     mean_[chan][w] += spike->waveshape_final[chani][w];
+                    
+                    if (chani==0 && abs(spike->waveshape_final[chani][w]) > 5000){
+                        // printf("Large amplitude at %d: %d!\n",spike->pkg_id_, spike->waveshape_final[chani][w]);
+                    }
+                        
                     for (int w2=w; w2 < waveshape_samples_; ++w2) {
                         cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
                     }
@@ -335,7 +341,7 @@ void PCAExtractionProcessor::process(){
     
     // TODO: when to redo PCA?
     // TODO: tetrode-wise counting !!! and check
-    if (num_spikes >= 100 && !pca_done_){
+    if (num_spikes >= 800 && !pca_done_){
         for (int channel = 0; channel < 64; ++channel){
             if (!buffer->is_valid_channel(channel)){
                 continue;
@@ -352,6 +358,18 @@ void PCAExtractionProcessor::process(){
             
             // prm - projection matrix, prm[j][i] = contribution of j-th wave feature to i-th PC
             final(corf_, meanf_, waveshape_samples_, num_spikes, pc_transform_[channel], num_pc_);
+            
+            // DEBUG - print PCA transform matrix
+            if (channel == 8){
+                for (int pc=0; pc < 3; ++pc) {
+                    printf("PC #%d: ", pc);
+                    for (int w=0; w < waveshape_samples_; ++w) {
+                        printf("%.2f ", pc_transform_[8][pc][w]);
+                    }
+                    printf("\n");
+                }
+            }
+            
         }
         
         pca_done_ = true;
@@ -365,15 +383,14 @@ void PCAExtractionProcessor::process(){
             
             compute_pcs(spike);
             
-            // DEBUG
-            
-            for (int ci=0; ci < 4; ++ci) {
-                printf("PCs chan #%d ", ci);
-                for (int pc=0; pc < num_pc_; ++pc) {
-                    printf("%f ", spike->pc[ci][pc]);
-                }
-                printf("\n");
-            }
+            // DEBUG            
+//            for (int ci=0; ci < 4; ++ci) {
+//                printf("PCs %d chan #%d ", spike->pkg_id_, ci);
+//                for (int pc=0; pc < num_pc_; ++pc) {
+//                    printf("%f ", spike->pc[ci][pc]);
+//                }
+//                printf("\n");
+//            }
         }
     }
 }

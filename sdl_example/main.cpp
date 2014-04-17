@@ -63,10 +63,11 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
     pipeline->add_processor(new SpikeAlignmentProcessor(buf));
     pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
+    pipeline->add_processor(new FileOutputProcessor(buf));
     pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16));
-    pipeline->add_processor(sdlSigDispProc);
+    //pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
-    pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
+    //pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
@@ -103,7 +104,7 @@ int get_image(){
     SDL_Texture *texture;
     SDL_Renderer *renderer;
 
-    window = SDL_CreateWindow("SDL2 Test", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    window = SDL_CreateWindow("LFP", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
     //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
@@ -118,6 +119,7 @@ int get_image(){
     //draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     SDL_Delay( 2000 );
+    char c = getchar();
     
     return 0;
 }

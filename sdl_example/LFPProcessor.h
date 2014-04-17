@@ -106,8 +106,11 @@ public:
     // position of first non-displayed PCA
     unsigned int spike_buf_no_disp_pca = SPIKE_BUF_HEAD_LEN;
     
-    // last unprocessed
+    // last unprocessed with PCA
     unsigned int spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
+    
+    // first non-outputted
+    unsigned int spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];
@@ -324,6 +327,14 @@ class SDLPCADisplayProcessor : public LFPProcessor{
     
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer, SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture);
+    virtual void process();
+};
+
+class FileOutputProcessor : public LFPProcessor{
+    FILE *f_ = NULL;
+    
+public:
+    FileOutputProcessor(LFPBuffer* buf);
     virtual void process();
 };
 
