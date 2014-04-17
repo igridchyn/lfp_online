@@ -234,9 +234,13 @@ void SDLPCADisplayProcessor::process(){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         if (spike->pc == NULL)
         {
-            break;
-            // buffer->spike_buf_no_disp_pca++;
-            // continue;
+            if (spike->discarded_){
+                buffer->spike_buf_no_disp_pca++;
+                continue;
+            }
+            else{
+                break;
+            }
         }
 
         int x = spike->pc[0][0] + 600;

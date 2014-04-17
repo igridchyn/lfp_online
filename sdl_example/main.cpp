@@ -67,7 +67,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16));
     //pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
-    //pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
+    pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
