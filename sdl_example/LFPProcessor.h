@@ -83,7 +83,7 @@ class LFPBuffer{
 public:
     static const int CHANNEL_NUM = 64;
     static const int LFP_BUF_LEN = 2 << 16; // 11
-    static const int BUF_HEAD_LEN = 2 << 6;
+    static const int BUF_HEAD_LEN = 2 << 10;
     
     static const int SPIKE_BUF_LEN = 2 << 16;
     static const int SPIKE_BUF_HEAD_LEN = 2 << 6;

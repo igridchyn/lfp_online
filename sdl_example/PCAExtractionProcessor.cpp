@@ -348,7 +348,7 @@ void PCAExtractionProcessor::process(){
     
     // TODO: when to redo PCA?
     // TODO: tetrode-wise counting !!! and check
-    if (num_spikes >= 800 && !pca_done_){
+    if (num_spikes >= 300 && !pca_done_){
         for (int channel = 0; channel < 64; ++channel){
             if (!buffer->is_valid_channel(channel)){
                 continue;

@@ -131,6 +131,7 @@ void SpikeDetectorProcessor::process()
                 
                 // check if rewind is requried
                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_HEAD_LEN - 1){
+                    // TODO: !!! delete the rest of spikes !
                     memcpy(buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN, buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN - 1 - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
                     
                     buffer->spike_buf_no_rec = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_rec);
@@ -155,11 +156,11 @@ void SpikeDetectorProcessor::process()
 // ============================================================================================================
 void PackageExractorProcessor::process(){
 
-    // see if buffer reinit is needed
+    // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (int c=0; c < buffer->CHANNEL_NUM; ++c){
-            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN * sizeof(unsigned char));
-            memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos, buffer->BUF_HEAD_LEN * sizeof(unsigned char));
+            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(int));
+            memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(int));
         }
 
         buffer->zero_level = buffer->buf_pos + 1;
