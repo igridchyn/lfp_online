@@ -118,7 +118,7 @@ int get_image(){
     draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
-    SDL_Delay( 2000 );
+    // SDL_Delay( 2000 );
     char c = getchar();
     
     return 0;

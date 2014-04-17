@@ -28,6 +28,13 @@ public:
     int num_channels_;
     
     Spike(int pkg_id, int tetrode);
+    
+    // workaround ? - has to be checked in every processor
+    // TODO: list of spikes or new buffer
+    bool discarded_ = false;
+    
+    // for next processors to know whether they can process this spike
+    bool aligned_ = false;
 };
 
 class TetrodesInfo{
@@ -249,8 +256,9 @@ public:
 };
 
 class SpikeAlignmentProcessor : public LFPProcessor{
-    unsigned int prev_spike_pos_ = -16;
+    unsigned int prev_spike_pos_ = 0;
     int prev_max_val_ = 0;
+    Spike *prev_spike_ = NULL;
     
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer)
@@ -336,6 +344,7 @@ class FileOutputProcessor : public LFPProcessor{
 public:
     FileOutputProcessor(LFPBuffer* buf);
     virtual void process();
+    ~FileOutputProcessor();
 };
 
 //==========================================================================================

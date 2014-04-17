@@ -312,6 +312,11 @@ void PCAExtractionProcessor::process(){
     while (buffer->spike_buf_pos_unproc_ < buffer->spike_buf_no_rec){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_];
         
+        if (spike->discarded_){
+            buffer->spike_buf_pos_unproc_++;
+            continue;
+        }
+        
         if (!pca_done_){
             for (int chani = 0; chani < buffer->tetr_info_->number_of_channels(spike); ++chani) {
                 int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
@@ -331,7 +336,9 @@ void PCAExtractionProcessor::process(){
         }
         else{
             // compute PCs
-            compute_pcs(spike);
+            if (!spike->discarded_){
+                compute_pcs(spike);
+            }
         }
         
         num_spikes++;
@@ -377,7 +384,7 @@ void PCAExtractionProcessor::process(){
         // get PCs for all past spikes
         for (int s=0; s < buffer->spike_buf_pos_unproc_; ++s) {
             Spike *spike = buffer->spike_buffer_[s];
-            if (spike == NULL){
+            if (spike == NULL || spike->discarded_){
                 continue;
             }
             

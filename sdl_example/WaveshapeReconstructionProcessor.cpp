@@ -132,6 +132,15 @@ void WaveShapeReconstructionProcessor::process(){
     // make sure alignment has been performed
     while (buffer->spike_buf_no_rec < buffer->spike_buf_nows_pos){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_rec];
+        if (!(spike->aligned_ || spike->discarded_)){
+            break;
+        }
+        
+        if (spike->discarded_){
+            buffer->spike_buf_no_rec++;
+            continue;
+        }
+        
         load_restore_one_spike(spike);
         
         // DEBUG: reconstructed waveshape, channel 0
