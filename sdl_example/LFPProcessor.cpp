@@ -121,13 +121,17 @@ void SpikeDetectorProcessor::process()
     
     for (int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
          for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+             
+             if (!buffer->is_valid_channel(channel))
+                 continue;
+             
              //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
              // DEBUG
              int threshold = (int)(43.491423979974343 * nstd_);
              
              // detection via threshold nstd * std
              int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
-             if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_ > refractory_)
+             if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_ >= refractory_ - 1)
              {
                  // printf("Spike: %d...\n", spike_pos);
                  // printf("%d ", spike_pos);
