@@ -81,6 +81,9 @@ void SpikeDetectorProcessor::process()
     
     // printf("Spike detect...");
     
+    // to start detection by threshold from this position after filtering + power computation
+    int det_pos = filt_pos;
+    
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
         if (!buffer->is_valid_channel(channel))
@@ -110,40 +113,44 @@ void SpikeDetectorProcessor::process()
                 buffer->powerEstimatorsMap_[channel]->push((float)sqrt(pw));
             
             // DEBUG
-            if (channel == 8){
-                // printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
-            }
-
-            //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
-            // DEBUG
-            int threshold = (int)(43.491423979974343 * nstd_);
-            
-            // detection via threshold nstd * std
-            int spike_pos = buffer->last_pkg_id - buffer->buf_pos + fpos;
-            if (buffer->power_buf[channel][fpos] > threshold && spike_pos - buffer->last_spike_pos_ > refractory_)
-            {
-                // printf("Spike: %d...\n", spike_pos);
-                // printf("%d ", spike_pos);
-                
-                buffer->last_spike_pos_ = spike_pos + 1;
-                buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
-                buffer->spike_buf_pos++;
-                
-                // check if rewind is requried
-                if (buffer->spike_buf_pos == buffer->SPIKE_BUF_HEAD_LEN - 1){
-                    // TODO: !!! delete the rest of spikes !
-                    memcpy(buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN, buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN - 1 - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
-                    
-                    buffer->spike_buf_no_rec = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_rec);
-                    buffer->spike_buf_nows_pos = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_nows_pos);
-                    buffer->spike_buf_pos_unproc_ = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_unproc_);
-                    buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_disp_pca);
-                    buffer->spike_buf_pos_out = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_out);
-                    
-                    buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
-                }
-            }
+//            if (channel == 8){
+//                // printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
+//            }
         }
+    }
+    
+    for (int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
+         for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+             //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
+             // DEBUG
+             int threshold = (int)(43.491423979974343 * nstd_);
+             
+             // detection via threshold nstd * std
+             int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
+             if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_ > refractory_)
+             {
+                 // printf("Spike: %d...\n", spike_pos);
+                 // printf("%d ", spike_pos);
+                 
+                 buffer->last_spike_pos_ = spike_pos + 1;
+                 buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
+                 buffer->spike_buf_pos++;
+                 
+                 // check if rewind is requried
+                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_HEAD_LEN - 1){
+                     // TODO: !!! delete the rest of spikes !
+                     memcpy(buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN, buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN - 1 - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
+                     
+                     buffer->spike_buf_no_rec = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_rec);
+                     buffer->spike_buf_nows_pos = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_nows_pos);
+                     buffer->spike_buf_pos_unproc_ = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_unproc_);
+                     buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_disp_pca);
+                     buffer->spike_buf_pos_out = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_out);
+                     
+                     buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
+                 }
+             }
+         }
     }
     
     filt_pos = buffer->buf_pos - filter_len / 2;
