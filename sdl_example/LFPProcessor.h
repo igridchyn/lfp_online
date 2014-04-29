@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <SDL2/SDL.h>
+#include "mlpack/methods/gmm/gmm.hpp"
 
 // object size:
 class Spike{
@@ -23,6 +24,8 @@ public:
     int **waveshape = NULL;
     int **waveshape_final = NULL;
     float **pc = NULL;
+    
+    int cluster_id_ = 0;
     
     int tetrode_;
     int num_channels_;
@@ -120,6 +123,13 @@ public:
     
     // first non-outputted
     unsigned int spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
+    
+    //  first non-clustered
+    // TODO: rewind
+    unsigned int spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
+    
+    // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
+    // TODO: INIT SPIKES instead of creating new /deleting
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];
@@ -347,6 +357,23 @@ public:
     FileOutputProcessor(LFPBuffer* buf);
     virtual void process();
     ~FileOutputProcessor();
+};
+
+// TODO: create abstract clustering class
+class GMMClusteringProcessor : public LFPProcessor{
+    const int min_observations_;
+    arma::mat observations_;
+    mlpack::gmm::GMM<> gmm_;
+    bool gmm_fitted_ = false;
+    unsigned int spikes_collected_ = 0;
+    
+    std::vector< arma::vec > means_;
+    std::vector< arma::mat > covariances_;
+    arma::vec weights_;
+    
+public:
+    GMMClusteringProcessor(LFPBuffer* buf);
+    virtual void process();
 };
 
 //==========================================================================================

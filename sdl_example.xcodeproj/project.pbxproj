@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */; };
+		B00005F419015CDD00502C4B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B00005F319015CDD00502C4B /* libxml2.dylib */; };
+		B00005F61901697900502C4B /* libmlpack.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B00005F51901697900502C4B /* libmlpack.1.0.dylib */; };
+		B00005F81901B71D00502C4B /* libarmadillo.3.92.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */; };
 		B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */; };
 		B03EACBB18FDA9170087C88F /* PCAExtractionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */; };
 		B03EACBF18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */; };
@@ -33,6 +37,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GMMClusteringProcessor.cpp; sourceTree = "<group>"; };
+		B00005F319015CDD00502C4B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		B00005F51901697900502C4B /* libmlpack.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmlpack.1.0.dylib; path = ../../../../opt/local/lib/libmlpack.1.0.dylib; sourceTree = "<group>"; };
+		B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libarmadillo.3.92.2.dylib; path = ../../../../opt/local/lib/libarmadillo.3.92.2.dylib; sourceTree = "<group>"; };
 		B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WaveshapeReconstructionProcessor.cpp; sourceTree = "<group>"; };
 		B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCAExtractionProcessor.cpp; sourceTree = "<group>"; };
 		B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLSignalDisplayProcessor.cpp; sourceTree = "<group>"; };
@@ -52,6 +60,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B00005F81901B71D00502C4B /* libarmadillo.3.92.2.dylib in Frameworks */,
+				B00005F61901697900502C4B /* libmlpack.1.0.dylib in Frameworks */,
+				B00005F419015CDD00502C4B /* libxml2.dylib in Frameworks */,
 				B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */,
 				B052748018A9441100193EAA /* SDL2.framework in Frameworks */,
 				B052747E18A943A700193EAA /* Cocoa.framework in Frameworks */,
@@ -64,6 +75,9 @@
 		B052743118A9375400193EAA = {
 			isa = PBXGroup;
 			children = (
+				B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */,
+				B00005F51901697900502C4B /* libmlpack.1.0.dylib */,
+				B00005F319015CDD00502C4B /* libxml2.dylib */,
 				B052748218ACD51900193EAA /* SDL2_ttf.framework */,
 				B052747F18A9441100193EAA /* SDL2.framework */,
 				B052747D18A943A700193EAA /* Cocoa.framework */,
@@ -91,6 +105,7 @@
 				B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */,
 				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
 				B03EACC0190006BE0087C88F /* SpikeAlignmentProcessor.cpp */,
+				B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */,
 			);
 			path = sdl_example;
 			sourceTree = "<group>";
@@ -151,6 +166,7 @@
 				B03EACBB18FDA9170087C88F /* PCAExtractionProcessor.cpp in Sources */,
 				B052743E18A9375500193EAA /* main.cpp in Sources */,
 				B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */,
+				B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,6 +205,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/Users/igridchyn/Projects/sdl_example/third/,
+					/Users/igridchyn/Projects/sdl_example/third/mlpack/,
+					/opt/local/include/libxml2/,
+					/opt/local/include/,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -221,6 +245,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/Users/igridchyn/Projects/sdl_example/third/,
+					/Users/igridchyn/Projects/sdl_example/third/mlpack/,
+					/opt/local/include/libxml2/,
+					/opt/local/include/,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 			};
@@ -234,6 +266,10 @@
 					/Library/Frameworks,
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"VALID_ARCHS[sdk=*]" = "i386 x86_64";
 			};
@@ -246,6 +282,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					/Library/Frameworks,
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

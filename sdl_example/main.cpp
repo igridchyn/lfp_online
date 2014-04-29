@@ -65,6 +65,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
     pipeline->add_processor(new FileOutputProcessor(buf));
     pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16));
+    pipeline->add_processor(new GMMClusteringProcessor(buf));
     //pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
