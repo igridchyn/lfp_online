@@ -25,15 +25,20 @@ class ArrayValidator{
     int gt_data_len_;
     
     // of GT compared to buffer : negative => GT comes earlier : GT[i + shfit] == BUF[i]
-    int gt_data_shift;
+    int gt_data_shift_;
+    
+    bool pass_reported = false;
 
     std::string name_;
     
+    void report_mismatch();
+    
 public:
     // have a pointer to the buf pos, target array and internal pointer in this array
-    ArrayValidator(std::string array_path, std::string name, T* buf, int const *buf_pos_ptr);
+    ArrayValidator(std::string array_path, std::string name, T* buf, int const *buf_pos_ptr, const int& gt_data_shift);
     // true if all values are OK, false if ANY fails
     bool validate();
+    inline bool is_over() { return targ_buf_pos_ + gt_data_shift_ >= gt_data_len_; }
 };
 
 class UnitTestingProcessor : public LFPProcessor{
