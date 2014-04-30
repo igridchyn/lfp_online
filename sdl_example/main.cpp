@@ -2,6 +2,7 @@
 #include <SDL2_ttf/SDL_ttf.h>
 #include "LFPProcessor.h"
 #include "UnitTestingProcessor.h"
+#include "PositionDisplayProcessor.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 600;
@@ -48,6 +49,22 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     SDL_RenderClear(renderer2);
     // =======
     
+    // ======= CP
+    SDL_Window *window3;
+    SDL_Texture *texture3;
+    SDL_Renderer *renderer3;
+    
+    window3 = SDL_CreateWindow("Tracking", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    renderer3 = SDL_CreateRenderer(window3, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+    texture3 = SDL_CreateTexture(renderer3, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
+    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
+    
+    SDL_SetRenderTarget(renderer3, texture3);
+    
+    SDL_SetRenderDrawColor(renderer3, 0, 0, 0, 255);
+    SDL_RenderClear(renderer3);
+    // =======
+    
     
     TetrodesInfo *tetr_inf = new TetrodesInfo();
     tetr_inf->tetrodes_number = 1;
@@ -71,6 +88,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
     pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
+    pipeline->add_processor(new PositionDisplayProcessor(buf, window3, renderer3, texture3));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);

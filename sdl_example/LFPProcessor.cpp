@@ -186,6 +186,23 @@ void PackageExractorProcessor::process(){
     // t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
     
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
+    
+    char pos_flag = *((char*)buffer->chunk_ptr + 3);
+    if (pos_flag == '2'){
+        // extract position
+        unsigned short bx = *((unsigned short*)(buffer->chunk_ptr + 16));
+        unsigned short by = *((unsigned short*)(buffer->chunk_ptr + 18));
+        unsigned short sx = *((unsigned short*)(buffer->chunk_ptr + 20));
+        unsigned short sy = *((unsigned short*)(buffer->chunk_ptr + 22));
+        
+        buffer->positions_buf_[buffer->pos_buf_pos_][0] = bx;
+        buffer->positions_buf_[buffer->pos_buf_pos_][1] = by;
+        buffer->positions_buf_[buffer->pos_buf_pos_][2] = sx;
+        buffer->positions_buf_[buffer->pos_buf_pos_][3] = sy;
+        
+        buffer->pos_buf_pos_++;
+    }
+    
     for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN) {
         for (int block=0; block < 3; ++block) {
             for (int c=0; c < buffer->CHANNEL_NUM; ++c, bin_ptr += 2) {

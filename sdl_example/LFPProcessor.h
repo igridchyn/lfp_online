@@ -128,6 +128,14 @@ public:
     // TODO: rewind
     unsigned int spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
     
+    
+    // POSITION BUFFER
+    static const int POS_BUF_SIZE = 1 << 16;
+    unsigned short positions_buf_[POS_BUF_SIZE][4];
+    unsigned int pos_buf_pos_ = 0;
+    unsigned int pos_buf_disp_pos_ = 0;
+    
+    
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
     
