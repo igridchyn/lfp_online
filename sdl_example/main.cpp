@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
 #include "LFPProcessor.h"
+#include "UnitTestingProcessor.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 600;
@@ -69,6 +70,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     //pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
+    pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);

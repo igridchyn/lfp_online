@@ -20,6 +20,7 @@
 		B052747E18A943A700193EAA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747D18A943A700193EAA /* Cocoa.framework */; };
 		B052748018A9441100193EAA /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747F18A9441100193EAA /* SDL2.framework */; };
 		B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052748218ACD51900193EAA /* SDL2_ttf.framework */; };
+		B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */; };
 		B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0CA797A18E952D600144950 /* LFPProcessor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,8 @@
 		B052747D18A943A700193EAA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B052747F18A9441100193EAA /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		B052748218ACD51900193EAA /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
+		B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTestingProcessor.cpp; sourceTree = "<group>"; };
+		B096A1AC1911112900846EBD /* UnitTestingProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestingProcessor.h; sourceTree = "<group>"; };
 		B0CA797A18E952D600144950 /* LFPProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPProcessor.cpp; sourceTree = "<group>"; };
 		B0CA797B18E952D600144950 /* LFPProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,6 +109,8 @@
 				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
 				B03EACC0190006BE0087C88F /* SpikeAlignmentProcessor.cpp */,
 				B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */,
+				B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */,
+				B096A1AC1911112900846EBD /* UnitTestingProcessor.h */,
 			);
 			path = sdl_example;
 			sourceTree = "<group>";
@@ -168,6 +173,7 @@
 				B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */,
 				B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
+				B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
