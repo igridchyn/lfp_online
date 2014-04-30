@@ -244,7 +244,8 @@ void SDLPCADisplayProcessor::process(){
     
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
-        if (spike->pc == NULL)
+        // wait until cluster is assigned
+        if (spike->pc == NULL || spike->cluster_id_ == -1)
         {
             if (spike->discarded_){
                 buffer->spike_buf_no_disp_pca++;
@@ -259,7 +260,7 @@ void SDLPCADisplayProcessor::process(){
         int y = spike->pc[0][1] + 300;
         
         SDL_SetRenderTarget(renderer_, texture_);
-        SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
+        SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
         SDL_RenderDrawPoint(renderer_, x, y);
         
         buffer->spike_buf_no_disp_pca++;
