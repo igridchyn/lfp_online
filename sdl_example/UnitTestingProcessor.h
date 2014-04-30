@@ -11,6 +11,37 @@
 
 # include "LFPProcessor.h"
 
+template<class T>
+class SpikeValidator{
+protected:
+    // taget buffer to be validated
+    Spike **targ_buf_;
+    int targ_buf_pos_ = 0;
+    unsigned int const *buf_pos_ptr_;
+    
+    T *gt_data_;
+    int gt_data_len_;
+    int gt_data_shift_;
+    
+    std::string name_;
+    bool pass_reported = false;
+    
+    virtual T get_feature(Spike *spike) = 0;
+    
+public:
+    SpikeValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift);
+    virtual bool validate();
+
+};
+
+class SpikeDetectionValidator : public SpikeValidator<int>{
+protected:
+    virtual int get_feature(Spike *spike);
+public:
+    SpikeDetectionValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift)
+    : SpikeValidator<int>(spike_path, name, buf, buf_pos_ptr, gt_data_shift){}
+};
+
 // classes for validation of signal / spike features
 template<class T>
 class ArrayValidator{
@@ -45,6 +76,8 @@ class UnitTestingProcessor : public LFPProcessor{
     const std::string test_dir_;
     std::vector<ArrayValidator<float>*> float_array_validators_;
     std::vector<ArrayValidator<int>*> int_array_validators_;
+    std::vector<SpikeValidator<int>*> int_spike_validators_;
+    std::vector<SpikeValidator<float>*> float_spike_validators_;
     
 public:
     UnitTestingProcessor(LFPBuffer *buf, const std::string test_dir);

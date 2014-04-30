@@ -20,10 +20,11 @@ ArrayValidator<T>::ArrayValidator(std::string array_path, std::string name, T* t
     f_filt_sig >> gt_data_len_;
     gt_data_ = new int[gt_data_len_];
     
+    // TODO: read value of type T from file (write integrers from Matlab)
     float dum;
     for (int i=0; i<gt_data_len_; ++i) {
         f_filt_sig >> dum;
-        gt_data_[i] = (int)dum;
+        gt_data_[i] = (T)dum;
     }
 }
 
@@ -68,6 +69,8 @@ UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string tes
         
     // filtered signal
         int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "filtered.txt", "filtered", buf->filtered_signal_buf[CHANNEL], &buffer->buf_pos, 1));
+        int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "pow.txt", "pow", buf->power_buf[CHANNEL], &buffer->buf_pos, 1));
+        int_spike_validators_.push_back(new SpikeDetectionValidator(test_dir_ + "detect.txt", "detected", buf->spike_buffer_, &buffer->spike_buf_pos, 1));
 }
 
 void UnitTestingProcessor::process(){
@@ -77,4 +80,50 @@ void UnitTestingProcessor::process(){
             exit(1);
         }
     }
+    
+    for (int i=0; i < int_spike_validators_.size(); ++i){
+        if (!int_spike_validators_[i]->validate()){
+            exit(1);
+        }
+    }
+}
+
+template<class T>
+SpikeValidator<T>::SpikeValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift)
+    : name_(name)
+    , targ_buf_(buf)
+    , buf_pos_ptr_(buf_pos_ptr)
+    , gt_data_shift_(gt_data_shift){
+    
+    std::ifstream f_filt_sig(spike_path);
+    f_filt_sig >> gt_data_len_;
+    gt_data_ = new int[gt_data_len_];
+    
+    float dum;
+    for (int i=0; i<gt_data_len_; ++i) {
+        f_filt_sig >> dum;
+        gt_data_[i] = (T)dum;
+    }
+}
+
+template <class T>
+bool SpikeValidator<T>::validate(){
+    while(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN] != NULL && targ_buf_pos_ < *(buf_pos_ptr_) && targ_buf_pos_ < gt_data_len_){
+        if (get_feature(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN]) != gt_data_[targ_buf_pos_]){
+            std::cout << "Spike validation mismatch (" << name_ << "): " << get_feature(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN]) << " != " << gt_data_[targ_buf_pos_] << "\n";
+            return false;
+        }
+        targ_buf_pos_++;
+    }
+    
+    if (targ_buf_pos_ >= gt_data_len_ && !pass_reported){
+        std::cout << "TEST PASSED: " << name_ << "\n";
+        pass_reported = true;
+    }
+    
+    return true;
+}
+
+int SpikeDetectionValidator::get_feature(Spike *spike){
+    return spike->pkg_id_;
 }

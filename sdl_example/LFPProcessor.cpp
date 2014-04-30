@@ -121,6 +121,7 @@ void SpikeDetectorProcessor::process()
     
     //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
     // DEBUG
+    // TODO: !!! dynamic threshold from the estimators
     int threshold = (int)(43.491423979974343 * nstd_);
     
     for (int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
