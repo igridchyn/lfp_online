@@ -165,7 +165,7 @@ public:
     
     LFPBuffer(TetrodesInfo* tetr_info);
     
-    inline bool is_valid_channel(int channel_num);
+    inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
 };
 
 class LFPProcessor{
@@ -203,6 +203,10 @@ public:
 
 class SDLControlInputMetaProcessor : public LFPProcessor{
     SDLControlInputProcessor* control_processor_;
+    
+    // id of last package with which the input was obtained
+    int last_input_pkg_id_ = 0;
+    static const int input_scan_rate_ = 1000;
     
 public:
     virtual void process();

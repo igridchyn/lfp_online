@@ -226,8 +226,17 @@ void PackageExractorProcessor::process(){
 void SDLControlInputMetaProcessor::process(){
     // check meta-events, control change, pass control to current processor
  
+    // for effectiveness: perform analysis every input_scan_rate_ packages
+    // TODO: select reasonable rate
+    if (buffer->last_pkg_id - last_input_pkg_id_ < input_scan_rate_)
+        return;
+    else
+        last_input_pkg_id_ = buffer->last_pkg_id;
+    
     SDL_Event e;
     bool quit = false;
+    
+    // SDL_PollEvent took 2/3 of runtime without limitations
     while( SDL_PollEvent( &e ) != 0 )
     {
         //User requests quit
@@ -355,10 +364,6 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
         }
     }
     
-}
-
-inline bool LFPBuffer::is_valid_channel(int channel_num){
-    return is_valid_channel_[channel_num];
 }
 
 // ============================================================================================================
