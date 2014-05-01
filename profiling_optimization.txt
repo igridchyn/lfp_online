@@ -1,9 +1,17 @@
 65.5%: SDLControlInputMetaProcessor::process() - 11117/16970 ms
 
-======
+===========================================================================
+after less frequent input processing:
 
-40.0%: SpikeDetectorProcessor
+40.0%: SpikeDetectorProcessor : 2700 / 7000 ms
 	for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered += *(chan_sig_buf) * filter[j];
             }
 32.3%: PackageExtractorProcessor
+
+
+===========================================================================
+after long long filtering (not UNIT TESTED !!!)
+
+39.7% : PackageExtractorProcessor : 1924 / 4816 ms
+24.6% : SpikeDetectorProcessor : 1193 / 4816 ms
