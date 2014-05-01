@@ -12,17 +12,13 @@
 #include <iostream>
 #include "LFPProcessor.h"
 
-class PositionDisplayProcessor : public LFPProcessor{
-    SDL_Window *window_;
-    SDL_Renderer *renderer_;
-    SDL_Texture *texture_;
+class PositionDisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
     
 public:
-    PositionDisplayProcessor(LFPBuffer *buf, SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture)
+    PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
     : LFPProcessor(buf)
-    , window_(window)
-    , renderer_(renderer)
-    , texture_(texture) { }
+    , SDLSingleWindowDisplay(window_name, window_width, window_height)
+    { }
     
     virtual void process();
 };

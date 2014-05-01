@@ -246,7 +246,7 @@ public:
     :LFPProcessor(buffer){}
 };
 
-class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputProcessor{
+class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputProcessor, public SDLSingleWindowDisplay{
     static const int SCREEN_HEIGHT = 600;
     static const int SCREEN_WIDTH = 1280;
     
@@ -254,10 +254,6 @@ class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputPro
     
     // 11000
     static const int SHIFT = 1300;
-    
-    SDL_Window *window_;
-    SDL_Texture *texture_;
-    SDL_Renderer *renderer_;
     
     int plot_scale = 1; // 40
     int plot_hor_scale = 10;
@@ -278,14 +274,7 @@ class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputPro
     
 public:
     virtual void process();
-    SDLSignalDisplayProcessor(LFPBuffer *buffer, SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* texture, int target_channel)
-        :LFPProcessor(buffer)
-        , window_(window)
-        , texture_(texture)
-        , renderer_(renderer)
-        , target_channel_(target_channel)
-        , current_x(0)
-        , last_disp_pos(0){}
+    SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, int target_channel);
     
     virtual void process_SDL_control_input(const SDL_Event& e);
 };

@@ -4,50 +4,20 @@
 #include "UnitTestingProcessor.h"
 #include "PositionDisplayProcessor.h"
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 600;
-
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
     SDL_RenderDrawPoint(renderer, x, y);
 }
 
-void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2){
-    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-}
-
 typedef short t_bin;
 
-void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, const char *path){
+void draw_bin(const char *path){
     FILE *f = fopen(path, "rb");
     
     const int CHUNK_SIZE = 432; // bytes
     
     unsigned char block[ CHUNK_SIZE ];
-    int plot_scale = 40;
-    const int SHIFT = 3000;
-    
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
-
-    // ======= CP
-    SDL_Window *window3;
-    SDL_Texture *texture3;
-    SDL_Renderer *renderer3;
-    
-    window3 = SDL_CreateWindow("Tracking", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    renderer3 = SDL_CreateRenderer(window3, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-    texture3 = SDL_CreateTexture(renderer3, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
-    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
-    
-    SDL_SetRenderTarget(renderer3, texture3);
-    
-    SDL_SetRenderDrawColor(renderer3, 0, 0, 0, 255);
-    SDL_RenderClear(renderer3);
-    // =======
-    
     
     TetrodesInfo *tetr_inf = new TetrodesInfo();
     tetr_inf->tetrodes_number = 1;
@@ -57,7 +27,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     LFPBuffer *buf = new LFPBuffer(tetr_inf);
 
     LFPPipeline *pipeline = new LFPPipeline();
-    SDLSignalDisplayProcessor *sdlSigDispProc = new SDLSignalDisplayProcessor(buf, window, renderer, texture, 0);
+    SDLSignalDisplayProcessor *sdlSigDispProc = new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0);
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));
@@ -71,7 +41,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600));
     pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
-    pipeline->add_processor(new PositionDisplayProcessor(buf, window3, renderer3, texture3));
+    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
@@ -104,22 +74,8 @@ void draw_test(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture)
 }
 
 int get_image(){
-    SDL_Window *window;
-    SDL_Texture *texture;
-    SDL_Renderer *renderer;
-
-    window = SDL_CreateWindow("LFP", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
-    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
-    
-    SDL_SetRenderTarget(renderer, texture);
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-    
     // draw_test(window, renderer, texture);
-    draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
+    draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     // SDL_Delay( 2000 );

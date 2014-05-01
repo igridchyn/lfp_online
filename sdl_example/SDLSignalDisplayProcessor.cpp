@@ -8,6 +8,16 @@
 
 #include "LFPProcessor.h"
 
+SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, int target_channel)
+    : LFPProcessor(buffer)
+    , SDLSingleWindowDisplay(window_name, window_width, window_height)
+    , target_channel_(target_channel)
+    , current_x(0)
+    , last_disp_pos(0){
+    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+    SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
+}
+
 void SDLSignalDisplayProcessor::process(){
     // buffer has been reinitizlied
     if ( buffer->zero_level > 0 )
