@@ -143,7 +143,7 @@ private:
     bool is_valid_channel_[CHANNEL_NUM];
     
 public:
-    int signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
+    short signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
     int filtered_signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
     int power_buf[CHANNEL_NUM][LFP_BUF_LEN];
     

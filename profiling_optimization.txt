@@ -11,7 +11,10 @@ after less frequent input processing:
 
 
 ===========================================================================
-after long long filtering (not UNIT TESTED !!!)
+after long long filtering (UNIT TESTED !!!)
 
-39.7% : PackageExtractorProcessor : 1924 / 4816 ms
-24.6% : SpikeDetectorProcessor : 1193 / 4816 ms
+39.7% : PackageExtractorProcessor : 1924 / 4816 ms; 2000 / 5200 ms;
+24.6% : SpikeDetectorProcessor : 1193 / 4816 ms; 1300 / 5200 ms;
+
+===========================================================================
++ short* in signal_buf

@@ -95,7 +95,7 @@ void SpikeDetectorProcessor::process()
             
             // filter with high-pass spike filter
             float filtered = 0;
-            int *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
+            short *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
             
             long long filtered_long = 0;
             for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
@@ -209,17 +209,19 @@ void PackageExractorProcessor::process(){
     
     for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN) {
         for (int block=0; block < 3; ++block) {
-            for (int c=0; c < buffer->CHANNEL_NUM; ++c, bin_ptr += 2) {
+            short * sbin_ptr = (short*)bin_ptr;
+            for (int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
                 // ??? is it necessary to order the channels?
                 // ??? filter directly the data in bin buffer? [for better performance]
                 
                 // !!!??? +1 to make similar to *.dat
-                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *((short*)bin_ptr) + 1;
+                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *(sbin_ptr) + 1;
                 
                 // DEBUG
                 //if (c == 0)
                 //    printf("%d\n", *((short*)bin_ptr) + 1);
             }
+            bin_ptr += 2 *  buffer->CHANNEL_NUM;
         }
     }
     
