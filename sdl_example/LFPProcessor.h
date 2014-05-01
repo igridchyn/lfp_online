@@ -181,6 +181,21 @@ public:
 
 //====================================================================================================
 
+class SDLSingleWindowDisplay{
+protected:
+    SDL_Window *window_;
+    SDL_Renderer *renderer_;
+    SDL_Texture *texture_;
+    
+    const unsigned int window_width_;
+    const unsigned int window_height_;
+    
+public:
+    SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
+};
+
+//====================================================================================================
+
 class SDLControlInputProcessor{
 public:
     virtual void process_SDL_control_input(const SDL_Event& e) = 0;
@@ -348,13 +363,10 @@ public:
     virtual void process();
 };
 
-class SDLPCADisplayProcessor : public LFPProcessor{
-    SDL_Window *window_;
-    SDL_Renderer *renderer_;
-    SDL_Texture *texture_;
+class SDLPCADisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
     
 public:
-    SDLPCADisplayProcessor(LFPBuffer *buffer, SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture);
+    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height);
     virtual void process();
 };
 

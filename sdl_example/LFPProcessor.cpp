@@ -246,11 +246,10 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
     , control_processor_(control_processor)
 {}
 
-SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buf, SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture)
-: LFPProcessor(buf)
-, window_(window)
-, renderer_(renderer)
-, texture_(texture){
+SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height)
+: LFPProcessor(buffer)
+, SDLSingleWindowDisplay(window_name, window_width, window_height)
+{
     
 }
 
@@ -394,4 +393,19 @@ void OnlineEstimator<T>::push(T value){
     sumsq += buf[buf_pos] * buf[buf_pos];
     
     buf_pos = (buf_pos + 1) % BUF_SIZE;
+}
+
+SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
+    : window_width_(window_width)
+    , window_height_(window_height) {
+    
+    window_ = SDL_CreateWindow(window_name.c_str(), 0,0,window_width, window_height, 0);
+    renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+    texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window_width, window_height);
+    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
+    
+    SDL_SetRenderTarget(renderer_, texture_);
+    
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
 }

@@ -32,23 +32,6 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
 
-    
-    // ======= CP
-    SDL_Window *window2;
-    SDL_Texture *texture2;
-    SDL_Renderer *renderer2;
-    
-    window2 = SDL_CreateWindow("PCA", 0,0,SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    renderer2 = SDL_CreateRenderer(window2, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-    texture2 = SDL_CreateTexture(renderer2, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
-    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
-    
-    SDL_SetRenderTarget(renderer2, texture2);
-    
-    SDL_SetRenderDrawColor(renderer2, 0, 0, 0, 255);
-    SDL_RenderClear(renderer2);
-    // =======
-    
     // ======= CP
     SDL_Window *window3;
     SDL_Texture *texture3;
@@ -86,7 +69,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
     pipeline->add_processor(new GMMClusteringProcessor(buf));
     //pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
-    pipeline->add_processor(new SDLPCADisplayProcessor(buf, window2, renderer2, texture2));
+    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600));
     pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     pipeline->add_processor(new PositionDisplayProcessor(buf, window3, renderer3, texture3));
     
