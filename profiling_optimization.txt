@@ -18,13 +18,3 @@ after long long filtering (UNIT TESTED !!!)
 
 ===========================================================================
 + short* in signal_buf
-? using symmetr
-
-35.2% : PackageExtractorProcessor 1620 / 4570 ms
-27.6% : SpikeDetectorProcessor 1270 / 4570 ms
-
-without reading / display
-	2s per 125s of data for 4 channels and 1 thread
-		~ 32 s for 64 channels; with multi-threading (~8s for 8 threads) ~X8 real-time
-
-===========================================================================

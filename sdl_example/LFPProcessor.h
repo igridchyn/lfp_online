@@ -13,7 +13,6 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include "mlpack/methods/gmm/gmm.hpp"
-#include "OnlineEstimator.cpp"
 
 // object size:
 class Spike{
@@ -60,7 +59,25 @@ public:
     int number_of_channels(Spike* spike);
 };
 
+//==========================================================================================
 
+template<class T>
+class OnlineEstimator{
+    static const int BUF_SIZE = 2 << 24;
+    
+    T buf[BUF_SIZE];
+    unsigned int buf_pos = 0;
+    unsigned int num_samples = 0;
+    
+    T sum = 0;
+    T sumsq = 0;
+    
+public:
+    //OnlineEstimator();
+    void push(T value);
+    T get_mean_estimate();
+    T get_std_estimate();
+};
 
 //==========================================================================================
 
