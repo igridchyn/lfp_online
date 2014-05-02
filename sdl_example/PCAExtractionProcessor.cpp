@@ -175,25 +175,24 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     ev=(float*)malloc(ftno*sizeof(float));
     ind=(int*)malloc(ftno*sizeof(int));
     
-    printf("\nMeans, num_obj: %d: ", num_obj);
-    for (i=0;i<ftno;i++){
-        mea[i]=mea[i]/(float)num_obj;
-        printf("%f ", mea[i]);
-    }
-    printf("\n");
-
-    printf("Correlation matrix:\n");
-    for (i=0;i<ftno;i++){
-        for ( j=i;j<ftno;j++) {
-            cor[j][i]=cor[i][j]=cor[i][j]/(float)num_obj-mea[i]*mea[j];
-            printf("%f ", cor[j][i]);
-        }
-        printf("\n");
-    }
-
-    printf("Solving Eigen equation...");
-    eigenc(cor,ev,ftno);
-    printf("finished!\n");
+    // DEBUG
+//    printf("\nMeans, num_obj: %d: ", num_obj);
+//    for (i=0;i<ftno;i++){
+//        mea[i]=mea[i]/(float)num_obj;
+//        printf("%f ", mea[i]);
+//    }
+//    printf("\n");
+//    printf("Correlation matrix:\n");
+//    for (i=0;i<ftno;i++){
+//        for ( j=i;j<ftno;j++) {
+//            cor[j][i]=cor[i][j]=cor[i][j]/(float)num_obj-mea[i]*mea[j];
+//            printf("%f ", cor[j][i]);
+//        }
+//        printf("\n");
+//    }
+//    printf("Solving Eigen equation...");
+//    eigenc(cor,ev,ftno);
+//    printf("finished!\n");
     
     // bubble sort eigenvalues
     sz1=0.;

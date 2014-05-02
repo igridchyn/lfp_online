@@ -22,6 +22,8 @@
 		B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052748218ACD51900193EAA /* SDL2_ttf.framework */; };
 		B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */; };
 		B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */; };
+		B096A1B21913789E00846EBD /* SpikeDetectorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1B01913789E00846EBD /* SpikeDetectorProcessor.cpp */; };
+		B096A1B819137B5500846EBD /* OnlineEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1B619137B5500846EBD /* OnlineEstimator.cpp */; };
 		B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0CA797A18E952D600144950 /* LFPProcessor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +59,8 @@
 		B096A1AC1911112900846EBD /* UnitTestingProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestingProcessor.h; sourceTree = "<group>"; };
 		B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositionDisplayProcessor.cpp; sourceTree = "<group>"; };
 		B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionDisplayProcessor.h; sourceTree = "<group>"; };
+		B096A1B01913789E00846EBD /* SpikeDetectorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetectorProcessor.cpp; sourceTree = "<group>"; };
+		B096A1B619137B5500846EBD /* OnlineEstimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnlineEstimator.cpp; sourceTree = "<group>"; };
 		B0CA797A18E952D600144950 /* LFPProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPProcessor.cpp; sourceTree = "<group>"; };
 		B0CA797B18E952D600144950 /* LFPProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,6 +120,8 @@
 				B096A1AC1911112900846EBD /* UnitTestingProcessor.h */,
 				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
 				B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */,
+				B096A1B01913789E00846EBD /* SpikeDetectorProcessor.cpp */,
+				B096A1B619137B5500846EBD /* OnlineEstimator.cpp */,
 			);
 			path = sdl_example;
 			sourceTree = "<group>";
@@ -173,6 +179,7 @@
 			files = (
 				B03EACBF18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp in Sources */,
 				B03EACC2190006BF0087C88F /* SpikeAlignmentProcessor.cpp in Sources */,
+				B096A1B819137B5500846EBD /* OnlineEstimator.cpp in Sources */,
 				B03EACBB18FDA9170087C88F /* PCAExtractionProcessor.cpp in Sources */,
 				B052743E18A9375500193EAA /* main.cpp in Sources */,
 				B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */,
@@ -180,6 +187,7 @@
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
 				B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */,
 				B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */,
+				B096A1B21913789E00846EBD /* SpikeDetectorProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
