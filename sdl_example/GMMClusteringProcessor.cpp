@@ -32,7 +32,8 @@ void GMMClusteringProcessor::process(){
     while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
         Spike* spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 
-        if(spike->discarded_){
+        // TODO: clustering for each tetrode
+        if(spike->discarded_ || spike->tetrode_ > 0){
             buffer->spike_buf_pos_clust_++;
             continue;
         }
