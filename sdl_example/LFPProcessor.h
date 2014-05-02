@@ -40,6 +40,16 @@ public:
     bool aligned_ = false;
 };
 
+class ColorPalette{
+    int num_colors_;
+    int *color_values_;
+public:
+    ColorPalette(int num_colors, int *color_values);
+    int getR(int order);
+    int getG(int order);
+    int getB(int order);
+};
+
 class TetrodesInfo{
     
 public:
@@ -361,6 +371,8 @@ public:
 
 class SDLPCADisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
     
+    ColorPalette palette_;
+    
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height);
     virtual void process();
@@ -404,5 +416,7 @@ public:
 };
 
 //==========================================================================================
+
+
 
 #endif /* defined(__sdl_example__LFPProcessor__) */

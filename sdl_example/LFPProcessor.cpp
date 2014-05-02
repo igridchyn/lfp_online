@@ -264,6 +264,8 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
 SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height)
 : LFPProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
+// paired qualitative brewer palette
+, palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928})
 {
     
 }
@@ -292,7 +294,8 @@ void SDLPCADisplayProcessor::process(){
         int y = spike->pc[0][1] + 300;
         
         SDL_SetRenderTarget(renderer_, texture_);
-        SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
+        //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
+        SDL_SetRenderDrawColor(renderer_, palette_.getR((int)spike->cluster_id_), palette_.getG((int)spike->cluster_id_), palette_.getB((int)spike->cluster_id_),255);
         SDL_RenderDrawPoint(renderer_, x, y);
         
         buffer->spike_buf_no_disp_pca++;
@@ -419,4 +422,18 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
     
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
+}
+
+ColorPalette::ColorPalette(int num_colors, int *color_values)
+    : num_colors_(num_colors)
+, color_values_(color_values) {}
+
+int ColorPalette::getR(int order){
+    return (color_values_[order] & 0xFF0000) >> 16;
+}
+int ColorPalette::getG(int order){
+    return (color_values_[order] & 0x00FF00) >> 8;
+}
+int ColorPalette::getB(int order){
+    return color_values_[order] & 0x0000FF;
 }

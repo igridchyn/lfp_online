@@ -18,3 +18,5 @@ after long long filtering (UNIT TESTED !!!)
 
 ===========================================================================
 + short* in signal_buf
+
+http://mkweb.bcgsc.ca/brewer/

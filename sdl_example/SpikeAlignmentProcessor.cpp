@@ -76,8 +76,9 @@ void SpikeAlignmentProcessor::process(){
         if (peak_pos - prev_spike_pos_ > 16)
     	{
             if (prev_spike_pos_ > 0){
+                // DEBUG
                 // printf("Aligned spike pos: %d\n", prev_spike_pos_);
-                printf("%d ", prev_spike_pos_);
+                // printf("%d ", prev_spike_pos_);
                 
                 for(int ch=0; ch < num_of_ch; ++ch){
                     memcpy(prev_spike_->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[prev_spike_->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));

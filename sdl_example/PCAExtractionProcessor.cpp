@@ -175,25 +175,25 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     ev=(float*)malloc(ftno*sizeof(float));
     ind=(int*)malloc(ftno*sizeof(int));
     
-    printf("\nMeans, num_obj: %d: ", num_obj);
+    //printf("\nMeans, num_obj: %d: ", num_obj);
     for (i=0;i<ftno;i++){
         mea[i]=mea[i]/(float)num_obj;
-        printf("%f ", mea[i]);
+        //printf("%f ", mea[i]);
     }
-    printf("\n");
+    //printf("\n");
 
-    printf("Correlation matrix:\n");
+    //printf("Correlation matrix:\n");
     for (i=0;i<ftno;i++){
         for ( j=i;j<ftno;j++) {
             cor[j][i]=cor[i][j]=cor[i][j]/(float)num_obj-mea[i]*mea[j];
-            printf("%f ", cor[j][i]);
+            //printf("%f ", cor[j][i]);
         }
-        printf("\n");
+        //printf("\n");
     }
 
-    printf("Solving Eigen equation...");
+    //printf("Solving Eigen equation...");
     eigenc(cor,ev,ftno);
-    printf("finished!\n");
+    //printf("finished!\n");
     
     // bubble sort eigenvalues
     sz1=0.;
@@ -214,11 +214,12 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
             }
     }
     
-    printf("\nEigenvalues: ");
-    for(i=0;i<ftno;i++){
-        printf("%f ", ev[i]);
-    }
-    printf("\n");
+    // DEBUG
+//    printf("\nEigenvalues: ");
+//    for(i=0;i<ftno;i++){
+//        printf("%f ", ev[i]);
+//    }
+//    printf("\n");
     
     for(j=0;j<prno;j++){
         for(i=0;i<ftno;i++)         {
@@ -227,9 +228,9 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     }
     
     sz2=0.;
-    printf("Variances per feature:  ");
+    //printf("Variances per feature:  ");
     for(j=0;j<prno;j++){
-        printf("%5.4f ",ev[j]/sz1);
+        //printf("%5.4f ",ev[j]/sz1);
         sz2+=ev[j];
     }
     
@@ -391,13 +392,13 @@ void PCAExtractionProcessor::process(){
             compute_pcs(spike);
             
             // DEBUG            
-            for (int ci=0; ci < 4; ++ci) {
-                printf("PCs %d chan #%d ", spike->pkg_id_, ci);
-                for (int pc=0; pc < num_pc_; ++pc) {
-                    printf("%f ", spike->pc[ci][pc]);
-                }
-                printf("\n");
-            }
+//            for (int ci=0; ci < 4; ++ci) {
+//                printf("PCs %d chan #%d ", spike->pkg_id_, ci);
+//                for (int pc=0; pc < num_pc_; ++pc) {
+//                    printf("%f ", spike->pc[ci][pc]);
+//                }
+//                printf("\n");
+//            }
         }
     }
 }
