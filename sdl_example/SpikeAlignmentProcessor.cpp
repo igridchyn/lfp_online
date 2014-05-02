@@ -18,6 +18,8 @@ void SpikeAlignmentProcessor::process(){
         spike->waveshape = new int*[num_of_ch];
         spike->num_channels_ = num_of_ch;
         
+        int tetrode = spike->tetrode_;
+        
         for (int ch=0; ch < num_of_ch; ++ch){
             // for reconstructed ws
             spike->waveshape[ch] = new int[128];
@@ -73,15 +75,15 @@ void SpikeAlignmentProcessor::process(){
         
         // if not within refractory period from previous spike
         
-        if (peak_pos - prev_spike_pos_ > 16)
+        if (peak_pos - prev_spike_pos_[tetrode] > 16)
     	{
-            if (prev_spike_pos_ > 0){
+            if (prev_spike_pos_[tetrode] > 0){
                 // DEBUG
                 // printf("Aligned spike pos: %d\n", prev_spike_pos_);
                 // printf("%d ", prev_spike_pos_);
                 
                 for(int ch=0; ch < num_of_ch; ++ch){
-                    memcpy(prev_spike_->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[prev_spike_->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));
+                    memcpy(prev_spike_[tetrode]->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[prev_spike_[tetrode]->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode]) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));
                     
                     // DEBUG
                     //                    printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
@@ -90,21 +92,21 @@ void SpikeAlignmentProcessor::process(){
                     //                    }
                     //                    printf("\n");
                 }
-                prev_spike_->aligned_ = true;
+                prev_spike_[tetrode]->aligned_ = true;
             }
             
-            prev_spike_pos_ = peak_pos;
-            prev_max_val_ = max_val;
-            prev_spike_ = spike;
+            prev_spike_pos_[tetrode] = peak_pos;
+            prev_max_val_[tetrode] = max_val;
+            prev_spike_[tetrode] = spike;
     	}
         // ??? otherwise - replace with current, if larger  ??? - still spiking
         else{
-            if (max_val < prev_max_val_){
-                prev_spike_->discarded_ = true;
+            if (max_val < prev_max_val_[tetrode]){
+                prev_spike_[tetrode]->discarded_ = true;
                 
-                prev_spike_pos_ = peak_pos;
-                prev_max_val_ = max_val;
-                prev_spike_ = spike;
+                prev_spike_pos_[tetrode] = peak_pos;
+                prev_max_val_[tetrode] = max_val;
+                prev_spike_[tetrode] = spike;
             }
             else{
                 // current within refractory and with smaller amplitude -> discard
@@ -114,4 +116,16 @@ void SpikeAlignmentProcessor::process(){
         
         buffer-> spike_buf_nows_pos++;
     }
+}
+
+SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
+: LFPProcessor(buffer){
+    int tetr_num = buffer->tetr_info_->tetrodes_number;
+    
+    prev_spike_pos_ = new unsigned int[tetr_num];
+    memset(prev_spike_pos_, 0, sizeof(unsigned int)*tetr_num);
+    prev_max_val_ = new int[tetr_num];
+    memset(prev_max_val_, 0, sizeof(int)*tetr_num);
+    prev_spike_ = new Spike*[tetr_num];
+    memset(prev_spike_, 0, sizeof(Spike*)*tetr_num);
 }
