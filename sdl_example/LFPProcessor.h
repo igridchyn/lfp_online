@@ -393,6 +393,8 @@ public:
 
 // TODO: create abstract clustering class
 class GMMClusteringProcessor : public LFPProcessor{
+    unsigned int dimensionality_;
+    
     int min_observations_;
     arma::mat observations_;
     std::vector<Spike*> obs_spikes_;

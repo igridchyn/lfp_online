@@ -16,15 +16,15 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf)
     , min_observations_(500){
     
     unsigned int gaussians = 4;
-    unsigned int dimensionality = 2;
+    dimensionality_ = 2;
         
-    observations_ = arma::mat(dimensionality, 500, arma::fill::zeros);
-    means_.resize(gaussians, arma::mat(dimensionality, 1));
-    covariances_.resize(gaussians, arma::mat(dimensionality, dimensionality));
+    observations_ = arma::mat(dimensionality_, 500, arma::fill::zeros);
+    means_.resize(gaussians, arma::mat(dimensionality_, 1));
+    covariances_.resize(gaussians, arma::mat(dimensionality_, dimensionality_));
     weights_ = arma::vec(gaussians);
         
     // Fitting type by default is EMFit
-    gmm_ = mlpack::gmm::GMM<> (gaussians,dimensionality);
+    gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
 }
 
 void GMMClusteringProcessor::process(){
@@ -63,7 +63,27 @@ void GMMClusteringProcessor::process(){
 //                    printf("%f/%f\n", observations_(0, i), observations_(1,i));
 //                }
                 
-                gmm_.Estimate(observations_);
+                // iterate over number of clusters
+                // !!! TODO: models with non-full covariance matrix ???
+                double BIC_min = 100000;
+                mlpack::gmm::GMM<> gmm_best;
+                for (int nclust = 1; nclust < 10; ++nclust) {
+                    mlpack::gmm::GMM<> gmmn(nclust, 2);
+                    double likelihood = gmmn.Estimate(observations_);
+                    int nparams = nclust * dimensionality_ * (dimensionality_ + 1);
+                    double BIC = -2 * likelihood + nparams * log(observations_.size());
+                    
+                    if (BIC < BIC_min){
+                        gmm_best = gmmn;
+                        BIC_min = BIC;
+                    }
+                    
+                    // DEBUG
+                    printf("BIC of model with full covariance and %d clusters = %lf\n", nclust, BIC);
+                }
+                
+                gmm_ = gmm_best;
+                printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_.Gaussians());
                 
                 printf("\nCluster weights:");
                 for (int i=0; i < 4; ++i) {
