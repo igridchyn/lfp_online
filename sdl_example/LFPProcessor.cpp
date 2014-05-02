@@ -72,7 +72,10 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     
     filt_pos = buffer->HEADER_LEN;
     
-    buffer->last_spike_pos_ = - refractory_;
+    for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+        buffer->last_spike_pos_[t] = - refractory_;
+    }
+
     //printf("filt len: %d\n", filter_len);
 }
 
@@ -134,19 +137,25 @@ void SpikeDetectorProcessor::process()
              if (!buffer->is_valid_channel(channel))
                  continue;
              
+             int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
+             
              // detection via threshold nstd * std
              int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
-             if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_ >= refractory_ - 1)
+             if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)
              {
                  // printf("Spike: %d...\n", spike_pos);
                  // printf("%d ", spike_pos);
                  
-                 buffer->last_spike_pos_ = spike_pos + 1;
-                 buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, buffer->tetr_info_->tetrode_by_channel[channel]);
+                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
+                 // TODO: reinit
+                 if (buffer->spike_buffer_[buffer->spike_buf_pos] != NULL)
+                     delete buffer->spike_buffer_[buffer->spike_buf_pos];
+                     
+                 buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, tetrode);
                  buffer->spike_buf_pos++;
                  
                  // check if rewind is requried
-                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_HEAD_LEN - 1){
+                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_LEN - 1){
                      // TODO: !!! delete the rest of spikes !
                      memcpy(buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN, buffer->spike_buffer_ + buffer->SPIKE_BUF_HEAD_LEN - 1 - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
                      
@@ -280,6 +289,12 @@ void SDLPCADisplayProcessor::process(){
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
+        
+        if (spike->tetrode_ != target_tetrode_){
+            buffer->spike_buf_no_disp_pca++;
+            continue;
+        }
+        
         if (spike->pc == NULL || spike->cluster_id_ == -1)
         {
             if (spike->discarded_){
@@ -289,11 +304,6 @@ void SDLPCADisplayProcessor::process(){
             else{
                 break;
             }
-        }
-        
-        if (spike->tetrode_ != target_tetrode_){
-            buffer->spike_buf_no_disp_pca++;
-            continue;
         }
 
         int x = spike->pc[0][0] + 600;
@@ -379,6 +389,7 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
         }
     }
     
+    last_spike_pos_ = new int[tetr_info_->tetrodes_number];
 }
 
 // ============================================================================================================

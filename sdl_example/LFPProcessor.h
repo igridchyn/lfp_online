@@ -160,7 +160,8 @@ public:
     // ??? for all arrays ?
     int buf_pos;
     int last_pkg_id = 0;
-    int last_spike_pos_;
+    // for each tetrode
+    int *last_spike_pos_;
     
     // if shift has happened, what was the previous zero level;
     int zero_level;
@@ -297,13 +298,13 @@ public:
 };
 
 class SpikeAlignmentProcessor : public LFPProcessor{
-    unsigned int prev_spike_pos_ = 0;
-    int prev_max_val_ = 0;
-    Spike *prev_spike_ = NULL;
+    // for each tetrode
+    unsigned int *prev_spike_pos_ = 0;
+    int *prev_max_val_ = 0;
+    Spike **prev_spike_ = NULL;
     
 public:
-    SpikeAlignmentProcessor(LFPBuffer* buffer)
-    : LFPProcessor(buffer){}
+    SpikeAlignmentProcessor(LFPBuffer* buffer);
     virtual void process();
 };
 
@@ -328,6 +329,7 @@ public:
 };
 
 class PCAExtractionProcessor : public LFPProcessor{
+    // projection matrix
     float ***prm;
     
     void tred(float **a,int n,float d[],float e[]);
@@ -347,8 +349,8 @@ class PCAExtractionProcessor : public LFPProcessor{
     float **corf_;
     float *meanf_;
     
-    // number of objects accumulated in means / cors
-    unsigned int num_spikes;
+    // number of objects accumulated in means / cors for each tetrode
+    unsigned int *num_spikes;
     
     // number of components per channel
     unsigned int num_pc_;
@@ -362,7 +364,7 @@ class PCAExtractionProcessor : public LFPProcessor{
     
     // WORKAROUND
     // TODO: recalc PCA periodically using online estimators
-    bool pca_done_ = false;
+    bool *pca_done_;
     
 public:
     PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples);
