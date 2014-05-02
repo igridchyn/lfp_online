@@ -21,15 +21,15 @@ void draw_bin(const char *path){
     
     TetrodesInfo *tetr_inf = new TetrodesInfo();
     
-//    tetr_inf->tetrodes_number = 2;
-//    tetr_inf->channels_numbers = new int[2]{4, 4};
-//    //tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
-//    //tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
-//    tetr_inf->tetrode_channels = new int*[2]{new int[4]{8,9,10,11}, new int[4]{16,17,18,19}};
+    tetr_inf->tetrodes_number = 2;
+    tetr_inf->channels_numbers = new int[2]{4, 4};
+    //tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
+    //tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
+    tetr_inf->tetrode_channels = new int*[2]{new int[4]{8,9,10,11}, new int[4]{16,17,18,19}};
     
-    tetr_inf->tetrodes_number = 1;
-    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
-    tetr_inf->channels_numbers = new int[1]{4};
+//    tetr_inf->tetrodes_number = 1;
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
+//    tetr_inf->channels_numbers = new int[1]{4};
     
     LFPBuffer *buf = new LFPBuffer(tetr_inf);
 

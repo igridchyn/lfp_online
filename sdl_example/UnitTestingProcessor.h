@@ -22,6 +22,7 @@ protected:
     T *gt_data_;
     int gt_data_len_;
     int gt_data_shift_;
+    int gt_pos_ = 0;
     
     std::string name_;
     bool pass_reported = false;

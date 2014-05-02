@@ -108,12 +108,19 @@ SpikeValidator<T>::SpikeValidator(std::string spike_path, std::string name, Spik
 
 template <class T>
 bool SpikeValidator<T>::validate(){
-    while(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN] != NULL && targ_buf_pos_ < *(buf_pos_ptr_) && targ_buf_pos_ < gt_data_len_){
-        if (get_feature(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN]) != gt_data_[targ_buf_pos_]){
-            std::cout << "Spike validation mismatch (" << name_ << "): " << get_feature(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN]) << " != " << gt_data_[targ_buf_pos_] << "\n";
+    while(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN] != NULL && targ_buf_pos_ < *(buf_pos_ptr_) && gt_pos_ < gt_data_len_){
+        Spike *spike = targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN];
+        if (spike->tetrode_ !=0){
+            targ_buf_pos_++;
+            continue;
+        }
+
+        if (get_feature(spike) != gt_data_[gt_pos_]){
+            std::cout << "Spike validation mismatch (" << name_ << "): " << get_feature(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN]) << " != " << gt_data_[gt_pos_] << "\n";
             return false;
         }
         targ_buf_pos_++;
+        gt_pos_++;
     }
     
     if (targ_buf_pos_ >= gt_data_len_ && !pass_reported){
