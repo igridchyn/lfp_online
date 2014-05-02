@@ -372,9 +372,11 @@ public:
 class SDLPCADisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
     
     ColorPalette palette_;
+    // TODO: display for multiple tetrodes with ability to switch
+    int target_tetrode_;
     
 public:
-    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height);
+    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode);
     virtual void process();
 };
 

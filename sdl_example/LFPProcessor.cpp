@@ -261,11 +261,12 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
     , control_processor_(control_processor)
 {}
 
-SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height)
+SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode)
 : LFPProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 // paired qualitative brewer palette
 , palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928})
+, target_tetrode_(target_tetrode)
 {
     
 }
@@ -288,6 +289,11 @@ void SDLPCADisplayProcessor::process(){
             else{
                 break;
             }
+        }
+        
+        if (spike->tetrode_ != target_tetrode_){
+            buffer->spike_buf_no_disp_pca++;
+            continue;
         }
 
         int x = spike->pc[0][0] + 600;
