@@ -36,7 +36,7 @@ void draw_bin(const char *path){
     LFPPipeline *pipeline = new LFPPipeline();
     SDLSignalDisplayProcessor *sdlSigDispProc = new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0);
     
-    const unsigned int gmm_min_observations = 10000;
+    const unsigned int gmm_min_observations = 100000;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));

@@ -95,13 +95,13 @@ class LFPBuffer{
     
 public:
     static const int CHANNEL_NUM = 64;
-    static const int LFP_BUF_LEN = 2 << 16; // 11
+    static const int LFP_BUF_LEN = 1 << 17; // 11
     // TODO: large buffer now needed only for delayed spike registration
     //      STORE WAVESHAPE with prev_spike
-    static const int BUF_HEAD_LEN = 2 << 14;
+    static const int BUF_HEAD_LEN = 1 << 15;
     
-    static const int SPIKE_BUF_LEN = 2 << 16;
-    static const int SPIKE_BUF_HEAD_LEN = 2 << 6;
+    static const int SPIKE_BUF_LEN = 1 << 18;
+    static const int SPIKE_BUF_HEAD_LEN = 1 << 7; // = 128
     
     // in bytes
     const int CHUNK_SIZE = 432;

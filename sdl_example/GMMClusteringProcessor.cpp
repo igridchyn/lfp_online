@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Igor Gridchyn. All rights reserved.
 //
 
+#include "time.h"
 #include "LFPProcessor.h"
 #include "mlpack/methods/gmm/gmm.hpp"
 
@@ -16,7 +17,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     , min_observations_(min_observations){
     
     unsigned int gaussians = 4;
-    dimensionality_ = 2;
+    dimensionality_ = 12;
         
     observations_ = arma::mat(dimensionality_, min_observations, arma::fill::zeros);
     means_.resize(gaussians, arma::mat(dimensionality_, 1));
@@ -24,7 +25,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     weights_ = arma::vec(gaussians);
         
     // Fitting type by default is EMFit
-    gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
+    // gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
 }
 
 void GMMClusteringProcessor::process(){
@@ -44,9 +45,11 @@ void GMMClusteringProcessor::process(){
         }
         
         if (spikes_collected_ < min_observations_){
-            for (int pc=0; pc < 2; ++pc) {
-                // TODO: disable OFB check in armadillo settings
-                observations_(pc, spikes_collected_) = (double)spike->pc[0][pc];
+            for (int pc=0; pc < 3; ++pc) {
+                for(int tetr=0; tetr < 4; ++tetr){
+                    // TODO: disable OFB check in armadillo settings
+                    observations_(tetr*3 + pc, spikes_collected_) = (double)spike->pc[tetr][pc];
+                }
             }
             obs_spikes_.push_back(spike);
             
@@ -65,11 +68,20 @@ void GMMClusteringProcessor::process(){
                 
                 // iterate over number of clusters
                 // !!! TODO: models with non-full covariance matrix ???
-                double BIC_min = 10000000;
+                double BIC_min = (double)(1 << 30);
                 mlpack::gmm::GMM<> gmm_best;
-                for (int nclust = 1; nclust < 10; ++nclust) {
-                    mlpack::gmm::GMM<> gmmn(nclust, 2);
+                // PROFILING
+                clock_t start_all = clock();
+                const unsigned int MAX_CLUST = 10;
+                for (int nclust = 1; nclust < MAX_CLUST; ++nclust) {
+                    mlpack::gmm::GMM<> gmmn(nclust, dimensionality_);
+                    
+                    // PROFILING
+                    clock_t start = clock();
                     double likelihood = gmmn.Estimate(observations_);
+                    double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
+                    printf("GMM time = %.1lf sec.\n", gmm_time);
+                    
                     int nparams = nclust * dimensionality_ * (dimensionality_ + 1);
                     double BIC = -2 * likelihood + nparams * log(observations_.size());
                     
@@ -81,6 +93,7 @@ void GMMClusteringProcessor::process(){
                     // DEBUG
                     printf("BIC of model with full covariance and %d clusters = %lf\n", nclust, BIC);
                 }
+                printf("Total time for max %d clusters = %.1lf sec.\n", MAX_CLUST, ((double)clock() - start_all)/CLOCKS_PER_SEC);
                 
                 gmm_ = gmm_best;
                 printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_.Gaussians());

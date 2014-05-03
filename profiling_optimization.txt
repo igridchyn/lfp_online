@@ -20,3 +20,29 @@ after long long filtering (UNIT TESTED !!!)
 + short* in signal_buf
 
 http://mkweb.bcgsc.ca/brewer/
+
+===========================================================================
+
+GMM:
+	50k samples, 12 dimensions
+	2 clusters: 47  sec
+	3 clusters: 72  sec
+	4 clusters: 94  sec
+	5 clusters: 116 sec
+	6 clusters: 145 sec
+	7 clusters: 168 sec
+	8 clusters: 213 sec
+	9 clusters: 222 sec
+
+		total = 1080 sec = 18 minutes
+
+	100k samples, 12 dimensions
+	2 clusters: 98 sec
+	3 clusters: 148 sec
+	4 clusters: 197 sec
+	5 clusters: 247 sec
+	6 clusters: 300 sec
+	7 clusters: 344 sec
+	8 clusters: 393 sec
+	9 clusters: 439 sec
+		total = 2165 sec = 36 minutes
