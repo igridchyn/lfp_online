@@ -11,14 +11,14 @@
 
 using namespace mlpack::gmm;
 
-GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf)
+GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations)
     : LFPProcessor(buf)
-    , min_observations_(500){
+    , min_observations_(min_observations){
     
     unsigned int gaussians = 4;
     dimensionality_ = 2;
         
-    observations_ = arma::mat(dimensionality_, 500, arma::fill::zeros);
+    observations_ = arma::mat(dimensionality_, min_observations, arma::fill::zeros);
     means_.resize(gaussians, arma::mat(dimensionality_, 1));
     covariances_.resize(gaussians, arma::mat(dimensionality_, dimensionality_));
     weights_ = arma::vec(gaussians);
@@ -65,7 +65,7 @@ void GMMClusteringProcessor::process(){
                 
                 // iterate over number of clusters
                 // !!! TODO: models with non-full covariance matrix ???
-                double BIC_min = 100000;
+                double BIC_min = 10000000;
                 mlpack::gmm::GMM<> gmm_best;
                 for (int nclust = 1; nclust < 10; ++nclust) {
                     mlpack::gmm::GMM<> gmmn(nclust, 2);
@@ -86,7 +86,7 @@ void GMMClusteringProcessor::process(){
                 printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_.Gaussians());
                 
                 printf("\nCluster weights:");
-                for (int i=0; i < 4; ++i) {
+                for (int i=0; i < gmm_.Gaussians(); ++i) {
                     printf("\nprob %d = %f", i, gmm_.Weights()(i));
                 }
                 

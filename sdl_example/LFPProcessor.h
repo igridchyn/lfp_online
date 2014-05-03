@@ -407,7 +407,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     arma::vec weights_;
     
 public:
-    GMMClusteringProcessor(LFPBuffer* buf);
+    GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations);
     virtual void process();
 };
 
