@@ -242,10 +242,11 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     
 }
 
-PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples)
+PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples)
 : LFPProcessor(buffer)
 , num_pc_(num_pc)
 , waveshape_samples_(waveshape_samples)
+, min_samples_(min_samples)
 {
     // printf("Create PCA extrator...");
     
@@ -365,7 +366,7 @@ void PCAExtractionProcessor::process(){
     // TODO: when to redo PCA?
     // TODO: tetrode-wise counting !!! and check
     for (int tetr=0; tetr < buffer->tetr_info_->tetrodes_number; ++tetr) {
-        if (num_spikes[tetr] >= 300 && !pca_done_[tetr]){
+        if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
             for (int ci=0; ci < buffer->tetr_info_->channels_numbers[tetr]; ++ci) {
                 int channel = buffer->tetr_info_->tetrode_channels[tetr][ci];
 //            }

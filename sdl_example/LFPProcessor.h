@@ -331,6 +331,7 @@ public:
 class PCAExtractionProcessor : public LFPProcessor{
     // projection matrix
     float ***prm;
+    const unsigned int min_samples_;
     
     void tred(float **a,int n,float d[],float e[]);
     void tqli(float d[],float e[],int n,float **z);
@@ -367,7 +368,7 @@ class PCAExtractionProcessor : public LFPProcessor{
     bool *pca_done_;
     
 public:
-    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples);
+    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples);
     virtual void process();
 };
 

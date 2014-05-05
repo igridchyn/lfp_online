@@ -84,6 +84,7 @@ void GMMClusteringProcessor::process(){
                 // PROFILING
                 clock_t start_all = clock();
                 
+                printf("# of observations = %u\n", observations_train_.n_cols);
                 for (int nclust = 1; nclust <= max_clusters_; ++nclust) {
                     mlpack::gmm::GMM<> gmmn(nclust, dimensionality_);
                     
@@ -109,6 +110,11 @@ void GMMClusteringProcessor::process(){
                 
                 gmm_ = gmm_best;
                 printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_.Gaussians());
+                
+                // WARNING
+                if (gmm_best.Gaussians() == max_clusters_){
+                    printf("WARNING: BIC is minimized by the maximal allowed number of clusters!\n");
+                }
                 
                 printf("\nCluster weights:");
                 for (int i=0; i < gmm_.Gaussians(); ++i) {
