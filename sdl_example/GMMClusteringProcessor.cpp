@@ -12,14 +12,18 @@
 
 using namespace mlpack::gmm;
 
-GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations)
+GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters)
     : LFPProcessor(buf)
-    , min_observations_(min_observations){
+    , min_observations_(min_observations)
+    , rate_(rate)
+    , max_clusters_(max_clusters){
     
     unsigned int gaussians = 4;
     dimensionality_ = 12;
         
-    observations_ = arma::mat(dimensionality_, min_observations, arma::fill::zeros);
+    observations_ = arma::mat(dimensionality_, (min_observations + 1)* rate_, arma::fill::zeros);
+    observations_train_ = arma::mat(dimensionality_, min_observations, arma::fill::zeros);
+
     means_.resize(gaussians, arma::mat(dimensionality_, 1));
     covariances_.resize(gaussians, arma::mat(dimensionality_, dimensionality_));
     weights_ = arma::vec(gaussians);
@@ -44,27 +48,34 @@ void GMMClusteringProcessor::process(){
             break;
         }
         
-        if (spikes_collected_ < min_observations_){
-            for (int pc=0; pc < 3; ++pc) {
-                for(int tetr=0; tetr < 4; ++tetr){
-                    // TODO: disable OFB check in armadillo settings
-                    observations_(tetr*3 + pc, spikes_collected_) = (double)spike->pc[tetr][pc];
+        for (int pc=0; pc < 3; ++pc) {
+            for(int tetr=0; tetr < 4; ++tetr){
+                // TODO: disable OFB check in armadillo settings
+                observations_(tetr*3 + pc, total_observations_) = (double)spike->pc[tetr][pc];
+            }
+        }
+        obs_spikes_.push_back(spike);
+        total_observations_ ++;
+        
+        if (!gmm_fitted_){
+            if (spikes_collected_ < min_observations_){
+                // TODO: use submatrix of total observations
+                if (!(total_observations_ % rate_)){
+                    for (int pc=0; pc < 3; ++pc) {
+                        for(int tetr=0; tetr < 4; ++tetr){
+                            // TODO: disable OFB check in armadillo settings
+                            observations_train_(tetr*3 + pc, spikes_collected_) = (double)spike->pc[tetr][pc];
+                        }
+                    }
+
+                    spikes_collected_++;
                 }
             }
-            obs_spikes_.push_back(spike);
-            
-            spikes_collected_++;
-        }
-        
-        // fit clusters after enough records have been collected
-        //  or cluster using fitted model
-        if (spikes_collected_ >= min_observations_){
-            if (!gmm_fitted_){
-                
+            else{
                 // print the PCA for clustering
-//                for(int i=0;i<500;++i){
-//                    printf("%f/%f\n", observations_(0, i), observations_(1,i));
-//                }
+                //                for(int i=0;i<500;++i){
+                //                    printf("%f/%f\n", observations_(0, i), observations_(1,i));
+                //                }
                 
                 // iterate over number of clusters
                 // !!! TODO: models with non-full covariance matrix ???
@@ -72,18 +83,19 @@ void GMMClusteringProcessor::process(){
                 mlpack::gmm::GMM<> gmm_best;
                 // PROFILING
                 clock_t start_all = clock();
-                const unsigned int MAX_CLUST = 10;
-                for (int nclust = 1; nclust < MAX_CLUST; ++nclust) {
+                
+                for (int nclust = 1; nclust <= max_clusters_; ++nclust) {
                     mlpack::gmm::GMM<> gmmn(nclust, dimensionality_);
                     
                     // PROFILING
                     clock_t start = clock();
-                    double likelihood = gmmn.Estimate(observations_);
+                    double likelihood = gmmn.Estimate(observations_train_);
                     double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
                     printf("GMM time = %.1lf sec.\n", gmm_time);
                     
                     int nparams = nclust * dimensionality_ * (dimensionality_ + 1);
-                    double BIC = -2 * likelihood + nparams * log(observations_.size());
+                    // !!! TODO: check
+                    double BIC = -2 * likelihood + nparams * log(observations_train_.n_cols);
                     
                     if (BIC < BIC_min){
                         gmm_best = gmmn;
@@ -93,7 +105,7 @@ void GMMClusteringProcessor::process(){
                     // DEBUG
                     printf("BIC of model with full covariance and %d clusters = %lf\n", nclust, BIC);
                 }
-                printf("Total time for max %d clusters = %.1lf sec.\n", MAX_CLUST, ((double)clock() - start_all)/CLOCKS_PER_SEC);
+                printf("Total time for max %d clusters = %.1lf sec.\n", max_clusters_, ((double)clock() - start_all)/CLOCKS_PER_SEC);
                 
                 gmm_ = gmm_best;
                 printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_.Gaussians());
@@ -106,22 +118,27 @@ void GMMClusteringProcessor::process(){
                 gmm_fitted_ = true;
                 min_observations_ = 10;
             }
-
-            arma::Col<size_t> labels_;
-            // redraw !!
-            gmm_.Classify(observations_, labels_);
-            
-            // TODO: assign labels to clusters; assign labels to future clusteres; redraw clusters
-            // don't draw unclassified
-            for (int i=0; i < labels_.size(); ++i){
-                const size_t label = labels_[i];
-                obs_spikes_[i]->cluster_id_ = label;
+        }else{
+            // fit clusters after enough records have been collected
+            //  or cluster using fitted model
+            if (total_observations_ >= classification_rate_){
+                arma::Col<size_t> labels_;
+                // redraw !!
+                gmm_.Classify(observations_, labels_);
+                
+                // TODO: assign labels to clusters; assign labels to future clusteres; redraw clusters
+                // don't draw unclassified
+                for (int i=0; i < labels_.size(); ++i){
+                    const size_t label = labels_[i];
+                    obs_spikes_[i]->cluster_id_ = (int)label;
+                }
+                
+                // classify new spikes and draw
+                total_observations_ = 0;
+                // TODO: optimize (use fixed dize)
+                obs_spikes_.clear();
+                observations_ = arma::mat(dimensionality_, classification_rate_, arma::fill::zeros);
             }
-            
-            // classify new spikes and draw
-            spikes_collected_ = 0;
-            // TODO: optimize (use fixed dize)
-            obs_spikes_.clear();
         }
         
         buffer->spike_buf_pos_clust_++;

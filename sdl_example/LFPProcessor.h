@@ -25,7 +25,7 @@ public:
     int **waveshape_final = NULL;
     float **pc = NULL;
     
-    size_t cluster_id_ = -1;
+    int cluster_id_ = -1;
     
     int tetrode_;
     int num_channels_;
@@ -394,9 +394,17 @@ public:
 // TODO: create abstract clustering class
 class GMMClusteringProcessor : public LFPProcessor{
     unsigned int dimensionality_;
+    unsigned int rate_;
+    unsigned int max_clusters_;
+    
+    unsigned int total_observations_ = 0;
     
     int min_observations_;
+    static const int classification_rate_ = 10;
+    
     arma::mat observations_;
+    arma::mat observations_train_;
+    
     std::vector<Spike*> obs_spikes_;
     mlpack::gmm::GMM<> gmm_;
     bool gmm_fitted_ = false;
@@ -407,7 +415,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     arma::vec weights_;
     
 public:
-    GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations);
+    GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters);
     virtual void process();
 };
 

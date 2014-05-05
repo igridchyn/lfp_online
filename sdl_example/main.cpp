@@ -36,7 +36,10 @@ void draw_bin(const char *path){
     LFPPipeline *pipeline = new LFPPipeline();
     SDLSignalDisplayProcessor *sdlSigDispProc = new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0);
     
-    const unsigned int gmm_min_observations = 100000;
+    // CLUSTERING PARAMS
+    const unsigned int gmm_min_observations = 2000;
+    const unsigned int GMM_RATE = 2;
+    const unsigned int GMM_MAX_CLUSTERS = 3;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));
@@ -45,7 +48,7 @@ void draw_bin(const char *path){
     pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
     pipeline->add_processor(new FileOutputProcessor(buf));
     pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16));
-    pipeline->add_processor(new GMMClusteringProcessor(buf, gmm_min_observations));
+    pipeline->add_processor(new GMMClusteringProcessor(buf, gmm_min_observations, GMM_RATE, GMM_MAX_CLUSTERS));
     //pipeline->add_processor(sdlSigDispProc);
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, sdlSigDispProc));
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0));
