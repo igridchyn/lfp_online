@@ -248,9 +248,41 @@ int ColorPalette::getB(int order){
 
 FetReaderProcessor::FetReaderProcessor(LFPBuffer *buf, std::string fet_path)
 : LFPProcessor(buf) {
-    
+    int ncomp;
+    fet_file_ = std::ifstream(fet_path);
+    fet_file_ >> ncomp;
 }
 
 void FetReaderProcessor::process(){
+    if (fet_file_.eof())
+        return;
     
+    Spike *spike = new Spike(0, 0);
+    const int ntetr = 4;
+    const int npc = 3;
+    
+    spike->pc = new float*[ntetr];
+    
+    for (int t=0; t < ntetr; ++t) {
+        spike->pc[t] = new float[npc];
+        for (int pc=0; pc < npc; ++pc) {
+            fet_file_ >> spike->pc[t][pc];
+            spike->pc[t][pc] /= 5;
+        }
+    }
+    
+    int dummy;
+    for (int d=0; d < 4; ++d) {
+        fet_file_ >> dummy;
+    }
+    
+    int stime;
+    fet_file_ >> stime;
+    spike->pkg_id_ = stime;
+    spike->aligned_ = true;
+    
+    // TODO: add_spike() + buffer rewind
+    buffer->spike_buffer_[buffer->spike_buf_pos++] = spike;
+    // for clustering
+    buffer->spike_buf_pos_unproc_++;
 }

@@ -54,12 +54,14 @@ void draw_bin(const char *path){
     const unsigned int PCA_MIN_SAMPLES = 1000;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
-    pipeline->add_processor(new PackageExractorProcessor(buf));
-    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
-    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
-    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
-    pipeline->add_processor(new FileOutputProcessor(buf));
-    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES));
+    //pipeline->add_processor(new PackageExractorProcessor(buf));
+    //pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
+    //pipeline->add_processor(new SpikeAlignmentProcessor(buf));
+    //pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
+    //pipeline->add_processor(new FileOutputProcessor(buf));
+    //pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES));
+    
+    pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/BIN/jc22-0507-0115.fet.4"));
     pipeline->add_processor(new GMMClusteringProcessor(buf, gmm_min_observations, GMM_RATE, GMM_MAX_CLUSTERS));
     //pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0));
