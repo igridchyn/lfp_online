@@ -21,7 +21,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     unsigned int gaussians = 4;
     dimensionality_ = 12;
         
-    observations_ = arma::mat(dimensionality_, (min_observations + 1)* rate_, arma::fill::zeros);
+    observations_ = arma::mat(dimensionality_, (min_observations + 2) * rate_, arma::fill::zeros);
     observations_train_ = arma::mat(dimensionality_, min_observations, arma::fill::zeros);
 
     means_.resize(gaussians, arma::mat(dimensionality_, 1));
@@ -122,7 +122,6 @@ void GMMClusteringProcessor::process(){
                 }
                 
                 gmm_fitted_ = true;
-                min_observations_ = 10;
             }
         }else{
             // fit clusters after enough records have been collected

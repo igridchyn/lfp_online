@@ -207,9 +207,12 @@ public:
 
 //====================================================================================================
 
-class SDLControlInputProcessor{
+class SDLControlInputProcessor : public LFPProcessor{
 public:
+    SDLControlInputProcessor(LFPBuffer *buf);
+    
     virtual void process_SDL_control_input(const SDL_Event& e) = 0;
+    virtual void process() = 0;
 };
 
 class SDLControlInputMetaProcessor : public LFPProcessor{
@@ -264,7 +267,7 @@ public:
     :LFPProcessor(buffer){}
 };
 
-class SDLSignalDisplayProcessor : public LFPProcessor, public SDLControlInputProcessor, public SDLSingleWindowDisplay{
+class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay{
     static const int SCREEN_HEIGHT = 600;
     static const int SCREEN_WIDTH = 1280;
     
@@ -372,15 +375,25 @@ public:
     virtual void process();
 };
 
-class SDLPCADisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
+class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor{
     
     ColorPalette palette_;
     // TODO: display for multiple tetrodes with ability to switch
     int target_tetrode_;
     
+    // displayed components, can be changed by the control keys
+    unsigned int comp1_ = 0;
+    unsigned int comp2_ = 1;
+    unsigned int nchan_;
+    
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode);
+    
+    // LFPProcessor
     virtual void process();
+    
+    // SDLSingleWindowDisplay
+    virtual void process_SDL_control_input(const SDL_Event& e);
 };
 
 class FileOutputProcessor : public LFPProcessor{
@@ -428,6 +441,8 @@ class LFPPipeline{
 public:
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
     void process(unsigned char *data, int nchunks);
+    
+    LFPProcessor *get_processor(const unsigned int& index);
 };
 
 //==========================================================================================

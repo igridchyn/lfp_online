@@ -9,7 +9,7 @@
 #include "LFPProcessor.h"
 
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, int target_channel)
-    : LFPProcessor(buffer)
+    : SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
     , target_channel_(target_channel)
     , current_x(0)

@@ -46,6 +46,10 @@ void LFPPipeline::process(unsigned char *data, int nchunks){
     }
 }
 
+LFPProcessor *LFPPipeline::get_processor(const unsigned int& index){
+    return processors[index];
+}
+
 
 // ============================================================================================================
 
@@ -270,14 +274,17 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SD
     , control_processor_(control_processor)
 {}
 
+SDLControlInputProcessor::SDLControlInputProcessor(LFPBuffer *buf)
+: LFPProcessor(buf) { }
+
 SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode)
-: LFPProcessor(buffer)
+: SDLControlInputProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 // paired qualitative brewer palette
 , palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928})
 , target_tetrode_(target_tetrode)
 {
-    
+    nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 }
 
 void SDLPCADisplayProcessor::process(){
@@ -305,9 +312,9 @@ void SDLPCADisplayProcessor::process(){
                 break;
             }
         }
-
-        int x = spike->pc[0][0] + 600;
-        int y = spike->pc[0][1] + 300;
+        
+        int x = spike->pc[comp1_ / nchan_][comp1_ % nchan_] + 600;
+        int y = spike->pc[comp2_ / nchan_][comp2_ % nchan_] + 300;
         
         SDL_SetRenderTarget(renderer_, texture_);
         //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
@@ -324,6 +331,58 @@ void SDLPCADisplayProcessor::process(){
         SDL_SetRenderTarget(renderer_, NULL);
         SDL_RenderCopy(renderer_, texture_, NULL, NULL);
         SDL_RenderPresent(renderer_);
+    }
+}
+
+void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
+    if( e.type == SDL_KEYDOWN )
+    {
+        //Select surfaces based on key press
+        switch( e.key.keysym.sym )
+        {
+            case SDLK_ESCAPE:
+                exit(0);
+                break;
+            case SDLK_1:
+                comp1_ = 1;
+                break;
+            case SDLK_2:
+                comp1_ = 2;
+                break;
+            case SDLK_3:
+                comp1_ = 3;
+                break;
+            case SDLK_4:
+                comp1_ = 4;
+                break;
+            case SDLK_5:
+                comp1_ = 5;
+                break;
+            case SDLK_6:
+                comp2_ = 6;
+                break;
+            case SDLK_7:
+                comp2_ = 7;
+                break;
+            case SDLK_8:
+                comp2_ = 8;
+                break;
+            case SDLK_9:
+                comp2_ = 9;
+                break;
+            case SDLK_0:
+                comp2_ = 10;
+                break;
+                
+            // TODO: case-wise
+            buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
+                
+                // TODO: EXTRACT
+                SDL_SetRenderTarget(renderer_, texture_);
+                
+                SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+                SDL_RenderClear(renderer_);
+        }
     }
 }
 
