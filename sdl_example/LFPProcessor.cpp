@@ -313,8 +313,8 @@ void SDLPCADisplayProcessor::process(){
             }
         }
         
-        int x = spike->pc[comp1_ / nchan_][comp1_ % nchan_] + 600;
-        int y = spike->pc[comp2_ / nchan_][comp2_ % nchan_] + 300;
+        int x = spike->pc[comp1_ % nchan_][comp1_ / nchan_] + 600;
+        int y = spike->pc[comp2_ % nchan_][comp2_ / nchan_] + 300;
         
         SDL_SetRenderTarget(renderer_, texture_);
         //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
@@ -337,6 +337,8 @@ void SDLPCADisplayProcessor::process(){
 void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     if( e.type == SDL_KEYDOWN )
     {
+        bool need_redraw = true;
+        
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
@@ -359,29 +361,64 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 comp1_ = 5;
                 break;
             case SDLK_6:
-                comp2_ = 6;
+                comp1_ = 6;
                 break;
             case SDLK_7:
-                comp2_ = 7;
+                comp1_ = 7;
                 break;
             case SDLK_8:
-                comp2_ = 8;
+                comp1_ = 8;
                 break;
             case SDLK_9:
-                comp2_ = 9;
+                comp1_ = 9;
                 break;
             case SDLK_0:
+                comp1_ = 10;
+                break;
+            case SDLK_KP_1:
+                comp2_ = 1;
+                break;
+            case SDLK_KP_2:
+                comp2_ = 2;
+                break;
+            case SDLK_KP_3:
+                comp2_ = 3;
+                break;
+            case SDLK_KP_4:
+                comp2_ = 4;
+                break;
+            case SDLK_KP_5:
+                comp2_ = 5;
+                break;
+            case SDLK_KP_6:
+                comp2_ = 6;
+                break;
+            case SDLK_KP_7:
+                comp2_ = 7;
+                break;
+            case SDLK_KP_8:
+                comp2_ = 8;
+                break;
+            case SDLK_KP_9:
+                comp2_ = 9;
+                break;
+            case SDLK_KP_0:
                 comp2_ = 10;
                 break;
-                
+            default:
+                need_redraw = false;   
+            
+        }
+        
+        if (need_redraw){
             // TODO: case-wise
             buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
-                
-                // TODO: EXTRACT
-                SDL_SetRenderTarget(renderer_, texture_);
-                
-                SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-                SDL_RenderClear(renderer_);
+            
+            // TODO: EXTRACT
+            SDL_SetRenderTarget(renderer_, texture_);
+            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+            SDL_RenderClear(renderer_);
+            SDL_RenderPresent(renderer_);
         }
     }
 }
