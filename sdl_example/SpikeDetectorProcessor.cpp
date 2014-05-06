@@ -7,6 +7,7 @@
 //
 
 #include "LFPProcessor.h"
+#include "OnlineEstimator.cpp"
 
 
 SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory)

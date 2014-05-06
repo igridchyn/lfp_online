@@ -7,6 +7,7 @@
 //
 
 #include "LFPProcessor.h"
+#include "OnlineEstimator.cpp"
 #include <fstream>
 
 // REQUIREMENTS AND SPECIFICATION
@@ -215,37 +216,6 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
 
 // ============================================================================================================
 
-template<class T>
-T OnlineEstimator<T>::get_mean_estimate(){
-    return sumsq / num_samples;
-}
-
-template<class T>
-T OnlineEstimator<T>::get_std_estimate(){
-    // printf("sumsq: %f, num samp: %d\n", sumsq, num_samples);
-    return (T)sqrt(sumsq / num_samples - (sum / num_samples) * (sum / num_samples));
-}
-
-template<class T>
-void OnlineEstimator<T>::push(T value){
-    // printf("push %f\n", value);
-    
-    // TODO: ignore to optimize ?
-    if (num_samples < BUF_SIZE){
-        num_samples ++;
-    }
-    else{
-        sum -= buf[buf_pos];
-        sumsq -= buf[buf_pos] * buf[buf_pos];
-    }
-        
-    // update estimates
-    buf[buf_pos] = value;
-    sum += buf[buf_pos];
-    sumsq += buf[buf_pos] * buf[buf_pos];
-    
-    buf_pos = (buf_pos + 1) % BUF_SIZE;
-}
 
 SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
     : window_width_(window_width)
@@ -274,4 +244,13 @@ int ColorPalette::getG(int order){
 }
 int ColorPalette::getB(int order){
     return color_values_[order] & 0x0000FF;
+}
+
+FetReaderProcessor::FetReaderProcessor(LFPBuffer *buf, std::string fet_path)
+: LFPProcessor(buf) {
+    
+}
+
+void FetReaderProcessor::process(){
+    
 }
