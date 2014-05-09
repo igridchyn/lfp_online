@@ -440,4 +440,18 @@ public:
     virtual void process();
 };
 
+class FrequencyPowerBandProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
+    static const int FACTOR = 4;
+    static const int BUF_LEN = 20000 * FACTOR;
+    static const int ANAL_RATE = 20000;
+    
+    unsigned int last_performed_an = 0;
+    
+public:
+    FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height)
+    : LFPProcessor(buf)
+    , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+    virtual void process();
+};
+
 #endif /* defined(__sdl_example__LFPProcessor__) */

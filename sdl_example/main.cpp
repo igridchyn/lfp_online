@@ -54,20 +54,24 @@ void draw_bin(const char *path){
     const unsigned int PCA_MIN_SAMPLES = 1000;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
-    //pipeline->add_processor(new PackageExractorProcessor(buf));
-    //pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
-    //pipeline->add_processor(new SpikeAlignmentProcessor(buf));
-    //pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
+    pipeline->add_processor(new PackageExractorProcessor(buf));
+    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
+    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
+    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
     //pipeline->add_processor(new FileOutputProcessor(buf));
-    //pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES));
+    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES));
     
-    pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/BIN/jc22-0507-0115.fet.4"));
+    //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/BIN/jc22-0507-0115.fet.4"));
+    //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
+    
     pipeline->add_processor(new GMMClusteringProcessor(buf, gmm_min_observations, GMM_RATE, GMM_MAX_CLUSTERS));
     //pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0));
-    pipeline->add_processor(new SDLControlInputMetaProcessor(buf, (SDLControlInputProcessor*)pipeline->get_processor(7)));
+    pipeline->add_processor(new SDLControlInputMetaProcessor(buf, (SDLControlInputProcessor*)pipeline->get_processor(6))); // 7 / 3
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     //pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600));
+    
+    pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 800, 600));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);
