@@ -80,7 +80,7 @@ class LFPBuffer{
     
 public:
     static const int CHANNEL_NUM = 64;
-    static const int LFP_BUF_LEN = 1 << 17; // 11
+    static const int LFP_BUF_LEN = 1 << 20; // 11
     // TODO: large buffer now needed only for delayed spike registration
     //      STORE WAVESHAPE with prev_spike
     static const int BUF_HEAD_LEN = 1 << 15;
@@ -443,7 +443,7 @@ public:
 class FrequencyPowerBandProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
     static const int FACTOR = 4;
     static const int BUF_LEN = 20000 * FACTOR;
-    static const int ANAL_RATE = 20000;
+    static const int ANAL_RATE = 5000;
     
     unsigned int last_performed_an = 0;
     

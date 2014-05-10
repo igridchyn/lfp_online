@@ -71,7 +71,7 @@ void draw_bin(const char *path){
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     //pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600));
     
-    pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 800, 600));
+    pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);

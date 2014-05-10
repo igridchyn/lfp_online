@@ -45,17 +45,17 @@ void FrequencyPowerBandProcessor::process(){
     // TODO: plot lines at landmark points
     SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
     int prevy = 0;
-    for (int i=FACTOR/2; i < 200 * FACTOR; i+=FACTOR){
+    for (int i=FACTOR/2; i < 200 * FACTOR; i+=FACTOR/2){
         float mag = 0;
         
         for (int d=-FACTOR/2; d<=FACTOR/2; ++d) {
             int j = i + d;
             mag += sqrt(freq_pow(j, 0).real() * freq_pow(j, 0).real() + freq_pow(j, 0).imag() * freq_pow(j, 0).imag());
         }
-        mag /= (FACTOR + 1);
+        mag /= FACTOR + 1 - (FACTOR % 2);
         
         int y = window_height_ * (1-mag/(100000000));
-        SDL_RenderDrawLine(renderer_, 4*(i/FACTOR+1), prevy, 4*(i/FACTOR+2), y);
+        SDL_RenderDrawLine(renderer_, 2*i, prevy, 2*i+4, y);
         prevy = y;
     }
 
