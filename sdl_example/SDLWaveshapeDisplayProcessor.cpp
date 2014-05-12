@@ -9,7 +9,7 @@
 #include "LFPProcessor.h"
 
 int transform(int smpl, int chan){
-    return 50 + smpl/20 + 200 * chan;
+    return 100 + smpl/20 + 200 * chan;
 }
 
 void SDLWaveshapeDisplayProcessor::process() {

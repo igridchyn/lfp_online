@@ -28,7 +28,7 @@ void draw_bin(const char *path){
     tetr_inf->tetrodes_number = 1;
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{0,1,2,3}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
-    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{20,21,22,23}};
@@ -38,6 +38,11 @@ void draw_bin(const char *path){
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{36,37,38,39}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{40,41,42,43}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{44,45,46,47}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{48,49,50,51}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{52,53,54,55}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{56,57,58,59}};
+    tetr_inf->tetrode_channels = new int*[1]{new int[4]{60,61,62,63}};
+
     
     tetr_inf->channels_numbers = new int[1]{4};
     
@@ -71,6 +76,7 @@ void draw_bin(const char *path){
     
     // TESTING:jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
+    
     //pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600));
     
 //    pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
@@ -119,7 +125,10 @@ int get_image(){
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     
     // many units
-    draw_bin("/Users/igridchyn/test-data/haibing/jc86/jc86-2612_01.bin");
+    // draw_bin("/Users/igridchyn/test-data/haibing/jc86/jc86-2612_01.bin");
+    
+    // jc-103, screening
+    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-1005_03.bin");
     
     // SDL_Delay( 2000 );
     char c = getchar();
