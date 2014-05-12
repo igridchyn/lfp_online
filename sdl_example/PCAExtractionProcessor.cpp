@@ -339,14 +339,14 @@ void PCAExtractionProcessor::process(){
                 int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
                 
                 for (int w=0; w < waveshape_samples_; ++w) {
-                    mean_[chan][w] += spike->waveshape_final[chani][w];
+                    mean_[chan][w] += spike->waveshape_final[chani][w] / scale_;
                     
 //                    if (chani==0 && abs(spike->waveshape_final[chani][w]) > 5000){
 //                        // printf("Large amplitude at %d: %d!\n",spike->pkg_id_, spike->waveshape_final[chani][w]);
 //                    }
                     
                     for (int w2=w; w2 < waveshape_samples_; ++w2) {
-                        cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2];
+                        cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2] / ( scale_ * scale_ );
                     }
                 }
             }

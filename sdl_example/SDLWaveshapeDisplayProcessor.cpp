@@ -43,7 +43,7 @@ void SDLWaveshapeDisplayProcessor::process() {
             for (int smpl=1; smpl < 128; ++smpl) {
                 int tsmpl = transform(spike->waveshape[chan][smpl], chan);
                 
-                SDL_RenderDrawLine(renderer_, smpl*4, prev_smpl, (smpl + 1) * 4, tsmpl);
+                SDL_RenderDrawLine(renderer_, smpl*4 - 3, prev_smpl, smpl * 4 + 1, tsmpl);
                 prev_smpl = tsmpl;
             }
         }

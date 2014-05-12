@@ -335,6 +335,9 @@ class PCAExtractionProcessor : public LFPProcessor{
     
     void compute_pcs(Spike* spike);
     
+    // ??? workaround to avoid overflow
+    float scale_ = 100.0f;
+    
     // TODO: use online estimators
     // [channel][ws1][ws2]
     int ***cor_;
