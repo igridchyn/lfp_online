@@ -28,13 +28,13 @@ void draw_bin(const char *path){
     tetr_inf->tetrodes_number = 1;
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{0,1,2,3}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
+    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{20,21,22,23}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{24,25,26,27}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{28,29,30,31}};
-    tetr_inf->tetrode_channels = new int*[1]{new int[4]{32,33,34,35}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{32,33,34,35}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{36,37,38,39}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{40,41,42,43}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{44,45,46,47}};
@@ -68,6 +68,8 @@ void draw_bin(const char *path){
     //pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0));
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, (SDLControlInputProcessor*)pipeline->get_processor(6))); // 7 / 3
+    
+    // TESTING:jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     //pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600));
     
@@ -105,11 +107,13 @@ void draw_test(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture)
 
 int get_image(){
     // draw_test(window, renderer, texture);
-    // for this channels: 8-11
-    //draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
-    //draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1204_01.BIN");
     
-    //draw_bin("/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
+    // for this channels: 8-11 : 2 clear CLUSTERS
+    // draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
+    
+//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1204_01.BIN");
+    
+//    draw_bin("/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
     
     // many units

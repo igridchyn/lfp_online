@@ -368,7 +368,7 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     
     // displayed components, can be changed by the control keys
     unsigned int comp1_ = 0;
-    unsigned int comp2_ = 1;
+    unsigned int comp2_ = 4;
     unsigned int nchan_;
     
 public:

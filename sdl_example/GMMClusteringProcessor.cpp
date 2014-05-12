@@ -94,7 +94,8 @@ void GMMClusteringProcessor::process(){
                     double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
                     printf("GMM time = %.1lf sec.\n", gmm_time);
                     
-                    int nparams = nclust * dimensionality_ * (dimensionality_ + 1);
+                    // = # mixing probabilities + # menas + # covariances
+                    int nparams = (nclust - 1) + nclust * dimensionality_ + nclust * dimensionality_ * (dimensionality_ + 1) / 2;
                     // !!! TODO: check
                     double BIC = -2 * likelihood + nparams * log(observations_train_.n_cols);
                     
