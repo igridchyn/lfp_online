@@ -30,7 +30,7 @@ void draw_bin(const char *path){
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
+    tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{20,21,22,23}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{24,25,26,27}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{28,29,30,31}};
@@ -41,7 +41,7 @@ void draw_bin(const char *path){
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{48,49,50,51}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{52,53,54,55}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{56,57,58,59}};
-    tetr_inf->tetrode_channels = new int*[1]{new int[4]{60,61,62,63}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{60,61,62,63}};
 
     
     tetr_inf->channels_numbers = new int[1]{4};
@@ -49,6 +49,9 @@ void draw_bin(const char *path){
     LFPBuffer *buf = new LFPBuffer(tetr_inf);
 
     LFPPipeline *pipeline = new LFPPipeline();
+    
+    // DETECTION PARA<S
+    const float DET_NSTD = 6.5;
     
     // CLUSTERING PARAMS
     const unsigned int gmm_min_observations = 2000;
@@ -60,7 +63,7 @@ void draw_bin(const char *path){
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));
-    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, 5.0, 16));
+    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
     pipeline->add_processor(new SpikeAlignmentProcessor(buf));
     pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
     //pipeline->add_processor(new FileOutputProcessor(buf));
@@ -116,8 +119,8 @@ void draw_test(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture)
 int get_image(){
     // draw_test(window, renderer, texture);
     
-    // for this channels: 8-11 : 2 clear CLUSTERS
-    // draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
+    //TEST DATA; for this channels: 8-11 : 2 clear CLUSTERS; fixed THRESHOLD !
+//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
     
 //    draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1204_01.BIN");
     

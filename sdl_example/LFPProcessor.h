@@ -235,12 +235,15 @@ class SpikeDetectorProcessor : public LFPProcessor{
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
     int filt_pos = 0;
+    int det_pos = 0;
     
     int powerBufPos = 0;
     float powerBuf[POWER_BUF_LEN];
     float powerSum;
     
     int last_processed_id;
+    
+    int *thresholds_;
     
     std::vector<Spike*> spikes;
     
@@ -372,7 +375,7 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     
     // displayed components, can be changed by the control keys
     unsigned int comp1_ = 0;
-    unsigned int comp2_ = 1; // 4 - 2nd channel, PC1; 1 - 1st channel, PC2;
+    unsigned int comp2_ = 4; // 4 - 2nd channel, PC1; 1 - 1st channel, PC2;
     unsigned int nchan_;
     
 public:
