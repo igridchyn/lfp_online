@@ -15,6 +15,10 @@
 #include "mlpack/methods/gmm/gmm.hpp"
 #include "OnlineEstimator.h"
 
+// NOTES:
+// spike identification is based on unique number assigned to each detected spike
+// it is assumed that fraction of spikes discaeded after initial power threshold + refractory detection is negligible
+
 // object size:
 class Spike{
 public:
@@ -451,6 +455,20 @@ public:
     FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height)
     : LFPProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+    virtual void process();
+};
+
+class SDLWaveshapeDisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay {
+    unsigned int buf_pointer_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
+    unsigned last_disp_pkg_id_ = 0;
+    int targ_tetrode_ = 0;
+    static const unsigned int DISPLAY_RATE = 10;
+    
+public:
+    SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width, const unsigned int& window_height)
+    : LFPProcessor(buf)
+    , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+    
     virtual void process();
 };
 
