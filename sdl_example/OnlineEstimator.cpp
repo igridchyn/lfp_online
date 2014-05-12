@@ -39,3 +39,8 @@ void OnlineEstimator<T>::push(T value){
     
     buf_pos = (buf_pos + 1) % BUF_SIZE;
 }
+
+template<class T>
+unsigned int OnlineEstimator<T>::n_samples(){
+    return num_samples;
+}

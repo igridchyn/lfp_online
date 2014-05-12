@@ -27,6 +27,8 @@ public:
     void push(T value);
     T get_mean_estimate();
     T get_std_estimate();
+    
+    unsigned int n_samples();
 };
 
 #endif /* defined(__sdl_example__OnlineEstimator__) */
