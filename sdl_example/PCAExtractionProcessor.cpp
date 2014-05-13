@@ -236,6 +236,7 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     }
     
     printf("Overall projected variances : %f5.4\n",sz2/sz1);
+    assert(sz2 <= sz1);
     
     free(ev);
     free(ind);

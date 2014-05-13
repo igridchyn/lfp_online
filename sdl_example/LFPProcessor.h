@@ -423,6 +423,8 @@ class GMMClusteringProcessor : public LFPProcessor{
     std::vector< arma::mat > covariances_;
     arma::vec weights_;
     
+    mlpack::gmm::GMM<> fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
+    
 public:
     GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters);
     virtual void process();

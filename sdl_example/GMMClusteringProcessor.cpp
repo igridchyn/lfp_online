@@ -32,6 +32,44 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     // gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
 }
 
+mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train, const unsigned int& max_clusters){
+    // iterate over number of clusters
+    // !!! TODO: models with non-full covariance matrix ???
+    double BIC_min = (double)(1 << 30);
+    mlpack::gmm::GMM<> gmm_best;
+    // PROFILING
+    clock_t start_all = clock();
+    
+    int dimensionality = observations_train.n_rows;
+    
+    printf("# of observations = %u\n", observations_train.n_cols);
+    for (int nclust = 1; nclust <= max_clusters; ++nclust) {
+        mlpack::gmm::GMM<> gmmn(nclust, dimensionality);
+        
+        // PROFILING
+        clock_t start = clock();
+        double likelihood = gmmn.Estimate(observations_train);
+        double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
+        printf("GMM time = %.1lf sec.\n", gmm_time);
+        
+        // = # mixing probabilities + # menas + # covariances
+        int nparams = (nclust - 1) + nclust * dimensionality + nclust * dimensionality * (dimensionality + 1) / 2;
+        // !!! TODO: check
+        double BIC = -2 * likelihood + nparams * log(observations_train.n_cols);
+        
+        if (BIC < BIC_min){
+            gmm_best = gmmn;
+            BIC_min = BIC;
+        }
+        
+        // DEBUG
+        printf("BIC of model with full covariance and %d clusters = %lf\n", nclust, BIC);
+    }
+    printf("Total time for max %d clusters = %.1lf sec.\n", max_clusters, ((double)clock() - start_all)/CLOCKS_PER_SEC);
+    
+    return gmm_best;
+}
+
 void GMMClusteringProcessor::process(){
 
     while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
@@ -77,43 +115,11 @@ void GMMClusteringProcessor::process(){
                 //                    printf("%f/%f\n", observations_(0, i), observations_(1,i));
                 //                }
                 
-                // iterate over number of clusters
-                // !!! TODO: models with non-full covariance matrix ???
-                double BIC_min = (double)(1 << 30);
-                mlpack::gmm::GMM<> gmm_best;
-                // PROFILING
-                clock_t start_all = clock();
-                
-                printf("# of observations = %u\n", observations_train_.n_cols);
-                for (int nclust = 1; nclust <= max_clusters_; ++nclust) {
-                    mlpack::gmm::GMM<> gmmn(nclust, dimensionality_);
-                    
-                    // PROFILING
-                    clock_t start = clock();
-                    double likelihood = gmmn.Estimate(observations_train_);
-                    double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
-                    printf("GMM time = %.1lf sec.\n", gmm_time);
-                    
-                    // = # mixing probabilities + # menas + # covariances
-                    int nparams = (nclust - 1) + nclust * dimensionality_ + nclust * dimensionality_ * (dimensionality_ + 1) / 2;
-                    // !!! TODO: check
-                    double BIC = -2 * likelihood + nparams * log(observations_train_.n_cols);
-                    
-                    if (BIC < BIC_min){
-                        gmm_best = gmmn;
-                        BIC_min = BIC;
-                    }
-                    
-                    // DEBUG
-                    printf("BIC of model with full covariance and %d clusters = %lf\n", nclust, BIC);
-                }
-                printf("Total time for max %d clusters = %.1lf sec.\n", max_clusters_, ((double)clock() - start_all)/CLOCKS_PER_SEC);
-                
-                gmm_ = gmm_best;
+                gmm_ = fit_gmm(observations_train_, max_clusters_);
                 printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_.Gaussians());
                 
                 // WARNING
-                if (gmm_best.Gaussians() == max_clusters_){
+                if (gmm_.Gaussians() == max_clusters_){
                     printf("WARNING: BIC is minimized by the maximal allowed number of clusters!\n");
                 }
                 
@@ -121,6 +127,8 @@ void GMMClusteringProcessor::process(){
                 for (int i=0; i < gmm_.Gaussians(); ++i) {
                     printf("\nprob %d = %f", i, gmm_.Weights()(i));
                 }
+                
+                // TODO: !!! fit the second-level clusters
                 
                 gmm_fitted_ = true;
             }
