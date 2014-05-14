@@ -73,7 +73,7 @@ void draw_bin(const char *path){
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
     
     pipeline->add_processor(new GMMClusteringProcessor(buf, gmm_min_observations, GMM_RATE, GMM_MAX_CLUSTERS));
-//    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0) );
+    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, false));
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, (SDLControlInputProcessor*)pipeline->get_processor(6))); // 7 / 3
     

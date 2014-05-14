@@ -270,7 +270,13 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     
     int plot_scale = 40; // 40 - 1
     int plot_hor_scale = 10; // controlled
-    int target_channel_;
+    
+    //
+    unsigned int displayed_channels_number_;
+    unsigned int *displayed_channels_;
+    
+    // previous displayed coordinate (y)
+    int *prev_vals_;
     
     int transform_to_y_coord(int voltage);
     void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);
@@ -282,12 +288,9 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     // number of unrendered signal samples (subject to threshold)
     int unrendered = 0;
     
-    // previous displayed value
-    int val_prev = 0;
-    
 public:
     virtual void process();
-    SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, int target_channel);
+    SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels);
     
     virtual void process_SDL_control_input(const SDL_Event& e);
 };

@@ -8,14 +8,18 @@
 
 #include "LFPProcessor.h"
 
-SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, int target_channel)
+SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels)
     : SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
-    , target_channel_(target_channel)
+    , displayed_channels_number_(displayed_channels_number)
+    , displayed_channels_(displayed_channels)
     , current_x(0)
     , last_disp_pos(0){
+        
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
+    prev_vals_ = new int[displayed_channels_number_];
+        
 }
 
 void SDLSignalDisplayProcessor::process(){
@@ -26,28 +30,34 @@ void SDLSignalDisplayProcessor::process(){
     }
     
     // whether to display
+    
     for (int pos = last_disp_pos + plot_hor_scale; pos < buffer->buf_pos; pos += plot_hor_scale){
-        int val = transform_to_y_coord(buffer->signal_buf[target_channel_][pos]);
         
-        SDL_SetRenderTarget(renderer_, texture_);
-        drawLine(renderer_, current_x, val_prev, current_x + 1, val);
-        
-        current_x++;
-        
-        if (current_x == SCREEN_WIDTH - 1){
-            current_x = 1;
+        for (int chani = 0; chani<displayed_channels_number_; ++chani) {
+            int channel = displayed_channels_[chani];
+
+            int val = transform_to_y_coord(buffer->signal_buf[channel][pos]) + 40 * chani;
             
-            // reset screen
             SDL_SetRenderTarget(renderer_, texture_);
-            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-            SDL_RenderClear(renderer_);
-            SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-            SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
-            SDL_RenderPresent(renderer_);
+            drawLine(renderer_, current_x, prev_vals_[channel], current_x + 1, val);
+
+            if (current_x == SCREEN_WIDTH - 1 && chani == displayed_channels_number_ - 1){
+                current_x = 1;
+                
+                // reset screen
+                SDL_SetRenderTarget(renderer_, texture_);
+                SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+                SDL_RenderClear(renderer_);
+                //SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+                //SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+                SDL_RenderPresent(renderer_);
+            }
+            
+            last_disp_pos = pos;
+            prev_vals_[channel] = val;
         }
         
-        last_disp_pos = pos;
-        val_prev = val;
+        current_x++;
     }
     
     // whether to render
@@ -80,8 +90,8 @@ void SDLSignalDisplayProcessor::process(){
             SDL_SetRenderTarget(renderer_, texture_);
             SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
             SDL_RenderClear(renderer_);
-            SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-            SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+            //SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+            //SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
             SDL_RenderPresent(renderer_);
         }
     }
@@ -126,20 +136,21 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
             case SDLK_ESCAPE:
                 exit(0);
                 break;
+                // TODO: check whether channels are available in the TetrodeInfo
             case SDLK_1:
-                target_channel_ = 1;
+                displayed_channels_ = new unsigned int[4]{0,1,2,3};
                 break;
             case SDLK_2:
-                target_channel_ = 5;
+                displayed_channels_ = new unsigned int[4]{4,5,6,7};
                 break;
             case SDLK_3:
-                target_channel_ = 9;
+                displayed_channels_ = new unsigned int[4]{8,9,10,11};
                 break;
             case SDLK_4:
-                target_channel_ = 13;
+                displayed_channels_ = new unsigned int[4]{12,13,14,15};
                 break;
             case SDLK_5:
-                target_channel_ = 17;
+                displayed_channels_ = new unsigned int[4]{16,17,18,19};
                 break;
         }
     }
