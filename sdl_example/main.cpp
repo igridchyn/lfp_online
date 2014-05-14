@@ -73,18 +73,18 @@ void draw_bin(const char *path){
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
     
     pipeline->add_processor(new GMMClusteringProcessor(buf, gmm_min_observations, GMM_RATE, GMM_MAX_CLUSTERS));
-    //pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0) );
-    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0));
+//    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 0) );
+    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, false));
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, (SDLControlInputProcessor*)pipeline->get_processor(6))); // 7 / 3
     
-    // TESTING:jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
+    // TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     
     //pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600));
     
-//    pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
+    pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
     
-//    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
+    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
     
     for (int i = 0; i < 1000000; ++i){
         fread((void*)block, CHUNK_SIZE, 1, f);

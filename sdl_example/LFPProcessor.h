@@ -266,10 +266,10 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     static const int DISP_FREQ = 30;
     
     // 11000
-    static const int SHIFT = 1300;
+    static const int SHIFT = 3000; // 1300
     
-    int plot_scale = 1; // 40
-    int plot_hor_scale = 10;
+    int plot_scale = 40; // 40 - 1
+    int plot_hor_scale = 10; // controlled
     int target_channel_;
     
     int transform_to_y_coord(int voltage);
@@ -381,8 +381,11 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     unsigned int comp2_ = 4; // 4 - 2nd channel, PC1; 1 - 1st channel, PC2;
     unsigned int nchan_;
     
+    // diplay non-assigned spikes
+    bool display_unclassified_;
+    
 public:
-    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode);
+    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified);
     
     // LFPProcessor
     virtual void process();

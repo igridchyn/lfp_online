@@ -9,12 +9,13 @@
 #include "LFPProcessor.h"
 
 
-SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode)
+SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified)
 : SDLControlInputProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 // paired qualitative brewer palette
 , palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928})
 , target_tetrode_(target_tetrode)
+, display_unclassified_(display_unclassified)
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 }
@@ -48,9 +49,11 @@ void SDLPCADisplayProcessor::process(){
         int x = spike->pc[comp1_ % nchan_][comp1_ / nchan_] + 600;
         int y = spike->pc[comp2_ % nchan_][comp2_ / nchan_] + 300;
         
+        const unsigned int cid = (unsigned int)spike->cluster_id_ > -1 ?  (unsigned int)spike->cluster_id_ : 0;
+        
         SDL_SetRenderTarget(renderer_, texture_);
         //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
-        SDL_SetRenderDrawColor(renderer_, palette_.getR((int)spike->cluster_id_), palette_.getG((int)spike->cluster_id_), palette_.getB((int)spike->cluster_id_),255);
+        SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
         SDL_RenderDrawPoint(renderer_, x, y);
         
         buffer->spike_buf_no_disp_pca++;
