@@ -152,6 +152,21 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
             case SDLK_5:
                 displayed_channels_ = new unsigned int[4]{16,17,18,19};
                 break;
+            case SDLK_6:
+                displayed_channels_ = new unsigned int[4]{20,21,22,23};
+                break;
+            case SDLK_7:
+                displayed_channels_ = new unsigned int[4]{24,25,26,27};
+                break;
+            case SDLK_8:
+                displayed_channels_ = new unsigned int[4]{28,29,30,31};
+                break;
+            case SDLK_9:
+                displayed_channels_ = new unsigned int[4]{32,33,34,35};
+                break;
+            case SDLK_0:
+                displayed_channels_ = new unsigned int[4]{36,37,38,39};
+                break;
         }
     }
 }

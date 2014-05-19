@@ -35,7 +35,7 @@ void SDLPCADisplayProcessor::process(){
             continue;
         }
         
-        if (spike->pc == NULL || spike->cluster_id_ == -1)
+        if (spike->pc == NULL || (spike->cluster_id_ == -1 && !display_unclassified_))
         {
             if (spike->discarded_){
                 buffer->spike_buf_no_disp_pca++;
