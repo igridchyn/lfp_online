@@ -9,6 +9,7 @@
 #include "LFPProcessor.h"
 #include "OnlineEstimator.cpp"
 #include <fstream>
+#include "SDL2/SDL.h"
 
 // REQUIREMENTS AND SPECIFICATION
 // data structure for LFP information (for all processors)
@@ -216,10 +217,24 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
 
 // ============================================================================================================
 
+void SDLSingleWindowDisplay::FillRect(const int x, const int y){
+    const int sz = 4;
+    
+    SDL_Rect rect;
+    rect.h = sz;
+    rect.w = sz;
+    rect.x = x-sz/2;
+    rect.y = y-sz/2;
+
+    
+    SDL_RenderFillRect(renderer_, &rect);
+}
+
 
 SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
     : window_width_(window_width)
-    , window_height_(window_height) {
+    , window_height_(window_height)
+    , palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928}){
     
     window_ = SDL_CreateWindow(window_name.c_str(), 0,0,window_width, window_height, 0);
     renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
@@ -244,6 +259,9 @@ int ColorPalette::getG(int order){
 }
 int ColorPalette::getB(int order){
     return color_values_[order] & 0x0000FF;
+}
+int ColorPalette::getColor(int order){
+    return color_values_[order];
 }
 
 FetReaderProcessor::FetReaderProcessor(LFPBuffer *buf, std::string fet_path)

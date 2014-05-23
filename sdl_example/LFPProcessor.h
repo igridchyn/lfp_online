@@ -53,6 +53,7 @@ public:
     int getR(int order);
     int getG(int order);
     int getB(int order);
+    int getColor(int order);
 };
 
 class TetrodesInfo{
@@ -127,6 +128,9 @@ public:
     // TODO: rewind
     unsigned int spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
     
+    // drawing spikes in pos
+    unsigned int spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
+    
     
     // POSITION BUFFER
     static const int POS_BUF_SIZE = 1 << 16;
@@ -189,6 +193,10 @@ protected:
     
     const unsigned int window_width_;
     const unsigned int window_height_;
+    
+    ColorPalette palette_;
+    
+    void FillRect(const int x, const int y);
     
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

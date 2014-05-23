@@ -8,6 +8,17 @@
 
 #include "PositionDisplayProcessor.h"
 
+PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, const unsigned int& target_tetrode)
+    : LFPProcessor(buf)
+    , SDLSingleWindowDisplay(window_name, window_width, window_height)
+    , target_tetrode_(target_tetrode)
+{
+    
+//    SDL_SetRenderTarget(renderer_, NULL);
+//    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+//    SDL_RenderPresent(renderer_);
+}
+
 void PositionDisplayProcessor::process(){
     const int rend_freq = 5;
     bool render = false;
@@ -25,6 +36,32 @@ void PositionDisplayProcessor::process(){
         
         if (!(buffer->pos_buf_disp_pos_ % rend_freq))
             render = true;
+        
+        // display spikes on a target tetrode
+        while (buffer->spike_buf_pos_draw_xy < buffer->spike_buf_pos_unproc_) {
+            Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
+            // wait until cluster is assigned
+            
+            if (spike->tetrode_ != target_tetrode_){
+                buffer->spike_buf_no_disp_pca++;
+                continue;
+            }
+            
+            if (spike->pc == NULL || (spike->cluster_id_ == -1)) // && !display_unclassified_))
+            {
+                if (spike->discarded_){
+                    buffer->spike_buf_no_disp_pca++;
+                    continue;
+                }
+                else{
+                    break;
+                }
+            }
+            
+            // TODO: use spike position for display
+            //FillRect(spike->, <#const int y#>);
+        }
+
     }
     
     if (render){
