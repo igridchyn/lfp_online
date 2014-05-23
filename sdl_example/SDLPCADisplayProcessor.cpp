@@ -46,10 +46,10 @@ void SDLPCADisplayProcessor::process(){
             }
         }
         
-        int x = spike->pc[comp1_ % nchan_][comp1_ / nchan_] + 600;
-        int y = spike->pc[comp2_ % nchan_][comp2_ / nchan_] + 300;
+        int x = spike->pc[comp1_ % nchan_][comp1_ / nchan_]/3 + 300;
+        int y = spike->pc[comp2_ % nchan_][comp2_ / nchan_]/3 + 300;
         
-        const unsigned int cid = (unsigned int)spike->cluster_id_ > -1 ?  (unsigned int)spike->cluster_id_ : 0;
+        const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
         
         SDL_SetRenderTarget(renderer_, texture_);
         //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);

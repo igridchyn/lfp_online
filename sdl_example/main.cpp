@@ -27,9 +27,9 @@ void draw_bin(const char *path){
     
     tetr_inf->tetrodes_number = 1;
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{0,1,2,3}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
+    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
-    tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
+//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{20,21,22,23}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{24,25,26,27}};
@@ -74,7 +74,7 @@ void draw_bin(const char *path){
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
     
     pipeline->add_processor(new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS));
-    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
+//    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED));
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, (SDLControlInputProcessor*)pipeline->get_processor(6))); // 7 / 3
     
@@ -132,7 +132,7 @@ int get_image(){
 //    draw_bin("/Users/igridchyn/test-data/haibing/jc86/jc86-2612_01.bin");
     
     // jc-103, screening
-    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-1005_03.bin");
+    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2305_02_explore.bin");
     
     // SDL_Delay( 2000 );
     char c = getchar();
