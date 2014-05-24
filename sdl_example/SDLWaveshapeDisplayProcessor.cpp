@@ -32,7 +32,8 @@ void SDLWaveshapeDisplayProcessor::process() {
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
         // !!! PLOTTING EVERY N-th spike
-        if (spike->tetrode_ != targ_tetrode_ || spike->discarded_ || !(spike->pkg_id_ % 5)){
+        // TODO: plot only one cluster [switch !!!]
+        if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(buf_pointer_ % 50)){
             buf_pointer_++;
             continue;
         }
@@ -58,5 +59,59 @@ void SDLWaveshapeDisplayProcessor::process() {
         SDL_SetRenderTarget(renderer_, NULL);
         SDL_RenderCopy(renderer_, texture_, NULL, NULL);
         SDL_RenderPresent(renderer_);
+    }
+}
+
+void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
+    if( e.type == SDL_KEYDOWN )
+    {
+        bool need_redraw = true;
+        
+        //Select surfaces based on key press
+        switch( e.key.keysym.sym )
+        {
+            case SDLK_ESCAPE:
+                exit(0);
+                break;
+                
+            // select tetrode
+            case SDLK_0:
+                targ_tetrode_ = 0;
+                break;
+            case SDLK_1:
+                targ_tetrode_ = 1;
+                break;
+            case SDLK_2:
+                targ_tetrode_ = 2;
+                break;
+            case SDLK_3:
+                targ_tetrode_ = 3;
+                break;
+                
+            // select cluster
+            case SDLK_KP_0:
+                disp_cluster_ = 0;
+                break;
+            case SDLK_KP_1:
+                disp_cluster_ = 1;
+                break;
+            case SDLK_KP_2:
+                disp_cluster_ = 2;
+                break;
+            case SDLK_KP_3:
+                disp_cluster_ = 3;
+                break;
+            case SDLK_KP_4:
+                disp_cluster_ = 4;
+            default:
+                need_redraw = false;
+        }
+        
+        if (need_redraw){
+            SDL_SetRenderTarget(renderer_, texture_);
+            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+            SDL_RenderClear(renderer_);
+            SDL_RenderPresent(renderer_);
+        }
     }
 }

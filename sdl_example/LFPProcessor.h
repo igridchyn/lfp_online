@@ -490,7 +490,10 @@ public:
 class SDLWaveshapeDisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay {
     unsigned int buf_pointer_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
     unsigned last_disp_pkg_id_ = 0;
+    
     int targ_tetrode_ = 0;
+    int disp_cluster_ = 0;
+    
     static const unsigned int DISPLAY_RATE = 10;
     
 public:
@@ -498,7 +501,11 @@ public:
     : LFPProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
     
+    // LFPProcessor
     virtual void process();
+    
+    // SDLSingleWindowDisplay
+    virtual void process_SDL_control_input(const SDL_Event& e);
 };
 
 #endif /* defined(__sdl_example__LFPProcessor__) */
