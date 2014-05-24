@@ -43,6 +43,9 @@ public:
     
     // for next processors to know whether they can process this spike
     bool aligned_ = false;
+    
+    // coords
+    float x, y;
 };
 
 class ColorPalette{
@@ -134,9 +137,13 @@ public:
     
     // POSITION BUFFER
     static const int POS_BUF_SIZE = 1 << 16;
-    unsigned short positions_buf_[POS_BUF_SIZE][4];
+    // 4 coords and pkg_id
+    unsigned short positions_buf_[POS_BUF_SIZE][5];
+    
     unsigned int pos_buf_pos_ = 0;
     unsigned int pos_buf_disp_pos_ = 0;
+    // TODO: ensure reset
+    unsigned int pos_buf_spike_pos_ = 0;
     
     
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
@@ -196,7 +203,7 @@ protected:
     
     ColorPalette palette_;
     
-    void FillRect(const int x, const int y);
+    void FillRect(const int x, const int y, const int cluster);
     
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

@@ -136,8 +136,20 @@ void SpikeDetectorProcessor::process()
                 if (buffer->spike_buffer_[buffer->spike_buf_pos] != NULL)
                     delete buffer->spike_buffer_[buffer->spike_buf_pos];
                 
-                buffer->spike_buffer_[buffer->spike_buf_pos] = new Spike(spike_pos + 1, tetrode);
+                // TODO: delete oold spikes or reuse the structure
+                Spike *spike = new Spike(spike_pos + 1, tetrode);
+                buffer->spike_buffer_[buffer->spike_buf_pos] = spike;
                 buffer->spike_buf_pos++;
+                
+                // set coords
+                // find position
+                // !!! TODO: interpolate, wait for next if needed [separate processor ?]
+                while(buffer->positions_buf_[buffer->pos_buf_spike_pos_][4] < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
+                    buffer->pos_buf_spike_pos_++;
+                }
+                // TODO: average of two LED coords
+                spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
+                spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
                 
                 // check if rewind is requried
                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_LEN - 1){

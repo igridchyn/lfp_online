@@ -39,18 +39,18 @@ void PositionDisplayProcessor::process(){
         
         // display spikes on a target tetrode
         while (buffer->spike_buf_pos_draw_xy < buffer->spike_buf_pos_unproc_) {
-            Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
+            Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_draw_xy];
             // wait until cluster is assigned
             
             if (spike->tetrode_ != target_tetrode_){
-                buffer->spike_buf_no_disp_pca++;
+                buffer->spike_buf_pos_draw_xy++;
                 continue;
             }
             
             if (spike->pc == NULL || (spike->cluster_id_ == -1)) // && !display_unclassified_))
             {
                 if (spike->discarded_){
-                    buffer->spike_buf_no_disp_pca++;
+                    buffer->spike_buf_pos_draw_xy++;
                     continue;
                 }
                 else{
@@ -59,7 +59,8 @@ void PositionDisplayProcessor::process(){
             }
             
             // TODO: use spike position for display
-            //FillRect(spike->, <#const int y#>);
+            FillRect(spike->x, spike->y, spike->cluster_id_);
+            buffer->spike_buf_pos_draw_xy++;
         }
 
     }

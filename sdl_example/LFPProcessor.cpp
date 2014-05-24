@@ -89,6 +89,7 @@ void PackageExractorProcessor::process(){
         buffer->positions_buf_[buffer->pos_buf_pos_][1] = by;
         buffer->positions_buf_[buffer->pos_buf_pos_][2] = sx;
         buffer->positions_buf_[buffer->pos_buf_pos_][3] = sy;
+        buffer->positions_buf_[buffer->pos_buf_pos_][4] = buffer->last_pkg_id;
         
         buffer->pos_buf_pos_++;
     }
@@ -217,7 +218,7 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
 
 // ============================================================================================================
 
-void SDLSingleWindowDisplay::FillRect(const int x, const int y){
+void SDLSingleWindowDisplay::FillRect(const int x, const int y, const int cluster){
     const int sz = 4;
     
     SDL_Rect rect;
@@ -226,7 +227,7 @@ void SDLSingleWindowDisplay::FillRect(const int x, const int y){
     rect.x = x-sz/2;
     rect.y = y-sz/2;
 
-    
+    SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster), palette_.getG(cluster), palette_.getB(cluster), 255);
     SDL_RenderFillRect(renderer_, &rect);
 }
 
