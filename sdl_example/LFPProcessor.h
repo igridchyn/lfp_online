@@ -53,10 +53,12 @@ class ColorPalette{
     int *color_values_;
 public:
     ColorPalette(int num_colors, int *color_values);
-    int getR(int order);
-    int getG(int order);
-    int getB(int order);
-    int getColor(int order);
+    int getR(int order) const;
+    int getG(int order) const;
+    int getB(int order) const;
+    int getColor(int order) const;
+    
+    static const ColorPalette BrewerPalette12;
 };
 
 class TetrodesInfo{

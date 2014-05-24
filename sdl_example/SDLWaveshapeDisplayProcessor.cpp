@@ -26,7 +26,8 @@ void SDLWaveshapeDisplayProcessor::process() {
     int last_pkg_id;
     
     SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
+    const ColorPalette& colpal = ColorPalette::BrewerPalette12;
+    SDL_SetRenderDrawColor(renderer_, colpal.getR(disp_cluster_) ,colpal.getG(disp_cluster_), colpal.getB(disp_cluster_),255);
     
     while(buf_pointer_ < buffer->spike_buf_no_rec){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];

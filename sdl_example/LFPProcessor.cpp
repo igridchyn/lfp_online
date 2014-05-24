@@ -187,6 +187,8 @@ Spike::Spike(int pkg_id, int tetrode)
 {
 }
 
+const ColorPalette ColorPalette::BrewerPalette12(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928});
+
 // ============================================================================================================
 
 LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
@@ -252,16 +254,16 @@ ColorPalette::ColorPalette(int num_colors, int *color_values)
     : num_colors_(num_colors)
 , color_values_(color_values) {}
 
-int ColorPalette::getR(int order){
+int ColorPalette::getR(int order) const{
     return (color_values_[order] & 0xFF0000) >> 16;
 }
-int ColorPalette::getG(int order){
+int ColorPalette::getG(int order) const{
     return (color_values_[order] & 0x00FF00) >> 8;
 }
-int ColorPalette::getB(int order){
+int ColorPalette::getB(int order) const{
     return color_values_[order] & 0x0000FF;
 }
-int ColorPalette::getColor(int order){
+int ColorPalette::getColor(int order) const{
     return color_values_[order];
 }
 
