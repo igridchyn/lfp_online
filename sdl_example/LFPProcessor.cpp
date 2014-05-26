@@ -52,6 +52,20 @@ LFPProcessor *LFPPipeline::get_processor(const unsigned int& index){
     return processors[index];
 }
 
+SDLControlInputProcessor **LFPPipeline::GetSDLControlInputProcessors(){
+    // TODO: use vector
+    SDLControlInputProcessor **control_processors = new SDLControlInputProcessor *[20];
+    int pcount = 0;
+    
+    for (int p=0; p<processors.size(); ++p) {
+        SDLControlInputProcessor *ciproc = dynamic_cast<SDLControlInputProcessor*>(processors[p]);
+        if (ciproc != NULL){
+            control_processors[pcount++] = ciproc;
+        }
+    }
+    
+    return control_processors;
+}
 
 // ============================================================================================================
 
@@ -138,14 +152,44 @@ void SDLControlInputMetaProcessor::process(){
             quit = true;
         }
         else{
+            // check for control switch
+            if( e.type == SDL_KEYDOWN ){
+                SDL_Keymod kmod = SDL_GetModState();
+                if (kmod & KMOD_LCTRL){
+                    // switch to corresponding processor
+                    switch( e.key.keysym.sym )
+                    {
+                            // TODO: out of range checl
+                            case SDLK_1:
+                                control_processor_ = control_processors_[0];
+                                break;
+                            case SDLK_2:
+                                control_processor_ = control_processors_[1];
+                                break;
+                            case SDLK_3:
+                                control_processor_ = control_processors_[2];
+                                break;
+                            case SDLK_4:
+                                control_processor_ = control_processors_[3];
+                                break;
+                            case SDLK_5:
+                                control_processor_ = control_processors_[4];
+                                break;
+                    }
+                    
+                    continue;
+                }
+            }
+            
             control_processor_->process_SDL_control_input(e);
         }
     }
 }
 
-SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor* control_processor)
+SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor **control_processors)
     : LFPProcessor(buffer)
-    , control_processor_(control_processor)
+    , control_processor_(control_processors[0])
+    , control_processors_(control_processors)
 {}
 
 SDLControlInputProcessor::SDLControlInputProcessor(LFPBuffer *buf)

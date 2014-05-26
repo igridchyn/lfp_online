@@ -223,6 +223,7 @@ public:
 
 class SDLControlInputMetaProcessor : public LFPProcessor{
     SDLControlInputProcessor* control_processor_;
+    SDLControlInputProcessor **control_processors_;
     
     // id of last package with which the input was obtained
     int last_input_pkg_id_ = 0;
@@ -230,7 +231,7 @@ class SDLControlInputMetaProcessor : public LFPProcessor{
     
 public:
     virtual void process();
-    SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor* control_processor);
+    SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor **control_processors);
 };
 
 class SpikeDetectorProcessor : public LFPProcessor{
@@ -463,6 +464,8 @@ public:
     void process(unsigned char *data, int nchunks);
     
     LFPProcessor *get_processor(const unsigned int& index);
+    
+    SDLControlInputProcessor **GetSDLControlInputProcessors();
 };
 
 //==========================================================================================
@@ -489,7 +492,7 @@ public:
     virtual void process();
 };
 
-class SDLWaveshapeDisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay {
+class SDLWaveshapeDisplayProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor {
     unsigned int buf_pointer_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
     unsigned last_disp_pkg_id_ = 0;
     
@@ -500,7 +503,7 @@ class SDLWaveshapeDisplayProcessor : public LFPProcessor, public SDLSingleWindow
     
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width, const unsigned int& window_height)
-    : LFPProcessor(buf)
+    : SDLControlInputProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
     
     // LFPProcessor
