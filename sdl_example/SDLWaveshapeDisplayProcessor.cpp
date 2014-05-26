@@ -116,3 +116,9 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         }
     }
 }
+
+void SDLWaveshapeDisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
+    // duplicates functionality in process_SDL_control_input, but is supposed to be called in all displays simultaneously
+    targ_tetrode_ = display_tetrode;
+    ReinitScreen();
+}

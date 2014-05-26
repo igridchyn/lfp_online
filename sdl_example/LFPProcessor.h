@@ -209,9 +209,12 @@ protected:
     
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
+    virtual void ReinitScreen();
 };
 
 //====================================================================================================
+
+// tetrodes switch: implement separate interface or provide [dummy] implementation of SetDisplayTetrode() if not supported
 
 class SDLControlInputProcessor : public LFPProcessor{
 public:
@@ -219,21 +222,28 @@ public:
     
     virtual void process_SDL_control_input(const SDL_Event& e) = 0;
     virtual void process() = 0;
+    
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode) = 0;
 };
 
+//====================================================================================================
 class SDLControlInputMetaProcessor : public LFPProcessor{
     SDLControlInputProcessor* control_processor_;
-    SDLControlInputProcessor **control_processors_;
+    std::vector<SDLControlInputProcessor*> control_processors_;
     
     // id of last package with which the input was obtained
     int last_input_pkg_id_ = 0;
     static const int input_scan_rate_ = 1000;
     
+    void SwitchDisplayTetrode(const unsigned int& display_tetrode);
+    
 public:
     virtual void process();
-    SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor **control_processors);
+    
+    SDLControlInputMetaProcessor(LFPBuffer* buffer, std::vector<SDLControlInputProcessor *> control_processors);
 };
 
+//====================================================================================================
 class SpikeDetectorProcessor : public LFPProcessor{
     // TODO: read from config
     
@@ -308,6 +318,8 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     
 public:
     virtual void process();
+    virtual void SetDisplayTetrode(const int& display_tetrode);
+    
     SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels);
     
     virtual void process_SDL_control_input(const SDL_Event& e);
@@ -411,6 +423,8 @@ public:
     // LFPProcessor
     virtual void process();
     
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode) { target_tetrode_ = display_tetrode; ReinitScreen(); }
+    
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
 };
@@ -465,7 +479,7 @@ public:
     
     LFPProcessor *get_processor(const unsigned int& index);
     
-    SDLControlInputProcessor **GetSDLControlInputProcessors();
+    std::vector<SDLControlInputProcessor *> GetSDLControlInputProcessors();
 };
 
 //==========================================================================================
@@ -511,6 +525,7 @@ public:
     
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
 };
 
 #endif /* defined(__sdl_example__LFPProcessor__) */

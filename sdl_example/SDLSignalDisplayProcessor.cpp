@@ -8,6 +8,19 @@
 
 #include "LFPProcessor.h"
 
+void SDLSignalDisplayProcessor::SetDisplayTetrode(const int& display_tetrode){
+    // TODO: configurableize
+    
+    displayed_channels_number_ = buffer->tetr_info_->channels_numbers[display_tetrode];
+    
+    delete[] displayed_channels_;
+    displayed_channels_ = new unsigned int[4];
+    
+    for (int c=0; c < displayed_channels_number_; ++c) {
+        displayed_channels_[c] = buffer->tetr_info_->tetrode_channels[display_tetrode][c];
+    }
+}
+
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels)
     : SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
@@ -19,7 +32,6 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
     prev_vals_ = new int[displayed_channels_number_];
-        
 }
 
 void SDLSignalDisplayProcessor::process(){

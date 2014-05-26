@@ -52,15 +52,14 @@ LFPProcessor *LFPPipeline::get_processor(const unsigned int& index){
     return processors[index];
 }
 
-SDLControlInputProcessor **LFPPipeline::GetSDLControlInputProcessors(){
+std::vector<SDLControlInputProcessor *> LFPPipeline::GetSDLControlInputProcessors(){
     // TODO: use vector
-    SDLControlInputProcessor **control_processors = new SDLControlInputProcessor *[20];
-    int pcount = 0;
+    std::vector<SDLControlInputProcessor *> control_processors;
     
     for (int p=0; p<processors.size(); ++p) {
         SDLControlInputProcessor *ciproc = dynamic_cast<SDLControlInputProcessor*>(processors[p]);
         if (ciproc != NULL){
-            control_processors[pcount++] = ciproc;
+            control_processors.push_back(ciproc);
         }
     }
     
@@ -179,6 +178,33 @@ void SDLControlInputMetaProcessor::process(){
                     
                     continue;
                 }
+                
+                if (kmod & KMOD_LALT){
+                    // switch tetrode
+                    
+                    switch( e.key.keysym.sym )
+                    {
+                        // TODO: all tetrodes (10-16: numpad; 17-32: RALT)
+                            
+                        case SDLK_1:
+                            SwitchDisplayTetrode(0);
+                            break;
+                        case SDLK_2:
+                            SwitchDisplayTetrode(1);
+                            break;
+                        case SDLK_3:
+                            SwitchDisplayTetrode(2);
+                            break;
+                        case SDLK_4:
+                            SwitchDisplayTetrode(3);
+                            break;
+                        case SDLK_5:
+                            SwitchDisplayTetrode(4);
+                            break;
+                    }
+                    
+                    continue;
+                }
             }
             
             control_processor_->process_SDL_control_input(e);
@@ -186,11 +212,17 @@ void SDLControlInputMetaProcessor::process(){
     }
 }
 
-SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, SDLControlInputProcessor **control_processors)
+SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, std::vector<SDLControlInputProcessor *> control_processors)
     : LFPProcessor(buffer)
     , control_processor_(control_processors[0])
     , control_processors_(control_processors)
 {}
+
+void SDLControlInputMetaProcessor::SwitchDisplayTetrode(const unsigned int& display_tetrode){
+    for (int pi=0; pi < control_processors_.size(); ++pi) {
+        control_processors_[pi]->SetDisplayTetrode(display_tetrode);
+    }
+}
 
 SDLControlInputProcessor::SDLControlInputProcessor(LFPBuffer *buf)
 : LFPProcessor(buf) { }
@@ -292,6 +324,14 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
     
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
+}
+
+
+void SDLSingleWindowDisplay::ReinitScreen(){
+    SDL_SetRenderTarget(renderer_, texture_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
 }
 
 ColorPalette::ColorPalette(int num_colors, int *color_values)

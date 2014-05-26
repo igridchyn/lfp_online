@@ -46,3 +46,7 @@ GMM:
 	8 clusters: 393 sec
 	9 clusters: 439 sec
 		total = 2165 sec = 36 minutes
+
+===========================================================================
+
+1 channel: 15 sec / 10 minutes data
