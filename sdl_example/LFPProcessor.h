@@ -423,7 +423,7 @@ public:
     // LFPProcessor
     virtual void process();
     
-    virtual void SetDisplayTetrode(const unsigned int& display_tetrode) { target_tetrode_ = display_tetrode; ReinitScreen(); }
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode) { target_tetrode_ = display_tetrode; ReinitScreen(); buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN; }
     
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
@@ -443,23 +443,26 @@ class GMMClusteringProcessor : public LFPProcessor{
     unsigned int dimensionality_;
     unsigned int rate_;
     unsigned int max_clusters_;
-    
-    unsigned int total_observations_ = 0;
-    
     int min_observations_;
+    
+    // classify every .. spikes (to reduce computations overhead)
     static const int classification_rate_ = 10;
     
-    arma::mat observations_;
-    arma::mat observations_train_;
+    std::vector<unsigned int> total_observations_;
+    std::vector<arma::mat> observations_;
+    std::vector<arma::mat> observations_train_;
     
-    std::vector<Spike*> obs_spikes_;
-    mlpack::gmm::GMM<> gmm_;
-    bool gmm_fitted_ = false;
-    unsigned int spikes_collected_ = 0;
+    std::vector<std::vector<Spike*> > obs_spikes_;
     
-    std::vector< arma::vec > means_;
-    std::vector< arma::mat > covariances_;
-    arma::vec weights_;
+    std::vector< mlpack::gmm::GMM<> > gmm_;
+    
+    std::vector<bool> gmm_fitted_;
+    std::vector<unsigned int> spikes_collected_;
+    
+    std::vector<std::vector< arma::vec > > means_;
+    std::vector<std::vector< arma::mat > > covariances_;
+    
+    std::vector<arma::vec> weights_;
     
     mlpack::gmm::GMM<> fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
     
@@ -510,7 +513,7 @@ class SDLWaveshapeDisplayProcessor : public SDLSingleWindowDisplay, public SDLCo
     unsigned int buf_pointer_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
     unsigned last_disp_pkg_id_ = 0;
     
-    int targ_tetrode_ = 0;
+    unsigned int targ_tetrode_ = 0;
     int disp_cluster_ = 0;
     
     static const unsigned int DISPLAY_RATE = 10;
