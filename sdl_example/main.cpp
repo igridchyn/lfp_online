@@ -19,6 +19,7 @@ typedef short t_bin;
 // NUM - switch PCA dimensions / cluster waveshape
 // NUMPAD NUM - switch PCA dismension
 // ESC - exit
+// SHIFT+NUM ~ 10+NUM
 
 void draw_bin(const char *path){
     FILE *f = fopen(path, "rb");
@@ -33,17 +34,17 @@ void draw_bin(const char *path){
 //    tetr_inf->channels_numbers = new int[2]{4, 4};
 //    tetr_inf->tetrode_channels = new int*[2]{new int[4]{8,9,10,11}, new int[4]{16,17,18,19}};
 
-    tetr_inf->tetrodes_number = 2;
-    tetr_inf->channels_numbers = new int[2]{4, 4};
-    tetr_inf->tetrode_channels = new int*[2]{new int[4]{44,45,46,47}, new int[4]{48,49,50,51}};
+//    tetr_inf->tetrodes_number = 2;
+//    tetr_inf->channels_numbers = new int[2]{4, 4};
+//    tetr_inf->tetrode_channels = new int*[2]{new int[4]{44,45,46,47}, new int[4]{48,49,50,51}};
     
 //    tetr_inf->tetrodes_number = 5;
 //    tetr_inf->channels_numbers = new int[5]{4, 4, 4, 4, 4};
 //    tetr_inf->tetrode_channels = new int*[5]{new int[4]{8,9,10,11}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}, new int[4]{24,25,26,27}, new int[4]{28,29,30,31}};
 
     
-//    tetr_inf->tetrodes_number = 1;
-//    tetr_inf->channels_numbers = new int[1]{4};
+    tetr_inf->tetrodes_number = 1;
+    tetr_inf->channels_numbers = new int[1]{4};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{0,1,2,3}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
@@ -55,7 +56,7 @@ void draw_bin(const char *path){
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{32,33,34,35}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{36,37,38,39}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{40,41,42,43}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{44,45,46,47}}; // +
+    tetr_inf->tetrode_channels = new int*[1]{new int[4]{44,45,46,47}}; // +
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{48,49,50,51}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{52,53,54,55}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{56,57,58,59}};
@@ -69,7 +70,7 @@ void draw_bin(const char *path){
     const float DET_NSTD = 6.5;
     
     // CLUSTERING PARAMS
-    const unsigned int GMM_MIN_OBSERVATIONS = 1000;
+    const unsigned int GMM_MIN_OBSERVATIONS = 3000;
     const unsigned int GMM_RATE = 1;
     const unsigned int GMM_MAX_CLUSTERS = 5;
     

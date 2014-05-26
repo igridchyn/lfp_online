@@ -9,7 +9,7 @@
 #include "LFPProcessor.h"
 
 int transform(int smpl, int chan){
-    return 100 + smpl/20 + 200 * chan;
+    return 100 + smpl/25 + 200 * chan;
 }
 
 void SDLWaveshapeDisplayProcessor::process() {
@@ -34,8 +34,9 @@ void SDLWaveshapeDisplayProcessor::process() {
         
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
-        if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(buf_pointer_ % 50)){
+        if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(tetrode_total_spikes_ % 50)){
             buf_pointer_++;
+            tetrode_total_spikes_ ++;
             continue;
         }
         

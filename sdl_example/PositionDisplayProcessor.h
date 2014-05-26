@@ -12,14 +12,20 @@
 #include <iostream>
 #include "LFPProcessor.h"
 
-class PositionDisplayProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
-    const unsigned int target_tetrode_;
+class PositionDisplayProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay{
+    unsigned int target_tetrode_;
+    std::vector<bool> display_cluster_;
     
 public:
     PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, const unsigned int& target_tetrode);
    
     
     virtual void process();
+    
+    // SDLControlInputProcessor
+    virtual void process_SDL_control_input(const SDL_Event& e);
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
+
 };
 
 #endif /* defined(__sdl_example__PositionDisplayProcessor__) */

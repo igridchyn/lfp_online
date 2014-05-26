@@ -516,6 +516,8 @@ class SDLWaveshapeDisplayProcessor : public SDLSingleWindowDisplay, public SDLCo
     unsigned int targ_tetrode_ = 0;
     int disp_cluster_ = 0;
     
+    unsigned int tetrode_total_spikes_ = 0;
+    
     static const unsigned int DISPLAY_RATE = 10;
     
 public:
