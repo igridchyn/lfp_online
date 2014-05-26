@@ -12,6 +12,16 @@
 
 using namespace mlpack::gmm;
 
+mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode){
+    std::string basename = "/Users/igridchyn/data/bindata/jc103/clustering/gmm_";
+    const char **suffs = new const char*[10]{"0", "1", "2", "3", "4", "5", "6"};
+    
+    mlpack::gmm::GMM<> gmm;
+    gmm.Load(basename+suffs[tetrode] + ".xml");
+    
+    return gmm;
+}
+
 GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters)
     : LFPProcessor(buf)
     , min_observations_(min_observations)
@@ -44,6 +54,13 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
         
     // Fitting type by default is EMFit
     // gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
+        
+    if (load_clustering_){
+        for (int tetr=0; tetr < ntetr; ++tetr) {
+            gmm_[tetr] = loadGMM(tetr);
+            gmm_fitted_[tetr] = true;
+        }
+    }
 }
 
 mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train, const unsigned int& max_clusters){
@@ -83,6 +100,14 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train,
     
     return gmm_best;
 }
+
+void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){
+    std::string basename = "/Users/igridchyn/data/bindata/jc103/clustering/gmm_";
+    const char **suffs = new const char*[10]{"0", "1", "2", "3", "4", "5", "6"};
+    
+    gmm.Save(basename+suffs[tetrode] + ".xml");
+}
+
 
 void GMMClusteringProcessor::process(){
 
@@ -149,6 +174,10 @@ void GMMClusteringProcessor::process(){
                 // TODO: !!! fit the second-level clusters
                 
                 gmm_fitted_[tetr] = true;
+                
+                if (save_clustering_){
+                    saveGMM(gmm_[tetr], tetr);
+                }
             }
         }else{
             // fit clusters after enough records have been collected
@@ -156,7 +185,7 @@ void GMMClusteringProcessor::process(){
             if (total_observations_[tetr] >= classification_rate_){
                 arma::Col<size_t> labels_;
                 // redraw !!
-                gmm_[tetr].Classify(observations_[tetr], labels_);
+                gmm_[tetr].Classify(observations_[tetr].cols(0, total_observations_[tetr] - 1), labels_);
                 
                 // TODO: assign labels to clusters; assign labels to future clusteres; redraw clusters
                 // don't draw unclassified

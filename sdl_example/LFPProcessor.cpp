@@ -158,7 +158,7 @@ void SDLControlInputMetaProcessor::process(){
                     // switch to corresponding processor
                     switch( e.key.keysym.sym )
                     {
-                            // TODO: out of range checl
+                            // TODO: out of range check
                             case SDLK_1:
                                 control_processor_ = control_processors_[0];
                                 break;

@@ -445,6 +445,9 @@ class GMMClusteringProcessor : public LFPProcessor{
     unsigned int max_clusters_;
     int min_observations_;
     
+    bool save_clustering_ = false;
+    bool load_clustering_ = true;
+    
     // classify every .. spikes (to reduce computations overhead)
     static const int classification_rate_ = 10;
     
