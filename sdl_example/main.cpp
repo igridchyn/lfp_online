@@ -74,12 +74,12 @@ void draw_bin(const char *path){
     const float DET_NSTD = 6.5;
     
     // CLUSTERING PARAMS
-    const unsigned int GMM_MIN_OBSERVATIONS = 3000;
+    const unsigned int GMM_MIN_OBSERVATIONS = 10000;
     const unsigned int GMM_RATE = 1;
     const unsigned int GMM_MAX_CLUSTERS = 8;
     
     // PCA PARAMS
-    const unsigned int PCA_MIN_SAMPLES = 1000;
+    const unsigned int PCA_MIN_SAMPLES = 5000;
     const bool DISPLAY_UNCLASSIFIED = false;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
@@ -158,7 +158,7 @@ int get_image(){
     // 12th tetrode
 //    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2305_02_explore.bin");
     
-    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2505_02e.bin");
+    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
     
     // SDL_Delay( 2000 );
     char c = getchar();
