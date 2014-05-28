@@ -3,6 +3,7 @@
 #include "LFPProcessor.h"
 #include "UnitTestingProcessor.h"
 #include "PositionDisplayProcessor.h"
+#include "AutocorrelogramProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -79,7 +80,7 @@ void draw_bin(const char *path){
     const unsigned int GMM_MAX_CLUSTERS = 8;
     
     // PCA PARAMS
-    const unsigned int PCA_MIN_SAMPLES = 5000;
+    const unsigned int PCA_MIN_SAMPLES = 1000;
     const bool DISPLAY_UNCLASSIFIED = false;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
@@ -106,7 +107,9 @@ void draw_bin(const char *path){
     
     pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
     
-    // should be added after the control porcessor
+    pipeline->add_processor(new AutocorrelogramProcessor(buf));
+    
+    // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
     
     while(!feof(f))

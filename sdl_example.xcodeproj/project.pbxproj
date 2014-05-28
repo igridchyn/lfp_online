@@ -20,6 +20,7 @@
 		B052747E18A943A700193EAA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747D18A943A700193EAA /* Cocoa.framework */; };
 		B052748018A9441100193EAA /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747F18A9441100193EAA /* SDL2.framework */; };
 		B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052748218ACD51900193EAA /* SDL2_ttf.framework */; };
+		B0611B6F1934C62F0066583E /* AutocorrelogramProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */; };
 		B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */; };
 		B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */; };
 		B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C591918E65500C1328D /* OnlineEstimator.cpp */; };
@@ -58,6 +59,8 @@
 		B052747D18A943A700193EAA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B052747F18A9441100193EAA /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		B052748218ACD51900193EAA /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
+		B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutocorrelogramProcessor.cpp; sourceTree = "<group>"; };
+		B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutocorrelogramProcessor.h; sourceTree = "<group>"; };
 		B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLPCADisplayProcessor.cpp; sourceTree = "<group>"; };
 		B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetectorProcessor.cpp; sourceTree = "<group>"; };
 		B0797C591918E65500C1328D /* OnlineEstimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnlineEstimator.cpp; sourceTree = "<group>"; };
@@ -133,6 +136,8 @@
 				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
 				B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */,
 				B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */,
+				B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */,
+				B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */,
 			);
 			path = sdl_example;
 			sourceTree = "<group>";
@@ -193,6 +198,7 @@
 				B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */,
 				B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */,
 				B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */,
+				B0611B6F1934C62F0066583E /* AutocorrelogramProcessor.cpp in Sources */,
 				B03EACC2190006BF0087C88F /* SpikeAlignmentProcessor.cpp in Sources */,
 				B03EACBB18FDA9170087C88F /* PCAExtractionProcessor.cpp in Sources */,
 				B052743E18A9375500193EAA /* main.cpp in Sources */,
