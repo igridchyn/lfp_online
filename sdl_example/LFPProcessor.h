@@ -376,10 +376,13 @@ class PCAExtractionProcessor : public LFPProcessor{
     int ***cor_;
     // [channel][ws1]
     int **mean_;
+    int ** sumsq_;
     
     // for PCA computation
     float **corf_;
     float *meanf_;
+    
+    float **stdf_;
     
     // number of objects accumulated in means / cors for each tetrode
     unsigned int *num_spikes;

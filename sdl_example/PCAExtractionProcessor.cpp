@@ -192,16 +192,14 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     }
     
     // !!! turn to correlations instead of covariances
-    for (i=0;i<ftno;i++){
-        for ( j=i+1;j<ftno;j++) {
-            cor[j][i]=cor[i][j]=cor[i][j]/(float)sqrt(cor[i][i] * cor[j][j]);
-            //printf("%f ", cor[j][i]);
-        }
-        //printf("\n");
-    }
-    for (i=0;i<ftno;i++){
-        cor[i][i] = 1.0f;
-    }
+//    for (i=0;i<ftno;i++){
+//        for ( j=i+1;j<ftno;j++) {
+//            cor[j][i]=cor[i][j]=cor[i][j]/(float)sqrt(cor[i][i] * cor[j][j]);
+//        }
+//    }
+//    for (i=0;i<ftno;i++){
+//        cor[i][i] = 1.0f;
+//    }
     
     
     //printf("Solving Eigen equation...");
@@ -276,6 +274,8 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     
     cor_ = new int**[nchan];
     mean_ = new int*[nchan];
+    sumsq_ = new int*[nchan];
+    stdf_ = new float*[nchan];
     
     corf_ = new float*[waveshape_samples_];
     for (int w=0; w<waveshape_samples_; ++w) {
@@ -294,6 +294,11 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
         }
         mean_[c] = new int[waveshape_samples_];
         memset(mean_[c], 0, sizeof(int)*waveshape_samples_);
+        
+        sumsq_[c] = new int[waveshape_samples_];
+        memset(sumsq_[c], 0, sizeof(int)*waveshape_samples_);
+        
+        stdf_[c] = new float[waveshape_samples_];
     }
     
     pc_transform_ = new float**[nchan];
@@ -342,6 +347,8 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
         for (int pc=0; pc < num_pc_; ++pc) {
             spike->pc[c][pc] = 0;
             for (int w=0; w < waveshape_samples_; ++w) {
+                // STANDARDIZED OR NOT
+                // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][pc][w];
                 spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w];
             }
         }
@@ -387,6 +394,7 @@ void PCAExtractionProcessor::process(){
                 
                 for (int w=0; w < waveshape_samples_; ++w) {
                     mean_[chan][w] += spike->waveshape_final[chani][w] / scale_;
+                    sumsq_[chan][w] += spike->waveshape_final[chani][w] / scale_ * spike->waveshape_final[chani][w] / scale_;
                     
 //                    if (chani==0 && abs(spike->waveshape_final[chani][w]) > 5000){
 //                        // printf("Large amplitude at %d: %d!\n",spike->pkg_id_, spike->waveshape_final[chani][w]);
@@ -431,6 +439,9 @@ void PCAExtractionProcessor::process(){
                         corf_[w][w2] = (float)cor_[channel][w][w2];
                         corf_[w2][w] = cor_[channel][w][w2];
                     }
+                    
+                    // STD
+                    stdf_[channel][w] = (float)sumsq_[channel][w]*sumsq_[channel][w] / (float)num_spikes[tetr] - (mean_[channel][w] / (float)num_spikes[tetr] * mean_[channel][w] / (float)num_spikes[tetr]);
                 }
                 
                 // prm - projection matrix, prm[j][i] = contribution of j-th wave feature to i-th PC
