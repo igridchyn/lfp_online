@@ -301,10 +301,10 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     
     pc_transform_ = new float**[nchan];
     for (int c=0;c<nchan; ++c) {
-        pc_transform_[c] = new float*[waveshape_samples_];
-        for (int w=0; w<waveshape_samples_; ++w) {
-            pc_transform_[c][w] = new float[num_pc_];
-            memset(pc_transform_[c][w], 0, num_pc_ * sizeof(float));
+        pc_transform_[c] = new float*[num_pc_];
+        for (int pc=0; pc<num_pc_; ++pc) {
+            pc_transform_[c][pc] = new float[waveshape_samples_];
+            memset(pc_transform_[c][pc], 0, waveshape_samples_ * sizeof(float));
         }
     }
     
@@ -317,10 +317,9 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
                 const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
                 std::ifstream fpc(pc_path_ + Utils::NUMBERS[chan] + ".txt");
                 
-
-                for (int w = 0; w < waveshape_samples_; ++w) {
-                    for (int pc = 0; pc < num_pc_; ++pc) {
-                        fpc >> pc_transform_[chan][w][pc];
+                for (int pc = 0; pc < num_pc_; ++pc) {
+                    for (int w = 0; w < waveshape_samples_; ++w) {
+                        fpc >> pc_transform_[chan][pc][w];
                     }
                 }
                 
@@ -346,7 +345,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
             spike->pc[c][pc] = 0;
             for (int w=0; w < waveshape_samples_; ++w) {
                 // STANDARDIZED OR NOT
-                // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][pc][w];
+                // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
                 spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w];
             }
         }
@@ -447,7 +446,7 @@ void PCAExtractionProcessor::process(){
                 
                 // SAVE PC transform
                 if (save_transform_){
-                    saveArray(pc_path_ + Utils::NUMBERS[channel] + std::string(".txt"), pc_transform_[channel], 16, 3);
+                    saveArray(pc_path_ + Utils::NUMBERS[channel] + std::string(".txt"), pc_transform_[channel], 3, 16);
                 }
                 
                 // DEBUG - print PCA transform matrix
