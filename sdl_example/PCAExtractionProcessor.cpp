@@ -190,7 +190,20 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
         }
         //printf("\n");
     }
-
+    
+    // !!! turn to correlations instead of covariances
+    for (i=0;i<ftno;i++){
+        for ( j=i+1;j<ftno;j++) {
+            cor[j][i]=cor[i][j]=cor[i][j]/(float)sqrt(cor[i][i] * cor[j][j]);
+            //printf("%f ", cor[j][i]);
+        }
+        //printf("\n");
+    }
+    for (i=0;i<ftno;i++){
+        cor[i][i] = 1.0f;
+    }
+    
+    
     //printf("Solving Eigen equation...");
     eigenc(cor,ev,ftno);
     //printf("finished!\n");
@@ -292,7 +305,27 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
         }
     }
     
-    printf("done\n");
+    // printf("done\n");
+    
+    if (load_transform_){
+        printf("Load PC available transforms...\n");
+        
+        for (int i=0; i < buffer->tetr_info_->tetrodes_number; ++i) {
+            for (int ci=0; ci < buffer->tetr_info_->channels_numbers[i]; ++ci) {
+                const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
+                std::ifstream fpc(pc_path_ + Utils::NUMBERS[chan] + ".txt");
+                
+                for (int w=0; w<waveshape_samples_; ++w) {
+                    for (int pc=0; pc < num_pc_; ++pc) {
+                        fpc >> pc_transform_[chan][w][pc];
+                    }
+                }
+                
+                pca_done_[i] = true;
+                fpc.close();
+            }
+        }
+    }
 }
 
 void PCAExtractionProcessor::compute_pcs(Spike *spike){
@@ -309,7 +342,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
         for (int pc=0; pc < num_pc_; ++pc) {
             spike->pc[c][pc] = 0;
             for (int w=0; w < waveshape_samples_; ++w) {
-                spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][w][pc];
+                spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w];
             }
         }
     }
@@ -318,6 +351,19 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 //    if (spike->tetrode_ == 0){
 //        printf("%f\n", spike->pc[0][0]);
 //    }
+}
+
+void saveArray(std::string path, float ** array, const unsigned int& dim1, const unsigned int& dim2){
+    std::ofstream fpc(path);
+    
+    for (size_t i=0; i < dim1; ++i) {
+        for (size_t j=0; j < dim2; ++j) {
+            fpc << array[i][j] << " ";
+        }
+        fpc << "\n";
+    }
+    
+    fpc.close();
 }
 
 // CURRENT POLICY: wait for sufficien amount of spikes, cluster, assign clusters for past and future spikes
@@ -389,6 +435,11 @@ void PCAExtractionProcessor::process(){
                 
                 // prm - projection matrix, prm[j][i] = contribution of j-th wave feature to i-th PC
                 final(corf_, meanf_, waveshape_samples_, num_spikes[tetr], pc_transform_[channel], num_pc_);
+                
+                // SAVE PC transform
+                if (save_transform_){
+                    saveArray(pc_path_ + Utils::NUMBERS[channel] + std::string(".txt"), pc_transform_[channel], 3, 16);
+                }
                 
                 // DEBUG - print PCA transform matrix
 //                if (channel == 8){
