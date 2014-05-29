@@ -59,6 +59,8 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
         for (int tetr=0; tetr < ntetr; ++tetr) {
             gmm_[tetr] = loadGMM(tetr);
             gmm_fitted_[tetr] = true;
+            
+            std::cout << "Loaded GMM with " << gmm_[tetr].Gaussians() << " clusters for tetrode " << tetr << "\n";
         }
     }
 }
