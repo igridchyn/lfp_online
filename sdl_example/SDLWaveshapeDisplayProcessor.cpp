@@ -105,6 +105,23 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
                 break;
             case SDLK_KP_4:
                 disp_cluster_ = 4;
+                break;
+            case SDLK_KP_5:
+                disp_cluster_ = 5;
+                break;
+            case SDLK_KP_6:
+                disp_cluster_ = 6;
+                break;
+            case SDLK_KP_7:
+                disp_cluster_ = 7;
+                break;
+            case SDLK_KP_8:
+                disp_cluster_ = 8;
+                break;
+            case SDLK_KP_9:
+                disp_cluster_ = 9;
+                break;
+
             default:
                 need_redraw = false;
         }
