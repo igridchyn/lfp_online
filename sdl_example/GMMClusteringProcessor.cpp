@@ -103,11 +103,8 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train,
     return gmm_best;
 }
 
-void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){
-    std::string basename = "/Users/igridchyn/data/bindata/jc103/clustering/gmm_";
-    const char **suffs = new const char*[10]{"0", "1", "2", "3", "4", "5", "6"};
-    
-    gmm.Save(basename+suffs[tetrode] + ".xml");
+void GMMClusteringProcessor::saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){
+    gmm.Save(gmm_path_basename_ + Utils::NUMBERS[tetrode] + ".xml");
 }
 
 

@@ -260,8 +260,6 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
 , waveshape_samples_(waveshape_samples)
 , min_samples_(min_samples)
 {
-    // printf("Create PCA extrator...");
-    
     num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number];
     pca_done_ = new bool[buffer->tetr_info_->tetrodes_number];
     
@@ -310,8 +308,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
         }
     }
     
-    // printf("done\n");
-    
+    // LOAD SAVED PC TRANSFORM
     if (load_transform_){
         printf("Load PC available transforms...\n");
         
@@ -320,8 +317,9 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
                 const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
                 std::ifstream fpc(pc_path_ + Utils::NUMBERS[chan] + ".txt");
                 
-                for (int w=0; w<waveshape_samples_; ++w) {
-                    for (int pc=0; pc < num_pc_; ++pc) {
+
+                for (int w = 0; w < waveshape_samples_; ++w) {
+                    for (int pc = 0; pc < num_pc_; ++pc) {
                         fpc >> pc_transform_[chan][w][pc];
                     }
                 }
@@ -449,7 +447,7 @@ void PCAExtractionProcessor::process(){
                 
                 // SAVE PC transform
                 if (save_transform_){
-                    saveArray(pc_path_ + Utils::NUMBERS[channel] + std::string(".txt"), pc_transform_[channel], 3, 16);
+                    saveArray(pc_path_ + Utils::NUMBERS[channel] + std::string(".txt"), pc_transform_[channel], 16, 3);
                 }
                 
                 // DEBUG - print PCA transform matrix

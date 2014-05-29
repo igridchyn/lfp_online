@@ -77,10 +77,10 @@ void draw_bin(const char *path){
     // CLUSTERING PARAMS
     const unsigned int GMM_MIN_OBSERVATIONS = 10000;
     const unsigned int GMM_RATE = 1;
-    const unsigned int GMM_MAX_CLUSTERS = 8;
+    const unsigned int GMM_MAX_CLUSTERS = 10;
     
     // PCA PARAMS
-    const unsigned int PCA_MIN_SAMPLES = 1000;
+    const unsigned int PCA_MIN_SAMPLES = 5000;
     const bool DISPLAY_UNCLASSIFIED = false;
     
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";

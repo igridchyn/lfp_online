@@ -401,8 +401,8 @@ class PCAExtractionProcessor : public LFPProcessor{
     // TODO: recalc PCA periodically using online estimators
     bool *pca_done_;
     
-    bool save_transform_ = true;
-    bool load_transform_ = false;
+    bool save_transform_ = false;
+    bool load_transform_ = true;
     std::string pc_path_ = "/Users/igridchyn/data/bindata/jc103/pca/pc_";
     
 public:
@@ -452,8 +452,8 @@ class GMMClusteringProcessor : public LFPProcessor{
     unsigned int max_clusters_;
     int min_observations_;
     
-    bool save_clustering_ = true;
-    bool load_clustering_ = false;
+    bool save_clustering_ = false;
+    bool load_clustering_ = true;
     
     // classify every .. spikes (to reduce computations overhead)
     static const int classification_rate_ = 10;
@@ -475,6 +475,9 @@ class GMMClusteringProcessor : public LFPProcessor{
     std::vector<arma::vec> weights_;
     
     mlpack::gmm::GMM<> fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
+    
+    std::string gmm_path_basename_ = "/Users/igridchyn/data/bindata/jc103/clustering/gmm_";
+    void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode);
     
 public:
     GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters);
