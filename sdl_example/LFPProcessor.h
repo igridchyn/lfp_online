@@ -398,6 +398,10 @@ class PCAExtractionProcessor : public LFPProcessor{
     // TODO: recalc PCA periodically using online estimators
     bool *pca_done_;
     
+    bool save_transform_ = true;
+    bool load_transform_ = false;
+    std::string pc_path_ = "/Users/igridchyn/data/bindata/jc103/pca/pc_";
+    
 public:
     PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples);
     virtual void process();
@@ -445,8 +449,8 @@ class GMMClusteringProcessor : public LFPProcessor{
     unsigned int max_clusters_;
     int min_observations_;
     
-    bool save_clustering_ = false;
-    bool load_clustering_ = true;
+    bool save_clustering_ = true;
+    bool load_clustering_ = false;
     
     // classify every .. spikes (to reduce computations overhead)
     static const int classification_rate_ = 10;
@@ -534,6 +538,13 @@ public:
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
+};
+
+//==========================================================================================
+
+class Utils{
+public:
+    static const char* const NUMBERS[];
 };
 
 #endif /* defined(__sdl_example__LFPProcessor__) */
