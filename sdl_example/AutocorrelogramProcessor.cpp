@@ -9,7 +9,7 @@
 #include "AutocorrelogramProcessor.h"
 
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf)
-: SDLSingleWindowDisplay("Autocorrelogramms", 1000, 250)
+: SDLSingleWindowDisplay("Autocorrelogramms", 1600, 500)
 , SDLControlInputProcessor(buf) {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
     
@@ -123,9 +123,12 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
     if (tetr != display_tetrode_)
         return;
     
+    const int BWIDTH = 2;
+    const int XCLUST = 5;
+    
     // shift for the plot
-    const int xsh = (5 * NBINS + 30) * cluster + 30;
-    const int ysh = 0 + 200;
+    const int xsh = ((BWIDTH + 1) * NBINS + 15) * (cluster % XCLUST) + 30;
+    const int ysh = (cluster / XCLUST) * 200 + 200;
     
     ColorPalette palette_ = ColorPalette::BrewerPalette12;
     
@@ -134,8 +137,8 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
         
         SDL_Rect rect;
         rect.h = height;
-        rect.w = 4;
-        rect.x = xsh + b * 5;
+        rect.w = BWIDTH;
+        rect.x = xsh + b * (BWIDTH + 1);
         rect.y = ysh - height;
         
         SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster), palette_.getG(cluster), palette_.getB(cluster), 255);

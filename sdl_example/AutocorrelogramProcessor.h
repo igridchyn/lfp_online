@@ -32,7 +32,7 @@ class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLContro
     std::vector<std::vector<bool> > reported_;
     
     static const unsigned int ST_BUF_SIZE = 30;
-    static const unsigned int NBINS = 15;
+    static const unsigned int NBINS = 100;
     static const unsigned int MAX_CLUST = 30;
     
 public:
