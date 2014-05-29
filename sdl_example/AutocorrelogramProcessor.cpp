@@ -9,7 +9,7 @@
 #include "AutocorrelogramProcessor.h"
 
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf)
-: SDLSingleWindowDisplay("Autocorrelogramms", 800, 300)
+: SDLSingleWindowDisplay("Autocorrelogramms", 1000, 250)
 , SDLControlInputProcessor(buf) {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
     
@@ -82,7 +82,7 @@ void AutocorrelogramProcessor::process(){
         
         // report
         // TODO: plot
-        if (total_counts_[tetrode][cluster_id] >= NBINS * 50 && !reported_[tetrode][cluster_id]){
+        if (total_counts_[tetrode][cluster_id] >= NBINS * 200 && !reported_[tetrode][cluster_id]){
             std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
             for (int b=0; b < NBINS; ++b) {
                 std::cout << autocorrs_[tetrode][cluster_id][b] << " ";
@@ -124,7 +124,7 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
         return;
     
     // shift for the plot
-    const int xsh = (5 * NBINS + 30) * cluster;
+    const int xsh = (5 * NBINS + 30) * cluster + 30;
     const int ysh = 0 + 200;
     
     ColorPalette palette_ = ColorPalette::BrewerPalette12;
