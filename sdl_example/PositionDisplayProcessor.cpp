@@ -105,6 +105,16 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_6:
                 display_cluster_[6] = !display_cluster_[6];
                 break;
+            case SDLK_7:
+                display_cluster_[7] = !display_cluster_[7];
+                break;
+            case SDLK_8:
+                display_cluster_[8] = !display_cluster_[8];
+                break;
+            case SDLK_9:
+                display_cluster_[9] = !display_cluster_[9];
+                break;
+
             default:
                 need_reset = false;
                 break;

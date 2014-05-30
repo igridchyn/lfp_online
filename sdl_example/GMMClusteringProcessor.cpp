@@ -22,11 +22,13 @@ mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode){
     return gmm;
 }
 
-GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters)
+GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model)
     : LFPProcessor(buf)
     , min_observations_(min_observations)
     , rate_(rate)
-    , max_clusters_(max_clusters){
+    , max_clusters_(max_clusters)
+    , save_clustering_(save_model)
+    , load_clustering_(load_model){
     
     unsigned int gaussians = 4;
     dimensionality_ = 12;

@@ -406,7 +406,7 @@ class PCAExtractionProcessor : public LFPProcessor{
     std::string pc_path_ = "/Users/igridchyn/data/bindata/jc103/pca/pc_";
     
 public:
-    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples);
+    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform);
     virtual void process();
 };
 
@@ -480,7 +480,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode);
     
 public:
-    GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters);
+    GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model);
     virtual void process();
 };
 
