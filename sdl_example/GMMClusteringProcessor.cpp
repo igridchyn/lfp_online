@@ -115,7 +115,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
         saveGMM(gmm_[tetr], tetr);
     }
     
-    printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_[tetr].Gaussians());
+    printf("%ld clusters in BIC-optimal model with full covariance matrix (tetrode #%d)\n", gmm_[tetr].Gaussians(), tetr);
     
     // WARNING
     if (gmm_[tetr].Gaussians() == max_clusters_){
@@ -126,6 +126,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     for (int i=0; i < gmm_[tetr].Gaussians(); ++i) {
         printf("\nprob %d = %f", i, gmm_[tetr].Weights()(i));
     }
+    std::cout << "\n";
 }
 
 void GMMClusteringProcessor::saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){

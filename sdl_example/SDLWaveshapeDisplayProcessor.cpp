@@ -68,64 +68,54 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
     if( e.type == SDL_KEYDOWN )
     {
         bool need_redraw = true;
+        SDL_Keymod kmod = SDL_GetModState();
         
-        //Select surfaces based on key press
+        int shift = 0;
+        if (kmod && KMOD_LSHIFT){
+            shift = 10;
+        }
         switch( e.key.keysym.sym )
         {
             case SDLK_ESCAPE:
                 exit(0);
                 break;
                 
-            // select tetrode
-            case SDLK_0:
-                targ_tetrode_ = 0;
-                break;
-            case SDLK_1:
-                targ_tetrode_ = 1;
-                break;
-            case SDLK_2:
-                targ_tetrode_ = 2;
-                break;
-            case SDLK_3:
-                targ_tetrode_ = 3;
-                break;
-                
             // select cluster
             case SDLK_KP_0:
-                disp_cluster_ = 0;
+                disp_cluster_ = 0 + shift;
                 break;
             case SDLK_KP_1:
-                disp_cluster_ = 1;
+                disp_cluster_ = 1 + shift;
                 break;
             case SDLK_KP_2:
-                disp_cluster_ = 2;
+                disp_cluster_ = 2 + shift;
                 break;
             case SDLK_KP_3:
-                disp_cluster_ = 3;
+                disp_cluster_ = 3 + shift;
                 break;
             case SDLK_KP_4:
-                disp_cluster_ = 4;
+                disp_cluster_ = 4 + shift;
                 break;
             case SDLK_KP_5:
-                disp_cluster_ = 5;
+                disp_cluster_ = 5 + shift;
                 break;
             case SDLK_KP_6:
-                disp_cluster_ = 6;
+                disp_cluster_ = 6 + shift;
                 break;
             case SDLK_KP_7:
-                disp_cluster_ = 7;
+                disp_cluster_ = 7 + shift;
                 break;
             case SDLK_KP_8:
-                disp_cluster_ = 8;
+                disp_cluster_ = 8 + shift;
                 break;
             case SDLK_KP_9:
-                disp_cluster_ = 9;
+                disp_cluster_ = 9 + shift;
                 break;
 
             default:
                 need_redraw = false;
         }
-        
+
         if (need_redraw){
             SDL_SetRenderTarget(renderer_, texture_);
             SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);

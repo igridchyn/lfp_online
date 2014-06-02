@@ -78,41 +78,47 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     {
         bool need_reset = true;
         
-        //Select surfaces based on key press
+        SDL_Keymod kmod = SDL_GetModState();
+        
+        int shift = 0;
+        if (kmod & KMOD_LSHIFT){
+            shift = 10;
+        }
+
         switch( e.key.keysym.sym )
         {
             case SDLK_ESCAPE:
                 exit(0);
                 break;
             case SDLK_0:
-                display_cluster_[0] = !display_cluster_[0];
+                display_cluster_[0+shift] = !display_cluster_[0+shift];
                 break;
             case SDLK_1:
-                display_cluster_[1] = !display_cluster_[1];
+                display_cluster_[1+shift] = !display_cluster_[1+shift];
                 break;
             case SDLK_2:
-                display_cluster_[2] = !display_cluster_[2];
+                display_cluster_[2+shift] = !display_cluster_[2+shift];
                 break;
             case SDLK_3:
-                display_cluster_[3] = !display_cluster_[3];
+                display_cluster_[3+shift] = !display_cluster_[3+shift];
                 break;
             case SDLK_4:
-                display_cluster_[4] = !display_cluster_[4];
+                display_cluster_[4+shift] = !display_cluster_[4+shift];
                 break;
             case SDLK_5:
-                display_cluster_[5] = !display_cluster_[5];
+                display_cluster_[5+shift] = !display_cluster_[5+shift];
                 break;
             case SDLK_6:
-                display_cluster_[6] = !display_cluster_[6];
+                display_cluster_[6+shift] = !display_cluster_[6+shift];
                 break;
             case SDLK_7:
-                display_cluster_[7] = !display_cluster_[7];
+                display_cluster_[7+shift] = !display_cluster_[7+shift];
                 break;
             case SDLK_8:
-                display_cluster_[8] = !display_cluster_[8];
+                display_cluster_[8+shift] = !display_cluster_[8+shift];
                 break;
             case SDLK_9:
-                display_cluster_[9] = !display_cluster_[9];
+                display_cluster_[9+shift] = !display_cluster_[9+shift];
                 break;
 
             default:

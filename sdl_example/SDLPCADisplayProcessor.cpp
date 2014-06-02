@@ -74,6 +74,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     {
         bool need_redraw = true;
         
+        SDL_Keymod kmod = SDL_GetModState();
+        
+        int shift = 0;
+        if (kmod & KMOD_LSHIFT){
+            shift = 10;
+        }
+        
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
@@ -81,19 +88,19 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 exit(0);
                 break;
             case SDLK_1:
-                comp1_ = 1;
+                comp1_ = 1 + shift;
                 break;
             case SDLK_2:
-                comp1_ = 2;
+                comp1_ = 2 + shift;
                 break;
             case SDLK_3:
-                comp1_ = 3;
+                comp1_ = 3 + shift;
                 break;
             case SDLK_4:
-                comp1_ = 4;
+                comp1_ = 4 + shift;
                 break;
             case SDLK_5:
-                comp1_ = 5;
+                comp1_ = 5 + shift;
                 break;
             case SDLK_6:
                 comp1_ = 6;
@@ -108,22 +115,22 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 comp1_ = 9;
                 break;
             case SDLK_0:
-                comp1_ = 10;
+                comp1_ = 0 + shift;
                 break;
             case SDLK_KP_1:
-                comp2_ = 1;
+                comp2_ = 1 + shift;
                 break;
             case SDLK_KP_2:
-                comp2_ = 2;
+                comp2_ = 2 + shift;
                 break;
             case SDLK_KP_3:
-                comp2_ = 3;
+                comp2_ = 3 + shift;
                 break;
             case SDLK_KP_4:
-                comp2_ = 4;
+                comp2_ = 4 + shift;
                 break;
             case SDLK_KP_5:
-                comp2_ = 5;
+                comp2_ = 5 + shift;
                 break;
             case SDLK_KP_6:
                 comp2_ = 6;
@@ -138,7 +145,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 comp2_ = 9;
                 break;
             case SDLK_KP_0:
-                comp2_ = 10;
+                comp2_ = 0 + shift;
                 break;
             default:
                 need_redraw = false;
