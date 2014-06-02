@@ -80,6 +80,8 @@ void PackageExractorProcessor::process(){
 
         buffer->zero_level = buffer->buf_pos + 1;
         buffer->buf_pos = buffer->BUF_HEAD_LEN;
+
+        std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
     }
     else{
         buffer->zero_level = 0;

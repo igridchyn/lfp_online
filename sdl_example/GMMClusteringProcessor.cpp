@@ -18,7 +18,7 @@ mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode){
     
     mlpack::gmm::GMM<> gmm;
     gmm.Load(basename+suffs[tetrode] + ".xml");
-    
+
     return gmm;
 }
 
@@ -39,7 +39,8 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     const unsigned int ntetr =buf->tetr_info_->tetrodes_number;
         
     for (int tetr=0; tetr<buf->tetr_info_->tetrodes_number; ++tetr) {
-        observations_.push_back(arma::mat(dimensionality_, (min_observations + 2) * rate_, arma::fill::zeros));
+        // more spikes will be collected while clustering happens
+        observations_.push_back(arma::mat(dimensionality_, 2 * min_observations * rate_, arma::fill::zeros));
         observations_train_.push_back(arma::mat(dimensionality_, min_observations, arma::fill::zeros));
         
         means_[tetr].resize(gaussians, arma::mat(dimensionality_, 1));
@@ -48,11 +49,11 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     }
 
     total_observations_.resize(ntetr);
-    gmm_fitted_.resize(ntetr);
     spikes_collected_.resize(ntetr);
         
     obs_spikes_.resize(ntetr);
     gmm_.resize(ntetr);
+    gmm_fitted_ = new bool[ntetr];
         
     // Fitting type by default is EMFit
     // gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
@@ -65,9 +66,12 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
             std::cout << "Loaded GMM with " << gmm_[tetr].Gaussians() << " clusters for tetrode " << tetr << "\n";
         }
     }
+
+    clustering_jobs_.resize(ntetr);
+    clustering_job_running_.resize(ntetr);
 }
 
-mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train, const unsigned int& max_clusters){
+void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     // iterate over number of clusters
     // !!! TODO: models with non-full covariance matrix ???
     double BIC_min = (double)(1 << 30);
@@ -75,10 +79,12 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train,
     // PROFILING
     clock_t start_all = clock();
     
+    arma::mat& observations_train = observations_train_[tetr];
+
     int dimensionality = observations_train.n_rows;
     
     printf("# of observations = %u\n", observations_train.n_cols);
-    for (int nclust = 1; nclust <= max_clusters; ++nclust) {
+    for (int nclust = 1; nclust <= max_clusters_; ++nclust) {
         mlpack::gmm::GMM<> gmmn(nclust, dimensionality);
         
         // PROFILING
@@ -98,11 +104,28 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::fit_gmm(arma::mat observations_train,
         }
         
         // DEBUG
-        printf("BIC of model with full covariance and %d clusters = %lf\n", nclust, BIC);
+        printf("  Tetr. #%d: BIC of model with full covariance and %d clusters = %lf\n", tetr, nclust, BIC);
     }
-    printf("Total time for max %d clusters = %.1lf sec.\n", max_clusters, ((double)clock() - start_all)/CLOCKS_PER_SEC);
+    printf("Total time for max %d clusters = %.1lf sec.\n", max_clusters_, ((double)clock() - start_all)/CLOCKS_PER_SEC);
+
+    gmm_fitted_[tetr] = true;
+    gmm_[tetr] = gmm_best;
+
+    if (save_clustering_){
+        saveGMM(gmm_[tetr], tetr);
+    }
     
-    return gmm_best;
+    printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_[tetr].Gaussians());
+    
+    // WARNING
+    if (gmm_[tetr].Gaussians() == max_clusters_){
+        printf("WARNING: BIC is minimized by the maximal allowed number of clusters!\n");
+    }
+    
+    printf("Cluster weights:");
+    for (int i=0; i < gmm_[tetr].Gaussians(); ++i) {
+        printf("\nprob %d = %f", i, gmm_[tetr].Weights()(i));
+    }
 }
 
 void GMMClusteringProcessor::saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){
@@ -130,8 +153,13 @@ void GMMClusteringProcessor::process(){
         }
         
         for (int pc=0; pc < 3; ++pc) {
+            // TODO: tetrode chans
             for(int chan=0; chan < 4; ++chan){
                 // TODO: disable OFB check in armadillo settings
+                if (observations_[tetr].n_cols <= total_observations_[tetr]){
+                    observations_[tetr].resize(observations_[tetr].n_rows, observations_[tetr].n_cols * 2);
+                }
+
                 observations_[tetr](chan*3 + pc, total_observations_[tetr]) = (double)spike->pc[chan][pc];
             }
         }
@@ -158,29 +186,26 @@ void GMMClusteringProcessor::process(){
                 //                    printf("%f/%f\n", observations_(0, i), observations_(1,i));
                 //                }
                 
-                printf("Fitting GMM for tetrode %d\n", tetr);
-                gmm_[tetr] = fit_gmm(observations_train_[tetr], max_clusters_);
-                printf("%ld clusters in BIC-optimal model with full covariance matrix\n", gmm_[tetr].Gaussians());
+                // if job not started, start, otherwise it is still running
+                if (!clustering_job_running_[tetr]){
                 
-                // WARNING
-                if (gmm_[tetr].Gaussians() == max_clusters_){
-                    printf("WARNING: BIC is minimized by the maximal allowed number of clusters!\n");
-                }
-                
-                printf("\nCluster weights:");
-                for (int i=0; i < gmm_[tetr].Gaussians(); ++i) {
-                    printf("\nprob %d = %f", i, gmm_[tetr].Weights()(i));
-                }
-                
-                // TODO: !!! fit the second-level clusters
-                
-                gmm_fitted_[tetr] = true;
-                
-                if (save_clustering_){
-                    saveGMM(gmm_[tetr], tetr);
+                    printf("Start job: Fitting GMM for tetrode %d\n", tetr);
+                    clustering_jobs_[tetr] = new std::thread(&GMMClusteringProcessor::fit_gmm_thread, this, tetr);
+                    clustering_job_running_[tetr] = true;
                 }
             }
         }else{
+            // if job was running but now it is over (because gmm_fitted_ == true
+            if (clustering_job_running_[tetr]){
+                clustering_job_running_[tetr] = false;
+                
+                clustering_jobs_[tetr]->join();
+
+                // TODO: !!! fit the second-level clusters
+                
+                gmm_fitted_[tetr] = true;
+            }
+
             // fit clusters after enough records have been collected
             //  or cluster using fitted model
             if (total_observations_[tetr] >= classification_rate_){
@@ -205,6 +230,12 @@ void GMMClusteringProcessor::process(){
         
         buffer->spike_buf_pos_clust_++;
     }
-    
-    
+}
+
+void GMMClusteringProcessor::JoinGMMTasks(){
+    for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
+        if(clustering_job_running_[t])
+            clustering_jobs_[t]->join();
+    }
+    std::cout << "All running GMM finished...\n";
 }

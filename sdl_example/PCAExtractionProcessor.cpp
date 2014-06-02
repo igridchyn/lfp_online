@@ -246,7 +246,7 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
         sz2+=ev[j];
     }
     
-    printf("Overall projected variances : %f5.4\n",sz2/sz1);
+    printf("  Overall projected variances : %f5.4\n",sz2/sz1);
     assert(sz2 <= sz1);
     
     free(ev);
@@ -421,6 +421,9 @@ void PCAExtractionProcessor::process(){
     // TODO: tetrode-wise counting !!! and check
     for (int tetr=0; tetr < buffer->tetr_info_->tetrodes_number; ++tetr) {
         if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
+
+            std::cout << "Doing PCA for tetrode " << tetr << "...\n";
+
             for (int ci=0; ci < buffer->tetr_info_->channels_numbers[tetr]; ++ci) {
                 int channel = buffer->tetr_info_->tetrode_channels[tetr][ci];
 //            }

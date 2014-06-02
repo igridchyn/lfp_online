@@ -163,6 +163,8 @@ void SpikeDetectorProcessor::process()
                     buffer->spike_buf_pos_out = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_out);
                     
                     buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
+
+                    std::cout << "Spike buffer rewind (at pos " << buffer->buf_pos <<  ")!\n";
                 }
             }
         }

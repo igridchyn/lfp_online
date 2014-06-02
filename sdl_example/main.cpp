@@ -46,7 +46,8 @@ void draw_bin(const char *path){
     // clustering saved
     tetr_inf->tetrodes_number = 5;
     tetr_inf->channels_numbers = new int[5]{4, 4, 4, 4, 4};
-    tetr_inf->tetrode_channels = new int*[5]{new int[4]{32,33,34,35}, new int[4]{36,37,38,39}, new int[4]{40,41,42,43}, new int[4]{52,53,54,55}, new int[4]{60,61,62,63}};
+//    tetr_inf->tetrode_channels = new int*[5]{new int[4]{32,33,34,35}, new int[4]{36,37,38,39}, new int[4]{40,41,42,43}, new int[4]{52,53,54,55}, new int[4]{60,61,62,63}};
+    tetr_inf->tetrode_channels = new int*[5]{new int[4]{4,5,6,7}, new int[4]{8,9,10,11}, new int[4]{12,13,14,15}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}};
     
 //    tetr_inf->tetrodes_number = 1;
 //    tetr_inf->channels_numbers = new int[1]{4};
@@ -98,7 +99,8 @@ void draw_bin(const char *path){
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/BIN/jc22-0507-0115.fet.4"));
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
     
-    pipeline->add_processor(new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS));
+    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS);
+    pipeline->add_processor(gmmClustProc);
 //    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED));
     
@@ -116,6 +118,7 @@ void draw_bin(const char *path){
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
     
+    // TODO: parallel threads ?
     while(!feof(f))
     {
         fread((void*)block, CHUNK_SIZE, 1, f);
@@ -127,6 +130,9 @@ void draw_bin(const char *path){
         continue;
 
     }
+    
+    std::cout << "EOF, waiting for clustering jobs...\n";
+    gmmClustProc->JoinGMMTasks();
 }
 
 void draw_test(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture){
@@ -165,7 +171,9 @@ int get_image(){
     // 12th tetrode
 //    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2305_02_explore.bin");
     
-    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
+    // SAVED CLUSTERING AVAILABLE
+//    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
+    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-0106_03l.bin");
     
     // SDL_Delay( 2000 );
     char c = getchar();

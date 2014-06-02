@@ -21,6 +21,7 @@
 		B052748018A9441100193EAA /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747F18A9441100193EAA /* SDL2.framework */; };
 		B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052748218ACD51900193EAA /* SDL2_ttf.framework */; };
 		B0611B6F1934C62F0066583E /* AutocorrelogramProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */; };
+		B0611B71193887E60066583E /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B0611B70193887E60066583E /* libboost_system.dylib */; };
 		B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */; };
 		B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */; };
 		B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C591918E65500C1328D /* OnlineEstimator.cpp */; };
@@ -61,6 +62,7 @@
 		B052748218ACD51900193EAA /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 		B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutocorrelogramProcessor.cpp; sourceTree = "<group>"; };
 		B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutocorrelogramProcessor.h; sourceTree = "<group>"; };
+		B0611B70193887E60066583E /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../../../opt/local/lib/libboost_system.dylib; sourceTree = "<group>"; };
 		B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLPCADisplayProcessor.cpp; sourceTree = "<group>"; };
 		B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetectorProcessor.cpp; sourceTree = "<group>"; };
 		B0797C591918E65500C1328D /* OnlineEstimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnlineEstimator.cpp; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0611B71193887E60066583E /* libboost_system.dylib in Frameworks */,
 				B00005F81901B71D00502C4B /* libarmadillo.3.92.2.dylib in Frameworks */,
 				B00005F61901697900502C4B /* libmlpack.1.0.dylib in Frameworks */,
 				B00005F419015CDD00502C4B /* libxml2.dylib in Frameworks */,
@@ -95,6 +98,7 @@
 		B052743118A9375400193EAA = {
 			isa = PBXGroup;
 			children = (
+				B0611B70193887E60066583E /* libboost_system.dylib */,
 				B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */,
 				B00005F51901697900502C4B /* libmlpack.1.0.dylib */,
 				B00005F319015CDD00502C4B /* libxml2.dylib */,

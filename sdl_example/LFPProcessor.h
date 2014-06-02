@@ -14,6 +14,7 @@
 #include <SDL2/SDL.h>
 #include "mlpack/methods/gmm/gmm.hpp"
 #include "OnlineEstimator.h"
+#include <thread>
 
 // NOTES:
 // spike identification is based on unique number assigned to each detected spike
@@ -95,8 +96,8 @@ public:
     //      STORE WAVESHAPE with prev_spike
     static const int BUF_HEAD_LEN = 1 << 15;
     
-    static const int SPIKE_BUF_LEN = 1 << 18;
-    static const int SPIKE_BUF_HEAD_LEN = 1 << 7; // = 128
+    static const int SPIKE_BUF_LEN = 1 << 24;
+    static const int SPIKE_BUF_HEAD_LEN = 1 << 14; // = 128
     
     // in bytes
     const int CHUNK_SIZE = 432;
@@ -466,7 +467,8 @@ class GMMClusteringProcessor : public LFPProcessor{
     
     std::vector< mlpack::gmm::GMM<> > gmm_;
     
-    std::vector<bool> gmm_fitted_;
+    // whether thread clustering job is over and can be joined
+    bool *gmm_fitted_;
     std::vector<unsigned int> spikes_collected_;
     
     std::vector<std::vector< arma::vec > > means_;
@@ -474,14 +476,25 @@ class GMMClusteringProcessor : public LFPProcessor{
     
     std::vector<arma::vec> weights_;
     
+    // array of jobs [one per tetrode] and their start flags
+    std::vector<std::thread*> clustering_jobs_;
+    std::vector<bool> clustering_job_running_;
+
     mlpack::gmm::GMM<> fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
-    
+
     std::string gmm_path_basename_ = "/Users/igridchyn/data/bindata/jc103/clustering/gmm_";
     void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode);
-    
+
+    void fit_gmm_thread(const unsigned int& tetr);
+    void gmm_task(int *ptr);
+
 public:
     GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model);
+
+    // LFPProcessor
     virtual void process();
+
+    void JoinGMMTasks();
 };
 
 //==========================================================================================
