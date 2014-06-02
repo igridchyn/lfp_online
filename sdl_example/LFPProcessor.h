@@ -9,6 +9,9 @@
 #ifndef __sdl_example__LFPProcessor__
 #define __sdl_example__LFPProcessor__
 
+#define MIN(a,b) ((a) < (b)) ? (a) : (b)
+#define MAX(a,b) ((a) > (b)) ? (a) : (b)
+
 #include <iostream>
 #include <vector>
 #include <SDL2/SDL.h>
@@ -564,6 +567,25 @@ public:
 class Utils{
 public:
     static const char* const NUMBERS[];
+};
+
+//==========================================================================================
+
+class PlaceField{
+    arma::mat pf_;
+    double sigma_;
+    double bin_size_;
+    
+    // how many bins around spikes to take into account
+    int spread_;
+    
+public:
+    // PlaceField doesn't know about its identity and doesn't check spikes
+    void AddSpike(Spike *spike);
+};
+
+class PlaceFieldProcessor{
+    
 };
 
 #endif /* defined(__sdl_example__LFPProcessor__) */

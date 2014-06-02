@@ -78,7 +78,7 @@ void draw_bin(const char *path){
     // CLUSTERING PARAMS
     const unsigned int GMM_MIN_OBSERVATIONS = 20000;
     const unsigned int GMM_RATE = 1;
-    const unsigned int GMM_MAX_CLUSTERS = 13;
+    const unsigned int GMM_MAX_CLUSTERS = 18;
     const bool GMM_LOAD_MODELS = true;
     const bool GMM_SAVE_MODELS = false;
     
@@ -174,9 +174,6 @@ int get_image(){
     // SAVED CLUSTERING AVAILABLE
 //    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
     draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-0106_03l.bin");
-    
-    // SDL_Delay( 2000 );
-    char c = getchar();
     
     return 0;
 }
