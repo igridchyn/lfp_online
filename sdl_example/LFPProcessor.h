@@ -50,6 +50,8 @@ public:
     
     // coords
     float x, y;
+    float speed;
+
 };
 
 class ColorPalette{
@@ -143,17 +145,21 @@ public:
     // drawing spikes in pos
     unsigned int spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
     
+    // spikes with speed estimate
+    unsigned int spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
+    
     
     // POSITION BUFFER
     static const int POS_BUF_SIZE = 1 << 20;
     // 4 coords, pkg_id and speed magnitude
-    unsigned short positions_buf_[POS_BUF_SIZE][6];
+    unsigned int positions_buf_[POS_BUF_SIZE][6];
     
     unsigned int pos_buf_pos_ = 0;
     unsigned int pos_buf_disp_pos_ = 0;
     // TODO: ensure reset
     unsigned int pos_buf_spike_pos_ = 0;
     
+    unsigned int pos_buf_pos_spike_speed_ = 0;
     
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
@@ -600,6 +606,8 @@ public:
 //==========================================================================================
 
 class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
+    constexpr static const float SPEED_THOLD = 50.0f;
+    
     unsigned int spike_buf_pos_;
     unsigned int pos_buf_pos_;
     

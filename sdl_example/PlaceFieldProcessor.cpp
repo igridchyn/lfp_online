@@ -98,7 +98,7 @@ void PlaceFieldProcessor::AddPos(int x, int y){
 }
 
 void PlaceFieldProcessor::process(){
-    while (spike_buf_pos_ < buffer->spike_buf_pos_clust_){
+    while (spike_buf_pos_ < buffer->spike_buf_pos_speed_){
         Spike *spike = buffer->spike_buffer_[spike_buf_pos_];
         
         if(spike->discarded_){
@@ -113,14 +113,19 @@ void PlaceFieldProcessor::process(){
         unsigned int tetr = spike->tetrode_;
         unsigned int clust = spike->cluster_id_;
      
-        place_fields_[tetr][clust].AddSpike(spike);
+        if (spike->speed > SPEED_THOLD){
+            place_fields_[tetr][clust].AddSpike(spike);
+        }
         
         spike_buf_pos_++;
     }
     
-    while(pos_buf_pos_ < buffer->pos_buf_pos_){
+    // TODO: configurable [in LFPProc ?]
+    while(buffer->pos_buf_pos_ >= 8 && pos_buf_pos_ < buffer->pos_buf_pos_ - 8){
         // TODO: use noth LEDs to compute coord (in upstream processor) + speed estimate
-        AddPos(buffer->positions_buf_[pos_buf_pos_][0], buffer->positions_buf_[pos_buf_pos_][1]);
+        if (buffer->positions_buf_[pos_buf_pos_][5] > SPEED_THOLD){
+            AddPos(buffer->positions_buf_[pos_buf_pos_][0], buffer->positions_buf_[pos_buf_pos_][1]);
+        }
         pos_buf_pos_ ++;
     }
 }
