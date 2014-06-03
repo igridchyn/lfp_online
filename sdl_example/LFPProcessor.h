@@ -63,6 +63,9 @@ public:
     int getColor(int order) const;
     
     static const ColorPalette BrewerPalette12;
+    static const ColorPalette MatlabJet256;
+    
+    inline const int& NumColors() const { return num_colors_; }
 };
 
 class TetrodesInfo{
@@ -209,7 +212,7 @@ protected:
     
     ColorPalette palette_;
     
-    void FillRect(const int x, const int y, const int cluster);
+    void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
     
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
@@ -588,6 +591,8 @@ public:
 
     inline size_t Width() const { return place_field_.n_cols; }
     inline size_t Height() const { return place_field_.n_rows; }
+    
+    inline const double& Max() const { return place_field_.max(); }
 };
 
 //==========================================================================================
