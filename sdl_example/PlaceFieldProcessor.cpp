@@ -26,10 +26,20 @@ void PlaceField::AddSpike(Spike *spike){
         return;
     }
     
+    // normalizer - sum of all values to be added
+    // TODO: cache vals
+    double norm = .0f;
     for(int xba = MAX(xb-spread_, 0); xba < MIN(place_field_.n_cols, xb+spread_); ++xba){
         for (int yba = MAX(yb-spread_, 0); yba < MIN(place_field_.n_rows, yb+spread_); ++yba) {
             double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((spike->x - bin_size_*(0.5 + xba)), 2) + pow((spike->y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
-            place_field_(yba, xba) += add;
+            norm += add;
+        }
+    }
+    
+    for(int xba = MAX(xb-spread_, 0); xba < MIN(place_field_.n_cols, xb+spread_); ++xba){
+        for (int yba = MAX(yb-spread_, 0); yba < MIN(place_field_.n_rows, yb+spread_); ++yba) {
+            double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((spike->x - bin_size_*(0.5 + xba)), 2) + pow((spike->y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
+            place_field_(yba, xba) += add / norm;
         }
     }
 }
@@ -70,10 +80,19 @@ void PlaceFieldProcessor::AddPos(int x, int y){
         return;
     }
     
+    // normalizer
+    double norm = .0f;
     for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.n_cols, xb+spread_); ++xba){
         for (int yba = MAX(yb-spread_, 0); yba < MIN(occupancy_.n_rows, yb+spread_); ++yba) {
             double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((x - bin_size_*(0.5 + xba)), 2) + pow((y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
-            occupancy_(yba, xba) += add;
+            norm += add;
+        }
+    }
+    
+    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.n_cols, xb+spread_); ++xba){
+        for (int yba = MAX(yb-spread_, 0); yba < MIN(occupancy_.n_rows, yb+spread_); ++yba) {
+            double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((x - bin_size_*(0.5 + xba)), 2) + pow((y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
+            occupancy_(yba, xba) += add / norm;
         }
     }
 }
