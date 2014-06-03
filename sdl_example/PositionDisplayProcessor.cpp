@@ -25,13 +25,21 @@ void PositionDisplayProcessor::process(){
     const int rend_freq = 5;
     bool render = false;
     
-    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
-        
+    // TODO: small lag due to speed computation delay
+//    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
+    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_spike_speed_) {
+    
         int x = buffer->positions_buf_[buffer->pos_buf_disp_pos_][0];
         int y = buffer->positions_buf_[buffer->pos_buf_disp_pos_][1];
         
+        const unsigned int imm_level = 80;
+        unsigned int grey_level = imm_level;
+        if (buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] > 30.0f){
+            grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_][5]);
+        }
+        
         SDL_SetRenderTarget(renderer_, texture_);
-        SDL_SetRenderDrawColor(renderer_, 100,100,100,255);
+        SDL_SetRenderDrawColor(renderer_, grey_level, grey_level, grey_level, 255);
         SDL_RenderDrawPoint(renderer_, x, y);
         
         buffer->pos_buf_disp_pos_++;
@@ -52,7 +60,7 @@ void PositionDisplayProcessor::process(){
         
         if (spike->pc == NULL || (spike->cluster_id_ == -1) || !display_cluster_[spike->cluster_id_]) // && !display_unclassified_))
         {
-            if (spike->discarded_ || (spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_]){
+            if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_])){
                 buffer->spike_buf_pos_draw_xy++;
                 continue;
             }

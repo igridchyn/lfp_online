@@ -107,7 +107,7 @@ void draw_bin(const char *path){
     // TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     
-    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 600, 600, 0));
+    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0));
     
     //pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
     
