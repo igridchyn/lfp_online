@@ -11,7 +11,7 @@
 template<class T>
 OnlineEstimator<T>::OnlineEstimator(unsigned int buf_size)
 : BUF_SIZE(buf_size) {
-    
+    buf = new T[BUF_SIZE];
 }
 
 template<class T>

@@ -106,6 +106,17 @@ void PackageExractorProcessor::process(){
         buffer->positions_buf_[buffer->pos_buf_pos_][3] = sy;
         buffer->positions_buf_[buffer->pos_buf_pos_][4] = buffer->last_pkg_id;
         
+        // speed estimation
+        // TODO: use average of bx, sx or alike
+        // TODO: deal with missing points
+        if (buffer->pos_buf_pos_ > 16 && bx != 1023 && buffer->positions_buf_[buffer->pos_buf_pos_ - 16][0] != 1023){
+            float dx = bx - buffer->positions_buf_[buffer->pos_buf_pos_ - 16][0];
+            float dy = by - buffer->positions_buf_[buffer->pos_buf_pos_ - 16][1];
+            buffer->speedEstimator_->push(sqrt(dx * dx + dy * dy));
+            buffer->positions_buf_[buffer->pos_buf_pos_ - 8][5] = buffer->speedEstimator_->get_mean_estimate();
+            std::cout << "speed= " << buffer->speedEstimator_->get_mean_estimate() << "\n";
+        }
+        
         buffer->pos_buf_pos_++;
     }
     
@@ -283,7 +294,9 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
     }
     
     powerEstimators_ = new OnlineEstimator<float>[tetr_info_->tetrodes_number];
-
+    // TODO: configurableize
+    speedEstimator_ = new OnlineEstimator<float>(16);
+    
     tetr_info_->tetrode_by_channel = new int[CHANNEL_NUM];
     
     // create a map of pointers to tetrode power estimators for each electrode

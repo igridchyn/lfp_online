@@ -146,8 +146,8 @@ public:
     
     // POSITION BUFFER
     static const int POS_BUF_SIZE = 1 << 20;
-    // 4 coords and pkg_id
-    unsigned short positions_buf_[POS_BUF_SIZE][5];
+    // 4 coords, pkg_id and speed magnitude
+    unsigned short positions_buf_[POS_BUF_SIZE][6];
     
     unsigned int pos_buf_pos_ = 0;
     unsigned int pos_buf_disp_pos_ = 0;
@@ -180,7 +180,9 @@ public:
     
     OnlineEstimator<float>* powerEstimators_;
     OnlineEstimator<float>* powerEstimatorsMap_[CHANNEL_NUM];
-    
+
+    OnlineEstimator<float>* speedEstimator_;
+
     //====================================================================================================
     
     LFPBuffer(TetrodesInfo* tetr_info);
