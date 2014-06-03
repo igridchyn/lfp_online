@@ -13,9 +13,9 @@
 
 template<class T>
 class OnlineEstimator{
-    static const int BUF_SIZE = 2 << 24;
+    const int BUF_SIZE;
     
-    T buf[BUF_SIZE];
+    T *buf;
     unsigned int buf_pos = 0;
     unsigned int num_samples = 0;
     
@@ -23,7 +23,8 @@ class OnlineEstimator{
     T sumsq = 0;
     
 public:
-    //OnlineEstimator();
+    OnlineEstimator(unsigned int buf_size = (2 << 24));
+    
     void push(T value);
     T get_mean_estimate();
     T get_std_estimate();

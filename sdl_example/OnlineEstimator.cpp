@@ -9,6 +9,12 @@
 #include "OnlineEstimator.h"
 
 template<class T>
+OnlineEstimator<T>::OnlineEstimator(unsigned int buf_size)
+: BUF_SIZE(buf_size) {
+    
+}
+
+template<class T>
 T OnlineEstimator<T>::get_mean_estimate(){
     return sumsq / num_samples;
 }
