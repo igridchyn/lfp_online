@@ -145,7 +145,7 @@ public:
     
     
     // POSITION BUFFER
-    static const int POS_BUF_SIZE = 1 << 16;
+    static const int POS_BUF_SIZE = 1 << 20;
     // 4 coords and pkg_id
     unsigned short positions_buf_[POS_BUF_SIZE][5];
     
@@ -599,6 +599,10 @@ public:
 
 class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
     unsigned int spike_buf_pos_;
+    unsigned int pos_buf_pos_;
+    
+    arma::mat occupancy_;
+    
     std::vector< std::vector< PlaceField > > place_fields_;
 
     double bin_size_;
@@ -612,6 +616,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     //================================
 
     void drawPlaceField();
+    void AddPos(int x, int y);
 
 public:
 

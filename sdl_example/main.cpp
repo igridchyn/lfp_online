@@ -111,11 +111,11 @@ void draw_bin(const char *path){
     
     //pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
     
-    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
+//    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
     
-    pipeline->add_processor(new AutocorrelogramProcessor(buf));
+//    pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 10, 30, 2));
+    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 10, 60, 2));
     
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
