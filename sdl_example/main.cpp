@@ -115,6 +115,8 @@ void draw_bin(const char *path){
     
     pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
+    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 10, 30, 2));
+    
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
     

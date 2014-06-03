@@ -13,25 +13,36 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
 : sigma_(sigma)
 , bin_size_(bin_size)
 , spread_(spread){
-    place_field_ = arma::mat(nbins, nbins);
+    place_field_ = arma::mat(nbins, nbins, arma::fill::zeros);
 }
 
 void PlaceField::AddSpike(Spike *spike){
     int xb = (int)round(spike->x / bin_size_);
     int yb = (int)round(spike->y / bin_size_);
     
+    // TODO: ? reconstruct ?? (in previous proc)
+    // unknown coord
+    if (spike->x == 1023 || spike->y == 1023){
+        return;
+    }
+    
     for(int xba = MAX(xb-spread_, 0); xba < MIN(place_field_.n_cols, xb+spread_); ++xba){
         for (int yba = MAX(yb-spread_, 0); yba < MIN(place_field_.n_rows, yb+spread_); ++yba) {
-            place_field_(yba, xba) += 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((spike->x - bin_size_*(0.5 + xba)), 2) + pow((spike->y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
+            double add = 1/(sq12rt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((spike->x - bin_size_*(0.5 + xba)), 2) + pow((spike->y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
+            place_field_(yba, xba) += add;
         }
     }
 }
 
 // ============================================================================================================================================
 
-PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
 : SDLControlInputProcessor(buf)
-, SDLSingleWindowDisplay("Place Field", 800, 800){
+, SDLSingleWindowDisplay("Place Field", 800, 800)
+, sigma_(sigma)
+, bin_size_(bin_size)
+, nbins_(nbins)
+, spread_(spread) {
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
@@ -42,33 +53,66 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)
             place_fields_[t].push_back(PlaceField(sigma_, bin_size_, nbins_, spread_));
         }
     }
+    
+    palette_ = ColorPalette::MatlabJet256;
+    spike_buf_pos_ = buffer->SPIKE_BUF_HEAD_LEN;
 }
 
 void PlaceFieldProcessor::process(){
     while (spike_buf_pos_ < buffer->spike_buf_pos_clust_){
         Spike *spike = buffer->spike_buffer_[spike_buf_pos_];
         
+        if(spike->discarded_){
+            spike_buf_pos_++;
+            continue;
+        }
+        
+        if (spike->cluster_id_ == -1){
+            break;
+        }
+        
         unsigned int tetr = spike->tetrode_;
         unsigned int clust = spike->cluster_id_;
      
         place_fields_[tetr][clust].AddSpike(spike);
+        
+        spike_buf_pos_++;
     }
 }
 
 void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
     display_tetrode_ = display_tetrode;
+    drawPlaceField();
 }
 
 void PlaceFieldProcessor::drawPlaceField(){
     const PlaceField& pf = place_fields_[display_tetrode_][display_cluster_];
     
-    // normalize by max ...
+    const unsigned int binw = window_width_ / nbins_;
+    const unsigned int binh = window_height_ / nbins_;
     
-    for (size_t x = 0; x < pf.Width(); ++x){
-        for (size_t y = 0; y < pf.Height(); ++y){
-            // TODO: draw bin
+    // normalize by max ...
+    const double max_val = pf.Max();
+    
+    SDL_SetRenderTarget(renderer_, texture_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
+    
+    for (size_t c = 0; c < pf.Width(); ++c){
+        for (size_t r = 0; r < pf.Height(); ++r){
+            unsigned int x = (unsigned int)c * binw;
+            unsigned int y = (unsigned int)r * binh;
+            
+            unsigned int order = MIN(pf((unsigned int)r, (unsigned int)c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
+            
+            FillRect(x, y, order, binw, binh);
         }
     }
+    
+    SDL_SetRenderTarget(renderer_, NULL);
+    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+    SDL_RenderPresent(renderer_);
 }
 
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
@@ -81,8 +125,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         shift = 10;
     }
     
+    bool need_redraw_ = false;
+    
     if( e.type == SDL_KEYDOWN )
     {
+        need_redraw_ = true;
+        
         switch( e.key.keysym.sym )
         {
             case SDLK_1:
@@ -115,6 +163,14 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_0:
                 display_cluster_ = 0 + shift;
                 break;
+            default:
+                need_redraw_ = false;
+                break;
         }
+    }
+    
+    if (need_redraw_){
+        
+        drawPlaceField();
     }
 }

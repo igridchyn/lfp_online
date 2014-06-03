@@ -9,8 +9,8 @@
 #ifndef __sdl_example__LFPProcessor__
 #define __sdl_example__LFPProcessor__
 
-#define MIN(a,b) ((a) < (b)) ? (a) : (b)
-#define MAX(a,b) ((a) > (b)) ? (a) : (b)
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 #include <iostream>
 #include <vector>
@@ -592,7 +592,7 @@ public:
     inline size_t Width() const { return place_field_.n_cols; }
     inline size_t Height() const { return place_field_.n_rows; }
     
-    inline const double& Max() const { return place_field_.max(); }
+    inline const double Max() const { return place_field_.max(); }
 };
 
 //==========================================================================================
@@ -615,7 +615,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
 
 public:
 
-    PlaceFieldProcessor(LFPBuffer *buf);
+    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread);
 
     // LFPProcessor
     virtual void process();
