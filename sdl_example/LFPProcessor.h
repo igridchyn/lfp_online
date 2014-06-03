@@ -572,19 +572,52 @@ public:
 //==========================================================================================
 
 class PlaceField{
-    arma::mat pf_;
+    arma::mat place_field_;
+    
     double sigma_;
     double bin_size_;
-    
     // how many bins around spikes to take into account
     int spread_;
-    
+
 public:
+    PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread);
     // PlaceField doesn't know about its identity and doesn't check spikes
     void AddSpike(Spike *spike);
+
+    inline const double& operator()(unsigned int x, unsigned int y) const { return place_field_(x, y); }
+
+    inline size_t Width() const { return place_field_.n_cols; }
+    inline size_t Height() const { return place_field_.n_rows; }
 };
 
-class PlaceFieldProcessor{
+//==========================================================================================
+
+class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
+    unsigned int spike_buf_pos_;
+    std::vector< std::vector< PlaceField > > place_fields_;
+
+    double bin_size_;
+    double sigma_;
+    unsigned int nbins_;
+    double spread_;
+
+    unsigned int display_tetrode_ = 0;
+    unsigned int display_cluster_ = 0;
+
+    //================================
+
+    void drawPlaceField();
+
+public:
+
+    PlaceFieldProcessor(LFPBuffer *buf);
+
+    // LFPProcessor
+    virtual void process();
+
+    // SDLSingleWindowDisplay
+    virtual void process_SDL_control_input(const SDL_Event& e);
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     
 };
 
