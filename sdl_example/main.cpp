@@ -115,7 +115,7 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 10, 60, 2));
+    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 20, 30, 2));
     
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
@@ -173,7 +173,7 @@ int get_image(){
     // 12th tetrode
 //    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2305_02_explore.bin");
     
-    // SAVED CLUSTERING AVAILABLE
+    // SAVED CLUSTERING AVAILABLE, tetrodes in layer: 1,3,(4),5,6,7,9,10
 //    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
     draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-0106_03l.bin");
     

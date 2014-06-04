@@ -626,6 +626,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     //================================
 
     void drawPlaceField();
+    void drawOccupancy();
     void AddPos(int x, int y);
 
 public:

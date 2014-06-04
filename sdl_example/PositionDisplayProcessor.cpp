@@ -35,7 +35,7 @@ void PositionDisplayProcessor::process(){
         const unsigned int imm_level = 80;
         unsigned int grey_level = imm_level;
         if (buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] > 30.0f){
-            grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_][5]);
+            grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] + 50);
         }
         
         SDL_SetRenderTarget(renderer_, texture_);

@@ -135,6 +135,40 @@ void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode)
     drawPlaceField();
 }
 
+void PlaceFieldProcessor::drawOccupancy(){
+    const unsigned int binw = window_width_ / nbins_;
+    const unsigned int binh = window_height_ / nbins_;
+    
+    double max_val = 0;
+    for (unsigned int c = 0; c < occupancy_.n_rows; ++c){
+        for (unsigned int r = 0; r < occupancy_.n_cols; ++r){
+            double val = occupancy_(r, c);
+            if (val > max_val)
+                max_val = val;
+        }
+    }
+    
+    SDL_SetRenderTarget(renderer_, texture_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
+    
+    for (unsigned int c = 0; c < occupancy_.n_rows; ++c){
+        for (unsigned int r = 0; r < occupancy_.n_cols; ++r){
+            unsigned int x = c * binw;
+            unsigned int y = r * binh;
+            
+            unsigned int order = MIN(occupancy_(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
+            
+            FillRect(x, y, order, binw, binh);
+        }
+    }
+    
+    SDL_SetRenderTarget(renderer_, NULL);
+    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+    SDL_RenderPresent(renderer_);
+}
+
 void PlaceFieldProcessor::drawPlaceField(){
     const PlaceField& pf = place_fields_[display_tetrode_][display_cluster_];
     
@@ -184,11 +218,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         shift = 10;
     }
     
-    bool need_redraw_ = false;
+    bool need_redraw = false;
+    bool display_occupancy = false;
     
     if( e.type == SDL_KEYDOWN )
     {
-        need_redraw_ = true;
+        need_redraw = true;
         
         switch( e.key.keysym.sym )
         {
@@ -222,14 +257,21 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_0:
                 display_cluster_ = 0 + shift;
                 break;
+            case SDLK_o:
+                display_occupancy = true;
+                break;
             default:
-                need_redraw_ = false;
+                need_redraw = false;
                 break;
         }
     }
     
-    if (need_redraw_){
-        
-        drawPlaceField();
+    if (need_redraw){
+        if (display_occupancy){
+            drawOccupancy();
+        }
+        else{
+            drawPlaceField();
+        }
     }
 }
