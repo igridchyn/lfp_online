@@ -8,7 +8,10 @@
 
 #define SIGN(a,b) ((b)<0 ? -fabs(a) : fabs(a))
 
+#include <assert.h>
+
 #include "LFPProcessor.h"
+#include "PCAExtractionProcessor.h"
 
 void PCAExtractionProcessor::tred(float **a,int n,float d[],float e[]) {
     int l,k,j,i;

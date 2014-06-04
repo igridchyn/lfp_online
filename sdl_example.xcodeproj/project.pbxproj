@@ -75,6 +75,16 @@
 		B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionDisplayProcessor.h; sourceTree = "<group>"; };
 		B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrequencyPowerBandProcessor.cpp; sourceTree = "<group>"; };
 		B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLWaveshapeDisplayProcessor.cpp; sourceTree = "<group>"; };
+		B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceFieldProcessor.h; sourceTree = "<group>"; };
+		B0C023A5193F33E900778F00 /* GMMClusteringProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GMMClusteringProcessor.h; sourceTree = "<group>"; };
+		B0C023A6193F341A00778F00 /* SDLPCADisplayProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDLPCADisplayProcessor.h; sourceTree = "<group>"; };
+		B0C023A7193F343900778F00 /* PCAExtractionProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PCAExtractionProcessor.h; sourceTree = "<group>"; };
+		B0C023A8193F345F00778F00 /* SDLSignalDisplayProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDLSignalDisplayProcessor.h; sourceTree = "<group>"; };
+		B0C023A9193F348C00778F00 /* SpikeDetectorProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpikeDetectorProcessor.h; sourceTree = "<group>"; };
+		B0C023AA193F34AA00778F00 /* LFPBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFPBuffer.h; sourceTree = "<group>"; };
+		B0C023AB193F34FA00778F00 /* SDLWaveshapeDisplayProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDLWaveshapeDisplayProcessor.h; sourceTree = "<group>"; };
+		B0C023AC193F43F000778F00 /* TetrodesInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TetrodesInfo.h; sourceTree = "<group>"; };
+		B0C023AD193F442100778F00 /* Spike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Spike.h; sourceTree = "<group>"; };
 		B0CA797A18E952D600144950 /* LFPProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPProcessor.cpp; sourceTree = "<group>"; };
 		B0CA797B18E952D600144950 /* LFPProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -123,30 +133,48 @@
 		B052743C18A9375500193EAA /* sdl_example */ = {
 			isa = PBXGroup;
 			children = (
+				B0C023A3193F335800778F00 /* include */,
 				B052743D18A9375500193EAA /* main.cpp */,
 				B052743F18A9375500193EAA /* sdl_example.1 */,
-				B0CA797A18E952D600144950 /* LFPProcessor.cpp */,
-				B0CA797B18E952D600144950 /* LFPProcessor.h */,
-				B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */,
-				B03EACC0190006BE0087C88F /* SpikeAlignmentProcessor.cpp */,
-				B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */,
-				B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */,
-				B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */,
-				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
-				B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */,
-				B096A1AC1911112900846EBD /* UnitTestingProcessor.h */,
-				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
-				B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */,
-				B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */,
-				B0797C591918E65500C1328D /* OnlineEstimator.cpp */,
-				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
-				B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */,
-				B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */,
 				B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */,
-				B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */,
+				B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */,
+				B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */,
+				B0CA797A18E952D600144950 /* LFPProcessor.cpp */,
+				B0797C591918E65500C1328D /* OnlineEstimator.cpp */,
+				B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */,
 				B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */,
+				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
+				B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */,
+				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
+				B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */,
+				B03EACC0190006BE0087C88F /* SpikeAlignmentProcessor.cpp */,
+				B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */,
+				B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */,
+				B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */,
 			);
 			path = sdl_example;
+			sourceTree = "<group>";
+		};
+		B0C023A3193F335800778F00 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */,
+				B0C023A5193F33E900778F00 /* GMMClusteringProcessor.h */,
+				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
+				B0CA797B18E952D600144950 /* LFPProcessor.h */,
+				B0C023A7193F343900778F00 /* PCAExtractionProcessor.h */,
+				B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */,
+				B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */,
+				B0C023A6193F341A00778F00 /* SDLPCADisplayProcessor.h */,
+				B0C023A8193F345F00778F00 /* SDLSignalDisplayProcessor.h */,
+				B0C023AB193F34FA00778F00 /* SDLWaveshapeDisplayProcessor.h */,
+				B0C023AD193F442100778F00 /* Spike.h */,
+				B0C023A9193F348C00778F00 /* SpikeDetectorProcessor.h */,
+				B0C023AC193F43F000778F00 /* TetrodesInfo.h */,
+				B096A1AC1911112900846EBD /* UnitTestingProcessor.h */,
+				B0C023AA193F34AA00778F00 /* LFPBuffer.h */,
+			);
+			name = include;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -7,7 +7,7 @@
 //
 
 #include "LFPProcessor.h"
-
+#include "SDLPCADisplayProcessor.h"
 
 SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified)
 : SDLControlInputProcessor(buffer)

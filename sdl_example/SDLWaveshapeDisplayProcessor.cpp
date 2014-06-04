@@ -7,6 +7,7 @@
 //
 
 #include "LFPProcessor.h"
+#include "SDLWaveshapeDisplayProcessor.h"
 
 int transform(int smpl, int chan){
     return 100 + smpl/25 + 200 * chan;

@@ -4,6 +4,11 @@
 #include "UnitTestingProcessor.h"
 #include "PositionDisplayProcessor.h"
 #include "AutocorrelogramProcessor.h"
+#include "SpikeDetectorProcessor.h"
+#include "PCAExtractionProcessor.h"
+#include "GMMClusteringProcessor.h"
+#include "SDLPCADisplayProcessor.h"
+#include "PlaceFieldProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {

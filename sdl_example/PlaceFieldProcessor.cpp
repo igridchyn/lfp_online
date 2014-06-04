@@ -6,8 +6,10 @@
 //  Copyright (c) 2014 Igor Gridchyn. All rights reserved.
 //
 
-#include "LFPProcessor.h"
 #include "math.h"
+
+#include "LFPProcessor.h"
+#include "PlaceFieldProcessor.h"
 
 PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
 : sigma_(sigma)

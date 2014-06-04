@@ -7,8 +7,9 @@
 //
 
 #include "time.h"
+
 #include "LFPProcessor.h"
-#include "mlpack/methods/gmm/gmm.hpp"
+#include "GMMClusteringProcessor.h"
 
 using namespace mlpack::gmm;
 

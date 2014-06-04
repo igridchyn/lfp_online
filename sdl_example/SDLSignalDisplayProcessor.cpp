@@ -7,6 +7,7 @@
 //
 
 #include "LFPProcessor.h"
+#include "SDLSignalDisplayProcessor.h"
 
 void SDLSignalDisplayProcessor::SetDisplayTetrode(const int& display_tetrode){
     // TODO: configurableize
