@@ -43,23 +43,25 @@ void SDLControlInputMetaProcessor::process(){
                 SDL_Keymod kmod = SDL_GetModState();
                 if (kmod & KMOD_LCTRL){
                     // switch to corresponding processor
+                    const unsigned int& cp_num = (unsigned int)control_processors_.size();
+                    
                     switch( e.key.keysym.sym )
                     {
                             // TODO: out of range check
+                        case SDLK_0:
+                            control_processor_ = control_processors_[MIN(0, cp_num)];
+                            break;
                         case SDLK_1:
-                            control_processor_ = control_processors_[0];
+                            control_processor_ = control_processors_[MIN(1, cp_num)];
                             break;
                         case SDLK_2:
-                            control_processor_ = control_processors_[1];
+                            control_processor_ = control_processors_[MIN(2, cp_num)];
                             break;
                         case SDLK_3:
-                            control_processor_ = control_processors_[2];
+                            control_processor_ = control_processors_[MIN(3, cp_num)];
                             break;
                         case SDLK_4:
-                            control_processor_ = control_processors_[3];
-                            break;
-                        case SDLK_5:
-                            control_processor_ = control_processors_[4];
+                            control_processor_ = control_processors_[MIN(4, cp_num)];
                             break;
                     }
                     
