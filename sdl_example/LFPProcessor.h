@@ -174,20 +174,6 @@ public:
 
 //==========================================================================================
 
-class LFPPipeline{
-    std::vector<LFPProcessor*> processors;
-    
-public:
-    inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
-    void process(unsigned char *data, int nchunks);
-    
-    LFPProcessor *get_processor(const unsigned int& index);
-    
-    std::vector<SDLControlInputProcessor *> GetSDLControlInputProcessors();
-};
-
-//==========================================================================================
-
 class FetReaderProcessor : public LFPProcessor{
     std::ifstream fet_file_;
     

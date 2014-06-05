@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
+
 #include "LFPProcessor.h"
+#include "LFPPipeline.h"
 #include "UnitTestingProcessor.h"
 #include "PositionDisplayProcessor.h"
 #include "AutocorrelogramProcessor.h"

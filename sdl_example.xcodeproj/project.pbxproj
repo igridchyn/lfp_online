@@ -31,6 +31,10 @@
 		B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */; };
 		B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */; };
 		B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */; };
+		B0C023B31940747700778F00 /* PackageExractorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */; };
+		B0C023B6194074DA00778F00 /* SDLControlInputMetaProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */; };
+		B0C023B91940750700778F00 /* SDLSingleWindowDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */; };
+		B0C023BD1940759C00778F00 /* LFPPipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023BB1940759C00778F00 /* LFPPipeline.cpp */; };
 		B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0CA797A18E952D600144950 /* LFPProcessor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +92,11 @@
 		B0C023AD193F442100778F00 /* Spike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Spike.h; sourceTree = "<group>"; };
 		B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositionReconstructionProcessor.cpp; sourceTree = "<group>"; };
 		B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionReconstructionProcessor.h; sourceTree = "<group>"; };
+		B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PackageExractorProcessor.cpp; sourceTree = "<group>"; };
+		B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLControlInputMetaProcessor.cpp; sourceTree = "<group>"; };
+		B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLSingleWindowDisplay.cpp; sourceTree = "<group>"; };
+		B0C023BB1940759C00778F00 /* LFPPipeline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPPipeline.cpp; sourceTree = "<group>"; };
+		B0C023BC1940759C00778F00 /* LFPPipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPPipeline.h; sourceTree = "<group>"; };
 		B0CA797A18E952D600144950 /* LFPProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPProcessor.cpp; sourceTree = "<group>"; };
 		B0CA797B18E952D600144950 /* LFPProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -142,14 +151,18 @@
 				B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */,
 				B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */,
 				B00005F0190153DE00502C4B /* GMMClusteringProcessor.cpp */,
+				B0C023BB1940759C00778F00 /* LFPPipeline.cpp */,
 				B0CA797A18E952D600144950 /* LFPProcessor.cpp */,
 				B0797C591918E65500C1328D /* OnlineEstimator.cpp */,
+				B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */,
 				B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */,
 				B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */,
 				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
 				B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */,
+				B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */,
 				B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */,
 				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
+				B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */,
 				B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */,
 				B03EACC0190006BE0087C88F /* SpikeAlignmentProcessor.cpp */,
 				B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */,
@@ -165,6 +178,7 @@
 				B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */,
 				B0C023A5193F33E900778F00 /* GMMClusteringProcessor.h */,
 				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
+				B0C023BC1940759C00778F00 /* LFPPipeline.h */,
 				B0CA797B18E952D600144950 /* LFPProcessor.h */,
 				B0C023A7193F343900778F00 /* PCAExtractionProcessor.h */,
 				B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */,
@@ -234,12 +248,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				B03EACBF18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp in Sources */,
+				B0C023BD1940759C00778F00 /* LFPPipeline.cpp in Sources */,
+				B0C023B31940747700778F00 /* PackageExractorProcessor.cpp in Sources */,
+				B0C023B91940750700778F00 /* SDLSingleWindowDisplay.cpp in Sources */,
 				B0611B74193CDF600066583E /* PlaceFieldProcessor.cpp in Sources */,
 				B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */,
 				B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */,
 				B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */,
 				B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */,
 				B0611B6F1934C62F0066583E /* AutocorrelogramProcessor.cpp in Sources */,
+				B0C023B6194074DA00778F00 /* SDLControlInputMetaProcessor.cpp in Sources */,
 				B03EACC2190006BF0087C88F /* SpikeAlignmentProcessor.cpp in Sources */,
 				B03EACBB18FDA9170087C88F /* PCAExtractionProcessor.cpp in Sources */,
 				B052743E18A9375500193EAA /* main.cpp in Sources */,
