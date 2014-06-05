@@ -45,6 +45,8 @@ public:
     void CachePDF(PDFType pdf_type);
     
     inline const double& Prob(unsigned int r, unsigned int c, unsigned int s) { return pdf_cache_(r, c, s); }
+    
+    inline const arma::mat& Mat() const { return place_field_; }
 };
 
 //==========================================================================================
@@ -81,6 +83,8 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     bool pdf_cached_ = false;
     
     //================================
+    
+    void drawMat(const arma::mat& mat);
     
     void drawPlaceField();
     void drawOccupancy();

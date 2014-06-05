@@ -241,14 +241,14 @@ void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode)
     drawPlaceField();
 }
 
-void PlaceFieldProcessor::drawOccupancy(){
+void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     const unsigned int binw = window_width_ / nbins_;
     const unsigned int binh = window_height_ / nbins_;
     
     double max_val = 0;
-    for (unsigned int c = 0; c < occupancy_smoothed_.Width(); ++c){
-        for (unsigned int r = 0; r < occupancy_smoothed_.Height(); ++r){
-            double val = occupancy_smoothed_(r, c);
+    for (unsigned int c = 0; c < mat.n_cols; ++c){
+        for (unsigned int r = 0; r < mat.n_rows; ++r){
+            double val = mat(r, c);
             if (val > max_val)
                 max_val = val;
         }
@@ -259,12 +259,12 @@ void PlaceFieldProcessor::drawOccupancy(){
     SDL_RenderClear(renderer_);
     SDL_RenderPresent(renderer_);
     
-    for (unsigned int c = 0; c < occupancy_smoothed_.Width(); ++c){
-        for (unsigned int r = 0; r < occupancy_smoothed_.Height(); ++r){
+    for (unsigned int c = 0; c < mat.n_cols; ++c){
+        for (unsigned int r = 0; r < mat.n_rows; ++r){
             unsigned int x = c * binw;
             unsigned int y = r * binh;
             
-            unsigned int order = MIN(occupancy_smoothed_(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
+            unsigned int order = MIN(mat(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
             
             FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
         }
@@ -273,49 +273,20 @@ void PlaceFieldProcessor::drawOccupancy(){
     SDL_SetRenderTarget(renderer_, NULL);
     SDL_RenderCopy(renderer_, texture_, NULL, NULL);
     SDL_RenderPresent(renderer_);
+}
+
+void PlaceFieldProcessor::drawOccupancy(){
+    drawMat(occupancy_smoothed_.Mat());
 }
 
 void PlaceFieldProcessor::drawPlaceField(){
     const PlaceField& pf = place_fields_smoothed_[display_tetrode_][display_cluster_];
-    
-    const unsigned int binw = window_width_ / nbins_;
-    const unsigned int binh = window_height_ / nbins_;
-    
-    // normalize by max ...
-    double max_val = 0;
-    for (unsigned int c = 0; c < pf.Width(); ++c){
-        for (unsigned int r = 0; r < pf.Height(); ++r){
-            double val = occupancy_smoothed_(r, c) > EPS ? (pf(r, c) / occupancy_smoothed_(r, c)) : 0;
-            if (val > max_val)
-                max_val = val;
-        }
-    }
-    
-    std::cout << "Peak firing rate (cluster " << display_cluster_ << ") = " << max_val << "\n";
-    
-    SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-    SDL_RenderClear(renderer_);
-    SDL_RenderPresent(renderer_);
-    
-    for (unsigned int c = 0; c < pf.Width(); ++c){
-        for (unsigned int r = 0; r < pf.Height(); ++r){
-            unsigned int x = c * binw;
-            unsigned int y = r * binh;
-            
-            unsigned int order = MIN(pf(r, c) / occupancy_smoothed_(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
-            
-            FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
-        }
-    }
-    
-    SDL_SetRenderTarget(renderer_, NULL);
-    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
-    SDL_RenderPresent(renderer_);
+    arma::mat dv = pf.Mat() / occupancy_smoothed_.Mat();
+    drawMat(dv);
 }
 
 void PlaceFieldProcessor::drawPrediction(){
-    
+    drawMat(reconstructed_position_);
 }
 
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
