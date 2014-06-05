@@ -101,7 +101,12 @@ class SDLControlInputMetaProcessor : public LFPProcessor{
     
     // id of last package with which the input was obtained
     int last_input_pkg_id_ = 0;
+    int last_pkg_id = 0;
+    
+    unsigned int calls_since_scan = 0;
+    
     static const int input_scan_rate_ = 1000;
+    static const int INPUT_SCAN_RATE_CALLS = 1000;
     
     void SwitchDisplayTetrode(const unsigned int& display_tetrode);
     

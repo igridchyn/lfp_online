@@ -134,8 +134,11 @@ void draw_bin(const char *path){
         buf->num_chunks = 1;
         
         pipeline->process(block, 1);
-        continue;
-
+    }
+    
+    buf->chunk_ptr = NULL;
+    while(true){
+        pipeline->process(block, 1);
     }
     
     std::cout << "EOF, waiting for clustering jobs...\n";

@@ -70,7 +70,11 @@ std::vector<SDLControlInputProcessor *> LFPPipeline::GetSDLControlInputProcessor
 
 // ============================================================================================================
 void PackageExractorProcessor::process(){
-
+    // IDLE processing, waiting for user input
+    if (buffer->chunk_ptr == NULL){
+        return;
+    }
+    
     // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (int c=0; c < buffer->CHANNEL_NUM; ++c){
@@ -170,13 +174,22 @@ void PackageExractorProcessor::process(){
 
 void SDLControlInputMetaProcessor::process(){
     // check meta-events, control change, pass control to current processor
- 
+    if (buffer->last_pkg_id == last_pkg_id){
+        calls_since_scan ++;
+    }
+    
+    last_pkg_id = buffer->last_pkg_id;
+    
     // for effectiveness: perform analysis every input_scan_rate_ packages
-    // TODO: select reasonable rate
-    if (buffer->last_pkg_id - last_input_pkg_id_ < input_scan_rate_)
+    // TODO: select reasonable rate / TIME DELAY ?
+    if (buffer->last_pkg_id - last_input_pkg_id_ < input_scan_rate_ && calls_since_scan < INPUT_SCAN_RATE_CALLS){
+        // WORKAROUND for IDLE processing (no new packages)
         return;
-    else
+    }
+    else{
         last_input_pkg_id_ = buffer->last_pkg_id;
+        calls_since_scan = 0;
+    }
     
     SDL_Event e;
     bool quit = false;
@@ -185,11 +198,10 @@ void SDLControlInputMetaProcessor::process(){
     while( SDL_PollEvent( &e ) != 0 )
     {
         //User requests quit
-        if( e.type == SDL_QUIT )
-        {
+        if( e.type == SDL_QUIT ) {
             quit = true;
         }
-        else{
+        else {
             // check for control switch
             if( e.type == SDL_KEYDOWN ){
                 SDL_Keymod kmod = SDL_GetModState();
@@ -218,27 +230,41 @@ void SDLControlInputMetaProcessor::process(){
                     continue;
                 }
                 
-                if (kmod & KMOD_LALT){
+                if (kmod & KMOD_LALT) {
                     // switch tetrode
                     
-                    switch( e.key.keysym.sym )
-                    {
+                    switch( e.key.keysym.sym ) {
                         // TODO: all tetrodes (10-16: numpad; 17-32: RALT)
                             
-                        case SDLK_1:
+                        case SDLK_0:
                             SwitchDisplayTetrode(0);
                             break;
-                        case SDLK_2:
+                        case SDLK_1:
                             SwitchDisplayTetrode(1);
                             break;
-                        case SDLK_3:
+                        case SDLK_2:
                             SwitchDisplayTetrode(2);
                             break;
-                        case SDLK_4:
+                        case SDLK_3:
                             SwitchDisplayTetrode(3);
                             break;
-                        case SDLK_5:
+                        case SDLK_4:
                             SwitchDisplayTetrode(4);
+                            break;
+                        case SDLK_5:
+                            SwitchDisplayTetrode(5);
+                            break;
+                        case SDLK_6:
+                            SwitchDisplayTetrode(6);
+                            break;
+                        case SDLK_7:
+                            SwitchDisplayTetrode(7);
+                            break;
+                        case SDLK_8:
+                            SwitchDisplayTetrode(8);
+                            break;
+                        case SDLK_9:
+                            SwitchDisplayTetrode(9);
                             break;
                     }
                     
