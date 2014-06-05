@@ -58,6 +58,12 @@ void SpikeDetectorProcessor::process()
             continue;
         
         for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
+
+            // SPEEDUP ? filter every 2nd sample ?
+//            if (fpos % 2 && fpos > filt_pos){
+//                buffer->filtered_signal_buf[channel][fpos] = buffer->filtered_signal_buf[channel][fpos - 1];
+//                continue;
+//            }
             
             // filter with high-pass spike filter
             float filtered = 0;

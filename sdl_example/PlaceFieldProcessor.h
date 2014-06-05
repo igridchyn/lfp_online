@@ -13,13 +13,21 @@
 
 class PlaceField{
     arma::mat place_field_;
+    arma::cube pdf_cache_;
     
     double sigma_;
     double bin_size_;
     // how many bins around spikes to take into account
     int spread_;
     
+    static const int MAX_SPIKES = 20;
+    
 public:
+    enum PDFType{
+        Poisson,
+        Gaussian
+    };
+    
     PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread);
     // PlaceField doesn't know about its identity and doesn't check spikes
     void AddSpike(Spike *spike);
@@ -33,6 +41,8 @@ public:
     inline const double Max() const { return place_field_.max(); }
     
     PlaceField Smooth();
+    
+    void CachePDF(PDFType pdf_type);
 };
 
 //==========================================================================================
@@ -65,7 +75,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     void AddPos(int x, int y);
     
     // cache Poisson / Normal distribution to be used for fast position inference
-//    void cachePDF();
+    void cachePDF();
     
     // smooth pfs with spike counts into map
     void smoothPlaceFields();

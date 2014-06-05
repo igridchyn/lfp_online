@@ -95,6 +95,12 @@ void draw_bin(const char *path){
     const bool PCA_LOAD_TRANSFORM = true;
     const bool PCA_SAVE_TRANSFORM = false;
     
+    // PLACE FIELD PARAMS
+    const double PF_SIGMA = 60.0f;
+    const double PF_BIN_SIZE = 20;
+    const unsigned int PF_NBINS = 30;
+    const unsigned int PF_SPREAD = 1;
+    
     const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));
     pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
@@ -122,7 +128,7 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 20, 30, 1));
+    pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD));
     
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));

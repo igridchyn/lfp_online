@@ -380,13 +380,37 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     }
 }
 
-
 void PlaceFieldProcessor::smoothPlaceFields(){
     occupancy_smoothed_ = occupancy_.Smooth();
     
     for (int t=0; t < place_fields_.size(); ++t) {
         for (int c = 0; c < place_fields_[t].size(); ++c) {
             place_fields_smoothed_[t][c] = place_fields_[t][c].Smooth();
+        }
+    }
+}
+
+void PlaceField::CachePDF(PlaceField::PDFType pdf_type){
+    pdf_cache_ = arma::cube(place_field_.n_rows, place_field_.n_cols, MAX_SPIKES, arma::fill::zeros);
+    
+    for (int r=0; r < place_field_.n_rows; ++r) {
+        for (int c=0; c < place_field_.n_cols; ++c) {
+            const double& lambda = place_field_(r,c);
+            double p = exp(-lambda);
+            pdf_cache_(r, c, 0) = p;
+            
+            for (int s = 1; s < MAX_SPIKES; ++s) {
+                p *= lambda / s;
+                pdf_cache_(r, c, s) = p;
+            }
+        }
+    }
+}
+
+void PlaceFieldProcessor::cachePDF(){
+    for (int t=0; t < place_fields_.size(); ++t) {
+        for (int c = 0; c < place_fields_[t].size(); ++c) {
+            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson);
         }
     }
 }
