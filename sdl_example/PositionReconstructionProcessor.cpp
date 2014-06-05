@@ -9,9 +9,6 @@
 #include "LFPProcessor.h"
 #include "PositionReconstructionProcessor.h"
 
-class PositionReconstructionProcessor : public LFPProcessor {
-public:
+void PositionReconstructionProcessor::process(){
     
-    // LFPProcessor methods
-    virtual void process();
-};
+}

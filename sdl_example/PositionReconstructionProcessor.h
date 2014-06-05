@@ -11,4 +11,13 @@
 
 #include <iostream>
 
+#include "LFPProcessor.h"
+
+class PositionReconstructionProcessor : public LFPProcessor {
+public:
+    
+    // LFPProcessor methods
+    virtual void process();
+};
+
 #endif /* defined(__sdl_example__PositionReconstructionProcessor__) */

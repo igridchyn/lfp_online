@@ -7,6 +7,7 @@
 //
 
 #include "math.h"
+#include "assert.h"
 
 #include "LFPProcessor.h"
 #include "PlaceFieldProcessor.h"
@@ -229,6 +230,10 @@ void PlaceFieldProcessor::process(){
         }
         pos_buf_pos_ ++;
     }
+    
+    if (pos_updated_ && display_prediction_){
+        drawPrediction();
+    }
 }
 
 void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
@@ -309,6 +314,10 @@ void PlaceFieldProcessor::drawPlaceField(){
     SDL_RenderPresent(renderer_);
 }
 
+void PlaceFieldProcessor::drawPrediction(){
+    
+}
+
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     // TODO: implement, abstract ClusterInfoDisplay
     
@@ -325,6 +334,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     if( e.type == SDL_KEYDOWN )
     {
         need_redraw = true;
+        display_prediction_ = false;
         
         switch( e.key.keysym.sym )
         {
@@ -364,6 +374,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_s:
                 smoothPlaceFields();
                 break;
+            case SDLK_c:
+                cachePDF();
+                break;
+            case SDLK_p:
+                display_prediction_ = true;
+                break;
             default:
                 need_redraw = false;
                 break;
@@ -396,15 +412,17 @@ void PlaceField::CachePDF(PlaceField::PDFType pdf_type){
     for (int r=0; r < place_field_.n_rows; ++r) {
         for (int c=0; c < place_field_.n_cols; ++c) {
             const double& lambda = place_field_(r,c);
-            double p = exp(-lambda);
-            pdf_cache_(r, c, 0) = p;
+            double logp = -lambda;
+            pdf_cache_(r, c, 0) = logp;
             
             for (int s = 1; s < MAX_SPIKES; ++s) {
-                p *= lambda / s;
-                pdf_cache_(r, c, s) = p;
+                logp += log(lambda / s);
+                pdf_cache_(r, c, s) = logp;
             }
         }
     }
+    
+    // TODO: cache log of occupancy_smoothed
 }
 
 void PlaceFieldProcessor::cachePDF(){
@@ -413,4 +431,33 @@ void PlaceFieldProcessor::cachePDF(){
             place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson);
         }
     }
+}
+
+void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned int> > pop_vec){
+    reconstructed_position_.fill(0);
+    assert(pop_vec.size() == buffer->tetr_info_->tetrodes_number);
+    
+    unsigned int nclust = 0;
+    for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+        for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
+            nclust ++;
+        }
+    }
+    
+    for (int r=0; r < reconstructed_position_.n_rows; ++r) {
+        for (int c=0; c < reconstructed_position_.n_cols; ++c) {
+            
+            // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
+            for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+                for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
+                    reconstructed_position_(r, c) += place_fields_smoothed_[t][cl].Prob(r, c, pop_vec[t][cl]);
+                }
+            }
+            
+            // TODO: log / 0
+            reconstructed_position_(r, c) += nclust * log(occupancy_smoothed_(r, c));
+        }
+    }
+    
+    pos_updated_ = true;
 }

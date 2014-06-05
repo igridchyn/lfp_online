@@ -43,6 +43,8 @@ public:
     PlaceField Smooth();
     
     void CachePDF(PDFType pdf_type);
+    
+    inline const double& Prob(unsigned int r, unsigned int c, unsigned int s) { return pdf_cache_(r, c, s); }
 };
 
 //==========================================================================================
@@ -57,6 +59,8 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     PlaceField occupancy_;
     PlaceField occupancy_smoothed_;
     
+    arma::mat reconstructed_position_;
+    
     std::vector< std::vector< PlaceField > > place_fields_;
     std::vector< std::vector< PlaceField > > place_fields_smoothed_;
     
@@ -66,12 +70,22 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     double spread_;
     
     unsigned int display_tetrode_ = 0;
-    unsigned int display_cluster_ = 0;
+    
+    bool display_prediction_ = false;
+    bool pos_updated_ = false;
+    
+    // TODO: improve
+    // -1 = occupancy, -2 = reconstructed
+    int display_cluster_ = 0;
+    
+    bool pdf_cached_ = false;
     
     //================================
     
     void drawPlaceField();
     void drawOccupancy();
+    void drawPrediction();
+    
     void AddPos(int x, int y);
     
     // cache Poisson / Normal distribution to be used for fast position inference
@@ -79,6 +93,9 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
     // smooth pfs with spike counts into map
     void smoothPlaceFields();
+    
+    // predict
+    void ReconstructPosition(std::vector<std::vector<unsigned int > > pop_vec);
     
 public:
     
