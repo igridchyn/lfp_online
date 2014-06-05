@@ -25,24 +25,30 @@ public:
     void AddSpike(Spike *spike);
     
     inline const double& operator()(unsigned int x, unsigned int y) const { return place_field_(x, y); }
+    inline       double& operator()(unsigned int x, unsigned int y)       { return place_field_(x, y); }
     
     inline size_t Width() const { return place_field_.n_cols; }
     inline size_t Height() const { return place_field_.n_rows; }
     
     inline const double Max() const { return place_field_.max(); }
+    
+    PlaceField Smooth();
 };
 
 //==========================================================================================
 
 class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
     constexpr static const float SPEED_THOLD = 50.0f;
+    constexpr static const float EPS = 0.001f;
     
     unsigned int spike_buf_pos_;
     unsigned int pos_buf_pos_;
     
-    arma::mat occupancy_;
+    PlaceField occupancy_;
+    PlaceField occupancy_smoothed_;
     
     std::vector< std::vector< PlaceField > > place_fields_;
+    std::vector< std::vector< PlaceField > > place_fields_smoothed_;
     
     double bin_size_;
     double sigma_;
@@ -57,6 +63,12 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     void drawPlaceField();
     void drawOccupancy();
     void AddPos(int x, int y);
+    
+    // cache Poisson / Normal distribution to be used for fast position inference
+//    void cachePDF();
+    
+    // smooth pfs with spike counts into map
+    void smoothPlaceFields();
     
 public:
     
