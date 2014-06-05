@@ -6,4 +6,12 @@
 //  Copyright (c) 2014 Igor Gridchyn. All rights reserved.
 //
 
+#include "LFPProcessor.h"
 #include "PositionReconstructionProcessor.h"
+
+class PositionReconstructionProcessor : public LFPProcessor {
+public:
+    
+    // LFPProcessor methods
+    virtual void process();
+};

@@ -120,7 +120,7 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 20, 30, 2));
+    pipeline->add_processor(new PlaceFieldProcessor(buf, 40, 20, 30, 1));
     
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));

@@ -30,6 +30,7 @@
 		B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */; };
 		B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */; };
 		B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */; };
+		B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */; };
 		B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0CA797A18E952D600144950 /* LFPProcessor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -85,6 +86,8 @@
 		B0C023AB193F34FA00778F00 /* SDLWaveshapeDisplayProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDLWaveshapeDisplayProcessor.h; sourceTree = "<group>"; };
 		B0C023AC193F43F000778F00 /* TetrodesInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TetrodesInfo.h; sourceTree = "<group>"; };
 		B0C023AD193F442100778F00 /* Spike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Spike.h; sourceTree = "<group>"; };
+		B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositionReconstructionProcessor.cpp; sourceTree = "<group>"; };
+		B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionReconstructionProcessor.h; sourceTree = "<group>"; };
 		B0CA797A18E952D600144950 /* LFPProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPProcessor.cpp; sourceTree = "<group>"; };
 		B0CA797B18E952D600144950 /* LFPProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -144,6 +147,7 @@
 				B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */,
 				B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */,
 				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
+				B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */,
 				B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */,
 				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
 				B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */,
@@ -173,6 +177,7 @@
 				B0C023AC193F43F000778F00 /* TetrodesInfo.h */,
 				B096A1AC1911112900846EBD /* UnitTestingProcessor.h */,
 				B0C023AA193F34AA00778F00 /* LFPBuffer.h */,
+				B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */,
 			);
 			name = include;
 			sourceTree = "<group>";
@@ -242,6 +247,7 @@
 				B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */,
 				B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
+				B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */,
 				B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */,
 				B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */,
 			);
