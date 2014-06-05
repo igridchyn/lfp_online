@@ -146,7 +146,7 @@ PlaceField PlaceField::Smooth(){
 
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
 : SDLControlInputProcessor(buf)
-, SDLSingleWindowDisplay("Place Field", 400, 400)
+, SDLSingleWindowDisplay("Place Field", 420, 420)
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbins_(nbins)
@@ -232,7 +232,7 @@ void PlaceFieldProcessor::process(){
 }
 
 void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
-    display_tetrode_ = display_tetrode;
+    display_tetrode_ = MIN(display_tetrode, buffer->tetr_info_->tetrodes_number - 1);
     drawPlaceField();
 }
 
@@ -261,7 +261,7 @@ void PlaceFieldProcessor::drawOccupancy(){
             
             unsigned int order = MIN(occupancy_smoothed_(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
             
-            FillRect(x, y, order, binw, binh);
+            FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
         }
     }
     
@@ -298,9 +298,9 @@ void PlaceFieldProcessor::drawPlaceField(){
             unsigned int x = c * binw;
             unsigned int y = r * binh;
             
-            unsigned int order = MIN(pf(r, c) / occupancy_(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
+            unsigned int order = MIN(pf(r, c) / occupancy_smoothed_(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
             
-            FillRect(x, y, order, binw, binh);
+            FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
         }
     }
     
