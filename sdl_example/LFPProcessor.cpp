@@ -132,7 +132,7 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
     population_vector_total_spikes_ ++;
     
     // DEBUG - print pop vector occasionally
-    if (!(spike->pkg_id_ % 1000)){
+    if (!(spike->pkg_id_ % 3000)){
         std::cout << "Pop. vector: \n\t";
         for (int t=0; t < tetr_info_->tetrodes_number; ++t) {
             for (int c=0; c < population_vector_window_[t].size(); ++c) {

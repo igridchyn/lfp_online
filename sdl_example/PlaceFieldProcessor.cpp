@@ -100,8 +100,9 @@ void PlaceFieldProcessor::process(){
         }
         pos_buf_pos_ ++;
     }
-    
-    if (pos_updated_ && display_prediction_){
+
+    if (display_prediction_ && buffer->spike_buf_pos_clust_ - last_predicted_pkg_ > last_predicted_pkg_){
+        ReconstructPosition(buffer->population_vector_window_);
         drawPrediction();
     }
 }
@@ -272,7 +273,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
             for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
                 for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
-                    reconstructed_position_(r, c) += place_fields_smoothed_[t][cl].Prob(r, c, pop_vec[t][cl]);
+                    reconstructed_position_(r, c) += place_fields_smoothed_[t][cl].Prob(r, c, MIN(PlaceField::MAX_SPIKES, pop_vec[t][cl]));
                 }
             }
             

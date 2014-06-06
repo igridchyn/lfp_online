@@ -24,9 +24,9 @@ class PlaceField{
     // how many bins around spikes to take into account
     int spread_;
     
+public:
     static const int MAX_SPIKES = 20;
     
-public:
     enum PDFType{
         Poisson,
         Gaussian

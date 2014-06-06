@@ -38,6 +38,8 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
     bool display_prediction_ = false;
     bool pos_updated_ = false;
+    unsigned int last_predicted_pkg_ = 0;
+    const unsigned int prediction_rate_ = 100 * 24;
     
     // TODO: improve
     // -1 = occupancy, -2 = reconstructed
