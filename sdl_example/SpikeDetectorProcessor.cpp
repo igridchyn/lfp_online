@@ -52,6 +52,8 @@ void SpikeDetectorProcessor::process()
     // to start detection by threshold from this position after filtering + power computation
     // int det_pos = filt_pos;
     
+    
+    
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
         
         if (!buffer->is_valid_channel(channel))
@@ -113,11 +115,6 @@ void SpikeDetectorProcessor::process()
         // TODO: make sure there's a single estimator for all channels of the tetrode
         thresholds_[channel] = (int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
     }
-    
-    //float threshold = (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_;
-    // DEBUG
-    // TODO: !!! dynamic threshold from the estimators
-
 
     for (int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
         for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
@@ -146,6 +143,9 @@ void SpikeDetectorProcessor::process()
                 Spike *spike = new Spike(spike_pos + 1, tetrode);
                 buffer->spike_buffer_[buffer->spike_buf_pos] = spike;
                 buffer->spike_buf_pos++;
+                
+                // DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
+//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
                 
                 // set coords
                 // find position

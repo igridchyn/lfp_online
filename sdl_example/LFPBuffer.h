@@ -10,6 +10,7 @@
 #define sdl_example_LFPBuffer_h
 
 #include <vector>
+#include <stack>
 
 #include "TetrodesInfo.h"
 #include "Spike.h"
@@ -62,7 +63,7 @@ public:
     unsigned int spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
     // spikes with speed estimate
     unsigned int spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
-    // pointer to the first spike in the population time window
+    // pointers to the first spike in the population time window, for each tetrode
     unsigned int spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
     
     // POSITION BUFFER
@@ -87,6 +88,7 @@ public:
     // initialized by GMM clustering processor
     std::vector< std::vector<unsigned int> > population_vector_window_;
     unsigned int population_vector_total_spikes_ = 0;
+    std::stack<Spike*> population_vector_stack_;
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];
@@ -98,7 +100,7 @@ public:
     
     // ??? for all arrays ?
     int buf_pos;
-    int last_pkg_id = 0;
+    unsigned int last_pkg_id = 0;
     // for each tetrode
     int *last_spike_pos_;
     
@@ -119,6 +121,7 @@ public:
     
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     
+    void RemoveSpikesOutsideWindow(const unsigned int& right_border);
     void UpdateWindowVector(Spike *spike);
 };
 

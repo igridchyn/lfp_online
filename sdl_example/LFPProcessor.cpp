@@ -115,21 +115,38 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_le
     population_vector_window_.resize(tetr_info_->tetrodes_number);
 }
 
+void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
+    if (population_vector_stack_.empty()){
+        return;
+    }
+    
+    Spike *stop = population_vector_stack_.top();
+    while (stop->pkg_id_ < right_border - POP_VEC_WIN_LEN) {
+        population_vector_stack_.pop();
+        
+        population_vector_window_[stop->tetrode_][stop->cluster_id_] --;
+        population_vector_total_spikes_ --;
+        
+        population_vector_total_spikes_ --;
+        
+        if (population_vector_stack_.empty()){
+            break;
+        }
+        
+        stop = population_vector_stack_.top();
+    }
+}
+
 void LFPBuffer::UpdateWindowVector(Spike *spike){
     // TODO: make right border of the window more precise: as close as possible to lst_pkg_id but not containing unclassified spikes
     // (left border = right border - POP_VEC_WIN_LEN)
-    while (spike_buf_pos_pop_vec_ < spike_buf_pos && spike_buffer_[spike_buf_pos_pop_vec_]->pkg_id_ < spike->pkg_id_ - POP_VEC_WIN_LEN){
-        unsigned int tetr = spike_buffer_[spike_buf_pos_pop_vec_]->tetrode_;
-        int clust = spike_buffer_[spike_buf_pos_pop_vec_]->cluster_id_;
-        
-        population_vector_window_[tetr][clust] --;
-        spike_buf_pos_pop_vec_ ++;
-        
-        population_vector_total_spikes_ --;
-    }
     
     population_vector_window_[spike->tetrode_][spike->cluster_id_] ++;
     population_vector_total_spikes_ ++;
+    
+    population_vector_total_spikes_ ++;
+    
+    population_vector_stack_.push(spike);
     
     // DEBUG - print pop vector occasionally
     if (!(spike->pkg_id_ % 3000)){

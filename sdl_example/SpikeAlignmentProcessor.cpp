@@ -114,6 +114,16 @@ void SpikeAlignmentProcessor::process(){
             }
         }
         
+        // make sure the temporal order of spikes didn't change (assuming it is correct for all previous spikes) by pushing current spikes donw in buffer until more recent spike is found
+        int spike_sort_pos = buffer-> spike_buf_nows_pos;
+        while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != NULL && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
+            // swap
+            buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
+            buffer->spike_buffer_[spike_sort_pos - 1] = spike;
+
+            spike_sort_pos --;
+        }
+        
         buffer-> spike_buf_nows_pos++;
     }
 }

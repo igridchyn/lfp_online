@@ -110,4 +110,7 @@ void PackageExractorProcessor::process(){
     
     buffer->buf_pos += 3 * buffer->num_chunks;
     buffer->last_pkg_id += 3 * buffer->num_chunks;
+    
+    // TODO: use filter width !!!
+    buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
 }

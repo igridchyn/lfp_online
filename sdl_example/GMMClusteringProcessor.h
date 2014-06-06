@@ -22,7 +22,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     bool load_clustering_ = true;
     
     // classify every .. spikes (to reduce computations overhead)
-    static const int classification_rate_ = 10;
+    static const int classification_rate_ = 1;
     
     std::vector<unsigned int> total_observations_;
     std::vector<arma::mat> observations_;

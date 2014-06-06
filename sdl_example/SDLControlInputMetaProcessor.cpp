@@ -49,19 +49,19 @@ void SDLControlInputMetaProcessor::process(){
                     {
                             // TODO: out of range check
                         case SDLK_0:
-                            control_processor_ = control_processors_[MIN(0, cp_num)];
+                            control_processor_ = control_processors_[MIN(0, cp_num - 1)];
                             break;
                         case SDLK_1:
-                            control_processor_ = control_processors_[MIN(1, cp_num)];
+                            control_processor_ = control_processors_[MIN(1, cp_num - 1)];
                             break;
                         case SDLK_2:
-                            control_processor_ = control_processors_[MIN(2, cp_num)];
+                            control_processor_ = control_processors_[MIN(2, cp_num - 1)];
                             break;
                         case SDLK_3:
-                            control_processor_ = control_processors_[MIN(3, cp_num)];
+                            control_processor_ = control_processors_[MIN(3, cp_num - 1)];
                             break;
                         case SDLK_4:
-                            control_processor_ = control_processors_[MIN(4, cp_num)];
+                            control_processor_ = control_processors_[MIN(4, cp_num - 1)];
                             break;
                     }
                     
