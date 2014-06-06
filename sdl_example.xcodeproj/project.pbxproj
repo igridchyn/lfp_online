@@ -35,6 +35,7 @@
 		B0C023B6194074DA00778F00 /* SDLControlInputMetaProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */; };
 		B0C023B91940750700778F00 /* SDLSingleWindowDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */; };
 		B0C023BD1940759C00778F00 /* LFPPipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023BB1940759C00778F00 /* LFPPipeline.cpp */; };
+		B0C023C01941CBDA00778F00 /* PlaceField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023BE1941CBDA00778F00 /* PlaceField.cpp */; };
 		B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0CA797A18E952D600144950 /* LFPProcessor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -97,6 +98,8 @@
 		B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLSingleWindowDisplay.cpp; sourceTree = "<group>"; };
 		B0C023BB1940759C00778F00 /* LFPPipeline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPPipeline.cpp; sourceTree = "<group>"; };
 		B0C023BC1940759C00778F00 /* LFPPipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPPipeline.h; sourceTree = "<group>"; };
+		B0C023BE1941CBDA00778F00 /* PlaceField.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlaceField.cpp; sourceTree = "<group>"; };
+		B0C023BF1941CBDA00778F00 /* PlaceField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaceField.h; sourceTree = "<group>"; };
 		B0CA797A18E952D600144950 /* LFPProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LFPProcessor.cpp; sourceTree = "<group>"; };
 		B0CA797B18E952D600144950 /* LFPProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -156,6 +159,7 @@
 				B0797C591918E65500C1328D /* OnlineEstimator.cpp */,
 				B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */,
 				B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */,
+				B0C023BE1941CBDA00778F00 /* PlaceField.cpp */,
 				B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */,
 				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
 				B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */,
@@ -182,6 +186,7 @@
 				B0CA797B18E952D600144950 /* LFPProcessor.h */,
 				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
 				B0C023A7193F343900778F00 /* PCAExtractionProcessor.h */,
+				B0C023BF1941CBDA00778F00 /* PlaceField.h */,
 				B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */,
 				B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */,
 				B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */,
@@ -267,6 +272,7 @@
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
 				B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */,
 				B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */,
+				B0C023C01941CBDA00778F00 /* PlaceField.cpp in Sources */,
 				B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

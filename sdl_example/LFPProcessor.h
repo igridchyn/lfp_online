@@ -197,17 +197,7 @@ public:
 };
 
 
-//==========================================================================================
 
-class Utils{
-public:
-    static const char* const NUMBERS[];
-    
-    class Math{
-    public:
-        inline static double Gauss2D(double sigma, double x, double y) { return 1/(2 * M_PI * sqrt(sigma)) * exp(-0.5 * (pow(x, 2) + pow(y, 2)) / (sigma * sigma)); };
-    };
-};
 
 //==========================================================================================
 

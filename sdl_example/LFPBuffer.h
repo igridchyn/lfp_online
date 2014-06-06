@@ -9,8 +9,11 @@
 #ifndef sdl_example_LFPBuffer_h
 #define sdl_example_LFPBuffer_h
 
+#include <vector>
+
 #include "TetrodesInfo.h"
 #include "Spike.h"
+#include "OnlineEstimator.h"
 
 class LFPBuffer{
     
@@ -82,7 +85,7 @@ public:
     const unsigned int POP_VEC_WIN_LEN;
     // pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
     // initialized by GMM clustering processor
-    std::vector<std::vector<unsigned int> > population_vector_window_;
+    std::vector< std::vector<unsigned int> > population_vector_window_;
     unsigned int population_vector_total_spikes_ = 0;
     
 private:
@@ -117,6 +120,18 @@ public:
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     
     void UpdateWindowVector(Spike *spike);
+};
+
+//==========================================================================================
+
+class Utils{
+public:
+    static const char* const NUMBERS[];
+    
+    class Math{
+    public:
+        inline static double Gauss2D(double sigma, double x, double y) { return 1/(2 * M_PI * sqrt(sigma)) * exp(-0.5 * (pow(x, 2) + pow(y, 2)) / (sigma * sigma)); };
+    };
 };
 
 #endif
