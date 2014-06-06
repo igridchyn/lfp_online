@@ -177,12 +177,14 @@
 			children = (
 				B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */,
 				B0C023A5193F33E900778F00 /* GMMClusteringProcessor.h */,
-				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
+				B0C023AA193F34AA00778F00 /* LFPBuffer.h */,
 				B0C023BC1940759C00778F00 /* LFPPipeline.h */,
 				B0CA797B18E952D600144950 /* LFPProcessor.h */,
+				B0797C5A1918E65500C1328D /* OnlineEstimator.h */,
 				B0C023A7193F343900778F00 /* PCAExtractionProcessor.h */,
 				B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */,
 				B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */,
+				B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */,
 				B0C023A6193F341A00778F00 /* SDLPCADisplayProcessor.h */,
 				B0C023A8193F345F00778F00 /* SDLSignalDisplayProcessor.h */,
 				B0C023AB193F34FA00778F00 /* SDLWaveshapeDisplayProcessor.h */,
@@ -190,8 +192,6 @@
 				B0C023A9193F348C00778F00 /* SpikeDetectorProcessor.h */,
 				B0C023AC193F43F000778F00 /* TetrodesInfo.h */,
 				B096A1AC1911112900846EBD /* UnitTestingProcessor.h */,
-				B0C023AA193F34AA00778F00 /* LFPBuffer.h */,
-				B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */,
 			);
 			name = include;
 			sourceTree = "<group>";

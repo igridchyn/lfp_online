@@ -65,6 +65,9 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
             gmm_fitted_[tetr] = true;
             
             std::cout << "Loaded GMM with " << gmm_[tetr].Gaussians() << " clusters for tetrode " << tetr << "\n";
+
+            // resize population vector in window buffer
+            buf->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians());
         }
     }
 
@@ -87,7 +90,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     printf("# of observations = %u\n", observations_train.n_cols);
     for (int nclust = 1; nclust <= max_clusters_; ++nclust) {
         mlpack::gmm::GMM<> gmmn(nclust, dimensionality);
-        
+
         // PROFILING
         clock_t start = clock();
         double likelihood = gmmn.Estimate(observations_train);
@@ -111,6 +114,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
 
     gmm_fitted_[tetr] = true;
     gmm_[tetr] = gmm_best;
+    buffer->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians());
 
     if (save_clustering_){
         saveGMM(gmm_[tetr], tetr);
@@ -215,11 +219,14 @@ void GMMClusteringProcessor::process(){
                 // redraw !!
                 gmm_[tetr].Classify(observations_[tetr].cols(0, total_observations_[tetr] - 1), labels_);
                 
+                // UPDATE window population vector in BUFFER
+
                 // TODO: assign labels to clusters; assign labels to future clusteres; redraw clusters
                 // don't draw unclassified
                 for (int i=0; i < labels_.size(); ++i){
                     const size_t label = labels_[i];
                     obs_spikes_[tetr][i]->cluster_id_ = (int)label;
+                    buffer->UpdateWindowVector(obs_spikes_[tetr][i]);
                 }
                 
                 // classify new spikes and draw

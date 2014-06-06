@@ -83,9 +83,10 @@ const ColorPalette ColorPalette::MatlabJet256(256, new int[256] {0x83, 0x87, 0x8
 
 // ============================================================================================================
 
-LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
-    :tetr_info_(tetr_info)
-{
+LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len)
+: tetr_info_(tetr_info)
+, POP_VEC_WIN_LEN(pop_vec_win_len) {
+    
     for(int c=0; c < CHANNEL_NUM; ++c){
         memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
         memset(filtered_signal_buf[c], LFP_BUF_LEN, sizeof(int));
@@ -110,6 +111,36 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info)
     }
     
     last_spike_pos_ = new int[tetr_info_->tetrodes_number];
+    
+    population_vector_window_.resize(tetr_info_->tetrodes_number);
+}
+
+void LFPBuffer::UpdateWindowVector(Spike *spike){
+    // TODO: make right border of the window more precise: as close as possible to lst_pkg_id but not containing unclassified spikes
+    // (left border = right border - POP_VEC_WIN_LEN)
+    while (spike_buf_pos_pop_vec_ < spike_buf_pos && spike_buffer_[spike_buf_pos_pop_vec_]->pkg_id_ < spike->pkg_id_ - POP_VEC_WIN_LEN){
+        unsigned int tetr = spike_buffer_[spike_buf_pos_pop_vec_]->tetrode_;
+        int clust = spike_buffer_[spike_buf_pos_pop_vec_]->cluster_id_;
+        
+        population_vector_window_[tetr][clust] --;
+        spike_buf_pos_pop_vec_ ++;
+        
+        population_vector_total_spikes_ --;
+    }
+    
+    population_vector_window_[spike->tetrode_][spike->cluster_id_] ++;
+    population_vector_total_spikes_ ++;
+    
+    // DEBUG - print pop vector occasionally
+    if (!(spike->pkg_id_ % 1000)){
+        std::cout << "Pop. vector: \n\t";
+        for (int t=0; t < tetr_info_->tetrodes_number; ++t) {
+            for (int c=0; c < population_vector_window_[t].size(); ++c) {
+                std::cout << population_vector_window_[t][c] << " ";
+            }
+            std::cout << "\n";
+        }
+    }
 }
 
 // ============================================================================================================

@@ -38,7 +38,7 @@ public:
     // TODO: move to context class
     TetrodesInfo *tetr_info_;
     
-    // spikes buffer
+    // spikes buffer and POINTERS [all have to be reset at buffer rewind]
     Spike* spike_buffer_[SPIKE_BUF_LEN];
     // position, at which next spike will be put
     unsigned int spike_buf_pos = SPIKE_BUF_HEAD_LEN;
@@ -48,38 +48,42 @@ public:
     unsigned int spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
     // position of first non-displayed PCA
     unsigned int spike_buf_no_disp_pca = SPIKE_BUF_HEAD_LEN;
-    
     // last unprocessed with PCA
     unsigned int spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
-    
     // first non-outputted
     unsigned int spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
-    
     //  first non-clustered
     // TODO: rewind
     unsigned int spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
-    
     // drawing spikes in pos
     unsigned int spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
-    
     // spikes with speed estimate
     unsigned int spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
-    
+    // pointer to the first spike in the population time window
+    unsigned int spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
     
     // POSITION BUFFER
     static const int POS_BUF_SIZE = 1 << 20;
     // 4 coords, pkg_id and speed magnitude
     unsigned int positions_buf_[POS_BUF_SIZE][6];
-    
+    // main poiter - where the next position will be put
     unsigned int pos_buf_pos_ = 0;
+    // the last displayed position
     unsigned int pos_buf_disp_pos_ = 0;
     // TODO: ensure reset
     unsigned int pos_buf_spike_pos_ = 0;
-    
+    // last for which speed has been calculated
     unsigned int pos_buf_pos_spike_speed_ = 0;
-    
+
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
+    
+    // length of a population vector
+    const unsigned int POP_VEC_WIN_LEN;
+    // pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
+    // initialized by GMM clustering processor
+    std::vector<std::vector<unsigned int> > population_vector_window_;
+    unsigned int population_vector_total_spikes_ = 0;
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];
@@ -108,9 +112,11 @@ public:
     
     //====================================================================================================
     
-    LFPBuffer(TetrodesInfo* tetr_info);
+    LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len);
     
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
+    
+    void UpdateWindowVector(Spike *spike);
 };
 
 #endif

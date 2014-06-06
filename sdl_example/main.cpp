@@ -75,7 +75,10 @@ void draw_bin(const char *path){
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{56,57,58,59}};
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{60,61,62,63}};
     
-    LFPBuffer *buf = new LFPBuffer(tetr_inf);
+    // 200 ms @ 24 kHz
+    const unsigned int BUF_POP_VEC_WIN_LEN = 24 * 200;
+    
+    LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN);
 
     LFPPipeline *pipeline = new LFPPipeline();
     
