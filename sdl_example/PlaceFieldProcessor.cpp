@@ -104,7 +104,8 @@ void PlaceFieldProcessor::process(){
         pos_buf_pos_ ++;
     }
 
-    if (display_prediction_ && buffer->spike_buf_pos_clust_ - last_predicted_pkg_ > last_predicted_pkg_){
+    // if prediction display requested and at least prediction_rate_ time has passed since last prediction
+    if (display_prediction_ && buffer->spike_buf_pos_clust_ - last_predicted_pkg_ > prediction_rate_){
         ReconstructPosition(buffer->population_vector_window_);
         drawPrediction();
     }
@@ -220,9 +221,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 smoothPlaceFields();
                 break;
             case SDLK_c:
+                smoothPlaceFields();
                 cachePDF();
                 break;
             case SDLK_p:
+                smoothPlaceFields();
+                cachePDF();
                 display_prediction_ = true;
                 break;
             default:
@@ -287,4 +291,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     }
     
     pos_updated_ = true;
+    
+    // update ID of last predicted package to control the frequency of prediction (more important for models with memory, for memory-less just for performance)
+    last_predicted_pkg_ = buffer->spike_buf_pos_clust_;
 }
