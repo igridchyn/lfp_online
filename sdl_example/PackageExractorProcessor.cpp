@@ -44,6 +44,9 @@ void PackageExractorProcessor::process(){
         unsigned short sx = *((unsigned short*)(buffer->chunk_ptr + 20));
         unsigned short sy = *((unsigned short*)(buffer->chunk_ptr + 22));
         
+        // EVERY 240 !!! = 100 Hz
+//        std::cout << "new pos at " << buffer->buf_pos << "\n";
+
         buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)bx;
         buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)by;
         buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)sx;

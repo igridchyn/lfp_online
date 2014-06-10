@@ -139,17 +139,17 @@ PlaceField PlaceField::Smooth(){
     return spf;
 }
 
-void PlaceField::CachePDF(PlaceField::PDFType pdf_type){
+void PlaceField::CachePDF(PlaceField::PDFType pdf_type, const PlaceField& occupancy, const double& occupancy_factor){
     pdf_cache_ = arma::cube(place_field_.n_rows, place_field_.n_cols, MAX_SPIKES, arma::fill::zeros);
     
     for (int r=0; r < place_field_.n_rows; ++r) {
         for (int c=0; c < place_field_.n_cols; ++c) {
-            const double& lambda = place_field_(r,c);
+            const double& lambda = place_field_(r, c) / occupancy(r, c) * occupancy_factor;
             double logp = -lambda;
             pdf_cache_(r, c, 0) = logp;
             
             for (int s = 1; s < MAX_SPIKES; ++s) {
-                logp += log(lambda / s);
+                logp += log(lambda / s); // p(s) = exp(-lambda) * lambda^s / s!; log(p(s)/p(s-1)) = log(lambda/s)
                 pdf_cache_(r, c, s) = logp;
             }
         }

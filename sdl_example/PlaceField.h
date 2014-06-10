@@ -46,8 +46,9 @@ public:
     
     PlaceField Smooth();
     
-    void CachePDF(PDFType pdf_type);
-    
+    void CachePDF(PDFType pdf_type, const PlaceField& occupancy, const double& occupancy_factor);
+
+    // TODO: OOB check
     inline const double& Prob(unsigned int r, unsigned int c, unsigned int s) { return pdf_cache_(r, c, s); }
     
     inline const arma::mat& Mat() const { return place_field_; }

@@ -51,22 +51,25 @@ void PlaceFieldProcessor::AddPos(int x, int y){
     if (x == 1023 || y == 1023){
         return;
     }
+ 
+    occupancy_(yb, xb) += 1.f;
     
+    // !!! smoothed later
     // normalizer
-    double norm = .0f;
-    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.Width(), xb+spread_); ++xba){
-        for (int yba = MAX(yb-spread_, 0); yba < MIN(occupancy_.Height(), yb+spread_); ++yba) {
-            double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((x - bin_size_*(0.5 + xba)), 2) + pow((y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
-            norm += add;
-        }
-    }
-    
-    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.Width(), xb+spread_); ++xba){
-        for (int yba = MAX(yb-spread_, 0); yba < MIN(occupancy_.Height(), yb+spread_); ++yba) {
-            double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((x - bin_size_*(0.5 + xba)), 2) + pow((y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
-            occupancy_(yba, xba) += add / norm;
-        }
-    }
+//    double norm = .0f;
+//    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.Width(), xb+spread_); ++xba){
+//        for (int yba = MAX(yb-spread_, 0); yba < MIN(occupancy_.Height(), yb+spread_); ++yba) {
+//            double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((x - bin_size_*(0.5 + xba)), 2) + pow((y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
+//            norm += add;
+//        }
+//    }
+//    
+//    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.Width(), xb+spread_); ++xba){
+//        for (int yba = MAX(yb-spread_, 0); yba < MIN(occupancy_.Height(), yb+spread_); ++yba) {
+//            double add = 1/(sqrt(2 * M_PI) * sigma_) * exp(-0.5 * (pow((x - bin_size_*(0.5 + xba)), 2) + pow((y - bin_size_*(0.5 + yba)), 2)) / (sigma_ * sigma_));
+//            occupancy_(yba, xba) += add / norm;
+//        }
+//    }
 }
 
 void PlaceFieldProcessor::process(){
@@ -120,7 +123,7 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     for (unsigned int c = 0; c < mat.n_cols; ++c){
         for (unsigned int r = 0; r < mat.n_rows; ++r){
             double val = mat(r, c);
-            if (val > max_val)
+            if (val > max_val && arma::is_finite(val))
                 max_val = val;
         }
     }
@@ -251,7 +254,8 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 void PlaceFieldProcessor::cachePDF(){
     for (int t=0; t < place_fields_.size(); ++t) {
         for (int c = 0; c < place_fields_[t].size(); ++c) {
-            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson);
+            // TODO: configurableize occupancy factor
+            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, 10);
         }
     }
 }
