@@ -180,11 +180,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     if( e.type == SDL_KEYDOWN )
     {
         need_redraw = true;
-        display_prediction_ = false;
         
         switch( e.key.keysym.sym )
         {
             case SDLK_1:
+            	// TODO: remove workaround
+            	display_prediction_ = false;
                 display_cluster_ = 1 + shift;
                 break;
             case SDLK_2:
@@ -225,8 +226,8 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 cachePDF();
                 break;
             case SDLK_p:
-                smoothPlaceFields();
-                cachePDF();
+                //smoothPlaceFields();
+                //cachePDF();
                 display_prediction_ = true;
                 break;
             default:
@@ -265,14 +266,16 @@ void PlaceFieldProcessor::cachePDF(){
 }
 
 void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned int> > pop_vec){
-    reconstructed_position_.fill(0);
+    reconstructed_position_.resize(occupancy_smoothed_.Height(), occupancy_smoothed_.Width());
+	reconstructed_position_.fill(0);
     assert(pop_vec.size() == buffer->tetr_info_->tetrodes_number);
     
+    // normalize by sum to have probabilities
+    const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));
+
     unsigned int nclust = 0;
     for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-        for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
-            nclust ++;
-        }
+        nclust += pop_vec[t].size();
     }
     
     for (int r=0; r < reconstructed_position_.n_rows; ++r) {
@@ -281,12 +284,12 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
             for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
                 for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
-                    reconstructed_position_(r, c) += place_fields_smoothed_[t][cl].Prob(r, c, MIN(PlaceField::MAX_SPIKES, pop_vec[t][cl]));
+                    reconstructed_position_(r, c) += place_fields_smoothed_[t][cl].Prob(r, c, MIN(PlaceField::MAX_SPIKES - 1, pop_vec[t][cl]));
                 }
             }
             
             // TODO: log / 0
-            reconstructed_position_(r, c) += nclust * log(occupancy_smoothed_(r, c));
+            reconstructed_position_(r, c) += nclust * log(occupancy_smoothed_(r, c) / occ_sum);
         }
     }
     
@@ -294,4 +297,12 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     
     // update ID of last predicted package to control the frequency of prediction (more important for models with memory, for memory-less just for performance)
     last_predicted_pkg_ = buffer->spike_buf_pos_clust_;
+
+    double lpmax = -reconstructed_position_.min();
+    for (int r=0; r < reconstructed_position_.n_rows; ++r) {
+            for (int c=0; c < reconstructed_position_.n_cols; ++c) {
+            	//reconstructed_position_(r, c) = exp(reconstructed_position_(r, c));
+            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
+            }
+    }
 }
