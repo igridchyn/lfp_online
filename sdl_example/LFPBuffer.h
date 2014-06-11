@@ -116,6 +116,8 @@ public:
     
     OnlineEstimator<float>* speedEstimator_;
     
+    arma::mat cluster_spike_counts_;
+
     //====================================================================================================
     
     LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len);

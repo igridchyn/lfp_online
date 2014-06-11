@@ -97,7 +97,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
         double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
         printf("GMM time = %.1lf sec.\n", gmm_time);
         
-        // = # mixing probabilities + # menas + # covariances
+        // = # mixing probabilities + # means + # covariances
         int nparams = (nclust - 1) + nclust * dimensionality + nclust * dimensionality * (dimensionality + 1) / 2;
         // !!! TODO: check
         double BIC = -2 * likelihood + nparams * log(observations_train.n_cols);
@@ -227,6 +227,7 @@ void GMMClusteringProcessor::process(){
                     const size_t label = labels_[i];
                     obs_spikes_[tetr][i]->cluster_id_ = (int)label;
                     buffer->UpdateWindowVector(obs_spikes_[tetr][i]);
+                    buffer->cluster_spike_counts_(tetr, label) += 1;
                 }
                 
                 // classify new spikes and draw

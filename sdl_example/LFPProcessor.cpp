@@ -85,7 +85,8 @@ const ColorPalette ColorPalette::MatlabJet256(256, new int[256] {0x83, 0x87, 0x8
 
 LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len)
 : tetr_info_(tetr_info)
-, POP_VEC_WIN_LEN(pop_vec_win_len) {
+, POP_VEC_WIN_LEN(pop_vec_win_len)
+, cluster_spike_counts_(tetr_info->tetrodes_number, 40, arma::fill::zeros){
     
     for(int c=0; c < CHANNEL_NUM; ++c){
         memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
