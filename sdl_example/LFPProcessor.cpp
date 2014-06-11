@@ -182,9 +182,10 @@ int ColorPalette::getColor(int order) const{
 }
 
 FetReaderProcessor::FetReaderProcessor(LFPBuffer *buf, std::string fet_path)
-: LFPProcessor(buf) {
+: LFPProcessor(buf)
+, fet_file_(fet_path){
     int ncomp;
-    fet_file_ = std::ifstream(fet_path);
+    // fet_file_ = std::ifstream(fet_path);
     fet_file_ >> ncomp;
 }
 
