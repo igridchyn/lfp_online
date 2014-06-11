@@ -16,6 +16,10 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
     place_field_ = arma::mat(nbins, nbins, arma::fill::zeros);
 }
 
+void PlaceField::Load(const std::string path, arma::file_type ft){
+	place_field_.load(path, ft);
+}
+
 void PlaceField::AddSpike(Spike *spike){
     int xb = (int)round(spike->x / bin_size_);
     int yb = (int)round(spike->y / bin_size_);
@@ -144,13 +148,18 @@ void PlaceField::CachePDF(PlaceField::PDFType pdf_type, const PlaceField& occupa
     
     for (int r=0; r < place_field_.n_rows; ++r) {
         for (int c=0; c < place_field_.n_cols; ++c) {
-            const double& lambda = place_field_(r, c) / occupancy(r, c) * occupancy_factor;
+            const double& lambda = occupancy(r, c) > 0 ? (place_field_(r, c) / occupancy(r, c) * occupancy_factor) : 0;
             double logp = -lambda;
             pdf_cache_(r, c, 0) = logp;
             
             for (int s = 1; s < MAX_SPIKES; ++s) {
-                logp += log(lambda / s); // p(s) = exp(-lambda) * lambda^s / s!; log(p(s)/p(s-1)) = log(lambda/s)
+                logp += lambda > 0 ? log(lambda / s) : -1000000; // p(s) = exp(-lambda) * lambda^s / s!; log(p(s)/p(s-1)) = log(lambda/s)
                 pdf_cache_(r, c, s) = logp;
+
+                // DEBUG
+                if (lambda > 3){
+                	std::cout << logp << " ";
+                }
             }
         }
     }

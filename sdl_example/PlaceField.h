@@ -52,6 +52,8 @@ public:
     inline const double& Prob(unsigned int r, unsigned int c, unsigned int s) { return pdf_cache_(r, c, s); }
     
     inline const arma::mat& Mat() const { return place_field_; }
+
+    void Load(const std::string path, arma::file_type ft);
 };
 
 #endif /* defined(__sdl_example__PlaceField__) */
