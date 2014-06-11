@@ -284,6 +284,22 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 	reconstructed_position_.fill(0);
     assert(pop_vec.size() == buffer->tetr_info_->tetrodes_number);
     
+    // TODO: build cache in LFP buffer, configurableize
+    arma::mat firing_rates(buffer->tetr_info_->tetrodes_number, 40);
+    int fr_cnt = 0;
+    for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+		for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
+			// TODO: configurableize sampling rate
+			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * 24000;
+			if (firing_rates(t, cl) > RREDICTION_FIRING_RATE_THRESHOLD){
+				fr_cnt ++;
+			}
+		}
+    }
+
+    // DEBUG
+    std::cout << fr_cnt << " clsuters with FR > thold\n";
+
     // normalize by sum to have probabilities
     const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));
 
@@ -304,6 +320,10 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
             for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
                 for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
+                	if (firing_rates(t, cl) < RREDICTION_FIRING_RATE_THRESHOLD){
+                		continue;
+                	}
+
                 	int spikes = MIN(PlaceField::MAX_SPIKES - 1, pop_vec[t][cl]);
                 	double logprob = place_fields_smoothed_[t][cl].Prob(r, c, spikes);
                     reconstructed_position_(r, c) += logprob;
@@ -312,7 +332,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             
             // TODO: log / 0
             // TODO: !!! ENABLE prior probabilities (disabled for sake of debugging simplification)
-//            reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (nclust * log(occupancy_smoothed_(r, c) / occ_sum)) : -10000000.0;
+//            reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_(r, c) / occ_sum)) : -10000000.0;
         }
     }
     

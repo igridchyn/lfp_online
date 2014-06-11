@@ -53,9 +53,12 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     const bool LOAD;
     const std::string BASE_PATH;
 
+    // 1/3 clusters at 2
+    const double RREDICTION_FIRING_RATE_THRESHOLD = 2;
+
     //================================
     
-    void drawMat(const arma::mat& mat);
+    void drawMat(const arma::mat& mat);`
     
     void drawPlaceField();
     void drawOccupancy();

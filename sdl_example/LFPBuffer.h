@@ -17,6 +17,8 @@
 #include "Spike.h"
 #include "OnlineEstimator.h"
 
+#include <armadillo>
+
 class LFPBuffer{
     
 public:
