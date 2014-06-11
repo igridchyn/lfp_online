@@ -257,13 +257,14 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     
 }
 
-PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform)
+PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform, const std::string& pc_path)
 : LFPProcessor(buffer)
 , num_pc_(num_pc)
 , waveshape_samples_(waveshape_samples)
 , min_samples_(min_samples)
 , load_transform_(load_transform)
 , save_transform_(save_transform)
+, pc_path_(pc_path)
 {
     num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number];
     pca_done_ = new bool[buffer->tetr_info_->tetrodes_number];

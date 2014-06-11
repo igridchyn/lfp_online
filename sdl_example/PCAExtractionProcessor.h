@@ -58,10 +58,10 @@ class PCAExtractionProcessor : public LFPProcessor{
     
     bool save_transform_ = false;
     bool load_transform_ = true;
-    std::string pc_path_ = "/Users/igridchyn/data/bindata/jc103/pca/pc_";
+    const std::string pc_path_;
     
 public:
-    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform);
+    PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform, const std::string& pc_path);
     virtual void process();
 };
 
