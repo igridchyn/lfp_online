@@ -13,23 +13,23 @@
 
 using namespace mlpack::gmm;
 
-mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode){
-    std::string basename = "/Users/igridchyn/data/bindata/jc103/clustering/gmm_";
+mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename){
     const char **suffs = new const char*[10]{"0", "1", "2", "3", "4", "5", "6"};
     
     mlpack::gmm::GMM<> gmm;
-    gmm.Load(basename+suffs[tetrode] + ".xml");
+    gmm.Load(gmm_path_basename + suffs[tetrode] + ".xml");
 
     return gmm;
 }
 
-GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model)
+GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model, const std::string& gmm_path_base)
     : LFPProcessor(buf)
     , min_observations_(min_observations)
     , rate_(rate)
     , max_clusters_(max_clusters)
     , save_clustering_(save_model)
-    , load_clustering_(load_model){
+    , load_clustering_(load_model)
+	, gmm_path_basename_(gmm_path_base) {
     
     unsigned int gaussians = 4;
     dimensionality_ = 12;
@@ -61,7 +61,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
         
     if (load_clustering_){
         for (int tetr=0; tetr < ntetr; ++tetr) {
-            gmm_[tetr] = loadGMM(tetr);
+            gmm_[tetr] = loadGMM((unsigned int)tetr, gmm_path_base);
             gmm_fitted_[tetr] = true;
             
             std::cout << "Loaded GMM with " << gmm_[tetr].Gaussians() << " clusters for tetrode " << tetr << "\n";
