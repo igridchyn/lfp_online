@@ -39,6 +39,7 @@ public:
     AutocorrelogramProcessor(LFPBuffer *buf);
     
     virtual void process();
+    virtual ~AutocorrelogramProcessor() {};
     
     void plotAC(const unsigned int tetr, const unsigned int cluster);
     
