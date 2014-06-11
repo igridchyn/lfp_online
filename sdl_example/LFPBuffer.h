@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <stack>
+#include <queue>
 
 #include "TetrodesInfo.h"
 #include "Spike.h"
@@ -88,7 +89,7 @@ public:
     // initialized by GMM clustering processor
     std::vector< std::vector<unsigned int> > population_vector_window_;
     unsigned int population_vector_total_spikes_ = 0;
-    std::stack<Spike*> population_vector_stack_;
+    std::queue<Spike*> population_vector_stack_;
     
 private:
     bool is_valid_channel_[CHANNEL_NUM];

@@ -120,20 +120,18 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
         return;
     }
     
-    Spike *stop = population_vector_stack_.top();
+    Spike *stop = population_vector_stack_.front();
     while (stop->pkg_id_ < right_border - POP_VEC_WIN_LEN) {
         population_vector_stack_.pop();
         
         population_vector_window_[stop->tetrode_][stop->cluster_id_] --;
         population_vector_total_spikes_ --;
         
-        population_vector_total_spikes_ --;
-        
         if (population_vector_stack_.empty()){
             break;
         }
         
-        stop = population_vector_stack_.top();
+        stop = population_vector_stack_.front();
     }
 }
 
@@ -142,8 +140,6 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
     // (left border = right border - POP_VEC_WIN_LEN)
     
     population_vector_window_[spike->tetrode_][spike->cluster_id_] ++;
-    population_vector_total_spikes_ ++;
-    
     population_vector_total_spikes_ ++;
     
     population_vector_stack_.push(spike);
