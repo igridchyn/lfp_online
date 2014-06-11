@@ -15,7 +15,7 @@
 
 // ============================================================================================================================================
 
-PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path)
 : SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Place Field", 420, 420)
 , sigma_(sigma)
@@ -23,7 +23,10 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , nbins_(nbins)
 , spread_(spread)
 , occupancy_(sigma, bin_size, nbins, spread)
-, occupancy_smoothed_(sigma, bin_size, nbins, spread){
+, occupancy_smoothed_(sigma, bin_size, nbins, spread)
+, SAVE(save)
+, LOAD(load)
+, BASE_PATH(base_path){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
@@ -34,12 +37,21 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     for (size_t t=0; t < tetrn; ++t) {
         for (size_t c=0; c < MAX_CLUST; ++c) {
             place_fields_[t].push_back(PlaceField(sigma_, bin_size_, nbins_, spread_));
-            place_fields_smoothed_[t].push_back(PlaceField(sigma_, bin_size_, nbins_, spread_));
+			place_fields_smoothed_[t].push_back(PlaceField(sigma_, bin_size_, nbins_, spread_));
+			if (LOAD){
+				place_fields_smoothed_[t][c].Load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
+			}
         }
     }
     
     palette_ = ColorPalette::MatlabJet256;
     spike_buf_pos_ = buffer->SPIKE_BUF_HEAD_LEN;
+
+    // load smoothed occupancy
+    if(LOAD){
+    	occupancy_smoothed_.Load(BASE_PATH + "occ.mat", arma::raw_ascii);
+    	cachePDF();
+    }
 }
 
 void PlaceFieldProcessor::AddPos(int x, int y){
@@ -105,7 +117,7 @@ void PlaceFieldProcessor::process(){
     }
 
     // if prediction display requested and at least prediction_rate_ time has passed since last prediction
-    if (display_prediction_ && buffer->spike_buf_pos_clust_ - last_predicted_pkg_ > prediction_rate_){
+    if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_){
         ReconstructPosition(buffer->population_vector_window_);
         drawPrediction();
     }
@@ -220,14 +232,9 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 break;
             case SDLK_s:
                 smoothPlaceFields();
-                break;
-            case SDLK_c:
-                smoothPlaceFields();
                 cachePDF();
                 break;
             case SDLK_p:
-                //smoothPlaceFields();
-                //cachePDF();
                 display_prediction_ = true;
                 break;
             default:
@@ -248,10 +255,17 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
 
 void PlaceFieldProcessor::smoothPlaceFields(){
     occupancy_smoothed_ = occupancy_.Smooth();
+    if (SAVE){
+    	occupancy_smoothed_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
+    }
     
     for (int t=0; t < place_fields_.size(); ++t) {
         for (int c = 0; c < place_fields_[t].size(); ++c) {
             place_fields_smoothed_[t][c] = place_fields_[t][c].Smooth();
+
+            if (SAVE){
+            	place_fields_smoothed_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
+            }
         }
     }
 }
@@ -260,7 +274,7 @@ void PlaceFieldProcessor::cachePDF(){
     for (int t=0; t < place_fields_.size(); ++t) {
         for (int c = 0; c < place_fields_[t].size(); ++c) {
             // TODO: configurableize occupancy factor
-            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, 10);
+            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, 20);
         }
     }
 }
@@ -281,28 +295,38 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     for (int r=0; r < reconstructed_position_.n_rows; ++r) {
         for (int c=0; c < reconstructed_position_.n_cols; ++c) {
             
+        	// apply occupancy threshold
+        	if (occupancy_smoothed_(r, c)/occ_sum < 0.001){
+        		reconstructed_position_(r, c) = -1000000000;
+        		continue;
+        	}
+
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
             for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
                 for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
-                    reconstructed_position_(r, c) += place_fields_smoothed_[t][cl].Prob(r, c, MIN(PlaceField::MAX_SPIKES - 1, pop_vec[t][cl]));
+                	int spikes = MIN(PlaceField::MAX_SPIKES - 1, pop_vec[t][cl]);
+                	double logprob = place_fields_smoothed_[t][cl].Prob(r, c, spikes);
+                    reconstructed_position_(r, c) += logprob;
                 }
             }
             
             // TODO: log / 0
-            reconstructed_position_(r, c) += nclust * log(occupancy_smoothed_(r, c) / occ_sum);
+            // TODO: !!! ENABLE prior probabilities (disabled for sake of debugging simplification)
+//            reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (nclust * log(occupancy_smoothed_(r, c) / occ_sum)) : -10000000.0;
         }
     }
     
     pos_updated_ = true;
     
     // update ID of last predicted package to control the frequency of prediction (more important for models with memory, for memory-less just for performance)
-    last_predicted_pkg_ = buffer->spike_buf_pos_clust_;
+    // TODO: use last clustered spike pkg_id ???
+    last_predicted_pkg_ = buffer->last_pkg_id;
 
     double lpmax = -reconstructed_position_.min();
     for (int r=0; r < reconstructed_position_.n_rows; ++r) {
             for (int c=0; c < reconstructed_position_.n_cols; ++c) {
-            	//reconstructed_position_(r, c) = exp(reconstructed_position_(r, c));
-            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
+            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c));
+//            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
             }
     }
 }

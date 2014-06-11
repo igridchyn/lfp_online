@@ -41,7 +41,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     unsigned int last_predicted_pkg_ = 0;
     
     // every 100 ms
-    const unsigned int prediction_rate_ = 100 * 24;
+    const unsigned int prediction_rate_ = 200 * 24;
     
     // TODO: improve
     // -1 = occupancy, -2 = reconstructed
@@ -49,6 +49,10 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
     bool pdf_cached_ = false;
     
+    const bool SAVE;
+    const bool LOAD;
+    const std::string BASE_PATH;
+
     //================================
     
     void drawMat(const arma::mat& mat);
@@ -70,7 +74,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
 public:
     
-    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread);
+    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path);
     
     // LFPProcessor
     virtual void process();
