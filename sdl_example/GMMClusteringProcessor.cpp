@@ -201,6 +201,9 @@ void GMMClusteringProcessor::process(){
                 }
             }
         }else{
+
+        	bool first_class_after_clust = false;
+
             // if job was running but now it is over (because gmm_fitted_ == true
             if (clustering_job_running_[tetr]){
                 clustering_job_running_[tetr] = false;
@@ -210,6 +213,7 @@ void GMMClusteringProcessor::process(){
                 // TODO: !!! fit the second-level clusters
                 
                 gmm_fitted_[tetr] = true;
+                first_class_after_clust = true;
             }
 
             // fit clusters after enough records have been collected
@@ -220,6 +224,17 @@ void GMMClusteringProcessor::process(){
                 gmm_[tetr].Classify(observations_[tetr].cols(0, total_observations_[tetr] - 1), labels_);
                 
                 // UPDATE window population vector in BUFFER
+
+                // 2nd level clustering if classification was called first time after model was built
+                if (first_class_after_clust){
+                	// re-cluster units with bad autocorrelation and high firing rate
+                	for (int clust = 0; clust < gmm_[tetr].Gaussians(); ++clust) {
+                		float clust_rate = 24000 / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
+                		if (clust_rate > 40){
+                			// 2nd iteration of clustering
+                		}
+					}
+                }
 
                 // TODO: assign labels to clusters; assign labels to future clusteres; redraw clusters
                 // don't draw unclassified
