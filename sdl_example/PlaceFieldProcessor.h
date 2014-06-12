@@ -15,7 +15,7 @@
 //==========================================================================================
 
 class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
-    constexpr static const float SPEED_THOLD = 50.0f;
+    constexpr static const float SPEED_THOLD = 80.0f;
     constexpr static const float EPS = 0.001f;
     
     unsigned int spike_buf_pos_;
@@ -58,7 +58,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
 
     //================================
     
-    void drawMat(const arma::mat& mat);`
+    void drawMat(const arma::mat& mat);
     
     void drawPlaceField();
     void drawOccupancy();

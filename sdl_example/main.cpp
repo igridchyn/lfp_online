@@ -11,6 +11,8 @@
 #include "GMMClusteringProcessor.h"
 #include "SDLPCADisplayProcessor.h"
 #include "PlaceFieldProcessor.h"
+#include "FetFileReaderProcessor.h"
+#include "CluReaderClusteringProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -103,26 +105,29 @@ void draw_bin(const char *path){
     const double PF_BIN_SIZE = 20;
     const unsigned int PF_NBINS = 30;
     const unsigned int PF_SPREAD = 1;
-    const bool PF_LOAD = true;
-    const bool PF_SAVE = false;
-    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
+    const bool PF_LOAD = false;
+    const bool PF_SAVE = true;
+//    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
+    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
     
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
-    pipeline->add_processor(new PackageExractorProcessor(buf));
-    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
-    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
-    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
-    //pipeline->add_processor(new FileOutputProcessor(buf));
-    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
+//    pipeline->add_processor(new PackageExractorProcessor(buf));
+//    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
+//    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
+//    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
+//    //pipeline->add_processor(new FileOutputProcessor(buf));
+//    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
+//
+    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_3.fet.", new int[5]{1,2,3,4,5}));
+//    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
+    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_3.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_3.res.", new int[5]{1,2,3,4,5}));
+
+//    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
+//    pipeline->add_processor(gmmClustProc);
     
-    //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/BIN/jc22-0507-0115.fet.4"));
-    //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
-    
-    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
-    pipeline->add_processor(gmmClustProc);
 //    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
-    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED));
+    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED, .5, 300));
     
     // TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
@@ -157,7 +162,7 @@ void draw_bin(const char *path){
     }
     
     std::cout << "EOF, waiting for clustering jobs...\n";
-    gmmClustProc->JoinGMMTasks();
+//    gmmClustProc->JoinGMMTasks();
 }
 
 void draw_test(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture){

@@ -257,6 +257,7 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     occupancy_smoothed_ = occupancy_.Smooth();
     if (SAVE){
     	occupancy_smoothed_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
+//    	occupancy_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
     }
     
     for (int t=0; t < place_fields_.size(); ++t) {
@@ -265,6 +266,7 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 
             if (SAVE){
             	place_fields_smoothed_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
+//            	place_fields_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
             }
         }
     }
