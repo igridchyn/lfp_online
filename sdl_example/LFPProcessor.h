@@ -174,14 +174,6 @@ public:
 
 //==========================================================================================
 
-class FetReaderProcessor : public LFPProcessor{
-    std::ifstream fet_file_;
-    
-public:
-    FetReaderProcessor(LFPBuffer *buf, std::string fet_path);
-    virtual void process();
-};
-
 class FrequencyPowerBandProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
     static const int FACTOR = 4;
     static const int BUF_LEN = 20000 * FACTOR;
