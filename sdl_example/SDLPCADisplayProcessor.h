@@ -23,8 +23,11 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     // diplay non-assigned spikes
     bool display_unclassified_;
     
+    const float scale_;
+    const int shift_;
+
 public:
-    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified);
+    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift);
     
     // LFPProcessor
     virtual void process();
