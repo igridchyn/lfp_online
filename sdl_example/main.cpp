@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include <SDL2_ttf/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "LFPProcessor.h"
 #include "LFPPipeline.h"
@@ -76,7 +76,7 @@ void draw_bin(const char *path){
 //    tetr_inf->tetrode_channels = new int*[1]{new int[4]{60,61,62,63}};
     
     // 100 ms @ 24 kHz
-    const unsigned int BUF_POP_VEC_WIN_LEN = 24 * 100;
+    const unsigned int BUF_POP_VEC_WIN_LEN = 24 * 200;
     
     LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN);
 
@@ -103,19 +103,23 @@ void draw_bin(const char *path){
     const double PF_BIN_SIZE = 20;
     const unsigned int PF_NBINS = 30;
     const unsigned int PF_SPREAD = 1;
+    const bool PF_LOAD = true;
+    const bool PF_SAVE = false;
+    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
     
-    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
+//    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
+    const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
     pipeline->add_processor(new PackageExractorProcessor(buf));
     pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
     pipeline->add_processor(new SpikeAlignmentProcessor(buf));
     pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
     //pipeline->add_processor(new FileOutputProcessor(buf));
-    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM));
+    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
     
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/BIN/jc22-0507-0115.fet.4"));
     //pipeline->add_processor(new FetReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
     
-    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS);
+    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
     pipeline->add_processor(gmmClustProc);
 //    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
     pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED));
@@ -131,7 +135,7 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD));
+    pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE, PF_BASE_PATH));
     
     // should be added after all control porcessor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
@@ -140,7 +144,7 @@ void draw_bin(const char *path){
     while(!feof(f))
     {
         fread((void*)block, CHUNK_SIZE, 1, f);
-        
+
         buf->chunk_ptr = block;
         buf->num_chunks = 1;
         
@@ -194,8 +198,12 @@ int get_image(){
     
     // SAVED CLUSTERING AVAILABLE, tetrodes in layer: 1,3,(4),5,6,7,9,10
 //    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
-    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-0106_03l.bin");
+//    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-0106_03l.bin");
     
+//    draw_bin("/run/media/igor/63ce153c-da52-47cf-b229-f0bc4078cd52/data/bindata/jc58/trial100.bin");
+//	draw_bin("/hd1/data/bindata/jc103/0606/jc103-0606_03l.bin");
+	draw_bin("/home/igor/tmp/jc103-0606_03l.bin");
+
     return 0;
 }
 
