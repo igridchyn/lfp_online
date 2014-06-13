@@ -12,15 +12,18 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 , clu_path_(clu_path)
 , res_path_(res_path_base)
 {
+		max_clust_.resize(buffer->tetr_info_->tetrodes_number);
+
 		int dum_ncomp;
 		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 			clu_streams_.push_back(new std::ifstream(clu_path_ + Utils::NUMBERS[tetrodes[t]]));
 			res_streams_.push_back(new std::ifstream(res_path_ + Utils::NUMBERS[tetrodes[t]]));
 			// read number of clusters given in the beginning of the file
-			*(clu_streams_[t]) >> dum_ncomp;
+			*(clu_streams_[t]) >> max_clust_[t];
+
+			buffer->population_vector_window_[t].resize(max_clust_[t] - 1);
 		}
 }
-
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
 	// TODO Auto-generated destructor stub
@@ -42,6 +45,10 @@ void CluReaderClusteringProcessor::process() {
 			spike->cluster_id_ = clust - 2;
 			if (clust == 1){
 				spike->discarded_ = true;
+			}
+			else{
+				buffer->UpdateWindowVector(spike);
+				buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
 			}
 //			std::cout << spike->tetrode_ << " " << spike->pkg_id_ << " " << clust << "\n";
 		}

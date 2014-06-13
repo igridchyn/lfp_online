@@ -19,6 +19,8 @@ class CluReaderClusteringProcessor : public LFPProcessor {
 	std::vector<std::ifstream*> clu_streams_;
 	std::vector<std::ifstream*> res_streams_;
 
+	std::vector<unsigned int> max_clust_;
+
 public:
 	CluReaderClusteringProcessor(LFPBuffer *buffer, const std::string& clu_path_base, const std::string& res_path_base, int* tetrodes);
 
