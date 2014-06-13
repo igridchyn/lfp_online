@@ -44,6 +44,7 @@ void CluReaderClusteringProcessor::process() {
 		if (res == spike->pkg_id_){
 			spike->cluster_id_ = clust - 2;
 			if (clust == 1){
+				// unknown cluster
 				spike->discarded_ = true;
 			}
 			else{

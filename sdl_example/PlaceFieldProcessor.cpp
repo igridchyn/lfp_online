@@ -274,10 +274,18 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 }
 
 void PlaceFieldProcessor::cachePDF(){
+	// TODO: !!! introduce counter (in case of buffer rewind)
+	float pos_sampling_rate = buffer->pos_buf_pos_ / buffer->last_pkg_id * buffer->SAMPLING_RATE;
+	// !!! dividing spike counts by occupancy will give the FR for window 1/pos_sampling_rate (s)
+	// we need FR for window POP_VEC_WIN_LEN (ms), thus factor is POP_VEC_WIN_LEN  * pos_sampling_rat / 1000
+	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000;
+
+	// factor - number by which the
+
     for (int t=0; t < place_fields_.size(); ++t) {
         for (int c = 0; c < place_fields_[t].size(); ++c) {
             // TODO: configurableize occupancy factor
-            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, 20);
+            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, factor);
         }
     }
 }
