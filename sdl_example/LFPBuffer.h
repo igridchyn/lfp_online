@@ -81,6 +81,8 @@ public:
     unsigned int pos_buf_spike_pos_ = 0;
     // last for which speed has been calculated
     unsigned int pos_buf_pos_spike_speed_ = 0;
+    // last for speed estimatino
+    unsigned int pos_buf_pos_speed_est = 0;
 
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting

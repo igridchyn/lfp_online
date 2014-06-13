@@ -53,43 +53,6 @@ void PackageExractorProcessor::process(){
         buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)sy;
         buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)buffer->last_pkg_id;
         
-        // speed estimation
-        // TODO: use average of bx, sx or alike
-        // TODO: deal with missing points
-        if (buffer->pos_buf_pos_ > 16 && bx != 1023 && buffer->positions_buf_[buffer->pos_buf_pos_ - 16][0] != 1023){
-            float dx = (float)bx - buffer->positions_buf_[buffer->pos_buf_pos_ - 16][0];
-            float dy = (float)by - buffer->positions_buf_[buffer->pos_buf_pos_ - 16][1];
-            buffer->speedEstimator_->push(sqrt(dx * dx + dy * dy));
-            // TODO: float / scale ?
-            buffer->positions_buf_[buffer->pos_buf_pos_ - 8][5] = buffer->speedEstimator_->get_mean_estimate();
-            //            std::cout << "speed= " << buffer->speedEstimator_->get_mean_estimate() << "\n";
-            
-            // update spike speed
-            int known_speed_pkg_id =  buffer->positions_buf_[buffer->pos_buf_pos_ - 8][4];
-            while (true){
-                Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
-                if (spike == NULL || spike->pkg_id_ > known_speed_pkg_id){
-                    break;
-                }
-                
-                // find last position sample before the spike
-                while(buffer->pos_buf_pos_spike_speed_ < buffer->pos_buf_pos_ - 8 && buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_ + 1][4] < spike->pkg_id_){
-                    buffer->pos_buf_pos_spike_speed_ ++;
-                }
-                
-                // interpolate speed during spike :
-                int diff_bef = spike->pkg_id_ - buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_][4];
-                int diff_aft = (int)(known_speed_pkg_id - spike->pkg_id_);
-                float w_bef = 1/(float)(diff_bef + 1);
-                float w_aft = 1/(float)(diff_aft + 1);
-                // TODO: weights ?
-                spike->speed = ( buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_][5] * w_bef + buffer->positions_buf_[buffer->pos_buf_pos_ - 8][5] * w_aft) / (float)(w_bef + w_aft);
-                //                std::cout << "Spike speed " << spike->speed << "\n";
-                
-                buffer->spike_buf_pos_speed_ ++;
-            }
-        }
-        
         buffer->pos_buf_pos_++;
     }
     
