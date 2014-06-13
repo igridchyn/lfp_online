@@ -123,7 +123,7 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
     }
     
     Spike *stop = population_vector_stack_.front();
-    while (stop->pkg_id_ < right_border - POP_VEC_WIN_LEN) {
+    while (stop->pkg_id_ < right_border - POP_VEC_WIN_LEN * SAMPLING_RATE / 1000.f) {
         population_vector_stack_.pop();
         
         population_vector_window_[stop->tetrode_][stop->cluster_id_] --;

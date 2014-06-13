@@ -51,7 +51,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     // load smoothed occupancy
     if(LOAD){
     	occupancy_smoothed_.Load(BASE_PATH + "occ.mat", arma::raw_ascii);
-    	cachePDF();
+    	// pos sampling rate is unknown in the beginning
+    	//cachePDF();
     }
 }
 
@@ -235,6 +236,9 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 smoothPlaceFields();
                 cachePDF();
                 break;
+            case SDLK_c:
+                cachePDF();
+                break;
             case SDLK_p:
                 display_prediction_ = true;
                 break;
@@ -275,10 +279,10 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 
 void PlaceFieldProcessor::cachePDF(){
 	// TODO: !!! introduce counter (in case of buffer rewind)
-	float pos_sampling_rate = buffer->pos_buf_pos_ / buffer->last_pkg_id * buffer->SAMPLING_RATE;
+	float pos_sampling_rate = buffer->pos_buf_pos_ / (float)buffer->last_pkg_id * buffer->SAMPLING_RATE;
 	// !!! dividing spike counts by occupancy will give the FR for window 1/pos_sampling_rate (s)
 	// we need FR for window POP_VEC_WIN_LEN (ms), thus factor is POP_VEC_WIN_LEN  * pos_sampling_rat / 1000
-	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000;
+	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000.0f;
 
 	// factor - number by which the
 
