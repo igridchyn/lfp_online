@@ -15,6 +15,7 @@
 #include "CluReaderClusteringProcessor.h"
 #include "WhlFileReaderProcessor.h"
 #include "SpeedEstimationProcessor.h"
+#include "SlowDownProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -115,6 +116,8 @@ void draw_bin(const char *path){
     const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
     const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.3;
     
+    const unsigned int SD_WAIT_MILLISECONDS = 50;
+
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
 //    pipeline->add_processor(new PackageExractorProcessor(buf));
@@ -131,6 +134,7 @@ void draw_bin(const char *path){
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 
+    pipeline->add_processor(new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS));
 
 //    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
 //    pipeline->add_processor(gmmClustProc);
