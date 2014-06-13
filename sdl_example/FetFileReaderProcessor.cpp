@@ -105,10 +105,23 @@ void FetFileReaderProcessor::process() {
 		Spike *spike = readSpikeFromFile(earliest_spike_tetrode_);
 		last_spikies_[earliest_spike_tetrode_] = spike;
 
+		// set coords
+		// find position
+		// !!! TODO: interpolate, wait for next if needed [separate processor ?]
+		while(buffer->positions_buf_[buffer->pos_buf_spike_pos_][4] < spike->pkg_id_ && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
+			buffer->pos_buf_spike_pos_++;
+		}
+		// TODO: average of two LED coords
+		spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
+		spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+
 		// TODO: buffer rewind
 	}
 
 	// for next processor - clustering
 	buffer->spike_buf_pos_unproc_ = buffer->spike_buf_pos;
 	last_pkg_id_ = last_spike_pkg_id;
+
+	// TODO: check for conflict with other processors
+	buffer->last_pkg_id = last_pkg_id_;
 }
