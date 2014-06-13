@@ -1,12 +1,6 @@
 CC = gcc
 CFLAGS = -std=c++0x -g
 LDFLAGS = -lSDL2 -lm -lstdc++ -lmlpack -larmadillo -lpthread
-
-basic1.o:
-	${CC} ${CFLAGS} -c ../LFPPipeline.cpp ../LFPProcessor.cpp
-	
-basic2.o:
-	${CC} ${CFLAGS} -c ../SDLControlInputMetaProcessor.cpp ../SDLSingleWindowDisplay.cpp
 	
 AutocorrelogramProcessor.o:
 	${CC} ${CFLAGS} -c ../AutocorrelogramProcessor.cpp
@@ -23,6 +17,12 @@ FrequencyPowerBandProcessor.o:
 GMMClusteringProcessor.o:
 	${CC} ${CFLAGS} -c ../GMMClusteringProcessor.cpp
 	
+LFPPipeline.o:
+	${CC} ${CFLAGS} -c ../LFPPipeline.cpp
+	
+LFPProcessor.o:
+	${CC} ${CFLAGS} -c ../LFPProcessor.cpp
+	
 PackageExractorProcessor.o:
 	${CC} ${CFLAGS} -c ../PackageExractorProcessor.cpp
 	
@@ -35,11 +35,17 @@ PlaceFieldProcessor.o: PlaceField.o
 PositionDisplayProcessor.o:
 	${CC} ${CFLAGS} -c ../PositionDisplayProcessor.cpp
 	
+SDLControlInputMetaProcessor.o:
+	${CC} ${CFLAGS} -c ../SDLControlInputMetaProcessor.cpp
+	
 SDLPCADisplayProcessor.o:
 	${CC} ${CFLAGS} -c ../SDLPCADisplayProcessor.cpp
 	
 SDLSignalDisplayProcessor.o:
 	${CC} ${CFLAGS} -c ../SDLSignalDisplayProcessor.cpp
+	
+SDLSingleWindowDisplay.o:
+	${CC} ${CFLAGS} -c ../SDLSingleWindowDisplay.cpp
 	
 SDLWaveshapeDisplayProcessor.o:
 	${CC} ${CFLAGS} -c ../SDLWaveshapeDisplayProcessor.cpp
@@ -65,5 +71,5 @@ WhlFileReaderProcessor.o:
 main.o:
 	${CC} ${CFLAGS} -c ../main.cpp
 		
-lfp_online: main.o basic1.o basic2.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
-	${CC} ${CFLAGS} main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o LFPProcessor.o LFPPipeline.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
+lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o LFPPipeline.o LFPProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
+	${CC} ${CFLAGS} main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o LFPPipeline.o LFPProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
