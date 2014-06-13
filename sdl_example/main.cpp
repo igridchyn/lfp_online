@@ -114,9 +114,9 @@ void draw_bin(const char *path){
     const bool PF_SAVE = false;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
     const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
-    const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.3;
+    const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.5;
     
-    const unsigned int SD_WAIT_MILLISECONDS = 50;
+    const unsigned int SD_WAIT_MILLISECONDS = 150;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";

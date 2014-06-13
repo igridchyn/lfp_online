@@ -124,4 +124,6 @@ void FetFileReaderProcessor::process() {
 
 	// TODO: check for conflict with other processors
 	buffer->last_pkg_id = last_pkg_id_;
+
+	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
 }
