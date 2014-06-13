@@ -81,7 +81,7 @@ void FetFileReaderProcessor::process() {
 	// TODO: sampling rate ? - how defined ? by external loop ?
 	int last_spike_pkg_id = last_pkg_id_;
 
-	while(last_spike_pkg_id - last_pkg_id_ < SAMPLING_RATE && num_files_with_spikes_ > 0){
+	while(last_spike_pkg_id - last_pkg_id_ < buffer->SAMPLING_RATE && num_files_with_spikes_ > 0){
 		// find the earliest spike
 		int earliest_spike_tetrode_ = -1;
 		unsigned int earliest_spike_time_ = std::numeric_limits<unsigned int>::max();

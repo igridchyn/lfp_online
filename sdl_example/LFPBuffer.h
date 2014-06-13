@@ -37,6 +37,8 @@ public:
     const int TAIL_LEN = 16;
     const int BLOCK_SIZE = 64;
     
+    const unsigned int SAMPLING_RATE;
+
     static const int CH_MAP[];
     
     // which channel is at i-th position in the BIN chunk
@@ -124,7 +126,7 @@ public:
 
     //====================================================================================================
     
-    LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len);
+    LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len, const unsigned int& sampling_rate);
     
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     

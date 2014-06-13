@@ -36,6 +36,7 @@ typedef short t_bin;
 void draw_bin(const char *path){
     FILE *f = fopen(path, "rb");
     
+
     const int CHUNK_SIZE = 432; // bytes
     
     unsigned char block[ CHUNK_SIZE ];
@@ -81,8 +82,9 @@ void draw_bin(const char *path){
     
     // 100 ms @ 24 kHz
     const unsigned int BUF_POP_VEC_WIN_LEN = 24 * 200;
+    const unsigned int BUF_SAMPLING_RATE = 20000;
     
-    LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN);
+    LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN, BUF_SAMPLING_RATE);
 
     LFPPipeline *pipeline = new LFPPipeline();
     

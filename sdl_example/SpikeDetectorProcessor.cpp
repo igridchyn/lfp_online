@@ -15,6 +15,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 ,last_processed_id(0)
 , nstd_(nstd)
 , refractory_(refractory)
+, REFR_LEN(buffer->SAMPLING_RATE/1000)
 {
     // load spike filter
     std::ifstream filter_stream;

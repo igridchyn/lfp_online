@@ -293,7 +293,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 		for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
 			// TODO: configurableize sampling rate
-			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * 24000;
+			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * buffer->SAMPLING_RATE;
 			if (firing_rates(t, cl) > RREDICTION_FIRING_RATE_THRESHOLD){
 				fr_cnt ++;
 			}

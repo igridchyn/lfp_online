@@ -13,8 +13,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     // TODO: read from config
     
     static const int POWER_BUF_LEN = 2 << 10;
-    static const int SAMPLING_RATE = 24000;
-    static const int REFR_LEN = (int)SAMPLING_RATE / 1000;
+    const int REFR_LEN;
     
     // int is not enough for convolution
     long long filter_int_ [ 2 << 7 ];
