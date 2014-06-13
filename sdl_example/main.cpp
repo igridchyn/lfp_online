@@ -13,6 +13,8 @@
 #include "PlaceFieldProcessor.h"
 #include "FetFileReaderProcessor.h"
 #include "CluReaderClusteringProcessor.h"
+#include "WhlFileReaderProcessor.h"
+#include "SpeedEstimationProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -105,10 +107,11 @@ void draw_bin(const char *path){
     const double PF_BIN_SIZE = 20;
     const unsigned int PF_NBINS = 30;
     const unsigned int PF_SPREAD = 1;
-    const bool PF_LOAD = false;
-    const bool PF_SAVE = true;
+    const bool PF_LOAD = true;
+    const bool PF_SAVE = false;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
     const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
+    const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.3;
     
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
@@ -119,9 +122,13 @@ void draw_bin(const char *path){
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
 //    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
 //
-    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_3.fet.", new int[5]{1,2,3,4,5}));
+    pipeline->add_processor(new WhlFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.whl", 512));
+    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.fet.", new int[5]{1,2,3,4,5}));
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
-    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_3.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_3.res.", new int[5]{1,2,3,4,5}));
+    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.res.", new int[5]{1,2,3,4,5}));
+
+    pipeline->add_processor(new SpeedEstimationProcessor(buf));
+
 
 //    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
 //    pipeline->add_processor(gmmClustProc);
@@ -140,9 +147,9 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new AutocorrelogramProcessor(buf));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE, PF_BASE_PATH));
+    pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE, PF_BASE_PATH, PF_RREDICTION_FIRING_RATE_THRESHOLD));
     
-    // should be added after all control porcessor
+    // should be added after all control processor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
     
     // TODO: parallel threads ?

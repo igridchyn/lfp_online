@@ -15,7 +15,7 @@
 
 // ============================================================================================================================================
 
-PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path)
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path, const float& prediction_fr_thold)
 : SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Place Field", 420, 420)
 , sigma_(sigma)
@@ -26,7 +26,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , occupancy_smoothed_(sigma, bin_size, nbins, spread)
 , SAVE(save)
 , LOAD(load)
-, BASE_PATH(base_path){
+, BASE_PATH(base_path)
+, RREDICTION_FIRING_RATE_THRESHOLD(prediction_fr_thold){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     

@@ -54,7 +54,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     const std::string BASE_PATH;
 
     // 1/3 clusters at 2
-    const double RREDICTION_FIRING_RATE_THRESHOLD = 2;
+    const double RREDICTION_FIRING_RATE_THRESHOLD;
 
     //================================
     
@@ -77,7 +77,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
 public:
     
-    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path);
+    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path, const float& prediction_fr_thold);
     
     // LFPProcessor
     virtual void process();
