@@ -26,6 +26,8 @@ public:
     int *tetrode_by_channel;
     
     int number_of_channels(Spike* spike);
+
+    static TetrodesInfo* GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to);
 };
 
 #endif

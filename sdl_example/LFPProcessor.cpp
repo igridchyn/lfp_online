@@ -9,6 +9,7 @@
 #include "LFPProcessor.h"
 #include "OnlineEstimator.cpp"
 #include <fstream>
+#include <assert.h>
 #include "SDL2/SDL.h"
 
 // REQUIREMENTS AND SPECIFICATION
@@ -180,3 +181,32 @@ int ColorPalette::getColor(int order) const{
 }
 
 const char * const Utils::NUMBERS[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63"};
+
+int* Utils::Math::GetRange(const unsigned int& from, const unsigned int& to){
+	int *range = new int[to-from+1];
+	for (int i = 0; i < to-from+1; ++i) {
+		range[i] = from + i;
+	}
+	return range;
+}
+
+TetrodesInfo* TetrodesInfo::GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to){
+	assert(to >= from);
+	TetrodesInfo * tetrinf = new TetrodesInfo();
+
+	const unsigned int tetrn = to - from + 1;
+
+	tetrinf->tetrodes_number = tetrn;
+	tetrinf->channels_numbers = new int[tetrn];
+	tetrinf->tetrode_channels = new int*[tetrn];
+
+	for (int t = 0; t < tetrn; ++t) {
+		tetrinf->channels_numbers[t] = 4;
+		tetrinf->tetrode_channels[t] = new int[4];
+		for (int c = 0; c < 4; ++c) {
+			tetrinf->tetrode_channels[t][c] = (from+t)*4 + c;
+		}
+	}
+
+	return tetrinf;
+}
