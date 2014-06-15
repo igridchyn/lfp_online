@@ -210,3 +210,26 @@ TetrodesInfo* TetrodesInfo::GetInfoForTetrodesRange(const unsigned int& from, co
 
 	return tetrinf;
 }
+
+TetrodesInfo* TetrodesInfo::GetMergedTetrodesInfo(const TetrodesInfo* ti1, const TetrodesInfo* ti2){
+	TetrodesInfo * tetrinf = new TetrodesInfo();
+
+	const unsigned int tetrn = ti1->tetrodes_number + ti2->tetrodes_number;
+	tetrinf->tetrodes_number = tetrn;
+
+	tetrinf->channels_numbers = new int[tetrn];
+	tetrinf->tetrode_channels = new int*[tetrn];
+
+	for (int t = 0; t < ti1->tetrodes_number; ++t) {
+		tetrinf->channels_numbers[t] = ti1->channels_numbers[t];
+		tetrinf->tetrode_channels[t] = new int [ti1->channels_numbers[t]];
+		memcpy(tetrinf->tetrode_channels[t], ti1->tetrode_channels[t], sizeof(int) * ti1->channels_numbers[t]);
+	}
+
+	const unsigned int shift = ti1->tetrodes_number;
+	for (int t = 0; t < ti2->tetrodes_number; ++t) {
+			tetrinf->channels_numbers[t + shift] = ti2->channels_numbers[t];
+			tetrinf->tetrode_channels[t + shift] = new int [ti2->channels_numbers[t]];
+			memcpy(tetrinf->tetrode_channels[t + shift], ti2->tetrode_channels[t], sizeof(int) * ti2->channels_numbers[t]);
+	}
+}

@@ -49,7 +49,7 @@ void draw_bin(const char *path){
 ////    tetr_inf->tetrode_channels = new int*[5]{new int[4]{32,33,34,35}, new int[4]{36,37,38,39}, new int[4]{40,41,42,43}, new int[4]{52,53,54,55}, new int[4]{60,61,62,63}};
 //    tetr_inf->tetrode_channels = new int*[5]{new int[4]{4,5,6,7}, new int[4]{8,9,10,11}, new int[4]{12,13,14,15}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}};
 
-    tetr_inf = TetrodesInfo::GetInfoForTetrodesRange(0, 11);
+    tetr_inf = TetrodesInfo::GetMergedTetrodesInfo(TetrodesInfo::GetInfoForTetrodesRange(0, 11), TetrodesInfo::GetInfoForTetrodesRange(13, 15));
 //    tetr_inf = TetrodesInfo::GetInfoForTetrodesRange(0, 0);
     
     // in ms

@@ -28,6 +28,7 @@ public:
     int number_of_channels(Spike* spike);
 
     static TetrodesInfo* GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to);
+    static TetrodesInfo* GetMergedTetrodesInfo(const TetrodesInfo* ti1, const TetrodesInfo* ti2);
 };
 
 #endif
