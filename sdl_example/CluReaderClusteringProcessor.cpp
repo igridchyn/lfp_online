@@ -36,15 +36,16 @@ void CluReaderClusteringProcessor::process() {
 
 		int clust, res = 0;
 
-		while(res < spike->pkg_id_){
+		while(res < spike->pkg_id_ && !clu_streams_[spike->tetrode_]->eof()){
 			*(clu_streams_[spike->tetrode_]) >> clust;
 			*(res_streams_[spike->tetrode_]) >> res;
 		}
 
 		if (res == spike->pkg_id_){
-			spike->cluster_id_ = clust - 2;
-			if (clust == 1){
+			spike->cluster_id_ = clust - 3;
+			if (clust < 3){
 				// unknown cluster
+				spike->cluster_id_ = -1;
 				spike->discarded_ = true;
 			}
 			else{
@@ -54,7 +55,7 @@ void CluReaderClusteringProcessor::process() {
 //			std::cout << spike->tetrode_ << " " << spike->pkg_id_ << " " << clust << "\n";
 		}
 		else{
-			std::cout << "missing clu for res = " << res << "\n";
+//			std::cout << "missing clu for res = " << res << "\n";
 		}
 
 		buffer->spike_buf_pos_clust_++;
