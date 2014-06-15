@@ -8,10 +8,12 @@
 
 #include "PositionDisplayProcessor.h"
 
-PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, const unsigned int& target_tetrode)
+PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width,
+		const unsigned int& window_height, const unsigned int& target_tetrode, const unsigned int& tail_length)
     : SDLControlInputProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
     , target_tetrode_(target_tetrode)
+	, TAIL_LENGTH(tail_length)
 {
     
 //    SDL_SetRenderTarget(renderer_, NULL);
@@ -132,11 +134,21 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             default:
                 need_reset = false;
                 break;
+
+            case SDLK_a:
+            	disp_mode_ = POS_DISPLAY_ALL;
+            	need_reset = true;
+            	break;
+            case SDLK_t:
+            	disp_mode_ = POS_DISPLAY_TAIL;
+            	need_reset = true;
+            	break;
         }
         
         if (need_reset){
+        	// TODO: find tail pos for spike buffer
             buffer->spike_buf_pos_draw_xy = buffer->SPIKE_BUF_HEAD_LEN;
-            buffer->pos_buf_disp_pos_ = 0;
+            buffer->pos_buf_disp_pos_ =  (disp_mode_ == POS_DISPLAY_ALL) ? 0 : buffer->pos_buf_pos_ - TAIL_LENGTH;
             ReinitScreen();
         }
     }
