@@ -37,49 +37,20 @@ typedef short t_bin;
 void draw_bin(const char *path){
     FILE *f = fopen(path, "rb");
     
-
     const int CHUNK_SIZE = 432; // bytes
     
     unsigned char block[ CHUNK_SIZE ];
     
     TetrodesInfo *tetr_inf = new TetrodesInfo();
-    
-//    tetr_inf->tetrodes_number = 2;
-//    tetr_inf->channels_numbers = new int[2]{4, 4};
-//    tetr_inf->tetrode_channels = new int*[2]{new int[4]{8,9,10,11}, new int[4]{16,17,18,19}};
-
-//    tetr_inf->tetrodes_number = 2;
-//    tetr_inf->channels_numbers = new int[2]{4, 4};
-//    tetr_inf->tetrode_channels = new int*[2]{new int[4]{44,45,46,47}, new int[4]{48,49,50,51}};
-    
-//    tetr_inf->tetrodes_number = 5;
-//    tetr_inf->channels_numbers = new int[5]{4, 4, 4, 4, 4};
-//    tetr_inf->tetrode_channels = new int*[5]{new int[4]{8,9,10,11}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}, new int[4]{24,25,26,27}, new int[4]{28,29,30,31}};
 
     // clustering saved
-    tetr_inf->tetrodes_number = 5;
-    tetr_inf->channels_numbers = new int[5]{4, 4, 4, 4, 4};
-//    tetr_inf->tetrode_channels = new int*[5]{new int[4]{32,33,34,35}, new int[4]{36,37,38,39}, new int[4]{40,41,42,43}, new int[4]{52,53,54,55}, new int[4]{60,61,62,63}};
-    tetr_inf->tetrode_channels = new int*[5]{new int[4]{4,5,6,7}, new int[4]{8,9,10,11}, new int[4]{12,13,14,15}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}};
-    
-//    tetr_inf->tetrodes_number = 1;
-//    tetr_inf->channels_numbers = new int[1]{4};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{0,1,2,3}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{4,5,6,7}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{8,9,10,11}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{12,13,14,15}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{16,17,18,19}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{20,21,22,23}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{24,25,26,27}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{28,29,30,31}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{32,33,34,35}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{36,37,38,39}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{40,41,42,43}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{44,45,46,47}}; // +
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{48,49,50,51}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{52,53,54,55}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{56,57,58,59}};
-//    tetr_inf->tetrode_channels = new int*[1]{new int[4]{60,61,62,63}};
+//    tetr_inf->tetrodes_number = 5;
+//    tetr_inf->channels_numbers = new int[5]{4, 4, 4, 4, 4};
+////    tetr_inf->tetrode_channels = new int*[5]{new int[4]{32,33,34,35}, new int[4]{36,37,38,39}, new int[4]{40,41,42,43}, new int[4]{52,53,54,55}, new int[4]{60,61,62,63}};
+//    tetr_inf->tetrode_channels = new int*[5]{new int[4]{4,5,6,7}, new int[4]{8,9,10,11}, new int[4]{12,13,14,15}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}};
+
+    tetr_inf = TetrodesInfo::GetInfoForTetrodesRange(0, 11);
+//    tetr_inf = TetrodesInfo::GetInfoForTetrodesRange(0, 0);
     
     // in ms
     const unsigned int BUF_POP_VEC_WIN_LEN_MS = 100;
@@ -118,6 +89,9 @@ void draw_bin(const char *path){
     
     const unsigned int SD_WAIT_MILLISECONDS = 150;
 
+    // Position display params
+    const unsigned int POS_TAIL_LENGTH = 300;
+
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
 //    pipeline->add_processor(new PackageExractorProcessor(buf));
@@ -128,9 +102,9 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
 //
     pipeline->add_processor(new WhlFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.whl", 512));
-    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.fet.", new int[5]{1,2,3,4,5}));
+    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.fet.", Utils::Math::GetRange(1, 12)));
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
-    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.res.", new int[5]{1,2,3,4,5}));
+    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.res.", Utils::Math::GetRange(1, 12)));
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 
@@ -145,7 +119,7 @@ void draw_bin(const char *path){
     // TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     
-    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0));
+    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0, POS_TAIL_LENGTH));
     
     //pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
     
@@ -178,25 +152,8 @@ void draw_bin(const char *path){
 //    gmmClustProc->JoinGMMTasks();
 }
 
-void draw_test(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture){
-    for(int x=0;x<10;x++)
-    {
-        SDL_SetRenderTarget(renderer, texture);
-        
-        for(int y=0;y<10;y++)
-        {
-            putPixel(renderer,40+x*10,50+y);
-        }
-        
-        SDL_SetRenderTarget(renderer, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-
-        SDL_Delay( 100 );
-    }
-}
-
-int get_image(){
+int main( int argc, char* args[] )
+{
     // draw_test(window, renderer, texture);
     
     //TEST DATA; for this channels: 8-11 : 2 clear CLUSTERS; fixed THRESHOLD !
@@ -221,13 +178,6 @@ int get_image(){
 //    draw_bin("/run/media/igor/63ce153c-da52-47cf-b229-f0bc4078cd52/data/bindata/jc58/trial100.bin");
 //	draw_bin("/hd1/data/bindata/jc103/0606/jc103-0606_03l.bin");
 	draw_bin("/home/igor/tmp/jc103-0606_03l.bin");
-
-    return 0;
-}
-
-int main( int argc, char* args[] )
-{
-    get_image();
     
     return 0;
 }

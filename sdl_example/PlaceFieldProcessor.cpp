@@ -313,7 +313,8 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     }
 
     // DEBUG
-    std::cout << fr_cnt << " clsuters with FR > thold\n";
+    if (!(buffer->last_pkg_id % 1000))
+    	std::cout << fr_cnt << " clsuters with FR > thold\n";
 
     // normalize by sum to have probabilities
     const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));
