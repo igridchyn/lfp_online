@@ -361,7 +361,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     double lpmax = -reconstructed_position_.min();
     for (int r=0; r < reconstructed_position_.n_rows; ++r) {
             for (int c=0; c < reconstructed_position_.n_cols; ++c) {
-            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c));
+            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c)/100);
 //            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
             }
     }
