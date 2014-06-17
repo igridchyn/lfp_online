@@ -232,4 +232,6 @@ TetrodesInfo* TetrodesInfo::GetMergedTetrodesInfo(const TetrodesInfo* ti1, const
 			tetrinf->tetrode_channels[t + shift] = new int [ti2->channels_numbers[t]];
 			memcpy(tetrinf->tetrode_channels[t + shift], ti2->tetrode_channels[t], sizeof(int) * ti2->channels_numbers[t]);
 	}
+
+	return tetrinf;
 }
