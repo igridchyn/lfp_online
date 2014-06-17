@@ -33,14 +33,14 @@ void WhlFileReaderProcessor::process(){
 		if (x < 0){
 			pos_rec[0] = 1023;
 			pos_rec[1] = 1023;
-			pos_rec[2] = 1023;
-			pos_rec[3] = 1023;
+//			pos_rec[2] = 0;
+//			pos_rec[3] = 0;
 		}
 		else{
 			pos_rec[0] = x;
 			pos_rec[1] = y;
-			pos_rec[2] = x;
-			pos_rec[3] = y;
+//			pos_rec[2] = 0;
+//			pos_rec[3] = 0;
 		}
 
 		pos_rec[4] = last_pos_pkg_id_;

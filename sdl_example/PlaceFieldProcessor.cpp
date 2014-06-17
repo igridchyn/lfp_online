@@ -365,4 +365,10 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 //            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
             }
     }
+
+    //  find the coordinates (and write to pos?)
+    unsigned int rmax, cmax;
+    double pmax = reconstructed_position_.max(rmax, cmax);
+    buffer->positions_buf_[buffer->pos_buf_pos_][2] = (cmax + 0.5) * bin_size_;
+    buffer->positions_buf_[buffer->pos_buf_pos_][3] = (rmax + 0.5) * bin_size_;
 }

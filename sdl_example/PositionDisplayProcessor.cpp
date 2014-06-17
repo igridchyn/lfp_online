@@ -48,6 +48,15 @@ void PositionDisplayProcessor::process(){
         
         if (!(buffer->pos_buf_disp_pos_ % rend_freq))
             render = true;
+
+        // display predicted position
+        int predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][2];
+        int predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][3];
+        if (predx > 0 && predy > 0){
+        	SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
+//        	SDL_RenderDrawPoint(renderer_, predx, predy);
+        	FillRect(predx, predy, 0, 2, 2);
+        }
     }
     
     // display spikes on a target tetrode
