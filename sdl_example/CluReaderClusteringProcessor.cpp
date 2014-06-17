@@ -7,7 +7,8 @@
 
 #include "CluReaderClusteringProcessor.h"
 
-CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, const std::string& clu_path, const std::string& res_path_base, int *tetrodes)
+CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, const std::string& clu_path,
+		const std::string& res_path_base, const std::vector<int>& tetrodes)
 : LFPProcessor(buffer)
 , clu_path_(clu_path)
 , res_path_(res_path_base)

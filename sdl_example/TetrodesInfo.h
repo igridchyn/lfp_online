@@ -10,6 +10,7 @@
 #define sdl_example_TetrodesInfo_h
 
 #include "Spike.h"
+#include <vector>
 
 class TetrodesInfo{
 public:

@@ -101,10 +101,12 @@ void draw_bin(const char *path){
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
 //    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
 //
+    std::vector<int> tetrnums = Utils::Math::MergeRanges(Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14,16));
+
     pipeline->add_processor(new WhlFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.whl", 512));
-    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.fet.", Utils::Math::GetRange(1, 12)));
+    pipeline->add_processor(new FetFileReaderProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.fet.", tetrnums));
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
-    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.res.", Utils::Math::GetRange(1, 12)));
+    pipeline->add_processor(new CluReaderClusteringProcessor(buf, "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.clu.", "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_2.res.", tetrnums));
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 
