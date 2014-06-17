@@ -85,7 +85,7 @@ void draw_bin(const char *path){
     const bool PF_SAVE = false;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
     const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
-    const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.5;
+    const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.3;
     
     const unsigned int SD_WAIT_MILLISECONDS = 150;
 

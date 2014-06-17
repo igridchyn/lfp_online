@@ -313,7 +313,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     }
 
     // DEBUG
-    if (!(buffer->last_pkg_id % 1000))
+    if (!(buffer->last_pkg_id % 20))
     	std::cout << fr_cnt << " clsuters with FR > thold\n";
 
     // normalize by sum to have probabilities
@@ -369,6 +369,6 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     //  find the coordinates (and write to pos?)
     unsigned int rmax, cmax;
     double pmax = reconstructed_position_.max(rmax, cmax);
-    buffer->positions_buf_[buffer->pos_buf_pos_][2] = (cmax + 0.5) * bin_size_;
-    buffer->positions_buf_[buffer->pos_buf_pos_][3] = (rmax + 0.5) * bin_size_;
+    buffer->positions_buf_[buffer->pos_buf_pos_][2] = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
+    buffer->positions_buf_[buffer->pos_buf_pos_][3] = (rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
 }
