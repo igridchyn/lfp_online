@@ -41,7 +41,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     unsigned int last_predicted_pkg_ = 0;
     
     // every 100 ms
-    const unsigned int prediction_rate_ = 200 * 24;
+    const unsigned int prediction_rate_ = 100 * 24;
     
     // TODO: improve
     // -1 = occupancy, -2 = reconstructed

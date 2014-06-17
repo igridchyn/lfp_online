@@ -348,7 +348,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             
             // TODO: log / 0
             // TODO: !!! ENABLE prior probabilities (disabled for sake of debugging simplification)
-//            reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_(r, c) / occ_sum)) : -10000000.0;
+            reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_(r, c) / occ_sum)) : -100000.0;
         }
     }
     
