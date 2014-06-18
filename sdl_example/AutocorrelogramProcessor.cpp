@@ -8,9 +8,11 @@
 
 #include "AutocorrelogramProcessor.h"
 
-AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf)
+AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins)
 : SDLSingleWindowDisplay("Autocorrelogramms", 1600, 500)
-, SDLControlInputProcessor(buf) {
+, SDLControlInputProcessor(buf)
+, BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
+, NBINS(nbins){
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
     
     autocorrs_.resize(tetrn);
@@ -59,7 +61,7 @@ void AutocorrelogramProcessor::process(){
             
             // 2 ms bins
             // TODO: configurable bitrate
-            unsigned int bin = (stime - prev_spikes[bpos]) / (24 * 2 );
+            unsigned int bin = (stime - prev_spikes[bpos]) / (BIN_SIZE );
             if (bin >= NBINS){
                 continue;
             }
@@ -82,7 +84,7 @@ void AutocorrelogramProcessor::process(){
         
         // report
         // TODO: plot
-        if (total_counts_[tetrode][cluster_id] >= NBINS * 200 && !reported_[tetrode][cluster_id]){
+        if (total_counts_[tetrode][cluster_id] >= NBINS * AVG_PER_BIN && !reported_[tetrode][cluster_id]){
             std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
             for (int b=0; b < NBINS; ++b) {
                 std::cout << autocorrs_[tetrode][cluster_id][b] << " ";
@@ -124,16 +126,16 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
         return;
     
     const int BWIDTH = 2;
-    const int XCLUST = 5;
+    const int XCLUST = 7;
     
     // shift for the plot
     const int xsh = ((BWIDTH + 1) * NBINS + 15) * (cluster % XCLUST) + 30;
-    const int ysh = (cluster / XCLUST) * 200 + 200;
+    const int ysh = (cluster / XCLUST) * 50 + 100;
     
     ColorPalette palette_ = ColorPalette::BrewerPalette12;
     
     for (int b=0; b < NBINS; ++b) {
-        int height = autocorrs_[tetr][cluster][b] * NBINS / total_counts_[tetr][cluster] * 100;
+        int height = autocorrs_[tetr][cluster][b] * NBINS / total_counts_[tetr][cluster] * Y_SCALE;
         
         SDL_Rect rect;
         rect.h = height;

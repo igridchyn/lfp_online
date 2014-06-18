@@ -32,11 +32,16 @@ class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLContro
     std::vector<std::vector<bool> > reported_;
     
     static const unsigned int ST_BUF_SIZE = 30;
-    static const unsigned int NBINS = 100;
     static const unsigned int MAX_CLUST = 30;
+    // total of AVG_PER_BIN * NBINS should be collected before displaying the autocorrelation
+    static const unsigned int AVG_PER_BIN = 5;
+    static const unsigned int Y_SCALE = 20;
     
+    const int BIN_SIZE;
+    const unsigned int NBINS;
+
 public:
-    AutocorrelogramProcessor(LFPBuffer *buf);
+    AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins);
     
     virtual void process();
     virtual ~AutocorrelogramProcessor() {};
