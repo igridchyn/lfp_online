@@ -56,6 +56,8 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     // 1/3 clusters at 2
     const double RREDICTION_FIRING_RATE_THRESHOLD;
 
+    const unsigned int MIN_PKG_ID;
+
     //================================
     
     void drawMat(const arma::mat& mat);
@@ -77,7 +79,9 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
 public:
     
-    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path, const float& prediction_fr_thold);
+    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
+    		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
+    		const float& prediction_fr_thold, const unsigned int& min_pkg_id);
     
     // LFPProcessor
     virtual void process();

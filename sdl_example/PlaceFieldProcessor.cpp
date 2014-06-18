@@ -15,7 +15,9 @@
 
 // ============================================================================================================================================
 
-PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path, const float& prediction_fr_thold)
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
+		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
+		const float& prediction_fr_thold, const unsigned int& min_pkg_id)
 : SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Place Field", 420, 420)
 , sigma_(sigma)
@@ -27,7 +29,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , SAVE(save)
 , LOAD(load)
 , BASE_PATH(base_path)
-, RREDICTION_FIRING_RATE_THRESHOLD(prediction_fr_thold){
+, RREDICTION_FIRING_RATE_THRESHOLD(prediction_fr_thold)
+, MIN_PKG_ID(min_pkg_id){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
@@ -87,6 +90,12 @@ void PlaceFieldProcessor::AddPos(int x, int y){
 }
 
 void PlaceFieldProcessor::process(){
+	if (buffer->last_pkg_id < MIN_PKG_ID){
+		spike_buf_pos_ = buffer->spike_buf_pos_speed_;
+		pos_buf_pos_ = buffer->pos_buf_pos_ - 8;
+		return;
+	}
+
     while (spike_buf_pos_ < buffer->spike_buf_pos_speed_){
         Spike *spike = buffer->spike_buffer_[spike_buf_pos_];
         

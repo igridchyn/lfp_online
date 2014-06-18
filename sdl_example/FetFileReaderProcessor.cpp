@@ -112,8 +112,10 @@ void FetFileReaderProcessor::process() {
 			buffer->pos_buf_spike_pos_++;
 		}
 		// TODO: average of two LED coords
-		spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
-		spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+		if (buffer->pos_buf_spike_pos_ > 0){
+			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
+			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+		}
 
 		// TODO: buffer rewind
 	}
