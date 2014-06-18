@@ -7,9 +7,10 @@
 
 #include "SlowDownProcessor.h"
 
-SlowDownProcessor::SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time)
+SlowDownProcessor::SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time, const unsigned int& slow_start)
  : LFPProcessor(buffer)
-, WAIT_TIME_MS(wait_time){
+, WAIT_TIME_MS(wait_time)
+, SLOW_START(slow_start){
 	// TODO Auto-generated constructor stub
 
 }
@@ -19,5 +20,7 @@ SlowDownProcessor::~SlowDownProcessor() {
 }
 
 void SlowDownProcessor::process() {
-	usleep(1000 * WAIT_TIME_MS);
+	if (buffer->last_pkg_id > SLOW_START){
+		usleep(1000 * WAIT_TIME_MS);
+	}
 }

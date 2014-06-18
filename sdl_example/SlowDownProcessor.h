@@ -13,9 +13,10 @@
 // wait given amount of time at each iteration - for debugging and on-line output evaluation
 class SlowDownProcessor: public LFPProcessor {
 	const unsigned int WAIT_TIME_MS;
+	const unsigned int SLOW_START;
 
 public:
-	SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time);
+	SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time, const unsigned int& slow_start);
 	virtual ~SlowDownProcessor();
 
 	// LFPProcessor
