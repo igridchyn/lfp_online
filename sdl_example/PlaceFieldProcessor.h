@@ -58,6 +58,8 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
 
     const unsigned int MIN_PKG_ID;
 
+    const bool USE_PRIOR;
+
     //================================
     
     void drawMat(const arma::mat& mat);
@@ -81,7 +83,7 @@ public:
     
     PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
     		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
-    		const float& prediction_fr_thold, const unsigned int& min_pkg_id);
+    		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior);
     
     // LFPProcessor
     virtual void process();

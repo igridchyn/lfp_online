@@ -17,7 +17,7 @@
 
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
-		const float& prediction_fr_thold, const unsigned int& min_pkg_id)
+		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)
 : SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Place Field", 420, 420)
 , sigma_(sigma)
@@ -30,7 +30,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , LOAD(load)
 , BASE_PATH(base_path)
 , RREDICTION_FIRING_RATE_THRESHOLD(prediction_fr_thold)
-, MIN_PKG_ID(min_pkg_id){
+, MIN_PKG_ID(min_pkg_id)
+, USE_PRIOR(use_prior){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
@@ -357,7 +358,9 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             
             // TODO: log / 0
             // TODO: !!! ENABLE prior probabilities (disabled for sake of debugging simplification)
-            reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_(r, c) / occ_sum)) : -100000.0;
+            if (USE_PRIOR){
+            	reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_(r, c) / occ_sum)) : -100000.0;
+            }
         }
     }
     
