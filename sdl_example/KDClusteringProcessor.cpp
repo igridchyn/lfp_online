@@ -79,7 +79,7 @@ void KDClusteringProcessor::process(){
 
 			// compute p(a_i, x) for all spikes (from neighbours
 			for (int p = 0; p < total_spikes_[tetr]; ++p) {
-
+				build_pax_(tetr, p);
 			}
 		}
 		else{
