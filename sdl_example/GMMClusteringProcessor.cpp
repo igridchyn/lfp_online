@@ -158,6 +158,7 @@ void GMMClusteringProcessor::process(){
             break;
         }
         
+        // TODO: configurableize
         for (int pc=0; pc < 3; ++pc) {
             // TODO: tetrode channels
             for(int chan=0; chan < 4; ++chan){
