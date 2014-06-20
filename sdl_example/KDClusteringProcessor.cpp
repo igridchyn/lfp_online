@@ -34,7 +34,7 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 			double kern_sum = .0f;
 
 			for (int ni = 0; ni < NN_K; ++ni) {
-				kern_sum += kern_(obs_spikes_[tetr][spikei], obs_spikes_[tetr][knn_cache_[tetr][spikei][ni]]);
+				kern_sum += kern_(spikei, knn_cache_[tetr][spikei][ni], tetr);
 			}
 
 			pf(xb, yb) = kern_sum;
@@ -44,10 +44,17 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 	spike_place_fields_[tetr][spikei] = pf;
 }
 
-double KDClusteringProcessor::kern_(Spike* spike1, Spike* spike2) {
+double KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr) {
 	// TODO: implement efficiently
+	double sum = .0f;
+	sum += (obs_spikes_[tetr][spikei1]->x - obs_spikes_[tetr][spikei2]->x) / X_STD;
+	sum += (obs_spikes_[tetr][spikei1]->y - obs_spikes_[tetr][spikei2]->y) / Y_STD;
 
-	return 0;
+	for (int d = 0; d < DIM; ++d) {
+		sum += (ann_points_[tetr][spikei1][d] - ann_points_[tetr][spikei2][d]) * (ann_points_[tetr][spikei1][d] - ann_points_[tetr][spikei2][d]);
+	}
+
+	return exp( - sum / 2.0);
 }
 
 void KDClusteringProcessor::process(){

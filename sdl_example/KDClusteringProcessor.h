@@ -29,6 +29,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int NBINS = 20;
 	const unsigned int BIN_SIZE = 5;
 
+	const double X_STD = 100;
+	const double Y_STD = 100;
+
 	std::vector<ANNkd_tree*> kdtrees_;
 	std::vector<ANNpointArray> ann_points_;
 
@@ -41,7 +44,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);
-	double kern_(Spike *spike1, Spike *spike2);
+	double kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr);
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const unsigned int depth);
