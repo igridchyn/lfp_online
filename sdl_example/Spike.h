@@ -39,10 +39,14 @@ public:
     // for next processors to know whether they can process this spike
     bool aligned_ = false;
     
-    // coords
+    // coordinates
     float x, y;
     float speed;
     
+    // power of a filter at the peak
+    // TODO: fill
+    unsigned int power_;
+
 };
 
 #endif

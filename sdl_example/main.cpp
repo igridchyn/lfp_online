@@ -87,11 +87,17 @@ void draw_bin(const char *path){
     const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
     const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.3;
     const unsigned int PF_MIN_PKG_ID = 0;
+    const bool PF_USE_PRIOR = false;
     
     const unsigned int SD_WAIT_MILLISECONDS = 150;
+    const unsigned int SD_START = 30000000;
 
     // Position display params
     const unsigned int POS_TAIL_LENGTH = 300;
+
+    // Autocorrelation display params
+    const float AC_BIN_SIZE_MS = 1;
+    const unsigned int AC_N_BINS = 30;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
@@ -112,7 +118,7 @@ void draw_bin(const char *path){
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 
-    pipeline->add_processor(new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS));
+    pipeline->add_processor(new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS, SD_START));
 
 //    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
 //    pipeline->add_processor(gmmClustProc);
@@ -129,10 +135,10 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
     
-//    pipeline->add_processor(new AutocorrelogramProcessor(buf));
+    pipeline->add_processor(new AutocorrelogramProcessor(buf, AC_BIN_SIZE_MS, AC_N_BINS));
     
     pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE,
-    		PF_BASE_PATH, PF_RREDICTION_FIRING_RATE_THRESHOLD, PF_MIN_PKG_ID));
+    		PF_BASE_PATH, PF_RREDICTION_FIRING_RATE_THRESHOLD, PF_MIN_PKG_ID, PF_USE_PRIOR));
     
     // should be added after all control processor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));

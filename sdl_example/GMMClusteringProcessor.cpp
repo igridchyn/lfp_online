@@ -159,7 +159,7 @@ void GMMClusteringProcessor::process(){
         }
         
         for (int pc=0; pc < 3; ++pc) {
-            // TODO: tetrode chans
+            // TODO: tetrode channels
             for(int chan=0; chan < 4; ++chan){
                 // TODO: disable OFB check in armadillo settings
                 if (observations_[tetr].n_cols <= total_observations_[tetr]){
