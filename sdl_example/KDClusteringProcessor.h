@@ -37,7 +37,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// p(a, x) for each point in the set ( ? + medians between nearest neighbours ?)
 	// !!! indexing should be the same as in obs_spikes_
-	std::vector<arma::mat> spike_place_fields_;
+	std::vector<std::vector<arma::mat> > spike_place_fields_;
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);

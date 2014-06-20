@@ -36,8 +36,12 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 			for (int ni = 0; ni < NN_K; ++ni) {
 				kern_sum += kern_(obs_spikes_[tetr][spikei], obs_spikes_[tetr][knn_cache_[tetr][spikei][ni]]);
 			}
+
+			pf(xb, yb) = kern_sum;
 		}
 	}
+
+	spike_place_fields_[tetr][spikei] = pf;
 }
 
 double KDClusteringProcessor::kern_(Spike* spike1, Spike* spike2) {
