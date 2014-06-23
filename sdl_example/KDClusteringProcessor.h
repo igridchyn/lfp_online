@@ -44,10 +44,10 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);
-	double kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr);
+	double inline kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr);
 
 public:
-	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const unsigned int depth);
+	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes);
 	virtual ~KDClusteringProcessor();
 
 	// LFPProcessor

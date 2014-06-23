@@ -16,6 +16,7 @@
 #include "WhlFileReaderProcessor.h"
 #include "SpeedEstimationProcessor.h"
 #include "SlowDownProcessor.h"
+#include "KDClusteringProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -113,8 +114,10 @@ void draw_bin(const char *path){
 
     pipeline->add_processor(new WhlFileReaderProcessor(buf, dat_path_base + "whl", 512));
     pipeline->add_processor(new FetFileReaderProcessor(buf, dat_path_base +  "fet.", tetrnums));
+
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
-    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
+//    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
+    pipeline->add_processor(new KDClusteringProcessor(buf, 20000));
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 

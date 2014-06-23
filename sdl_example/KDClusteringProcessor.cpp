@@ -7,7 +7,7 @@
 
 #include "KDClusteringProcessor.h"
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const unsigned int depth)
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes) {
 	// TODO Auto-generated constructor stub
@@ -16,9 +16,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
+	total_spikes_.resize(tetrn);
+	obs_spikes_.resize(tetrn);
+	knn_cache_.resize(tetrn);
+	spike_place_fields_.resize(tetrn);
 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
+		spike_place_fields_[t].reserve(MIN_SPIKES);
 	}
 }
 
@@ -44,17 +49,18 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 	spike_place_fields_[tetr][spikei] = pf;
 }
 
-double KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr) {
+double inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr) {
 	// TODO: implement efficiently
 	double sum = .0f;
 	sum += (obs_spikes_[tetr][spikei1]->x - obs_spikes_[tetr][spikei2]->x) / X_STD;
 	sum += (obs_spikes_[tetr][spikei1]->y - obs_spikes_[tetr][spikei2]->y) / Y_STD;
 
-	for (int d = 0; d < DIM; ++d) {
-		sum += (ann_points_[tetr][spikei1][d] - ann_points_[tetr][spikei2][d]) * (ann_points_[tetr][spikei1][d] - ann_points_[tetr][spikei2][d]);
+	ANNcoord *pcoord1 = ann_points_[tetr][spikei1], *pcoord2 = ann_points_[tetr][spikei2];
+	for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
+		sum += (*pcoord1 - *pcoord2) * (*pcoord1 - *pcoord2);
 	}
 
-	return exp( - sum / 2.0);
+	return - sum / 2.0;
 }
 
 void KDClusteringProcessor::process(){
@@ -73,12 +79,21 @@ void KDClusteringProcessor::process(){
 
 				kdtrees_[tetr]->annkSearch(ann_points_[tetr][p], NN_K, nnIdx, dists, NN_EPS);
 				// TODO: cast/copy to unsigned short array?
-				knn_cache_[tetr][p] = nnIdx;
+				knn_cache_[tetr].push_back(nnIdx);
 			}
 			delete dists;
 
+
+
 			// compute p(a_i, x) for all spikes (from neighbours
 			for (int p = 0; p < total_spikes_[tetr]; ++p) {
+				// DEBUG
+				if (!(p % 500)){
+					std::cout << p << " place fields built ...\n";
+					if (p > 0)
+						exit(0);
+				}
+
 				build_pax_(tetr, p);
 			}
 		}
