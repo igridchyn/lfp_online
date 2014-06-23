@@ -35,6 +35,10 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT = 1024;
 
+	const bool SAVE = true;
+	const bool LOAD = false;
+	const std::string BASE_PATH;
+
 	std::vector<ANNkd_tree*> kdtrees_;
 	std::vector<ANNpointArray> ann_points_;
 
@@ -49,12 +53,14 @@ class KDClusteringProcessor: public LFPProcessor {
 	// !!! indexing should be the same as in obs_spikes_
 	std::vector<std::vector<arma::mat> > spike_place_fields_;
 
+	std::vector<bool> pf_built_;
+
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);
 	int inline kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr);
 
 public:
-	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes);
+	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path);
 	virtual ~KDClusteringProcessor();
 
 	// LFPProcessor

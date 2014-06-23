@@ -7,9 +7,11 @@
 
 #include "KDClusteringProcessor.h"
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes)
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path)
 	: LFPProcessor(buf)
-	, MIN_SPIKES(num_spikes) {
+	, MIN_SPIKES(num_spikes)
+	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
+	, BASE_PATH(base_path){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -34,6 +36,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 		spike_coords_int_[t] = arma::Mat<int>(MIN_SPIKES, 2, arma::fill::zeros);
 	}
+
+	pf_built_.resize(tetrn);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -58,6 +62,12 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 	}
 
 	spike_place_fields_[tetr][spikei] = pf;
+
+	if (SAVE){
+		std::string save_path = BASE_PATH + Utils::NUMBERS[tetr] + "_" + Utils::Converter::int2str((int)spikei) + ".mat";
+		pf.save(save_path, arma::raw_ascii);
+//		std::cout << save_path << "\n";
+	}
 }
 
 int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr) {
@@ -104,54 +114,64 @@ void KDClusteringProcessor::process(){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 		const unsigned int tetr = spike->tetrode_;
 
-		if (total_spikes_[tetr] >= MIN_SPIKES){
-			// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
-			kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+		if (!pf_built_[tetr]){
+			if (total_spikes_[tetr] >= MIN_SPIKES){
+				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
+				std::cout << "build kd-tree for tetrode " << tetr << "... ";
+				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+				std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...";
 
-			ANNdist *dists = new ANNdist[NN_K];
-			// call kNN for each point
-			for (int p = 0; p < total_spikes_[tetr]; ++p) {
-				ANNidx *nnIdx = new ANNidx[NN_K];
+				ANNdist *dists = new ANNdist[NN_K];
+				// call kNN for each point
+				for (int p = 0; p < total_spikes_[tetr]; ++p) {
+					ANNidx *nnIdx = new ANNidx[NN_K];
 
-				kdtrees_[tetr]->annkSearch(ann_points_[tetr][p], NN_K, nnIdx, dists, NN_EPS);
-				// TODO: cast/copy to unsigned short array?
-				knn_cache_[tetr].push_back(nnIdx);
-			}
-			delete dists;
+					kdtrees_[tetr]->annkSearch(ann_points_[tetr][p], NN_K, nnIdx, dists, NN_EPS);
+					// TODO: cast/copy to unsigned short array?
+					knn_cache_[tetr].push_back(nnIdx);
+				}
+				delete dists;
+				std::cout << "done\n";
 
-			// compute p(a_i, x) for all spikes (from neighbours
-			time_t start = clock();
-			for (int p = 0; p < total_spikes_[tetr]; ++p) {
-				// DEBUG
-				if (!(p % 500)){
-					std::cout.precision(2);
-					std::cout << p << " place fields built, last 500 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
-					start = clock();
+				// compute p(a_i, x) for all spikes (from neighbours
+				time_t start = clock();
+				for (int p = 0; p < total_spikes_[tetr]; ++p) {
+					// DEBUG
+					if (!(p % 500)){
+						std::cout.precision(2);
+						std::cout << p << " place fields built, last 500 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+						start = clock();
 
-				// for profiling
-					if (p > 2500)
-						exit(0);
+					// for profiling
+	//					if (p > 2500)
+	//						exit(0);
+					}
+
+					build_pax_(tetr, p);
 				}
 
-				build_pax_(tetr, p);
+				pf_built_[tetr] = true;
+			}
+			else{
+				obs_spikes_[tetr].push_back(spike);
+
+				for (int pc=0; pc < 3; ++pc) {
+					// TODO: tetrode channels
+					for(int chan=0; chan < 4; ++chan){
+						ann_points_[tetr][total_spikes_[tetr]][chan * 3 + pc] = spike->pc[chan][pc];
+
+						// save integer with increased precision for integer KDE operations
+						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
+						spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
+						spike_coords_int_[tetr](total_spikes_[tetr], 1) = (int)round(spike->y * MULT_INT);
+					}
+				}
+
+				total_spikes_[tetr] ++;
 			}
 		}
 		else{
-			obs_spikes_[tetr].push_back(spike);
-
-			for (int pc=0; pc < 3; ++pc) {
-				// TODO: tetrode channels
-				for(int chan=0; chan < 4; ++chan){
-					ann_points_[tetr][total_spikes_[tetr]][chan * 3 + pc] = spike->pc[chan][pc];
-
-					// save integer with increased precision for integer KDE operations
-					ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
-					spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
-					spike_coords_int_[tetr](total_spikes_[tetr], 1) = (int)round(spike->y * MULT_INT);
-				}
-			}
-
-			total_spikes_[tetr] ++;
+			// predict from spike in window
 		}
 
 		buffer->spike_buf_pos_clust_ ++;

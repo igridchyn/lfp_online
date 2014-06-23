@@ -117,7 +117,8 @@ void draw_bin(const char *path){
 
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
-    pipeline->add_processor(new KDClusteringProcessor(buf, 20000));
+    const std::string kd_path_base = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_";
+    pipeline->add_processor(new KDClusteringProcessor(buf, 20000, kd_path_base));
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 
