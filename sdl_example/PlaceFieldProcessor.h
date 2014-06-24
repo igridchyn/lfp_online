@@ -85,6 +85,8 @@ public:
     		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
     		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior);
     
+    const arma::mat& GetSmoothedOccupancy();
+
     // LFPProcessor
     virtual void process();
     

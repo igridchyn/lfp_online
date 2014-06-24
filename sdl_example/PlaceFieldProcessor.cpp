@@ -135,6 +135,11 @@ void PlaceFieldProcessor::process(){
     }
 }
 
+const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
+	occupancy_smoothed_ = occupancy_.Smooth();
+	return occupancy_smoothed_.Mat();
+}
+
 void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
     display_tetrode_ = MIN(display_tetrode, buffer->tetr_info_->tetrodes_number - 1);
     drawPlaceField();
