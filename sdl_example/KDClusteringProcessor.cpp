@@ -26,6 +26,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	spike_coords_int_.resize(tetrn);
 	obs_mats_.resize(tetrn);
 	coords_normalized_.resize(tetrn);
+	missed_spikes_.resize(tetrn);
 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
@@ -59,23 +60,33 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// order of >= 30
-			long long kern_sum = 0;
+			double kern_sum = 0;
 
 			unsigned int nspikes = 0;
 			// compute KDE (proportional to log-probability) over cached nearest neighbours
-			for (int ni = 0; ni < NN_K; ++ni) {
+			// TODO ? exclude self from neighbours list ?
+			for (int ni = 1; ni < NN_K; ++ni) {
 				Spike *spike = obs_spikes_[tetr][knn_cache_[tetr][spikei][ni]];
 				if (spike->x == 1023){
 					continue;
 				}
-				nspikes++;
 
-				int logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr, coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1));
-				kern_sum += logprob;
+				long long logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr, coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1));
+
+				// DEBUG
+				if (logprob > 0){
+//					std::cout << "alarm : positive log-prob\n";
+//					logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr, coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1));
+					continue;
+				}
+
+				nspikes++;
+				kern_sum += exp((double)logprob / (MULT_INT * MULT_INT));
 			}
 
 			// scaled by MULT_INT ^ 2
-			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
+//			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
+			pf(xb, yb) = log(kern_sum / nspikes);
 		}
 	}
 
@@ -89,11 +100,11 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 }
 
 // x/y instead of coords of the second spike
-int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y) {
+long long inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y) {
 	// TODO: implement efficiently (integer with high precision)
 	// TODO: check for the overlow (MULT order X DIM X MAX(coord order / feature sorder) X squared = (10 + 1 + 2) * 2 = 26 < 32 bit )
 
-	int sum = 0;
+	long long sum = 0;
 //	sum += (obs_spikes_[tetr][spikei1]->x - obs_spikes_[tetr][spikei2]->x) / X_STD;
 //	sum += (obs_spikes_[tetr][spikei1]->y - obs_spikes_[tetr][spikei2]->y) / Y_STD;
 
@@ -132,7 +143,7 @@ int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsign
 //	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
 
 	// order : ~ 10^9 for 12 features scaled by 2^10 = 10^3
-	return - sum;
+	return - sum / 2;
 }
 
 void KDClusteringProcessor::process(){
@@ -186,6 +197,9 @@ void KDClusteringProcessor::process(){
 					kdtrees_[tetr]->annkSearch(ann_points_[tetr][p], NN_K, nnIdx, dists, NN_EPS);
 					// TODO: cast/copy to unsigned short array?
 					knn_cache_[tetr].push_back(nnIdx);
+
+					// DEBUG
+//					Utils::Output::printIntArray(nnIdx, 10);
 				}
 				delete dists;
 				std::cout << "done\n";
@@ -211,6 +225,14 @@ void KDClusteringProcessor::process(){
 				n_pf_built_ ++;
 			}
 			else{
+				// sample every SAMLING_RATE spikes for KDE estimation
+				if (missed_spikes_[tetr] < SAMPLING_RATE){
+					missed_spikes_[tetr] ++;
+					buffer->spike_buf_pos_clust_ ++;
+					continue;
+				}
+				missed_spikes_[tetr] = 0;
+
 				obs_spikes_[tetr].push_back(spike);
 
 				// copy features and coords to ann_points_int and obs_mats
