@@ -117,7 +117,7 @@ void KDClusteringProcessor::process(){
 		if (!pf_built_[tetr]){
 			if (total_spikes_[tetr] >= MIN_SPIKES){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
-				std::cout << "build kd-tree for tetrode " << tetr << "... ";
+				std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 				std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...";
 
@@ -151,6 +151,7 @@ void KDClusteringProcessor::process(){
 				}
 
 				pf_built_[tetr] = true;
+				n_pf_built_ ++;
 			}
 			else{
 				obs_spikes_[tetr].push_back(spike);

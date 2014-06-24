@@ -54,6 +54,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<std::vector<arma::mat> > spike_place_fields_;
 
 	std::vector<bool> pf_built_;
+	unsigned int n_pf_built_ = 0;
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);
