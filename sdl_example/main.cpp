@@ -80,7 +80,7 @@ void draw_bin(const char *path){
     // PLACE FIELD PARAMS
     const double PF_SIGMA = 60.0f;
     const double PF_BIN_SIZE = 20;
-    const unsigned int PF_NBINS = 30;
+    const unsigned int PF_NBINS = 20;
     const unsigned int PF_SPREAD = 1;
     const bool PF_LOAD = true;
     const bool PF_SAVE = false;
@@ -109,6 +109,9 @@ void draw_bin(const char *path){
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
 //    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
 //
+    PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE,
+    		PF_BASE_PATH, PF_RREDICTION_FIRING_RATE_THRESHOLD, PF_MIN_PKG_ID, PF_USE_PRIOR);
+
     std::vector<int> tetrnums = Utils::Math::MergeRanges(Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14,16));
     std::string dat_path_base = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_4.";
 
@@ -118,7 +121,7 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
     const std::string kd_path_base = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_";
-    pipeline->add_processor(new KDClusteringProcessor(buf, 20000, kd_path_base));
+    pipeline->add_processor(new KDClusteringProcessor(buf, 20000, kd_path_base, pfProc));
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
 
@@ -141,8 +144,7 @@ void draw_bin(const char *path){
     
     pipeline->add_processor(new AutocorrelogramProcessor(buf, AC_BIN_SIZE_MS, AC_N_BINS));
     
-    pipeline->add_processor(new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE,
-    		PF_BASE_PATH, PF_RREDICTION_FIRING_RATE_THRESHOLD, PF_MIN_PKG_ID, PF_USE_PRIOR));
+    pipeline->add_processor(pfProc);
     
     // should be added after all control processor
     pipeline->add_processor(new SDLControlInputMetaProcessor(buf, pipeline->GetSDLControlInputProcessors()));
