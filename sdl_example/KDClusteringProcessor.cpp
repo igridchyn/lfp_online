@@ -7,11 +7,12 @@
 
 #include "KDClusteringProcessor.h"
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path)
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path, PlaceFieldProcessor* pfProc)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
-	, BASE_PATH(base_path){
+	, BASE_PATH(base_path)
+	, pfProc_(pfProc){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -54,8 +55,10 @@ KDClusteringProcessor::~KDClusteringProcessor() {
 }
 
 // bulid p(a,x) with a of a given spike and (x,y)  coordinates of centers of time bins (normalized)
-void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned int spikei) {
+void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy) {
 	arma::mat pf(NBINS, NBINS, arma::fill::zeros);
+
+	const double occ_sum = arma::sum(arma::sum(occupancy));
 
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
@@ -86,7 +89,19 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 
 			// scaled by MULT_INT ^ 2
 //			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
-			pf(xb, yb) = log(kern_sum / nspikes);
+			if (occupancy(xb, yb)/occ_sum >= 0.001){
+				pf(xb, yb) = log(kern_sum / nspikes / occupancy(xb, yb));
+			}
+		}
+	}
+
+	double occ_min = pf.min();
+	// set min at low occupancy
+	for (int xb = 0; xb < NBINS; ++xb) {
+		for (int yb = 0; yb < NBINS; ++yb) {
+			if (occupancy(xb, yb)/occ_sum < 0.001){
+				pf(xb, yb) = occ_min;
+			}
 		}
 	}
 
@@ -206,6 +221,7 @@ void KDClusteringProcessor::process(){
 
 				// compute p(a_i, x) for all spikes (as KDE of nearest neighbours neighbours)
 				time_t start = clock();
+				const arma::mat& occupancy = pfProc_->GetSmoothedOccupancy();
 				for (int p = 0; p < total_spikes_[tetr]; ++p) {
 					// DEBUG
 					if (!(p % 5000)){
@@ -218,7 +234,7 @@ void KDClusteringProcessor::process(){
 	//						exit(0);
 					}
 
-					build_pax_(tetr, p);
+					build_pax_(tetr, p, occupancy);
 				}
 
 				pf_built_[tetr] = true;
@@ -242,7 +258,7 @@ void KDClusteringProcessor::process(){
 						ann_points_[tetr][total_spikes_[tetr]][chan * 3 + pc] = spike->pc[chan][pc];
 
 						// save integer with increased precision for integer KDE operations
-						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
+						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT_FEAT);
 
 						// set from the obs_mats after computing the coordinates normalizing factor
 //						spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);

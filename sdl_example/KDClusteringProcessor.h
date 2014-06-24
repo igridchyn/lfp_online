@@ -9,6 +9,7 @@
 #define KDCLUSTERINGPROCESSOR_H_
 
 #include "LFPProcessor.h"
+#include "PlaceFieldProcessor.h"
 #include <armadillo>
 #include <ANN/ANN.h>
 
@@ -23,10 +24,10 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO: configurableize
 	const unsigned int DIM = 12;
 
-	// TODO: parametrize
+	// TODO: parametrize (from main for a start)
 	const unsigned int NN_K = 100;
 	const double NN_EPS = 0.1;
-	const unsigned int NBINS = 30;
+	const unsigned int NBINS = 20;
 	// TODO float
 	const unsigned int BIN_SIZE = 20;
 
@@ -35,6 +36,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT = 1024;
+	const unsigned int MULT_INT_FEAT = 700;
 
 	const bool SAVE = true;
 	const bool LOAD = false;
@@ -68,11 +70,15 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<int> missed_spikes_;
 
 	// build p(a_i, x)
-	void build_pax_(const unsigned int tetr, const unsigned int spikei);
+	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy);
 	long long inline kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y);
 
+	// to get the place fields
+	// TODO interface and implementation - OccupancyProvider
+	PlaceFieldProcessor *pfProc_;
+
 public:
-	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path);
+	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path, PlaceFieldProcessor* pfProc);
 	virtual ~KDClusteringProcessor();
 
 	// LFPProcessor
