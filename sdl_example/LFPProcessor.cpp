@@ -217,6 +217,13 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
 	return merged;
 }
 
+void Utils::Output::printIntArray(int *array, const unsigned int num_el){
+	for (int e = 0; e < num_el; ++e) {
+		std::cout << array[e] << " ";
+	}
+	std::cout << "\n";
+}
+
 TetrodesInfo* TetrodesInfo::GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to){
 	assert(to >= from);
 	TetrodesInfo * tetrinf = new TetrodesInfo();

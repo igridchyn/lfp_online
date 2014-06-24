@@ -151,6 +151,11 @@ public:
         static std::vector<int> GetRange(const unsigned int& from, const unsigned int& to);
         static std::vector<int> MergeRanges(const std::vector<int>& a1, const std::vector<int>& a2);
     };
+
+    class Output{
+    public:
+    	static void printIntArray(int *array, const unsigned int num_el);
+    };
 };
 
 #endif
