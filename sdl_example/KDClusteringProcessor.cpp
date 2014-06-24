@@ -24,6 +24,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	spike_place_fields_.resize(tetrn);
 	ann_points_int_.resize(tetrn);
 	spike_coords_int_.resize(tetrn);
+	obs_mats_.resize(tetrn);
 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
@@ -35,6 +36,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		}
 
 		spike_coords_int_[t] = arma::Mat<int>(MIN_SPIKES, 2, arma::fill::zeros);
+
+		// tmp
+		obs_mats_[t] = arma::mat(MIN_SPIKES, 14);
 	}
 
 	pf_built_.resize(tetrn);
@@ -52,12 +56,14 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 			// order of >= 30
 			long long kern_sum = 0;
 
+			// compute KDE (proportional to log-probability) over cached nearest neighbours
 			for (int ni = 0; ni < NN_K; ++ni) {
-				kern_sum += kern_(spikei, knn_cache_[tetr][spikei][ni], tetr);
+				int logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr);
+				kern_sum += logprob;
 			}
 
 			// scaled by MULT_INT ^ 2
-			pf(xb, yb) = (double)kern_sum / (MIN_SPIKES ^ 2);
+			pf(xb, yb) = (double)kern_sum / (MULT_INT ^ 2);
 		}
 	}
 
@@ -80,15 +86,16 @@ int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsign
 
 	int *pcoord1 = ann_points_int_[tetr][spikei1], *pcoord2 = ann_points_int_[tetr][spikei2];
 	for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
-		sum += (*pcoord1 - *pcoord2) ^ 2;
+		int coord1 = *pcoord1, coord2 = *pcoord2;
+		sum += (coord1 - coord2) * (coord1 - coord2);
+//		sum += (*pcoord1 - *pcoord2) ^ 2;
 	}
-	sum *=X_STD;
 
-	// !!! ASSUMING THAT X_STD == Y_STD don't divide but rather multiply in sum by X_STD
+	// coords are already normalized to have the same variance as features (average)
 	// X coordinate
-	sum += (spike_coords_int_[tetr](spikei1, 0) - spike_coords_int_[tetr](spikei2, 0)) ^ 2;
+	sum += (spike_coords_int_[tetr](spikei1, 0) - spike_coords_int_[tetr](spikei2, 0)) * (spike_coords_int_[tetr](spikei1, 0) - spike_coords_int_[tetr](spikei2, 0));
 	// Y coordinate
-	sum += (spike_coords_int_[tetr](spikei1, 1) - spike_coords_int_[tetr](spikei2, 1)) ^ 2;
+	sum += (spike_coords_int_[tetr](spikei1, 1) - spike_coords_int_[tetr](spikei2, 1)) * ((spike_coords_int_[tetr](spikei1, 1) - spike_coords_int_[tetr](spikei2, 1)));
 
 //	ANNcoord *pcoord1 = ann_points_[tetr][spikei1], *pcoord2 = ann_points_[tetr][spikei2];
 
@@ -106,6 +113,7 @@ int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsign
 //	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
 //	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
 
+	// order : ~ 10^9 for 12 features scaled by 2^10 = 10^3
 	return - (sum >> 1);
 }
 
@@ -119,8 +127,32 @@ void KDClusteringProcessor::process(){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
 				std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
-				std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...";
+				std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
+				// NORMALIZE STDS
+				// TODO: !!! KDE / kd-tree search should be performed with the same std normalization !!!
+				// current: don't normalize feature covariances (as clustering is done in this way) but normalize x/y std to have the average feature std
+				std::vector<float> stds;
+				float avg_feat_std = .0f;
+				for (int f = 0; f < N_FEAT; ++f) {
+					float stdf = arma::stddev(obs_mats_[tetr].col(f));
+					std::cout << "std of feature " << f << " = " << stdf << "\n";
+					stds.push_back(stdf);
+					avg_feat_std += stdf;
+				}
+				avg_feat_std /= N_FEAT;
+				float stdx = arma::stddev(obs_mats_[tetr].col(N_FEAT));
+				float stdy = arma::stddev(obs_mats_[tetr].col(N_FEAT + 1));
+				std::cout << "std of x  = " << stdx << "\n";
+				std::cout << "std of y  = " << stdy << "\n";
+				// normalize coords to have the average feature std
+				for (int s = 0; s < total_spikes_[tetr]; ++s) {
+					// ... loss of precision 1) from rounding to int; 2) by dividing int on float
+					spike_coords_int_[tetr](s, 0) = (int)(obs_mats_[tetr](s, N_FEAT) * avg_feat_std * MULT_INT / stdx);  //= stdx / avg_feat_std;
+					spike_coords_int_[tetr](s, 1) = (int)(obs_mats_[tetr](s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
+				}
+
+				// cache k nearest neighbours for each spike (for KDE computation)
 				ANNdist *dists = new ANNdist[NN_K];
 				// call kNN for each point
 				for (int p = 0; p < total_spikes_[tetr]; ++p) {
@@ -133,13 +165,13 @@ void KDClusteringProcessor::process(){
 				delete dists;
 				std::cout << "done\n";
 
-				// compute p(a_i, x) for all spikes (from neighbours
+				// compute p(a_i, x) for all spikes (as KDE of nearest neighbours neighbours)
 				time_t start = clock();
 				for (int p = 0; p < total_spikes_[tetr]; ++p) {
 					// DEBUG
-					if (!(p % 500)){
+					if (!(p % 5000)){
 						std::cout.precision(2);
-						std::cout << p << " place fields built, last 500 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+						std::cout << p << " place fields built, last 5000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
 						start = clock();
 
 					// for profiling
@@ -156,6 +188,7 @@ void KDClusteringProcessor::process(){
 			else{
 				obs_spikes_[tetr].push_back(spike);
 
+				// copy features and coords to ann_points_int and obs_mats
 				for (int pc=0; pc < 3; ++pc) {
 					// TODO: tetrode channels
 					for(int chan=0; chan < 4; ++chan){
@@ -163,8 +196,15 @@ void KDClusteringProcessor::process(){
 
 						// save integer with increased precision for integer KDE operations
 						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
-						spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
-						spike_coords_int_[tetr](total_spikes_[tetr], 1) = (int)round(spike->y * MULT_INT);
+
+						// set from the obs_mats after computing the coordinates normalizing factor
+//						spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
+//						spike_coords_int_[tetr](total_spikes_[tetr], 1) = (int)round(spike->y * MULT_INT);
+
+						// tmp: for stats
+						obs_mats_[tetr](total_spikes_[tetr], chan * 3 + pc) = spike->pc[chan][pc];
+						obs_mats_[tetr](total_spikes_[tetr], 12) = spike->x;
+						obs_mats_[tetr](total_spikes_[tetr], 13) = spike->y;
 					}
 				}
 

@@ -39,6 +39,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool LOAD = false;
 	const std::string BASE_PATH;
 
+	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
+	const unsigned int N_FEAT = 12;
+
 	std::vector<ANNkd_tree*> kdtrees_;
 	std::vector<ANNpointArray> ann_points_;
 
@@ -55,6 +58,9 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	std::vector<bool> pf_built_;
 	unsigned int n_pf_built_ = 0;
+
+	// tmp - to estimate std
+	std::vector< arma::mat > obs_mats_;
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);
