@@ -25,6 +25,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	ann_points_int_.resize(tetrn);
 	spike_coords_int_.resize(tetrn);
 	obs_mats_.resize(tetrn);
+	coords_normalized_.resize(tetrn);
 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
@@ -39,6 +40,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 		// tmp
 		obs_mats_[t] = arma::mat(MIN_SPIKES, 14);
+
+		// bin / (x,y)
+		coords_normalized_[t] = arma::Mat<int>(NBINS, 2, arma::fill::zeros);
 	}
 
 	pf_built_.resize(tetrn);
@@ -48,6 +52,7 @@ KDClusteringProcessor::~KDClusteringProcessor() {
 	// TODO Auto-generated destructor stub
 }
 
+// bulid p(a,x) with a of a given spike and (x,y)  coordinates of centers of time bins (normalized)
 void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned int spikei) {
 	arma::mat pf(NBINS, NBINS, arma::fill::zeros);
 
@@ -56,14 +61,21 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 			// order of >= 30
 			long long kern_sum = 0;
 
+			unsigned int nspikes = 0;
 			// compute KDE (proportional to log-probability) over cached nearest neighbours
 			for (int ni = 0; ni < NN_K; ++ni) {
-				int logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr);
+				Spike *spike = obs_spikes_[tetr][knn_cache_[tetr][spikei][ni]];
+				if (spike->x == 1023){
+					continue;
+				}
+				nspikes++;
+
+				int logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr, coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1));
 				kern_sum += logprob;
 			}
 
 			// scaled by MULT_INT ^ 2
-			pf(xb, yb) = (double)kern_sum / (MULT_INT ^ 2);
+			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
 		}
 	}
 
@@ -76,7 +88,8 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 	}
 }
 
-int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr) {
+// x/y instead of coords of the second spike
+int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y) {
 	// TODO: implement efficiently (integer with high precision)
 	// TODO: check for the overlow (MULT order X DIM X MAX(coord order / feature sorder) X squared = (10 + 1 + 2) * 2 = 26 < 32 bit )
 
@@ -93,9 +106,14 @@ int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsign
 
 	// coords are already normalized to have the same variance as features (average)
 	// X coordinate
-	sum += (spike_coords_int_[tetr](spikei1, 0) - spike_coords_int_[tetr](spikei2, 0)) * (spike_coords_int_[tetr](spikei1, 0) - spike_coords_int_[tetr](spikei2, 0));
+
+	int neighbx = spike_coords_int_[tetr](spikei2, 0);
+	int xdiff = (neighbx - x);
+	sum += xdiff * xdiff;
 	// Y coordinate
-	sum += (spike_coords_int_[tetr](spikei1, 1) - spike_coords_int_[tetr](spikei2, 1)) * ((spike_coords_int_[tetr](spikei1, 1) - spike_coords_int_[tetr](spikei2, 1)));
+	int neighby = spike_coords_int_[tetr](spikei2, 1);
+	int ydiff = (neighby - y);
+	sum += ydiff * ydiff;
 
 //	ANNcoord *pcoord1 = ann_points_[tetr][spikei1], *pcoord2 = ann_points_[tetr][spikei2];
 
@@ -114,7 +132,7 @@ int inline KDClusteringProcessor::kern_(const unsigned int spikei1, const unsign
 //	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
 
 	// order : ~ 10^9 for 12 features scaled by 2^10 = 10^3
-	return - (sum >> 1);
+	return - sum;
 }
 
 void KDClusteringProcessor::process(){
@@ -150,6 +168,13 @@ void KDClusteringProcessor::process(){
 					// ... loss of precision 1) from rounding to int; 2) by dividing int on float
 					spike_coords_int_[tetr](s, 0) = (int)(obs_mats_[tetr](s, N_FEAT) * avg_feat_std * MULT_INT / stdx);  //= stdx / avg_feat_std;
 					spike_coords_int_[tetr](s, 1) = (int)(obs_mats_[tetr](s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
+				}
+
+				// pre-compute matrix of normalized bin centers
+				// ASSUMING xbin size == ybin size
+				for (int xb = 0; xb < NBINS; ++xb) {
+					coords_normalized_[tetr](xb, 0) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std * MULT_INT / stdx);
+					coords_normalized_[tetr](xb, 1) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std * MULT_INT / stdy);
 				}
 
 				// cache k nearest neighbours for each spike (for KDE computation)
@@ -203,10 +228,11 @@ void KDClusteringProcessor::process(){
 
 						// tmp: for stats
 						obs_mats_[tetr](total_spikes_[tetr], chan * 3 + pc) = spike->pc[chan][pc];
-						obs_mats_[tetr](total_spikes_[tetr], 12) = spike->x;
-						obs_mats_[tetr](total_spikes_[tetr], 13) = spike->y;
 					}
 				}
+
+				obs_mats_[tetr](total_spikes_[tetr], N_FEAT) = spike->x;
+				obs_mats_[tetr](total_spikes_[tetr], N_FEAT + 1) = spike->y;
 
 				total_spikes_[tetr] ++;
 			}

@@ -26,8 +26,12 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO: parametrize
 	const unsigned int NN_K = 100;
 	const unsigned int NN_EPS = 0.1;
-	const unsigned int NBINS = 20;
-	const unsigned int BIN_SIZE = 5;
+	const unsigned int NBINS = 30;
+	// TODO float
+	const unsigned int BIN_SIZE = 20;
+
+	// normalized to have average feature std / per tetrode
+	std::vector<arma::Mat<int>> coords_normalized_;
 
 	const int X_STD = 100;
 	const int Y_STD = 100;
@@ -38,6 +42,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool SAVE = true;
 	const bool LOAD = false;
 	const std::string BASE_PATH;
+
+	const unsigned int SAMPLING_RATE = 5;
 
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
 	const unsigned int N_FEAT = 12;
@@ -64,7 +70,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei);
-	int inline kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr);
+	int inline kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y);
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path);
