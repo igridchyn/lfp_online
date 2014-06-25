@@ -6,6 +6,7 @@
  */
 
 #include "KDClusteringProcessor.h"
+#include <fstream>
 
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path, PlaceFieldProcessor* pfProc)
 	: LFPProcessor(buf)
@@ -69,6 +70,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
 		for (int t = 0; t < tetrn; ++t) {
+			std::cout << "Load probability estimations for tetrode " << t << "...\n";
 			// load place fields for all spikes for all tetrodes
 			for (int i = 0; i < MIN_SPIKES; ++i) {
 				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
@@ -79,7 +81,13 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 			pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "px.mat");
 
 			pf_built_[t] = true;
+
+			std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + "_kdtree.mat");
+			kdtrees_[t] = new ANNkd_tree(kdtree_stream);
+			kdtree_stream.close();
 		}
+
+		n_pf_built_ = tetrn;
 	}
 }
 
@@ -211,6 +219,17 @@ void KDClusteringProcessor::process(){
 				std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 				std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
+
+				if (SAVE){
+					std::ofstream kdtree_stream(BASE_PATH + Utils::NUMBERS[tetr] + "_kdtree.mat");
+					kdtrees_[tetr]->Dump(ANNtrue, kdtree_stream);
+					kdtree_stream.close();
+				}
+
+					// workarournd for first-time saving
+//					pf_built_[tetr] = true;
+//					buffer->spike_buf_pos_clust_ ++;
+//					continue;
 
 				// NORMALIZE STDS
 				// TODO: !!! KDE / kd-tree search should be performed with the same std normalization !!!
@@ -422,7 +441,7 @@ void KDClusteringProcessor::process(){
 			const unsigned int left_edge  = right_edge - 100 * buffer->SAMPLING_RATE / 1000;
 
 			// sparse prediction + prediction only after having on all fields
-			if (n_pf_built_ < buffer->tetr_info_->tetrodes_number || right_edge - last_pred_pkg_id_ < PRED_RATE){
+			if (right_edge < 10000 || n_pf_built_ < buffer->tetr_info_->tetrodes_number || right_edge - last_pred_pkg_id_ < PRED_RATE){
 				buffer->spike_buf_pos_clust_ ++;
 				continue;
 			}
