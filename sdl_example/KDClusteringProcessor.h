@@ -37,7 +37,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT = 1024;
-	const unsigned int MULT_INT_FEAT = 700;
+	const unsigned int MULT_INT_FEAT = 200;
 
 	const bool SAVE = true;
 	const bool LOAD = false;
@@ -76,6 +76,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<int> missed_spikes_;
 
 	// occupancy, spike occurance map, generalized firing rate
+	arma::mat pix_log_;
 	arma::mat pix_;
 
 	std::vector<arma::mat> pxs_;

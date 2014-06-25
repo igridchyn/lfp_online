@@ -131,7 +131,7 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(gmmClustProc);
     
 //    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
-    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED, .5, 300));
+//    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED, .5, 300));
     
     // TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
@@ -142,7 +142,7 @@ void draw_bin(const char *path){
     
 //    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
     
-    pipeline->add_processor(new AutocorrelogramProcessor(buf, AC_BIN_SIZE_MS, AC_N_BINS));
+//    pipeline->add_processor(new AutocorrelogramProcessor(buf, AC_BIN_SIZE_MS, AC_N_BINS));
     
     pipeline->add_processor(pfProc);
     
