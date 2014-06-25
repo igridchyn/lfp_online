@@ -26,6 +26,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// TODO: parametrize (from main for a start)
 	const unsigned int NN_K = 100;
+	const unsigned int NN_K_COORDS = 100;
 	const double NN_EPS = 0.1;
 	const unsigned int NBINS = 20;
 	// TODO float
@@ -47,8 +48,13 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
 	const unsigned int N_FEAT = 12;
 
+	// trees and points for spike features
 	std::vector<ANNkd_tree*> kdtrees_;
 	std::vector<ANNpointArray> ann_points_;
+
+	// trees and points for spike coordinates
+	std::vector<ANNkd_tree*> kdtrees_coords_;
+	std::vector<ANNpointArray> ann_points_coords_;
 
 	// for integer computations with increased precision (multiplier = MULT_INT)
 	std::vector< int **  > ann_points_int_;
@@ -69,9 +75,11 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	std::vector<int> missed_spikes_;
 
+	arma::mat px_;
+
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy);
-	long long inline kern_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y);
+	long long inline kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y);
 
 	// to get the place fields
 	// TODO interface and implementation - OccupancyProvider

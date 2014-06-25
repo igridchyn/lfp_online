@@ -24,6 +24,8 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     PlaceField occupancy_;
     PlaceField occupancy_smoothed_;
     
+    std::vector<PlaceField> tetrode_spike_probs_;
+
     arma::mat reconstructed_position_;
     
     std::vector< std::vector< PlaceField > > place_fields_;
