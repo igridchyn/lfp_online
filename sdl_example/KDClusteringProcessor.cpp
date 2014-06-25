@@ -62,6 +62,25 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 	pix_log_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	pix_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+
+	if (LOAD){
+		// load occupancy
+		pix_.load(BASE_PATH + "pix.mat");
+		pix_log_.load(BASE_PATH + "pix_log.mat");
+
+		for (int t = 0; t < tetrn; ++t) {
+			// load place fields for all spikes for all tetrodes
+			for (int i = 0; i < MIN_SPIKES; ++i) {
+				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
+			}
+
+			// load marginal rate function
+			lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "lx.mat");
+			pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "px.mat");
+
+			pf_built_[t] = true;
+		}
+	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
