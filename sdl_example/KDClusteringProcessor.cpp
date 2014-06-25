@@ -231,9 +231,9 @@ void KDClusteringProcessor::process(){
 
 							double sum = 0;
 							double xdiff = (xc - ann_points_coords_[tetr][nnIdx_coord[n]][0]);
-							sum += xdiff * xdiff / stdx * avg_feat_std;
+							sum += xdiff * xdiff / stdx;
 							double ydiff = (yc - ann_points_coords_[tetr][nnIdx_coord[n]][1]);
-							sum += ydiff * ydiff / stdy * avg_feat_std;
+							sum += ydiff * ydiff / stdy;
 
 							kde_sum += exp(- sum / 2);
 						}
@@ -244,7 +244,7 @@ void KDClusteringProcessor::process(){
 					}
 				}
 				if (SAVE){
-					px_.save(BASE_PATH + "px.mat");
+					px_.save(BASE_PATH + "px.mat", arma::raw_ascii);
 				}
 
 				// pre-compute matrix of normalized bin centers
