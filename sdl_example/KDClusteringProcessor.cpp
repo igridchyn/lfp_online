@@ -53,7 +53,10 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	}
 
 	pf_built_.resize(tetrn);
+
 	px_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	pix_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	lx_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -247,6 +250,57 @@ void KDClusteringProcessor::process(){
 					px_.save(BASE_PATH + "px.mat", arma::raw_ascii);
 				}
 
+				// compute occupancy KDE - pi(x) from tracking position sampling
+				// TODO 2d-tree ? how many neighbours needed ?
+				// overall tetrode average firing rate
+				double mu = MIN_SPIKES * SAMPLING_RATE * buffer->SAMPLING_RATE / buffer->last_pkg_id;
+				std::cout << "Average firing rate on tetrode: " << mu << "\n";
+				for (int xb = 0; xb < NBINS; ++xb) {
+					for (int yb = 0; yb < NBINS; ++yb) {
+						double xc = BIN_SIZE * (0.5 + xb);
+						double yc = BIN_SIZE * (0.5 + yb);
+
+						double kde_sum = 0;
+						unsigned int npoints = 0;
+						for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
+							if (buffer->positions_buf_[n][0] == 1023){
+								continue;
+							}
+							npoints++;
+
+							double sum = 0;
+
+							double xdiff = xc - buffer->positions_buf_[n][0];
+							double ydiff = yc - buffer->positions_buf_[n][1];
+
+							sum += xdiff * xdiff / stdx;
+							sum += ydiff * ydiff / stdy;
+
+							kde_sum += exp(- sum / 2);
+						}
+
+						kde_sum /= npoints;
+
+						pix_(xb, yb) = kde_sum;
+					}
+				}
+
+				// compute generalized rate function lambda(x)
+				double pisum = arma::sum(arma::sum(pix_));
+				for (int xb = 0; xb < NBINS; ++xb) {
+					for (int yb = 0; yb < NBINS; ++yb) {
+						// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
+						if (pix_(xb, yb) > 0.001 * pisum){
+							lx_(xb, yb) = mu * px_(xb, yb) / pix_(xb, yb);
+						}
+					}
+				}
+
+				if (SAVE){
+					pix_.save(BASE_PATH + "pix.mat", arma::raw_ascii);
+					lx_.save(BASE_PATH + "lx.mat", arma::raw_ascii);
+				}
+
 				// pre-compute matrix of normalized bin centers
 				// ASSUMING xbin size == ybin size
 				for (int xb = 0; xb < NBINS; ++xb) {
@@ -272,7 +326,7 @@ void KDClusteringProcessor::process(){
 
 				// compute p(a_i, x) for all spikes (as KDE of nearest neighbours neighbours)
 				time_t start = clock();
-				const arma::mat& occupancy = pfProc_->GetSmoothedOccupancy();
+				//const arma::mat& occupancy = pfProc_->GetSmoothedOccupancy();
 				for (int p = 0; p < total_spikes_[tetr]; ++p) {
 					// DEBUG
 					if (!(p % 5000)){
@@ -285,7 +339,7 @@ void KDClusteringProcessor::process(){
 	//						exit(0);
 					}
 
-					build_pax_(tetr, p, occupancy);
+					build_pax_(tetr, p, pix_);
 				}
 
 				pf_built_[tetr] = true;

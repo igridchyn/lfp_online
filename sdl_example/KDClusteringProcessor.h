@@ -76,6 +76,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<int> missed_spikes_;
 
 	arma::mat px_;
+	arma::mat pix_;
+	arma::mat lx_;
 
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy);
