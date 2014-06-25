@@ -32,6 +32,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	ann_points_coords_.resize(tetrn);
 	kdtrees_coords_.resize(tetrn);
 
+	laxs_.resize(tetrn);
+
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
 		spike_place_fields_[t].reserve(MIN_SPIKES);
@@ -50,6 +52,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 		// bin / (x,y)
 		coords_normalized_[t] = arma::Mat<int>(NBINS, 2, arma::fill::zeros);
+
+		laxs_[t].resize(MIN_SPIKES, arma::mat(NBINS, NBINS, arma::fill::zeros));
 	}
 
 	pf_built_.resize(tetrn);
@@ -121,6 +125,8 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 		pf.save(save_path, arma::raw_ascii);
 //		std::cout << save_path << "\n";
 	}
+
+	laxs_[tetr][spikei] = pf;
 }
 
 // x/y instead of coords of the second spike
