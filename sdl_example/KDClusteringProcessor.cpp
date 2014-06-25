@@ -388,6 +388,38 @@ void KDClusteringProcessor::process(){
 		}
 		else{
 			// predict from spike in window
+
+			// edges of the window
+			const double DE_SEC = 100 / 1000.0;
+			const unsigned int right_edge = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
+			const unsigned int left_edge  = right_edge - 100 * buffer->SAMPLING_RATE / 1000;
+
+			// posterior position probabilities map
+			// log of prior = pi(x)
+			arma::mat pos_pred_(pix_);
+			pos_pred_ -= DE_SEC  * lx_;
+
+			unsigned int spike_ind = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1];
+
+			Spike *spike = buffer->spike_buffer_[spike_ind];
+			ANNpoint pnt = annAllocPt(DIM);
+			double dist;
+			int closest_ind;
+			while(spike->pkg_id_ > left_edge){
+				const unsigned int tetr = spike->tetrode_;
+
+				// TODO: convert PC in spike to linear array
+				for (int pc=0; pc < 3; ++pc) {
+					// TODO: tetrode channels
+					for(int chan=0; chan < 4; ++chan){
+						pnt[chan * 3 + pc] = spike->pc[chan][pc];
+					}
+				}
+
+				kdtrees_[tetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
+
+				pos_pred_ += laxs_[tetr][closest_ind];
+			}
 		}
 
 		buffer->spike_buf_pos_clust_ ++;
