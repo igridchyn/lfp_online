@@ -130,8 +130,10 @@ void PlaceFieldProcessor::process(){
 
     // if prediction display requested and at least prediction_rate_ time has passed since last prediction
     if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_){
-        ReconstructPosition(buffer->population_vector_window_);
-        drawPrediction();
+        // ReconstructPosition(buffer->population_vector_window_);
+//        drawPrediction();
+
+    	drawMat(buffer->last_prediction_);
     }
 }
 

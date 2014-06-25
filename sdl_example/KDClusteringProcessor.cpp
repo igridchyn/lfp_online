@@ -176,6 +176,10 @@ long long inline KDClusteringProcessor::kern_H_ax_(const unsigned int spikei1, c
 	return - sum / 2;
 }
 
+const arma::mat& KDClusteringProcessor::GetPrediction() {
+	return last_pred_probs_;
+}
+
 void KDClusteringProcessor::process(){
 	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
@@ -287,7 +291,7 @@ void KDClusteringProcessor::process(){
 
 						kde_sum /= npoints;
 
-						pix_(xb, yb) = kde_sum;
+						pix_(xb, yb) = log(kde_sum);
 					}
 				}
 
@@ -297,7 +301,7 @@ void KDClusteringProcessor::process(){
 					for (int yb = 0; yb < NBINS; ++yb) {
 						// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
 						if (pix_(xb, yb) > 0.001 * pisum){
-							lxs_[tetr](xb, yb) = mu * pxs_[tetr](xb, yb) / pix_(xb, yb);
+							lxs_[tetr](xb, yb) = mu * pxs_[tetr](xb, yb) / exp(pix_(xb, yb));
 						}
 					}
 				}
@@ -387,6 +391,7 @@ void KDClusteringProcessor::process(){
 			}
 		}
 		else{
+
 			// predict from spike in window
 
 			// edges of the window
@@ -394,12 +399,18 @@ void KDClusteringProcessor::process(){
 			const unsigned int right_edge = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 			const unsigned int left_edge  = right_edge - 100 * buffer->SAMPLING_RATE / 1000;
 
+			// sparse prediction
+			if (right_edge - last_pred_pkg_id_ < PRED_RATE){
+				continue;
+			}
+			last_pred_pkg_id_ = right_edge;
+
 			// posterior position probabilities map
 			// log of prior = pi(x)
 			arma::mat pos_pred_(pix_);
 			pos_pred_ -= DE_SEC  * lxs_[tetr];
 
-			unsigned int spike_ind = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1];
+			unsigned int spike_ind = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 
 			Spike *spike = buffer->spike_buffer_[spike_ind];
 			ANNpoint pnt = annAllocPt(DIM);
@@ -407,6 +418,13 @@ void KDClusteringProcessor::process(){
 			int closest_ind;
 			while(spike->pkg_id_ > left_edge){
 				const unsigned int stetr = spike->tetrode_;
+
+				// TODO ? wait until all place fields are constructed ?
+				if (!pf_built_[stetr]){
+					spike_ind ++;
+					spike = buffer->spike_buffer_[spike_ind];
+					continue;
+				}
 
 				// TODO: convert PC in spike to linear array
 				for (int pc=0; pc < 3; ++pc) {
@@ -419,7 +437,13 @@ void KDClusteringProcessor::process(){
 				kdtrees_[stetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
 
 				pos_pred_ += laxs_[stetr][closest_ind];
+
+				spike_ind ++;
+				spike = buffer->spike_buffer_[spike_ind];
 			}
+
+			last_pred_probs_ = pos_pred_;
+			buffer->last_prediction_ = pos_pred_;
 		}
 
 		buffer->spike_buf_pos_clust_ ++;

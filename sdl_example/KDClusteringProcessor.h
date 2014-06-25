@@ -91,9 +91,15 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO interface and implementation - OccupancyProvider
 	PlaceFieldProcessor *pfProc_;
 
+	unsigned int last_pred_pkg_id_ = 0;
+	const unsigned int PRED_RATE = 300;
+	arma::mat last_pred_probs_;
+
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path, PlaceFieldProcessor* pfProc);
 	virtual ~KDClusteringProcessor();
+
+	const arma::mat& GetPrediction();
 
 	// LFPProcessor
 	virtual void process();

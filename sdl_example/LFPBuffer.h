@@ -124,6 +124,9 @@ public:
     
     arma::mat cluster_spike_counts_;
 
+    // TODO !WORKAOURD! implement exchange through interface between processors
+    arma::mat last_prediction_;
+
     //====================================================================================================
     
     LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len, const unsigned int& sampling_rate);
