@@ -33,6 +33,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	kdtrees_coords_.resize(tetrn);
 
 	laxs_.resize(tetrn);
+	pxs_.resize(tetrn, arma::mat(NBINS, NBINS, arma::fill::zeros));
+	lxs_.resize(tetrn, arma::mat(NBINS, NBINS, arma::fill::zeros));
 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
@@ -58,9 +60,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 	pf_built_.resize(tetrn);
 
-	px_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	pix_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	lx_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -249,11 +249,11 @@ void KDClusteringProcessor::process(){
 
 						kde_sum /= npoints;
 
-						px_(xb, yb) = kde_sum;
+						pxs_[tetr](xb, yb) = kde_sum;
 					}
 				}
 				if (SAVE){
-					px_.save(BASE_PATH + "px.mat", arma::raw_ascii);
+					pxs_[tetr].save(BASE_PATH + Utils::NUMBERS[tetr] + "px.mat", arma::raw_ascii);
 				}
 
 				// compute occupancy KDE - pi(x) from tracking position sampling
@@ -297,14 +297,14 @@ void KDClusteringProcessor::process(){
 					for (int yb = 0; yb < NBINS; ++yb) {
 						// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
 						if (pix_(xb, yb) > 0.001 * pisum){
-							lx_(xb, yb) = mu * px_(xb, yb) / pix_(xb, yb);
+							lxs_[tetr](xb, yb) = mu * pxs_[tetr](xb, yb) / pix_(xb, yb);
 						}
 					}
 				}
 
 				if (SAVE){
 					pix_.save(BASE_PATH + "pix.mat", arma::raw_ascii);
-					lx_.save(BASE_PATH + "lx.mat", arma::raw_ascii);
+					lxs_[tetr].save(BASE_PATH + Utils::NUMBERS[tetr] + "lx.mat", arma::raw_ascii);
 				}
 
 				// pre-compute matrix of normalized bin centers
@@ -397,7 +397,7 @@ void KDClusteringProcessor::process(){
 			// posterior position probabilities map
 			// log of prior = pi(x)
 			arma::mat pos_pred_(pix_);
-			pos_pred_ -= DE_SEC  * lx_;
+			pos_pred_ -= DE_SEC  * lxs_[tetr];
 
 			unsigned int spike_ind = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1];
 
@@ -406,7 +406,7 @@ void KDClusteringProcessor::process(){
 			double dist;
 			int closest_ind;
 			while(spike->pkg_id_ > left_edge){
-				const unsigned int tetr = spike->tetrode_;
+				const unsigned int stetr = spike->tetrode_;
 
 				// TODO: convert PC in spike to linear array
 				for (int pc=0; pc < 3; ++pc) {
@@ -416,9 +416,9 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
-				kdtrees_[tetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
+				kdtrees_[stetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
 
-				pos_pred_ += laxs_[tetr][closest_ind];
+				pos_pred_ += laxs_[stetr][closest_ind];
 			}
 		}
 

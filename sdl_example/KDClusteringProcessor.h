@@ -76,9 +76,10 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<int> missed_spikes_;
 
 	// occupancy, spike occurance map, generalized firing rate
-	arma::mat px_;
 	arma::mat pix_;
-	arma::mat lx_;
+
+	std::vector<arma::mat> pxs_;
+	std::vector<arma::mat> lxs_;
 
 	std::vector<std::vector<arma::mat> > laxs_;
 
