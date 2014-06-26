@@ -59,7 +59,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	// for integer computations with increased precision (multiplier = MULT_INT)
 	// TODO change to mat
 	std::vector< int **  > ann_points_int_;
-	std::vector< arma::Mat<int> > spike_coords_int_;
 
 	// knn in the train set [tetrode][point]
 	std::vector<std::vector<ANNidx*> > knn_cache_;
@@ -89,8 +88,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<bool> fitting_jobs_running_;
 
 	// build p(a_i, x)
-	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy);
-	long long inline kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y);
+	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy, const arma::Mat<int>& spike_coords_int);
+	long long inline kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y, const arma::Mat<int>& spike_coords_int);
 
 	// TODO synchronize pix dumping
 	void build_lax_and_tree(const unsigned int tetr);

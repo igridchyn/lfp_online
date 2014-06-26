@@ -25,7 +25,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	knn_cache_.resize(tetrn);
 	spike_place_fields_.resize(tetrn);
 	ann_points_int_.resize(tetrn);
-	spike_coords_int_.resize(tetrn);
 	obs_mats_.resize(tetrn);
 	coords_normalized_.resize(tetrn);
 	missed_spikes_.resize(tetrn);
@@ -47,8 +46,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		for (int d = 0; d < MIN_SPIKES; ++d) {
 			ann_points_int_[t][d] = new int[DIM];
 		}
-
-		spike_coords_int_[t] = arma::Mat<int>(MIN_SPIKES, 2, arma::fill::zeros);
 
 		// tmp
 		obs_mats_[t] = arma::mat(MIN_SPIKES, 14);
@@ -105,7 +102,7 @@ KDClusteringProcessor::~KDClusteringProcessor() {
 }
 
 // bulid p(a,x) with a of a given spike and (x,y)  coordinates of centers of time bins (normalized)
-void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy) {
+void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy, const arma::Mat<int>& spike_coords_int) {
 	arma::mat pf(NBINS, NBINS, arma::fill::zeros);
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
@@ -124,7 +121,9 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 					continue;
 				}
 
-				long long logprob = kern_H_ax_(spikei, knn_cache_[tetr][spikei][ni], tetr, coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1));
+				long long logprob = kern_H_ax_(spikei, knn_cache_[tetr][spikei][ni], tetr,
+						coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1),
+						spike_coords_int);
 
 				// DEBUG
 				if (logprob > 0){
@@ -167,7 +166,9 @@ void KDClusteringProcessor::build_pax_(const unsigned int tetr, const unsigned i
 }
 
 // x/y instead of coords of the second spike
-long long inline KDClusteringProcessor::kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y) {
+long long inline KDClusteringProcessor::kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2,
+		const unsigned int tetr, const int& x, const int& y,
+		const arma::Mat<int>& spike_coords_int) {
 	// TODO: implement efficiently (integer with high precision)
 	// TODO: check for the overlow (MULT order X DIM X MAX(coord order / feature sorder) X squared = (10 + 1 + 2) * 2 = 26 < 32 bit )
 
@@ -185,11 +186,11 @@ long long inline KDClusteringProcessor::kern_H_ax_(const unsigned int spikei1, c
 	// coords are already normalized to have the same variance as features (average)
 	// X coordinate
 
-	int neighbx = spike_coords_int_[tetr](spikei2, 0);
+	int neighbx = spike_coords_int(spikei2, 0);
 	int xdiff = (neighbx - x);
 	sum += xdiff * xdiff;
 	// Y coordinate
-	int neighby = spike_coords_int_[tetr](spikei2, 1);
+	int neighby = spike_coords_int(spikei2, 1);
 	int ydiff = (neighby - y);
 	sum += ydiff * ydiff;
 
@@ -357,9 +358,14 @@ void KDClusteringProcessor::process(){
 
 void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
 	// dump required data and start process (due to non-thread-safety of ANN)
+	// bulid tree and dump it along with points
 	std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike (in a separate thread)...\n";
+
+	std::ofstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
+	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
+	kdstream.close();
 
 
 }
@@ -370,6 +376,7 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
 	ANNpointArray ann_points_coords = annAllocPts(MIN_SPIKES, 2);
+	arma::Mat<int> spike_coords_int(MIN_SPIKES, 2, arma::fill::zeros);
 
 	if (SAVE){
 		std::ofstream kdtree_stream(BASE_PATH + Utils::NUMBERS[tetr] + "_kdtree.mat");
@@ -401,8 +408,8 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 	// normalize coords to have the average feature std
 	for (int s = 0; s < total_spikes_[tetr]; ++s) {
 		// ... loss of precision 1) from rounding to int; 2) by dividing int on float
-		spike_coords_int_[tetr](s, 0) = (int)(obs_mats_[tetr](s, N_FEAT) * avg_feat_std * MULT_INT / stdx);  //= stdx / avg_feat_std;
-		spike_coords_int_[tetr](s, 1) = (int)(obs_mats_[tetr](s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
+		spike_coords_int(s, 0) = (int)(obs_mats_[tetr](s, N_FEAT) * avg_feat_std * MULT_INT / stdx);  //= stdx / avg_feat_std;
+		spike_coords_int(s, 1) = (int)(obs_mats_[tetr](s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
 
 		// points to build coords 2d-tree, raw x and y coords
 		ann_points_coords[s][0] = obs_mats_[tetr](s, N_FEAT);
@@ -541,7 +548,7 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 			//						exit(0);
 		}
 
-		build_pax_(tetr, p, pix_);
+		build_pax_(tetr, p, pix_, spike_coords_int);
 	}
 
 	pf_built_[tetr] = true;
@@ -555,6 +562,8 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 		}
 		laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[tetr] + "_tetr.mat");
 	}
+
+	annDeallocPts(ann_points_coords);
 }
 
 void KDClusteringProcessor::JoinKDETasks(){
