@@ -504,7 +504,9 @@ void KDClusteringProcessor::process(){
 			}
 
 			last_pred_probs_ = pos_pred_;
-			buffer->last_prediction_ = pos_pred_;
+			double minval = arma::min(arma::min(pos_pred_));
+			pos_pred_ = pos_pred_ - minval;
+			buffer->last_prediction_ = pos_pred_.t();
 
 			// DEBUG
 			if (!(last_pred_pkg_id_ % 200)){
