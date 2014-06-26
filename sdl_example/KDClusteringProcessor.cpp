@@ -233,6 +233,10 @@ void KDClusteringProcessor::process(){
 				if (!fitting_jobs_running_[tetr]){
 					fitting_jobs_running_[tetr] = true;
 					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree, this, tetr);
+
+					// !!! WORKAROUND due to thread-unsafety of ANN
+					fitting_jobs_[tetr]->join();
+					fitting_jobs_running_[tetr] = false;
 				}
 			}
 			else{
