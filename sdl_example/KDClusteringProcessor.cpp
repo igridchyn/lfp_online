@@ -71,10 +71,19 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 		for (int t = 0; t < tetrn; ++t) {
 			std::cout << "Load probability estimations for tetrode " << t << "...\n";
-			// load place fields for all spikes for all tetrodes
-			for (int i = 0; i < MIN_SPIKES; ++i) {
-				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
+
+			// load l(a,x) for all spikes of the tetrode
+//			for (int i = 0; i < MIN_SPIKES; ++i) {
+//				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
+//			}
+
+			// load binary combined matrix and extract individual l(a,x)
+			arma::mat laxs_tetr_(NBINS, NBINS * MIN_SPIKES);
+			laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
+			for (int s = 0; s < MIN_SPIKES; ++s) {
+				laxs_[t][s] = laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1);
 			}
+			laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
 			// load marginal rate function
 			lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "lx.mat");
@@ -226,7 +235,7 @@ void KDClusteringProcessor::process(){
 					kdtree_stream.close();
 				}
 
-					// workarournd for first-time saving
+					// Workaround for first-time saving
 //					pf_built_[tetr] = true;
 //					buffer->spike_buf_pos_clust_ ++;
 //					continue;
@@ -395,6 +404,16 @@ void KDClusteringProcessor::process(){
 
 				pf_built_[tetr] = true;
 				n_pf_built_ ++;
+
+				// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
+				if (SAVE){
+					arma::mat laxs_tetr_(NBINS, NBINS * MIN_SPIKES);
+					for (int s = 0; s < MIN_SPIKES; ++s) {
+						laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1) = laxs_[tetr][s];
+					}
+					laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[tetr] + "_tetr.mat");
+				}
+
 			}
 			else{
 				// sample every SAMLING_RATE spikes for KDE estimation
@@ -486,6 +505,12 @@ void KDClusteringProcessor::process(){
 
 			last_pred_probs_ = pos_pred_;
 			buffer->last_prediction_ = pos_pred_;
+
+			// DEBUG
+			if (!(last_pred_pkg_id_ % 200)){
+				pos_pred_.save(BASE_PATH + "tmp_pred_" + Utils::Converter::int2str(last_pred_pkg_id_) + ".mat", arma::raw_ascii);
+				std::cout << "save prediction...\n";
+			}
 		}
 
 		buffer->spike_buf_pos_clust_ ++;
