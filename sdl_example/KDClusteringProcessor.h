@@ -12,6 +12,7 @@
 #include "PlaceFieldProcessor.h"
 #include <armadillo>
 #include <ANN/ANN.h>
+#include <thread>
 
 class KDClusteringProcessor: public LFPProcessor {
 	// per tetrode
@@ -39,8 +40,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int MULT_INT = 1024;
 	const unsigned int MULT_INT_FEAT = 200;
 
-	const bool SAVE = false;
-	const bool LOAD = true;
+	const bool SAVE = true;
+	const bool LOAD = false;
 	const std::string BASE_PATH;
 
 	const unsigned int SAMPLING_RATE = 5;
@@ -57,6 +58,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<ANNpointArray> ann_points_coords_;
 
 	// for integer computations with increased precision (multiplier = MULT_INT)
+	// TODO change to mat
 	std::vector< int **  > ann_points_int_;
 	std::vector< arma::Mat<int> > spike_coords_int_;
 
@@ -84,9 +86,15 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	std::vector<std::vector<arma::mat> > laxs_;
 
+	std::vector<std::thread*> fitting_jobs_;
+	std::vector<bool> fitting_jobs_running_;
+
 	// build p(a_i, x)
 	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy);
 	long long inline kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y);
+
+	// TODO synchronize pix dumping
+	void build_lax_and_tree(const unsigned int tetr);
 
 	// to get the place fields
 	// TODO interface and implementation - OccupancyProvider
@@ -101,6 +109,7 @@ public:
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
+	void JoinKDETasks();
 
 	// LFPProcessor
 	virtual void process();
