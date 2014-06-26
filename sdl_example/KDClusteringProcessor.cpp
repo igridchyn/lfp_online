@@ -469,7 +469,10 @@ void KDClusteringProcessor::process(){
 			// posterior position probabilities map
 			// log of prior = pi(x)
 			arma::mat pos_pred_(pix_log_);
-			pos_pred_ -= DE_SEC  * lxs_[tetr];
+
+			// should be added for each tetrode on which spikes occurred
+//			pos_pred_ -= DE_SEC  * lxs_[tetr];
+			std::vector<bool> tetr_spiked(buffer->tetr_info_->tetrodes_number, false);
 
 			unsigned int spike_ind = buffer->spike_buf_pos_unproc_ - 1;
 
@@ -479,6 +482,7 @@ void KDClusteringProcessor::process(){
 			int closest_ind;
 			while(spike->pkg_id_ > left_edge){
 				const unsigned int stetr = spike->tetrode_;
+				tetr_spiked[stetr] = true;
 
 				// TODO ? wait until all place fields are constructed ?
 				if (!pf_built_[stetr]){
@@ -503,9 +507,16 @@ void KDClusteringProcessor::process(){
 				spike = buffer->spike_buffer_[spike_ind];
 			}
 
+			for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+				if (tetr_spiked[t]){
+					pos_pred_ -= DE_SEC  * lxs_[t];
+				}
+			}
+
 			last_pred_probs_ = pos_pred_;
 			double minval = arma::min(arma::min(pos_pred_));
-			pos_pred_ = pos_pred_ - minval;
+//			pos_pred_ = pos_pred_ - minval;
+			pos_pred_ = arma::exp(pos_pred_ / 100);
 			buffer->last_prediction_ = pos_pred_.t();
 
 			// DEBUG

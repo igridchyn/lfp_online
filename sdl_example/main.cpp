@@ -90,7 +90,7 @@ void draw_bin(const char *path){
     const unsigned int PF_MIN_PKG_ID = 0;
     const bool PF_USE_PRIOR = false;
     
-    const unsigned int SD_WAIT_MILLISECONDS = 150;
+    const unsigned int SD_WAIT_MILLISECONDS = 350;
     const unsigned int SD_START = 0;//300000000;
 
     // Position display params
