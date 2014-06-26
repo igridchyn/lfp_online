@@ -367,7 +367,28 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
 	kdstream.close();
 
+	// dump obs_mat
+	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 
+	// create pos_buf and dump (first count points), TODO cut matrix later
+	unsigned int npoints = 0;
+	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
+		if (buffer->positions_buf_[n][0] == 1023){
+			continue;
+		}
+		npoints++;
+	}
+	arma::Mat<int> pos_buf(2, npoints);
+	npoints = 0;
+	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
+		if (buffer->positions_buf_[n][0] == 1023){
+			continue;
+		}
+
+		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
+		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
+	}
+	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 }
 
 void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {

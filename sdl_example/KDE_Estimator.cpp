@@ -32,10 +32,18 @@ int tetr;
 std::string BASE_PATH;
 bool SAVE = true;
 
+// first loaded, 2nd - created
 ANNkd_tree *kdtree_, *kdtree_coords;
 
+//spike_coords_int - computed; coords_normalized - computed; pos buf - copied from buffer->pos_buf and loaded
 arma::Mat<int> spike_coords_int, coords_normalized, pos_buf;
-arma::mat px, lx, pix, pix_log, obs_mat, lax;
+// this one is loaded
+arma::mat obs_mat;
+// these are created
+arma::mat px(NBINS, NBINS, arma::fill::zeros), lx(NBINS, NBINS, arma::fill::zeros),
+		pix(NBINS, NBINS, arma::fill::zeros), pix_log(NBINS, NBINS, arma::fill::zeros);
+
+std::vector<arma::mat> lax;
 
 int **ann_points_int;
 
@@ -44,7 +52,8 @@ std::vector<ANNidx*> knn_cache;
 ANNpointArray ann_points_;
 ANNpointArray ann_points_coords;
 
-const int total_spikes_;
+// TODO init
+int total_spikes;
 
 long long kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y) {
 	// TODO: implement efficiently (integer with high precision)
@@ -163,17 +172,17 @@ int main(int argc, char **argv){
 	kdtree_ = new ANNkd_tree(kdstream);
 	ann_points_ = kdtree_->thePoints();
 
-	if (SAVE){
-		std::ofstream kdtree_stream(BASE_PATH + Utils::NUMBERS[tetr] + "_kdtree.mat");
-		kdtree_->Dump(ANNtrue, kdtree_stream);
-		kdtree_stream.close();
-	}
+	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
+	pos_buf.load(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
-	// Workaround for first-time saving
-	//					pf_built_[tetr] = true;
-	//					buffer->spike_buf_pos_clust_ ++;
-	//					continue;
+	// allocate estimation matrices
+	px = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	lx = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	pix = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	pix_log = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	lax.resize(MIN_SPIKES,  arma::mat(BIN_SIZE, BIN_SIZE, arma::fill::zeros));
 
+	// ---
 	// NORMALIZE STDS
 	// TODO: !!! KDE / kd-tree search should be performed with the same std normalization !!!
 	// current: don't normalize feature covariances (as clustering is done in this way) but normalize x/y std to have the average feature std
@@ -191,7 +200,7 @@ int main(int argc, char **argv){
 	std::cout << "std of x  = " << stdx << "\n";
 	std::cout << "std of y  = " << stdy << "\n";
 	// normalize coords to have the average feature std
-	for (int s = 0; s < total_spikes_[tetr]; ++s) {
+	for (int s = 0; s < total_spikes; ++s) {
 		// ... loss of precision 1) from rounding to int; 2) by dividing int on float
 		spike_coords_int(s, 0) = (int)(obs_mat(s, N_FEAT) * avg_feat_std * MULT_INT / stdx);  //= stdx / avg_feat_std;
 		spike_coords_int(s, 1) = (int)(obs_mat(s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
@@ -202,7 +211,7 @@ int main(int argc, char **argv){
 	}
 
 	// build 2d-tree for coords
-	kdtree_coords = new ANNkd_tree(ann_points_coords, total_spikes_[tetr], 2);
+	kdtree_coords = new ANNkd_tree(ann_points_coords, total_spikes, 2);
 	// look for nearest neighbours of each bin center and compute p(x) - spike probability
 	ANNidx *nnIdx_coord = new ANNidx[NN_K_COORDS];
 	ANNdist *dists_coord = new ANNdist[NN_K_COORDS];
@@ -300,7 +309,7 @@ int main(int argc, char **argv){
 	// cache k nearest neighbours for each spike (for KDE computation)
 	ANNdist *dists = new ANNdist[NN_K];
 	// call kNN for each point
-	for (int p = 0; p < total_spikes_[tetr]; ++p) {
+	for (int p = 0; p < total_spikes; ++p) {
 		ANNidx *nnIdx = new ANNidx[NN_K];
 
 		kdtree_->annkSearch(ann_points_[p], NN_K, nnIdx, dists, NN_EPS);
@@ -316,7 +325,7 @@ int main(int argc, char **argv){
 	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours neighbours)
 	time_t start = clock();
 	//const arma::mat& occupancy = pfProc_->GetSmoothedOccupancy();
-	for (int p = 0; p < total_spikes_[tetr]; ++p) {
+	for (int p = 0; p < total_spikes; ++p) {
 		// DEBUG
 		if (!(p % 5000)){
 			std::cout.precision(2);
