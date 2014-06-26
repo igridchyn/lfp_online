@@ -30,7 +30,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	coords_normalized_.resize(tetrn);
 	missed_spikes_.resize(tetrn);
 
-	ann_points_coords_.resize(tetrn);
 	kdtrees_coords_.resize(tetrn);
 
 	fitting_jobs_.resize(tetrn, NULL);
@@ -43,8 +42,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
 		spike_place_fields_[t].reserve(MIN_SPIKES);
-
-		ann_points_coords_[t] = annAllocPts(MIN_SPIKES, 2);
 
 		ann_points_int_[t] = new int*[MIN_SPIKES];
 		for (int d = 0; d < MIN_SPIKES; ++d) {
@@ -358,10 +355,21 @@ void KDClusteringProcessor::process(){
 	}
 }
 
+void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
+	// dump required data and start process (due to non-thread-safety of ANN)
+	std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
+	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike (in a separate thread)...\n";
+
+
+}
+
 void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 	std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
+
+	ANNpointArray ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 
 	if (SAVE){
 		std::ofstream kdtree_stream(BASE_PATH + Utils::NUMBERS[tetr] + "_kdtree.mat");
@@ -397,12 +405,12 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 		spike_coords_int_[tetr](s, 1) = (int)(obs_mats_[tetr](s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
 
 		// points to build coords 2d-tree, raw x and y coords
-		ann_points_coords_[tetr][s][0] = obs_mats_[tetr](s, N_FEAT);
-		ann_points_coords_[tetr][s][1] = obs_mats_[tetr](s, N_FEAT + 1);
+		ann_points_coords[s][0] = obs_mats_[tetr](s, N_FEAT);
+		ann_points_coords[s][1] = obs_mats_[tetr](s, N_FEAT + 1);
 	}
 
 	// build 2d-tree for coords
-	kdtrees_coords_[tetr] = new ANNkd_tree(ann_points_coords_[tetr], total_spikes_[tetr], 2);
+	kdtrees_coords_[tetr] = new ANNkd_tree(ann_points_coords, total_spikes_[tetr], 2);
 	// look for nearest neighbours of each bin center and compute p(x) - spike probability
 	ANNidx *nnIdx_coord = new ANNidx[NN_K_COORDS];
 	ANNdist *dists_coord = new ANNdist[NN_K_COORDS];
@@ -419,15 +427,15 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 			double kde_sum = 0;
 			unsigned int npoints = 0;
 			for (int n = 0; n < NN_K_COORDS; ++n) {
-				if (ann_points_coords_[tetr][nnIdx_coord[n]][0] == 1023){
+				if (ann_points_coords[nnIdx_coord[n]][0] == 1023){
 					continue;
 				}
 				npoints ++;
 
 				double sum = 0;
-				double xdiff = (xc - ann_points_coords_[tetr][nnIdx_coord[n]][0]);
+				double xdiff = (xc - ann_points_coords[nnIdx_coord[n]][0]);
 				sum += xdiff * xdiff / stdx;
-				double ydiff = (yc - ann_points_coords_[tetr][nnIdx_coord[n]][1]);
+				double ydiff = (yc - ann_points_coords[nnIdx_coord[n]][1]);
 				sum += ydiff * ydiff / stdy;
 
 				kde_sum += exp(- sum / 2);

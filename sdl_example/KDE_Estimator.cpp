@@ -11,6 +11,8 @@
 #include <iostream>
 #include <vector>
 
+#include "LFPBuffer.h"
+
 int DIM;
 int NN_K;
 int NN_K_COORDS;
@@ -152,9 +154,14 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 int main(int argc, char **argv){
 	// read the following variables and perform KDE estimation and tree building
 
-	std::cout << "build kd-tree for tetrode " << tetr;
-	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
-	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
+//	std::cout << "build kd-tree for tetrode " << tetr;
+//	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
+//	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
+
+	// load trees, extract points, load mats
+	std::ifstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
+	kdtree_ = new ANNkd_tree(kdstream);
+	ann_points_ = kdtree_->thePoints();
 
 	if (SAVE){
 		std::ofstream kdtree_stream(BASE_PATH + Utils::NUMBERS[tetr] + "_kdtree.mat");

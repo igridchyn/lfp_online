@@ -55,7 +55,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// trees and points for spike coordinates
 	std::vector<ANNkd_tree*> kdtrees_coords_;
-	std::vector<ANNpointArray> ann_points_coords_;
 
 	// for integer computations with increased precision (multiplier = MULT_INT)
 	// TODO change to mat
@@ -95,6 +94,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// TODO synchronize pix dumping
 	void build_lax_and_tree(const unsigned int tetr);
+	void build_lax_and_tree_separate(const unsigned int tetr);
 
 	// to get the place fields
 	// TODO interface and implementation - OccupancyProvider
