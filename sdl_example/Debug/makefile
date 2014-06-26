@@ -83,3 +83,6 @@ lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o Fet
 clean:
 	rm *.o
 	rm lfp_online
+	
+kde_estimator: LFPProcessor.o
+	${CC} ${CFLAGS} -lANN ../KDE_Estimator.cpp LFPProcessor.o ${LDFLAGS} -o kde_estimator
