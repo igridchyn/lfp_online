@@ -389,6 +389,15 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
 	}
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
+
+	/// buuild commandline to start kde_estimator
+	std::ostringstream  os;
+	os << "kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
+			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
+			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << NN_EPS << BASE_PATH;
+	std::cout << "Start kde_estimator with command" << os.str() << "\n";
+
+	system(os.str().c_str());
 }
 
 void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
