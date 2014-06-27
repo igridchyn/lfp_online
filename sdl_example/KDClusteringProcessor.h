@@ -40,8 +40,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int MULT_INT = 1024;
 	const unsigned int MULT_INT_FEAT = 200;
 
-	const bool SAVE = true;
-	const bool LOAD = false;
+	const bool SAVE = false;
+	const bool LOAD = true;
 	const std::string BASE_PATH;
 
 	const unsigned int SAMPLING_RATE = 5;

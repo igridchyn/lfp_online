@@ -186,7 +186,7 @@ int main(int argc, char **argv){
 	std::cout << "t " << tetr << ": " << "start KDE estimation\n";
 
 	// load trees, extract points, load mats
-	std::ifstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
+	std::ifstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtree_ = new ANNkd_tree(kdstream);
 	kdstream.close();
 	ann_points_ = kdtree_->thePoints();
@@ -334,7 +334,7 @@ int main(int argc, char **argv){
 	if (SAVE){
 		pix_log.save(BASE_PATH + "pix_log.mat", arma::raw_ascii);
 		pix.save(BASE_PATH + "pix.mat", arma::raw_ascii);
-		lx.save(BASE_PATH + Utils::NUMBERS[tetr] + "lx.mat", arma::raw_ascii);
+		lx.save(BASE_PATH + Utils::NUMBERS[tetr] + "_lx.mat", arma::raw_ascii);
 	}
 
 	// pre-compute matrix of normalized bin centers

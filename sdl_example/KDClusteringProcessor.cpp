@@ -88,7 +88,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 			pf_built_[t] = true;
 
-			std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + "_kdtree.mat");
+			std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree");
 			kdtrees_[t] = new ANNkd_tree(kdtree_stream);
 			kdtree_stream.close();
 		}
@@ -366,7 +366,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 	std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 
-	std::ofstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
+	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
 	kdstream.close();
 
