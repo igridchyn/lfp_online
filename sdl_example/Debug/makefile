@@ -84,5 +84,5 @@ clean:
 	rm *.o
 	rm lfp_online
 	
-kde_estimator: LFPProcessor.o
+kde_estimator: LFPProcessor.o ../KDE_Estimator.cpp
 	${CC} ${CFLAGS} -lANN ../KDE_Estimator.cpp LFPProcessor.o ${LDFLAGS} -o kde_estimator

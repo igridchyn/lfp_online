@@ -178,6 +178,9 @@
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/lfp_online"/>
 		</configuration>
+		<configuration configurationName="Debug_KDE">
+			<resource resourceType="PROJECT" workspacePath="/lfp_online"/>
+		</configuration>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/lfp_online"/>
 		</configuration>
