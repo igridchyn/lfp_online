@@ -214,6 +214,9 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         
         switch( e.key.keysym.sym )
         {
+        	case SDLK_ESCAPE:
+        		exit(0);
+        		break;
             case SDLK_1:
             	// TODO: remove workaround
             	display_prediction_ = false;

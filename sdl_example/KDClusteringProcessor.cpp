@@ -8,12 +8,17 @@
 #include "KDClusteringProcessor.h"
 #include <fstream>
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path, PlaceFieldProcessor* pfProc)
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
+		const std::string base_path, PlaceFieldProcessor* pfProc,
+		const unsigned int sampling_delay, const bool save, const bool load)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
 	, BASE_PATH(base_path)
-	, pfProc_(pfProc){
+	, pfProc_(pfProc)
+	, SAMPLING_DELAY(sampling_delay)
+	, SAVE(save)
+	, LOAD(load){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -223,6 +228,11 @@ void KDClusteringProcessor::process(){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 		const unsigned int tetr = spike->tetrode_;
 
+		// wait until place fields are stabilized
+		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
+			buffer->spike_buf_pos_clust_ ++;
+		}
+
 		if (!pf_built_[tetr]){
 			if (total_spikes_[tetr] >= MIN_SPIKES){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
@@ -361,7 +371,7 @@ void KDClusteringProcessor::process(){
 
 void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
 	// dump required data and start process (due to non-thread-safety of ANN)
-	// bulid tree and dump it along with points
+	// build tree and dump it along with points
 	std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 	std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
@@ -397,8 +407,13 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	std::cout << "t " << tetr << ": Start external kde_estimator with command\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
-	system(os.str().c_str());
-	std::cout << "t " << tetr << ": l(a,x) and kd-tree done!\n";
+	int retval = system(os.str().c_str());
+	if (retval < 0){
+		std::cout << "ERROR: impossible to start kde_estimator!\n";
+	}
+	else{
+		std::cout << "t " << tetr << ": kde estimator exited with code " << retval << "\n";
+	}
 
 	pf_built_[tetr] = true;
 
