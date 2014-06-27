@@ -91,7 +91,7 @@ void draw_bin(const char *path){
     const bool PF_USE_PRIOR = false;
     
     const unsigned int SD_WAIT_MILLISECONDS = 350;
-    const unsigned int SD_START = 100000000;
+    const unsigned int SD_START = 10000000;
 
     // Position display params
     const unsigned int POS_TAIL_LENGTH = 300;
