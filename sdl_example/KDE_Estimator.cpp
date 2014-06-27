@@ -183,6 +183,8 @@ int main(int argc, char **argv){
 	NN_EPS = atof(argv[14]);
 	BASE_PATH = argv[15];
 
+	std::cout << "t " << tetr << ": " << "start KDE estimation\n";
+
 	// load trees, extract points, load mats
 	std::ifstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtree_ = new ANNkd_tree(kdstream);
@@ -192,6 +194,10 @@ int main(int argc, char **argv){
 	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 	pos_buf.load(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
+	// DEBUG
+	std::cout << "t " << tetr << ": obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";
+	std::cout << "t " << tetr << ": pos " << pos_buf.n_rows << " X " << pos_buf.n_cols << "\n";
+
 	total_spikes = obs_mat.n_rows;
 
 	// allocate estimation matrices
@@ -199,7 +205,7 @@ int main(int argc, char **argv){
 	lx = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	pix = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	pix_log = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	lax.resize(MIN_SPIKES,  arma::mat(BIN_SIZE, BIN_SIZE, arma::fill::zeros));
+	lax.resize(MIN_SPIKES,  arma::mat(NBINS, NBINS, arma::fill::zeros));
 
 	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 	spike_coords_int = arma::Mat<int>(total_spikes, 2);
@@ -217,15 +223,15 @@ int main(int argc, char **argv){
 	float avg_feat_std = .0f;
 	for (int f = 0; f < N_FEAT; ++f) {
 		float stdf = arma::stddev(obs_mat.col(f));
-		std::cout << "std of feature " << f << " = " << stdf << "\n";
+		std::cout << "t " << tetr << ": std of feature " << f << " = " << stdf << "\n";
 		stds.push_back(stdf);
 		avg_feat_std += stdf;
 	}
 	avg_feat_std /= N_FEAT;
 	float stdx = arma::stddev(obs_mat.col(N_FEAT));
 	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
-	std::cout << "std of x  = " << stdx << "\n";
-	std::cout << "std of y  = " << stdy << "\n";
+	std::cout << "t " << tetr << ": " << "std of x  = " << stdx << "\n";
+	std::cout << "t " << tetr << ": " << "std of y  = " << stdy << "\n";
 	// normalize coords to have the average feature std
 	for (int s = 0; s < total_spikes; ++s) {
 		// ... loss of precision 1) from rounding to int; 2) by dividing int on float
@@ -286,7 +292,7 @@ int main(int argc, char **argv){
 	// TODO 2d-tree ? how many neighbours needed ?
 	// overall tetrode average firing rate
 	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / BUFFER_LAST_PKG_ID;
-	std::cout << "Average firing rate on tetrode: " << mu << "\n";
+	std::cout << "t " << tetr << ": Average firing rate on tetrode: " << mu << "\n";
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			double xc = BIN_SIZE * (0.5 + xb);
@@ -312,6 +318,7 @@ int main(int argc, char **argv){
 			pix(xb, yb) = kde_sum;
 		}
 	}
+	std::cout << "t " << tetr << ": done pix\n";
 
 	// compute generalized rate function lambda(x)
 	double pisum = arma::sum(arma::sum(pix));
@@ -336,6 +343,7 @@ int main(int argc, char **argv){
 		coords_normalized(xb, 0) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std * MULT_INT / stdx);
 		coords_normalized(xb, 1) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std * MULT_INT / stdy);
 	}
+	std::cout << "t " << tetr << ": done coords_normalized\n";
 
 	// cache k nearest neighbours for each spike (for KDE computation)
 	ANNdist *dists = new ANNdist[NN_K];
@@ -351,7 +359,7 @@ int main(int argc, char **argv){
 		//					Utils::Output::printIntArray(nnIdx, 10);
 	}
 	delete dists;
-	std::cout << "done\n";
+	std::cout << "t " << tetr << ": done neighbours caching\n";
 
 	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours neighbours)
 	time_t start = clock();
@@ -360,7 +368,7 @@ int main(int argc, char **argv){
 		// DEBUG
 		if (!(p % 5000)){
 			std::cout.precision(2);
-			std::cout << p << " place fields built, last 5000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+			std::cout << "t " << tetr << ": " << p << " place fields built, last 5000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
 			start = clock();
 
 			// for profiling

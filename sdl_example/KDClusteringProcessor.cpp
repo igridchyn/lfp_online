@@ -229,10 +229,10 @@ void KDClusteringProcessor::process(){
 
 				// start clustering if it is not running yet, otherwise - ignore
 				if (!fitting_jobs_running_[tetr]){
-					build_lax_and_tree_separate(tetr);
+//					build_lax_and_tree_separate(tetr);
 
-//					fitting_jobs_running_[tetr] = true;
-//					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
+					fitting_jobs_running_[tetr] = true;
+					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
 //
 //					// !!! WORKAROUND due to thread-unsafety of ANN
 //					fitting_jobs_[tetr]->join();
@@ -362,9 +362,9 @@ void KDClusteringProcessor::process(){
 void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
 	// dump required data and start process (due to non-thread-safety of ANN)
 	// bulid tree and dump it along with points
-	std::cout << "build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
+	std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
 	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
-	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike (in a separate thread)...\n";
+	std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 
 	std::ofstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
@@ -376,23 +376,17 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// create pos_buf and dump (first count points),
 	// TODO cut matrix later
 	unsigned int npoints = 0;
+	// TODO sparse sampling
+	arma::Mat<int> pos_buf(2, buffer->pos_buf_pos_);
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		if (buffer->positions_buf_[n][0] == 1023){
 			continue;
 		}
-		npoints++;
-	}
-	arma::Mat<int> pos_buf(2, npoints);
-	npoints = 0;
-	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
-		if (buffer->positions_buf_[n][0] == 1023){
-			continue;
-		}
-
 		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
 		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
 		npoints++;
 	}
+	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
 	/// buuild commandline to start kde_estimator
