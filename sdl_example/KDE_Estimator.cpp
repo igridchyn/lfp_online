@@ -7,6 +7,8 @@
 #include <armadillo>
 #include <ANN/ANN.h>
 
+#include <math.h>
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -18,14 +20,16 @@ int NN_K;
 int NN_K_COORDS;
 int N_FEAT;
 int MULT_INT;
+int MULT_INT_FEAT;
 int BIN_SIZE;
-int NN_EPS;
 int NBINS;
 
 int MIN_SPIKES;
 int SAMPLING_RATE;
 int BUFFER_SAMPLING_RATE;
 int BUFFER_LAST_PKG_ID;
+
+double NN_EPS;
 
 int tetr;
 
@@ -167,13 +171,28 @@ int main(int argc, char **argv){
 //	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
+	if (argc != 16){
+		std::cout << "Exactly 14 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
+		exit(1);
+	}
+
+	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &MULT_INT_FEAT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID};
+	for(int p=0; p < 13; ++p){
+		*(pars[p]) = atoi(argv[p+1]);
+	}
+	NN_EPS = atof(argv[14]);
+	BASE_PATH = argv[15];
+
 	// load trees, extract points, load mats
 	std::ifstream kdstream(BASE_PATH + "tmp_" + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtree_ = new ANNkd_tree(kdstream);
+	kdstream.close();
 	ann_points_ = kdtree_->thePoints();
 
 	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 	pos_buf.load(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
+
+	total_spikes = obs_mat.n_rows;
 
 	// allocate estimation matrices
 	px = arma::mat(NBINS, NBINS, arma::fill::zeros);
@@ -181,6 +200,14 @@ int main(int argc, char **argv){
 	pix = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	pix_log = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	lax.resize(MIN_SPIKES,  arma::mat(BIN_SIZE, BIN_SIZE, arma::fill::zeros));
+
+	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
+	spike_coords_int = arma::Mat<int>(total_spikes, 2);
+	coords_normalized = arma::Mat<int>(NBINS, 2);
+	ann_points_int = new int*[MIN_SPIKES];
+	for (int d = 0; d < MIN_SPIKES; ++d) {
+		ann_points_int[d] = new int[DIM];
+	}
 
 	// ---
 	// NORMALIZE STDS
@@ -208,6 +235,10 @@ int main(int argc, char **argv){
 		// points to build coords 2d-tree, raw x and y coords
 		ann_points_coords[s][0] = obs_mat(s, N_FEAT);
 		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
+
+		for (int f = 0; f < N_FEAT; ++f) {
+			ann_points_int[s][f] = (int)round(obs_mat(s, f) * MULT_INT_FEAT);
+		}
 	}
 
 	// build 2d-tree for coords
@@ -248,7 +279,7 @@ int main(int argc, char **argv){
 		}
 	}
 	if (SAVE){
-		px.save(BASE_PATH + Utils::NUMBERS[tetr] + "px.mat", arma::raw_ascii);
+		px.save(BASE_PATH + Utils::NUMBERS[tetr] + "_px.mat", arma::raw_ascii);
 	}
 
 	// compute occupancy KDE - pi(x) from tracking position sampling

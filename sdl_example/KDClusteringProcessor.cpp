@@ -83,8 +83,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 			laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
 			// load marginal rate function
-			lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "lx.mat");
-			pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "px.mat");
+			lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
+			pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_px.mat");
 
 			pf_built_[t] = true;
 
@@ -229,12 +229,14 @@ void KDClusteringProcessor::process(){
 
 				// start clustering if it is not running yet, otherwise - ignore
 				if (!fitting_jobs_running_[tetr]){
-					fitting_jobs_running_[tetr] = true;
-					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree, this, tetr);
+					build_lax_and_tree_separate(tetr);
 
-					// !!! WORKAROUND due to thread-unsafety of ANN
-					fitting_jobs_[tetr]->join();
-					fitting_jobs_running_[tetr] = false;
+//					fitting_jobs_running_[tetr] = true;
+//					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
+//
+//					// !!! WORKAROUND due to thread-unsafety of ANN
+//					fitting_jobs_[tetr]->join();
+//					fitting_jobs_running_[tetr] = false;
 				}
 			}
 			else{
@@ -273,6 +275,7 @@ void KDClusteringProcessor::process(){
 			}
 		}
 		else{
+			// if pf_built but job is designated as running, then it is over and can be joined
 			if (fitting_jobs_running_[tetr]){
 				fitting_jobs_running_[tetr] = false;
 				fitting_jobs_[tetr]->join();
@@ -370,7 +373,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// dump obs_mat
 	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 
-	// create pos_buf and dump (first count points), TODO cut matrix later
+	// create pos_buf and dump (first count points),
+	// TODO cut matrix later
 	unsigned int npoints = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		if (buffer->positions_buf_[n][0] == 1023){
@@ -387,17 +391,24 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 
 		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
 		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
+		npoints++;
 	}
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
-	os << "kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
-			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
-			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << NN_EPS << BASE_PATH;
-	std::cout << "Start kde_estimator with command" << os.str() << "\n";
+	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
+			MULT_INT << " " << MULT_INT_FEAT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
+			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << NN_EPS << " " << BASE_PATH;
+	std::cout << "Start external kde_estimator with command " << os.str() << "\n";
 
-	system(os.str().c_str());
+//	if (tetr == 13)
+		system(os.str().c_str());
+
+	pf_built_[tetr] = true;
+
+	// TODO competitive
+	n_pf_built_ ++;
 }
 
 void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
@@ -484,7 +495,7 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 		}
 	}
 	if (SAVE){
-		pxs_[tetr].save(BASE_PATH + Utils::NUMBERS[tetr] + "px.mat", arma::raw_ascii);
+		pxs_[tetr].save(BASE_PATH + Utils::NUMBERS[tetr] + "_px.mat", arma::raw_ascii);
 	}
 
 	// compute occupancy KDE - pi(x) from tracking position sampling
@@ -537,7 +548,7 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 	if (SAVE){
 		pix_log_.save(BASE_PATH + "pix_log.mat", arma::raw_ascii);
 		pix_.save(BASE_PATH + "pix.mat", arma::raw_ascii);
-		lxs_[tetr].save(BASE_PATH + Utils::NUMBERS[tetr] + "lx.mat", arma::raw_ascii);
+		lxs_[tetr].save(BASE_PATH + Utils::NUMBERS[tetr] + "_lx.mat", arma::raw_ascii);
 	}
 
 	// pre-compute matrix of normalized bin centers
