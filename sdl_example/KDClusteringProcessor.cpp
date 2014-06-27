@@ -394,10 +394,11 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << MULT_INT_FEAT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
 			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << NN_EPS << " " << BASE_PATH;
-	std::cout << "Start external kde_estimator with command " << os.str() << "\n";
+	std::cout << "t " << tetr << ": Start external kde_estimator with command\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
-		system(os.str().c_str());
+	system(os.str().c_str());
+	std::cout << "t " << tetr << ": l(a,x) and kd-tree done!\n";
 
 	pf_built_[tetr] = true;
 

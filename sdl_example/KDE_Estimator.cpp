@@ -388,5 +388,7 @@ int main(int argc, char **argv){
 		laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[tetr] + "_tetr.mat");
 	}
 
+	std::cout << "t " << tetr << ": FINISHED\n";
+
 	return 0;
 }
