@@ -91,7 +91,7 @@ void draw_bin(const char *path){
     const bool PF_USE_PRIOR = false;
     
     const unsigned int SD_WAIT_MILLISECONDS = 350;
-    const unsigned int SD_START = 100000000;
+    const unsigned int SD_START = 20 * 1000000;
 
     // Position display params
     const unsigned int POS_TAIL_LENGTH = 300;
@@ -101,11 +101,15 @@ void draw_bin(const char *path){
     const unsigned int AC_N_BINS = 30;
 
     // kd-tree + KDE-based decoding
-    const unsigned int KD_DELAY = 20000000;
-    const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax3/pf_";
+    const unsigned int KD_DELAY = 0; //15000000;
+    const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax4/pf_";
     const bool KD_SAVE = false;
     const bool KD_LOAD = true;
     const bool KD_USE_PRIOR = true;
+    const unsigned int KD_SAMPLING_RATE = 5;
+    const float KD_SPEED_THOLD = 0;
+    // DEBUG, should be used
+    const bool KD_USE_MARGINAL = false;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
@@ -128,7 +132,8 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
-    KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD, KD_USE_PRIOR);
+    KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD,
+    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL);
     pipeline->add_processor(kdClustProc);
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));

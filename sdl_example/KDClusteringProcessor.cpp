@@ -10,7 +10,8 @@
 
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
 		const std::string base_path, PlaceFieldProcessor* pfProc,
-		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior)
+		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
+		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -19,7 +20,10 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SAMPLING_DELAY(sampling_delay)
 	, SAVE(save)
 	, LOAD(load)
-	, USE_PRIOR(use_prior){
+	, USE_PRIOR(use_prior)
+	, SAMPLING_RATE(sampling_rate)
+	, SPEED_THOLD(speed_thold)
+	, USE_MARGINAL(use_marginal){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -225,13 +229,25 @@ const arma::mat& KDClusteringProcessor::GetPrediction() {
 }
 
 void KDClusteringProcessor::process(){
-	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos){
+	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 		const unsigned int tetr = spike->tetrode_;
 
 		// wait until place fields are stabilized
 		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
 			buffer->spike_buf_pos_clust_ ++;
+			continue;
+		}
+
+		// DEBUG
+		if (!delay_reached_reported){
+			delay_reached_reported = true;
+			std::cout << "Delay over. Start spike collection...\n";
+		}
+
+		if (spike->speed < SPEED_THOLD){
+			buffer->spike_buf_pos_clust_ ++;
+			continue;
 		}
 
 		if (!pf_built_[tetr]){
@@ -308,13 +324,10 @@ void KDClusteringProcessor::process(){
 
 			// posterior position probabilities map
 			// initialize with log of prior = pi(x)
-			arma::mat pos_pred_;
+			arma::mat pos_pred_(NBINS, NBINS, arma::fill::zeros);
 
 			if (USE_PRIOR){
 				pos_pred_ = pix_log_;
-			}
-			else{
-				pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 			}
 
 			// should be added for each tetrode on which spikes occurred
@@ -354,17 +367,19 @@ void KDClusteringProcessor::process(){
 				spike = buffer->spike_buffer_[spike_ind];
 			}
 
-			// generalized rate function at each tetrode
-			for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-				if (tetr_spiked[t]){
-					pos_pred_ -= DE_SEC  * lxs_[t];
+			// marginal rate function at each tetrode
+			if (USE_MARGINAL){
+				for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+					if (tetr_spiked[t]){
+						pos_pred_ -= DE_SEC  * lxs_[t];
+					}
 				}
 			}
 
 			last_pred_probs_ = pos_pred_;
 			double minval = arma::min(arma::min(pos_pred_));
 //			pos_pred_ = pos_pred_ - minval;
-			pos_pred_ = arma::exp(pos_pred_ / 100);
+			pos_pred_ = arma::exp(pos_pred_ / 300);
 			buffer->last_prediction_ = pos_pred_.t();
 
 			// DEBUG
@@ -398,7 +413,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// TODO sparse sampling
 	arma::Mat<int> pos_buf(2, buffer->pos_buf_pos_);
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
-		if (buffer->positions_buf_[n][0] == 1023){
+		// if pos is unknown or speed is below the threshold - ignore
+		if (buffer->positions_buf_[n][0] == 1023 || buffer->positions_buf_[n][5] < SPEED_THOLD){
 			continue;
 		}
 		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
@@ -412,7 +428,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << MULT_INT_FEAT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
-			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << NN_EPS << " " << BASE_PATH;
+			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
@@ -558,7 +574,7 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
-			if (pix_log_(xb, yb) > 0.001 * pisum){
+			if (pix_(xb, yb) > 0.001 * pisum){
 				lxs_[tetr](xb, yb) = mu * pxs_[tetr](xb, yb) / pix_(xb, yb);
 			}
 		}

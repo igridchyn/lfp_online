@@ -28,6 +28,7 @@ int MIN_SPIKES;
 int SAMPLING_RATE;
 int BUFFER_SAMPLING_RATE;
 int BUFFER_LAST_PKG_ID;
+int SAMPLING_DELAY;
 
 double NN_EPS;
 
@@ -171,17 +172,17 @@ int main(int argc, char **argv){
 //	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
-	if (argc != 16){
-		std::cout << "Exactly 14 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
+	if (argc != 17){
+		std::cout << "Exactly 17 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
 		exit(1);
 	}
 
-	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &MULT_INT_FEAT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID};
-	for(int p=0; p < 13; ++p){
+	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &MULT_INT_FEAT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+	for(int p=0; p < 14; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
 	}
-	NN_EPS = atof(argv[14]);
-	BASE_PATH = argv[15];
+	NN_EPS = atof(argv[15]);
+	BASE_PATH = argv[16];
 
 	std::cout << "t " << tetr << ": " << "start KDE estimation\n";
 
@@ -291,7 +292,7 @@ int main(int argc, char **argv){
 	// compute occupancy KDE - pi(x) from tracking position sampling
 	// TODO 2d-tree ? how many neighbours needed ?
 	// overall tetrode average firing rate
-	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / BUFFER_LAST_PKG_ID;
+	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / (BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
 	std::cout << "t " << tetr << ": Average firing rate on tetrode: " << mu << "\n";
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
@@ -325,7 +326,7 @@ int main(int argc, char **argv){
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
-			if (pix_log(xb, yb) > 0.001 * pisum){
+			if (pix(xb, yb) > 0.001 * pisum){
 				lx(xb, yb) = mu * px(xb, yb) / pix(xb, yb);
 			}
 		}

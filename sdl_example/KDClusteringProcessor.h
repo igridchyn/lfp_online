@@ -45,10 +45,12 @@ class KDClusteringProcessor: public LFPProcessor {
 	const std::string BASE_PATH;
 
 	const bool USE_PRIOR;
+	// DEBUG, should be used
+	const bool USE_MARGINAL;
 
-	const unsigned int SAMPLING_RATE = 5;
-
+	const unsigned int SAMPLING_RATE;
 	const unsigned int SAMPLING_DELAY;
+	const float SPEED_THOLD;
 
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
 	const unsigned int N_FEAT = 12;
@@ -107,9 +109,12 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int PRED_RATE = 300;
 	arma::mat last_pred_probs_;
 
+	bool delay_reached_reported = false;
+
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
-			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior);
+			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
+			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
