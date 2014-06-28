@@ -10,7 +10,7 @@
 
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
 		const std::string base_path, PlaceFieldProcessor* pfProc,
-		const unsigned int sampling_delay, const bool save, const bool load)
+		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -18,7 +18,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, pfProc_(pfProc)
 	, SAMPLING_DELAY(sampling_delay)
 	, SAVE(save)
-	, LOAD(load){
+	, LOAD(load)
+	, USE_PRIOR(use_prior){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -306,8 +307,15 @@ void KDClusteringProcessor::process(){
 			last_pred_pkg_id_ = right_edge;
 
 			// posterior position probabilities map
-			// log of prior = pi(x)
-			arma::mat pos_pred_(pix_log_);
+			// initialize with log of prior = pi(x)
+			arma::mat pos_pred_;
+
+			if (USE_PRIOR){
+				pos_pred_ = pix_log_;
+			}
+			else{
+				pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+			}
 
 			// should be added for each tetrode on which spikes occurred
 //			pos_pred_ -= DE_SEC  * lxs_[tetr];
@@ -346,6 +354,7 @@ void KDClusteringProcessor::process(){
 				spike = buffer->spike_buffer_[spike_ind];
 			}
 
+			// generalized rate function at each tetrode
 			for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 				if (tetr_spiked[t]){
 					pos_pred_ -= DE_SEC  * lxs_[t];

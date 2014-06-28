@@ -91,7 +91,7 @@ void draw_bin(const char *path){
     const bool PF_USE_PRIOR = false;
     
     const unsigned int SD_WAIT_MILLISECONDS = 350;
-    const unsigned int SD_START = 10000000;
+    const unsigned int SD_START = 100000000;
 
     // Position display params
     const unsigned int POS_TAIL_LENGTH = 300;
@@ -128,7 +128,7 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
-    KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD);
+    KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD, KD_USE_PRIOR);
     pipeline->add_processor(kdClustProc);
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));

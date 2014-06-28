@@ -44,6 +44,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool LOAD;
 	const std::string BASE_PATH;
 
+	const bool USE_PRIOR;
+
 	const unsigned int SAMPLING_RATE = 5;
 
 	const unsigned int SAMPLING_DELAY;
@@ -107,7 +109,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
-			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load);
+			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
