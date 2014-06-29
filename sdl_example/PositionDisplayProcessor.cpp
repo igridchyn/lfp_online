@@ -31,6 +31,12 @@ void PositionDisplayProcessor::process(){
 //    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
     while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_spike_speed_) {
     
+    	// WORKAOURND
+    	// if exceeded clustering prediction - exit
+    	if (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_end_){
+    		break;
+    	}
+
         int x = buffer->positions_buf_[buffer->pos_buf_disp_pos_][0];
         int y = buffer->positions_buf_[buffer->pos_buf_disp_pos_][1];
         
