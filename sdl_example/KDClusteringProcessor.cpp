@@ -11,7 +11,7 @@
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
 		const std::string base_path, PlaceFieldProcessor* pfProc,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
-		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal)
+		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -23,10 +23,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, USE_PRIOR(use_prior)
 	, SAMPLING_RATE(sampling_rate)
 	, SPEED_THOLD(speed_thold)
-	, USE_MARGINAL(use_marginal){
+	, USE_MARGINAL(use_marginal)
+	, NN_EPS(eps){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
+	spike_buf_pos_pred_ = buffer->SPIKE_BUF_HEAD_LEN;
 
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
@@ -71,6 +73,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	pix_log_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	pix_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 
+	pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+
 	if (LOAD){
 		// load occupancy
 		pix_.load(BASE_PATH + "pix.mat");
@@ -104,7 +108,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		}
 
 		n_pf_built_ = tetrn;
+
+		if (USE_PRIOR){
+			pos_pred_ = pix_log_;
+		}
 	}
+
+	tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
+	// posterior position probabilities map
+	// initialize with log of prior = pi(x)
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -251,6 +263,9 @@ void KDClusteringProcessor::process(){
 		}
 
 		if (!pf_built_[tetr]){
+			// to start prediction only after all PFs are available
+			last_pred_pkg_id_ = spike->pkg_id_;
+
 			if (total_spikes_[tetr] >= MIN_SPIKES){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
 
@@ -300,56 +315,39 @@ void KDClusteringProcessor::process(){
 
 				total_spikes_[tetr] ++;
 			}
+
+			buffer->spike_buf_pos_clust_ ++;
 		}
 		else{
 			// if pf_built but job is designated as running, then it is over and can be joined
 			if (fitting_jobs_running_[tetr]){
 				fitting_jobs_running_[tetr] = false;
 				fitting_jobs_[tetr]->join();
+
+				if (USE_PRIOR){
+					pos_pred_ = pix_log_;
+				}
 			}
 
 			// predict from spike in window
 
 			// edges of the window
 			const double DE_SEC = 100 / 1000.0;
-			const unsigned int right_edge = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
-			const unsigned int left_edge  = right_edge - 100 * buffer->SAMPLING_RATE / 1000;
 
-			// sparse prediction + prediction only after having on all fields
-			if (right_edge < 10000 || n_pf_built_ < buffer->tetr_info_->tetrodes_number || right_edge - last_pred_pkg_id_ < PRED_RATE){
+			// prediction only after having on all fields
+			if (n_pf_built_ < buffer->tetr_info_->tetrodes_number){
 				buffer->spike_buf_pos_clust_ ++;
 				continue;
 			}
-			last_pred_pkg_id_ = right_edge;
 
-			// posterior position probabilities map
-			// initialize with log of prior = pi(x)
-			arma::mat pos_pred_(NBINS, NBINS, arma::fill::zeros);
-
-			if (USE_PRIOR){
-				pos_pred_ = pix_log_;
-			}
-
-			// should be added for each tetrode on which spikes occurred
-//			pos_pred_ -= DE_SEC  * lxs_[tetr];
-			std::vector<bool> tetr_spiked(buffer->tetr_info_->tetrodes_number, false);
-
-			unsigned int spike_ind = buffer->spike_buf_pos_unproc_ - 1;
-
-			Spike *spike = buffer->spike_buffer_[spike_ind];
 			ANNpoint pnt = annAllocPt(DIM);
 			double dist;
 			int closest_ind;
-			while(spike->pkg_id_ > left_edge){
+			// at this points all tetrodes have pfs !
+			// TODO don't need speed (for prediction), can take more spikes
+			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
 				const unsigned int stetr = spike->tetrode_;
-				tetr_spiked[stetr] = true;
-
-				// TODO ? wait until all place fields are constructed ?
-				if (!pf_built_[stetr]){
-					spike_ind --;
-					spike = buffer->spike_buffer_[spike_ind];
-					continue;
-				}
+				tetr_spiked_[stetr] = true;
 
 				// TODO: convert PC in spike to linear array
 				for (int pc=0; pc < 3; ++pc) {
@@ -359,37 +357,60 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
+				// PROFILE
+//				time_t kds = clock();
+				// 0.5 ms for eps = 0.1, 0.02 ms - for eps = 10.0, prediction quality - ???
+				// TODO : quantify dependence of prediction quality on the EPS
 				kdtrees_[stetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
+//				std::cout << "kd time = " << clock() - kds << "\n";
 
 				pos_pred_ += laxs_[stetr][closest_ind];
 
-				spike_ind --;
-				spike = buffer->spike_buffer_[spike_ind];
+				buffer->spike_buf_pos_clust_++;
+				// spike may be without speed (the last one) - but it's not crucial
+				spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 			}
 
-			// marginal rate function at each tetrode
-			if (USE_MARGINAL){
-				for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-					if (tetr_spiked[t]){
-						pos_pred_ -= DE_SEC  * lxs_[t];
+			// 2 situations: prediction is final and end of window has been reached (last spike is beyond the window)
+			// 		or prediction will be finalized in subsequent iterations
+			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
+				if (USE_MARGINAL){
+					for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+						if (tetr_spiked_[t]){
+							pos_pred_ -= DE_SEC  * lxs_[t];
+						}
 					}
 				}
-			}
 
-			last_pred_probs_ = pos_pred_;
-			double minval = arma::min(arma::min(pos_pred_));
-//			pos_pred_ = pos_pred_ - minval;
-			pos_pred_ = arma::exp(pos_pred_ / 300);
-			buffer->last_prediction_ = pos_pred_.t();
+				last_pred_probs_ = pos_pred_;
+//				double minval = arma::min(arma::min(pos_pred_));
+//				pos_pred_ = pos_pred_ - minval;
+				pos_pred_ = arma::exp(pos_pred_ / 300);
 
-			// DEBUG
-			if (!(last_pred_pkg_id_ % 200)){
-				pos_pred_.save(BASE_PATH + "tmp_pred_" + Utils::Converter::int2str(last_pred_pkg_id_) + ".mat", arma::raw_ascii);
-				std::cout << "save prediction...\n";
+				buffer->last_prediction_ = pos_pred_.t();
+				buffer->last_preidction_window_end_ = last_pred_pkg_id_ + PRED_WIN;
+
+				// DEBUG
+//				if (!(last_pred_pkg_id_ % 200)){
+//					pos_pred_.save(BASE_PATH + "tmp_pred_" + Utils::Converter::int2str(last_pred_pkg_id_) + ".mat", arma::raw_ascii);
+//					std::cout << "save prediction...\n";
+//				}
+
+				last_pred_pkg_id_ += PRED_WIN;
+
+				// reinit prediction variables
+				tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
+				pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+				if (USE_PRIOR){
+					pos_pred_ = pix_log_;
+				}
+
+				// return to display prediction etc...
+				//		(don't need more spikes at this stage)
+				return;
 			}
+			// marginal rate function at each tetrode
 		}
-
-		buffer->spike_buf_pos_clust_ ++;
 	}
 }
 

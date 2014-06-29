@@ -105,16 +105,26 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO interface and implementation - OccupancyProvider
 	PlaceFieldProcessor *pfProc_;
 
+	const unsigned int PRED_WIN = 2000;
+	// dividable by PRED_WIN
 	unsigned int last_pred_pkg_id_ = 0;
-	const unsigned int PRED_RATE = 300;
+	// position of spike that last was used for prediction
+	unsigned int spike_buf_pos_pred_;
+	// last prediction probabilities
+	// TODO array of predictions if more than 1 window available
 	arma::mat last_pred_probs_;
+
+	// for current prediction window - reset after window is over
+	std::vector<bool> tetr_spiked_;
+	arma::mat pos_pred_;
 
 	bool delay_reached_reported = false;
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
 			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
-			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal);
+			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
+			const float eps);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();

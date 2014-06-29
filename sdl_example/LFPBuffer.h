@@ -125,7 +125,11 @@ public:
     arma::mat cluster_spike_counts_;
 
     // TODO !WORKAOURD! implement exchange through interface between processors
+    // ? predictions buffer ?
     arma::mat last_prediction_;
+    unsigned int last_preidction_window_end_;
+
+    std::vector<arma::mat> tps_;
 
     //====================================================================================================
     
