@@ -133,7 +133,8 @@ void PlaceFieldProcessor::process(){
         // ReconstructPosition(buffer->population_vector_window_);
 //        drawPrediction();
 
-    	drawMat(buffer->last_prediction_);
+    	if (!(buffer->last_preidction_window_end_ % 10000))
+    		drawMat(buffer->last_prediction_);
     }
 }
 
