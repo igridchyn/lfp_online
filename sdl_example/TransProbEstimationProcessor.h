@@ -17,6 +17,9 @@ class TransProbEstimationProcessor: public LFPProcessor {
 	const unsigned int BIN_SIZE;
 	const unsigned int NEIGHB_SIZE;
 
+	const bool LOAD = true;
+	const bool SAVE = false;
+
 	std::vector<arma::mat> trans_probs_;
 
 	const unsigned int STEP;

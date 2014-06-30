@@ -20,6 +20,32 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	// TODO Auto-generated constructor stub
 	assert(NEIGHB_SIZE % 2);
 	trans_probs_.resize(NBINS * NBINS, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
+
+	if (LOAD){
+		arma::mat tps;
+		tps.load(BASE_PATH + "tps.mat");
+
+		for (int b = 0; b < NBINS * NBINS; ++b) {
+			// DEBUG
+			float sum = arma::sum(arma::sum(tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1)));
+			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) /= sum;
+
+			trans_probs_[b] = arma::log(tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1));
+			for (int dx = 0; dx < NEIGHB_SIZE; ++dx) {
+				for (int dy = 0; dy < NEIGHB_SIZE; ++dy) {
+					// WORKAROUND
+					if (isnan(trans_probs_[b](dx, dy))){
+						trans_probs_[b](dx, dy) = -100000;
+					}
+				}
+			}
+
+			// DEBUG
+			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + ".mat", arma::raw_ascii);
+		}
+
+		buffer->tps_ = trans_probs_;
+	}
 }
 
 TransProbEstimationProcessor::~TransProbEstimationProcessor() {
@@ -28,6 +54,7 @@ TransProbEstimationProcessor::~TransProbEstimationProcessor() {
 
 void TransProbEstimationProcessor::process() {
 	// TODO delay
+
 	while(pos_buf_ptr_ < buffer->pos_buf_pos_){
 		if (buffer->positions_buf_[pos_buf_ptr_][0] == 1023 || buffer->positions_buf_[pos_buf_ptr_ - STEP][0] == 1023){
 			pos_buf_ptr_ ++;
@@ -35,8 +62,8 @@ void TransProbEstimationProcessor::process() {
 		}
 
 		// bins in shift rather than shift in bins (more precise)
-		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][0] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][0]) / (float)BIN_SIZE - 0.5);
-		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][1] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][1]) / (float)BIN_SIZE - 0.5);
+		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][0] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][0]) / (float)BIN_SIZE);
+		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][1] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][1]) / (float)BIN_SIZE);
 
 		int xb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP][0] / (float)BIN_SIZE - 0.5);
 		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP][1] / (float)BIN_SIZE - 0.5);
@@ -51,7 +78,7 @@ void TransProbEstimationProcessor::process() {
 		pos_buf_ptr_ ++;
 	}
 
-	if (buffer->last_pkg_id > 30000000 && !saved){
+	if (buffer->last_pkg_id > 30000000 && !saved && SAVE){
 		arma::mat tps(NEIGHB_SIZE, NBINS * NBINS * NEIGHB_SIZE);
 
 		for (int b = 0; b < NBINS * NBINS; ++b) {
@@ -62,12 +89,6 @@ void TransProbEstimationProcessor::process() {
 		}
 
 		buffer->tps_ = trans_probs_;
-
-		// DEBUG
-		trans_probs_[210].save(BASE_PATH + "tp.mat", arma::raw_ascii);
-		trans_probs_[190].save(BASE_PATH + "tp2.mat", arma::raw_ascii);
-		trans_probs_[230].save(BASE_PATH + "tp3.mat", arma::raw_ascii);
-		trans_probs_[192].save(BASE_PATH + "tp4.mat", arma::raw_ascii);
 		saved = true;
 	}
 }
