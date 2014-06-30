@@ -447,12 +447,16 @@ void KDClusteringProcessor::process(){
 				if (USE_MARGINAL){
 					for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 						if (tetr_spiked_[t]){
-							pos_pred_ -= DE_SEC  * lxs_[t];
+							pos_pred_ -= 0.05 * DE_SEC  * lxs_[t];
 						}
 					}
 				}
 
 				last_pred_probs_ = pos_pred_;
+				// to avoid OOR
+				double minpred = arma::max(arma::max(last_pred_probs_));
+				last_pred_probs_ -= minpred;
+
 //				double minval = arma::min(arma::min(pos_pred_));
 //				pos_pred_ = pos_pred_ - minval;
 				pos_pred_ = arma::exp(pos_pred_ / 300);
@@ -469,7 +473,7 @@ void KDClusteringProcessor::process(){
 
 				last_pred_pkg_id_ += PRED_WIN;
 
-				// reinit prediction variables
+				// re-init prediction variables
 				tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
 				pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
 				if (USE_PRIOR){

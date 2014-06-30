@@ -110,7 +110,7 @@ void draw_bin(const char *path){
     const unsigned int KD_SAMPLING_RATE = 3;
     const float KD_SPEED_THOLD = 0;
     // DEBUG, should be used
-    const bool KD_USE_MARGINAL = false;
+    const bool KD_USE_MARGINAL = true;
     const float KD_NN_EPS = 10.0;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
