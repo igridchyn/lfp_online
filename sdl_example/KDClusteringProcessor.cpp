@@ -98,6 +98,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 			// load marginal rate function
 			lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
+			double maxval = arma::max(arma::max(lxs_[t]));
+			for (int xb = 0; xb < NBINS; ++xb) {
+				for (int yb = 0; yb < NBINS; ++yb) {
+					if (lxs_[t](xb, yb) == 0){
+						lxs_[t](xb, yb) = maxval;
+					}
+				}
+			}
+
 			pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_px.mat");
 
 			pf_built_[t] = true;
@@ -251,7 +260,10 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	arma::mat hmm_upd_(NBINS, NBINS, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
-	if (!(buffer->last_preidction_window_end_ % 100000)){
+	if (!(buffer->last_preidction_window_end_ % 2000000)){
+		// DEBUG
+		std::cout << "Reset HMM at " << buffer->last_preidction_window_end_  << "..\n";
+
 		if (USE_PRIOR){
 			hmm_prediction_ = pix_log_;
 		}
@@ -429,7 +441,7 @@ void KDClusteringProcessor::process(){
 				spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 			}
 
-			// 2 situations: prediction is final and end of window has been reached (last spike is beyond the window)
+			// if prediction is final and end of window has been reached (last spike is beyond the window)
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
 				if (USE_MARGINAL){

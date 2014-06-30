@@ -291,7 +291,7 @@ int main(int argc, char **argv){
 
 	// compute occupancy KDE - pi(x) from tracking position sampling
 	// TODO 2d-tree ? how many neighbours needed ?
-	// overall tetrode average firing rate
+	// overall tetrode average firing rate, spikes / s
 	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / (BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
 	std::cout << "t " << tetr << ": Average firing rate on tetrode: " << mu << "\n";
 	for (int xb = 0; xb < NBINS; ++xb) {
