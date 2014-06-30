@@ -133,8 +133,9 @@ void PlaceFieldProcessor::process(){
         // ReconstructPosition(buffer->population_vector_window_);
 //        drawPrediction();
 
-    	if (!(buffer->last_preidction_window_end_ % 10000))
+    	if (!(buffer->last_preidction_window_end_ % 10000)){
     		drawMat(buffer->last_prediction_);
+    	}
     }
 }
 
@@ -177,6 +178,13 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
         }
     }
     
+    // draw actual position tail
+    // TODO parametrize
+    unsigned int end = MIN(buffer->last_preidction_window_end_/512, buffer->pos_buf_pos_);
+    for (int pos = end - 100; pos < end; ++pos) {
+    	FillRect(buffer->positions_buf_[pos][0], buffer->positions_buf_[pos][1], 0, 2, 2);
+    }
+
     SDL_SetRenderTarget(renderer_, NULL);
     SDL_RenderCopy(renderer_, texture_, NULL, NULL);
     SDL_RenderPresent(renderer_);
