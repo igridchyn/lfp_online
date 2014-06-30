@@ -117,6 +117,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
 	// posterior position probabilities map
 	// initialize with log of prior = pi(x)
+
+	// TODO !!! priors
+	hmm_prediction_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	if (USE_PRIOR){
+		hmm_prediction_ = pix_log_;
+	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -238,6 +244,58 @@ long long inline KDClusteringProcessor::kern_H_ax_(const unsigned int spikei1, c
 
 const arma::mat& KDClusteringProcessor::GetPrediction() {
 	return last_pred_probs_;
+}
+
+void KDClusteringProcessor::update_hmm_prediction() {
+	// old hmm_prediction + transition (without evidence)
+	arma::mat hmm_upd_(NBINS, NBINS, arma::fill::zeros);
+
+	// TODO CONTROLLED reset, PARAMETRIZE
+	if (!(buffer->last_preidction_window_end_ % 100000)){
+		if (USE_PRIOR){
+			hmm_prediction_ = pix_log_;
+		}
+		else{
+			hmm_prediction_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+		}
+	}
+
+	for (int xb = 0; xb < NBINS; ++xb) {
+		for (int yb = 0; yb < NBINS; ++yb) {
+			// find best (x, y) - with highest probability of (x,y)->(xb,yb)
+			// implement hmm{t}(xb,yb) = max_{x,y \in neighb(xb,yb)}(hmm_{t-1}(x,y) * tp(x,y,xb,yb) * prob(xb, yb | a_{1..N}))
+
+			float best_to_xb_yb = -1000 * 1000000;
+
+			for (int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINS - 1); ++x) {
+				for (int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINS - 1); ++y) {
+					// TODO weight
+					// split for DEBUG
+					float prob_xy = hmm_prediction_(x, y);
+					int shx = xb - x + HMM_NEIGHB_RAD, shy = yb - y + HMM_NEIGHB_RAD;
+					// TODO !!! parametrize
+					prob_xy += 10 * buffer->tps_[y * NBINS + x](shx, shy);
+					if (prob_xy > best_to_xb_yb){
+						best_to_xb_yb = prob_xy;
+					}
+				}
+			}
+
+			hmm_upd_(xb, yb) = best_to_xb_yb;
+		}
+	}
+
+	// renorm > (subtract min)
+	// DEBUG
+//	std::cout << "hmm before upd with evidence:" << hmm_upd_ << "\n\n";
+
+	// add Bayesian pos likelihood from evidence
+	hmm_prediction_ = hmm_upd_ + last_pred_probs_;
+
+	// DEBUG
+//	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
+
+	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 1000);
 }
 
 void KDClusteringProcessor::process(){
@@ -387,6 +445,7 @@ void KDClusteringProcessor::process(){
 //				pos_pred_ = pos_pred_ - minval;
 				pos_pred_ = arma::exp(pos_pred_ / 300);
 
+				// updated in HMM
 				buffer->last_prediction_ = pos_pred_.t();
 				buffer->last_preidction_window_end_ = last_pred_pkg_id_ + PRED_WIN;
 
@@ -404,6 +463,9 @@ void KDClusteringProcessor::process(){
 				if (USE_PRIOR){
 					pos_pred_ = pix_log_;
 				}
+
+				if (USE_HMM)
+					update_hmm_prediction();
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)

@@ -52,6 +52,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int SAMPLING_DELAY;
 	const float SPEED_THOLD;
 
+	const bool USE_HMM = true;
+
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
 	const unsigned int N_FEAT = 12;
 
@@ -118,7 +120,13 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<bool> tetr_spiked_;
 	arma::mat pos_pred_;
 
+	// hmm prediction at last_pred_pkg_id_
+	arma::mat hmm_prediction_;
+	const int HMM_NEIGHB_RAD = 3;
+
 	bool delay_reached_reported = false;
+
+	void update_hmm_prediction();
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
