@@ -112,6 +112,7 @@ void draw_bin(const char *path){
     // DEBUG, should be used
     const bool KD_USE_MARGINAL = true;
     const float KD_NN_EPS = 10.0;
+    const bool KD_USE_HMM = true;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
@@ -135,7 +136,7 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
     KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD,
-    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS);
+    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS, KD_USE_HMM);
     pipeline->add_processor(kdClustProc);
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
