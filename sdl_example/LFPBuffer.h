@@ -97,6 +97,9 @@ public:
     unsigned int population_vector_total_spikes_ = 0;
     std::queue<Spike*> population_vector_stack_;
     
+    unsigned int last_swr_start_ = 0;
+    unsigned int last_swr_end_ = 0;
+
 private:
     bool is_valid_channel_[CHANNEL_NUM];
     

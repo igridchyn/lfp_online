@@ -65,6 +65,9 @@ SpikeAlignmentProcessor.o: ../SpikeAlignmentProcessor.cpp
 SpikeDetectorProcessor.o: ../SpikeDetectorProcessor.cpp ../SpikeDetectorProcessor.h
 	${CC} ${CFLAGS} -c ../SpikeDetectorProcessor.cpp
 		
+SwReaderProcessor.o: ../SwReaderProcessor.cpp ../SwReaderProcessor.h
+	${CC} ${CFLAGS} -c ../SwReaderProcessor.cpp
+		
 TransProbEstimationProcessor.o: ../TransProbEstimationProcessor.cpp ../TransProbEstimationProcessor.h
 	${CC} ${CFLAGS} -c ../TransProbEstimationProcessor.cpp
 		
@@ -80,8 +83,8 @@ WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcesso
 main.o: ../main.cpp
 	${CC} ${CFLAGS} -c ../main.cpp
 		
-lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
-	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
+lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
+	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o PackageExractorProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
 	
 clean:
 	rm *.o
