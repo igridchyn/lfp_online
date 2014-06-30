@@ -8,7 +8,6 @@
 
 #include "PlaceField.h"
 
-
 PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
 : sigma_(sigma)
 , bin_size_(bin_size)
@@ -56,6 +55,7 @@ PlaceField PlaceField::Smooth(){
     int width = place_field_.n_cols;
     int height = place_field_.n_rows;
     
+    // TODO compute once in constructor
     // get Gaussian for smoothing, summing up to 1
     arma::mat gauss(spread_*2 + 1, spread_*2 + 1, arma::fill::zeros);
     double g_sum = .0f;
@@ -90,7 +90,14 @@ PlaceField PlaceField::Smooth(){
         for (int y=spread_; y < place_field_.n_rows-spread_; ++y) {
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_; dy <= spread_; ++dy) {
-                    spf(y, x) += place_field_(y + dy, x + dx) * gauss(dy+spread_, dx+spread_);
+                	// TODO validate consistency of downstream usage
+                	if (isinf(place_field_(y + dy, x + dx)) || isnan(place_field_(y + dy, x + dx)))
+                		continue;
+
+                	// DEBUG
+                	double val = place_field_(y + dy, x + dx);
+                	val *= gauss(dy+spread_, dx+spread_);
+                    spf(y, x) += val;
                 }
             }
         }
@@ -165,4 +172,13 @@ void PlaceField::CachePDF(PlaceField::PDFType pdf_type, const PlaceField& occupa
     }
     
     // TODO: cache log of occupancy_smoothed
+}
+
+PlaceField::PlaceField(const arma::mat& mat, const double& sigma,
+		const double& bin_size, const unsigned int& spread)
+	: place_field_(mat)
+	, sigma_(sigma)
+	, bin_size_(bin_size)
+	, spread_(spread)
+{
 }

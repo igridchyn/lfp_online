@@ -6,6 +6,8 @@
  */
 
 #include "TransProbEstimationProcessor.h"
+#include "PlaceField.h"
+
 #include <assert.h>
 
 TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
@@ -26,15 +28,30 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 		tps.load(BASE_PATH + "tps.mat");
 
 		for (int b = 0; b < NBINS * NBINS; ++b) {
-			// DEBUG
-			float sum = arma::sum(arma::sum(tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1)));
-			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) /= sum;
+			// extract
+			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
+			trans_probs_[b] = tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
 
-			trans_probs_[b] = arma::log(tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1));
+			// DEBUG
+			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + "_raw.mat", arma::raw_ascii);
+
+			// TODO do the following in the estimation stage, before saving
+			// smooth
+			PlaceField tp_pf(trans_probs_[b], 10, 20, 1);
+			trans_probs_[b] = tp_pf.Smooth().Mat();
+
+			// normalize
+			double sum = arma::sum(arma::sum(trans_probs_[b]));
+			trans_probs_[b] /= sum;
+
+			// log-transform
+			trans_probs_[b] = arma::log(trans_probs_[b]);
+
+			// replace nans with large negative value
 			for (int dx = 0; dx < NEIGHB_SIZE; ++dx) {
 				for (int dy = 0; dy < NEIGHB_SIZE; ++dy) {
 					// WORKAROUND
-					if (isnan(trans_probs_[b](dx, dy))){
+					if (isnan(trans_probs_[b](dx, dy))){ // || isinf(trans_probs_[b](dx, dy))){
 						trans_probs_[b](dx, dy) = -100000;
 					}
 				}
