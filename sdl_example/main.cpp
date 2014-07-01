@@ -107,13 +107,13 @@ void draw_bin(const char *path){
     const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax5/pf_";
     const bool KD_SAVE = false;
     const bool KD_LOAD = true;
-    const bool KD_USE_PRIOR = false;
+    const bool KD_USE_PRIOR = true;
     const unsigned int KD_SAMPLING_RATE = 3;
     const float KD_SPEED_THOLD = 0;
     // DEBUG, should be used
     const bool KD_USE_MARGINAL = true;
     const float KD_NN_EPS = 10.0;
-    const bool KD_USE_HMM = false;
+    const bool KD_USE_HMM = true;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";

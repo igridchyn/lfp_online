@@ -131,6 +131,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 	// TODO !!! priors
 	reset_hmm();
+
+	// STATS
+	dist_swr_.open((std::string("dist_swr.txt")));
+	dist_theta_.open((std::string("dist_theta.txt")));
+	err_bay_.open((std::string("err_bay.txt")));
+	err_hmm_.open((std::string("err_hmm.txt")));
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -303,6 +309,25 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// add Bayesian pos likelihood from evidence
 	hmm_prediction_ = hmm_upd_ + last_pred_probs_;
 
+	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
+	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/512.0);
+	int corrx = buffer->positions_buf_[ind][0];
+	int corry = (int)buffer->positions_buf_[ind][1];
+	if (corrx != 1023 && last_pred_pkg_id_ > 20 * 1000000){
+		unsigned int x,y;
+		last_pred_probs_.max(x, y);
+		x = BIN_SIZE * (x + 0.5);
+		y = BIN_SIZE * (y + 0.5);
+		float eb = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
+		err_bay_ << sqrt(eb) << "\n";
+		hmm_prediction_.max(x, y);
+		x = BIN_SIZE * (x + 0.5);
+		y = BIN_SIZE * (y + 0.5);
+		float eh = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
+		err_hmm_ << sqrt(eh) << "\n";
+	}
+
+
 	// DEBUG
 //	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
@@ -473,6 +498,14 @@ void KDClusteringProcessor::process(){
 				// TODO : quantify dependence of prediction quality on the EPS
 				kdtrees_[stetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
 //				std::cout << "kd time = " << clock() - kds << "\n";
+
+				// STATS - distances to the nearest neighbour - to compare distributions in SWR and theta
+//				if (swr_regime_){
+//					dist_swr_ << dist << "\n";
+//				}
+//				else{
+//					dist_theta_ << dist << "\n";
+//				}
 
 				pos_pred_ += laxs_[stetr][closest_ind];
 
