@@ -326,6 +326,10 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		float eh = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
 		err_hmm_ << sqrt(eh) << "\n";
 	}
+	// for consistency of comparison
+	if (last_pred_pkg_id_ > 30 * 1000000){
+		exit(0);
+	}
 
 
 	// DEBUG
@@ -442,37 +446,39 @@ void KDClusteringProcessor::process(){
 			}
 
 			// check if NEW swr was detected and has to switch to the SWR regime
-			if (!swr_regime_ && !buffer->swrs_.empty() && buffer->swrs_.front()[0] != last_processed_swr_start_){
-				//DEBUG
-				std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_.front()[0] << "\n";
+			if (SWR_SWITCH){
+				if (!swr_regime_ && !buffer->swrs_.empty() && buffer->swrs_.front()[0] != last_processed_swr_start_){
+					//DEBUG
+					std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_.front()[0] << "\n";
 
-				swr_regime_ = true;
-				// TODO configurableize
-				PRED_WIN = 400;
+					swr_regime_ = true;
+					// TODO configurableize
+					PRED_WIN = 400;
 
-				last_pred_pkg_id_ = buffer->swrs_.front()[0];
-				last_processed_swr_start_ = buffer->swrs_.front()[0];
+					last_pred_pkg_id_ = buffer->swrs_.front()[0];
+					last_processed_swr_start_ = buffer->swrs_.front()[0];
 
-				// rewind until the first spike in the SW
-				while(spike->pkg_id_ > last_pred_pkg_id_){
-					// TODO OOB control
-					buffer->spike_buf_pos_clust_ --;
-					spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
+					// rewind until the first spike in the SW
+					while(spike->pkg_id_ > last_pred_pkg_id_){
+						// TODO OOB control
+						buffer->spike_buf_pos_clust_ --;
+						spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
+					}
+
+					// reset HMM
+					reset_hmm();
 				}
 
-				// reset HMM
-				reset_hmm();
-			}
+				if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_.front()[2]){
+					// DEBUG
+					std::cout << "Switch to theta prediction regime due to end of SWR at " <<  buffer->swrs_.front()[2] << "\n";
+					swr_regime_ = false;
+					PRED_WIN = 2000;
 
-			if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_.front()[2]){
-				// DEBUG
-				std::cout << "Switch to theta prediction regime due to end of SWR at " <<  buffer->swrs_.front()[2] << "\n";
-				swr_regime_ = false;
-				PRED_WIN = 2000;
-
-				// reset HMM
-				reset_hmm();
-				buffer->swrs_.pop();
+					// reset HMM
+					reset_hmm();
+					buffer->swrs_.pop();
+				}
 			}
 
 			ANNpoint pnt = annAllocPt(DIM);

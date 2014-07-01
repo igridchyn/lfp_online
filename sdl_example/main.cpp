@@ -93,7 +93,7 @@ void draw_bin(const char *path){
     const bool PF_USE_PRIOR = false;
     
     const unsigned int SD_WAIT_MILLISECONDS = 50;
-    const unsigned int SD_START = 23 * 1000000;
+    const unsigned int SD_START = 35 * 1000000;
 
     // Position display params
     const unsigned int POS_TAIL_LENGTH = 300;
@@ -156,7 +156,7 @@ void draw_bin(const char *path){
     // TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
     //pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
     
-    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0, POS_TAIL_LENGTH));
+//    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0, POS_TAIL_LENGTH));
     
     //pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
     
