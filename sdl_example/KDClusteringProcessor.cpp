@@ -137,6 +137,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	dist_theta_.open((std::string("dist_theta.txt")));
 	err_bay_.open((std::string("err_bay.txt")));
 	err_hmm_.open((std::string("err_hmm.txt")));
+
+	hmm_traj_.resize(NBINS * NBINS);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -283,6 +285,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			// implement hmm{t}(xb,yb) = max_{x,y \in neighb(xb,yb)}(hmm_{t-1}(x,y) * tp(x,y,xb,yb) * prob(xb, yb | a_{1..N}))
 
 			float best_to_xb_yb = -1000 * 1000000;
+			int bestx, besty;
 
 			for (int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINS - 1); ++x) {
 				for (int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINS - 1); ++y) {
@@ -294,12 +297,23 @@ void KDClusteringProcessor::update_hmm_prediction() {
 					prob_xy += 10 * buffer->tps_[y * NBINS + x](shx, shy);
 					if (prob_xy > best_to_xb_yb){
 						best_to_xb_yb = prob_xy;
+						bestx = x;
+						besty = y;
 					}
 				}
 			}
 
 			hmm_upd_(xb, yb) = best_to_xb_yb;
+
+			hmm_traj_[yb * NBINS + xb].push_back(besty * NBINS + bestx);
+
+
 		}
+	}
+
+	// DEBUG - check that no window is skipped and the chain is broken
+	if(!(hmm_traj_[0].size() % 2000)){
+		std::cout << "hmm bias control: " << hmm_traj_[0].size() << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
 	}
 
 	// renorm > (subtract min)
@@ -564,7 +578,7 @@ void KDClusteringProcessor::process(){
 				// re-init prediction variables
 				tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
 
-				reset_hmm();
+//				reset_hmm();
 
 				if (USE_HMM)
 					update_hmm_prediction();

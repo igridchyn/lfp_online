@@ -140,6 +140,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::ofstream err_bay_;
 	std::ofstream err_hmm_;
 
+	// optimal trajectories TO each bin [bin][time]
+	std::vector<std::vector<int> > hmm_traj_;
 
 	void update_hmm_prediction();
 	void reset_hmm();
