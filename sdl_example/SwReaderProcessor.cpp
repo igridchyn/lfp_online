@@ -17,6 +17,7 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 	while(!swr_stream.eof()){
 		swrs_.push_back(std::vector<int>());
 
+		// read times of SWR beginning, peak and end
 		int b,p,e;
 		swr_stream >> b >> p >> e;
 		swrs_[swrs_.size() - 1].push_back(b);
@@ -25,6 +26,7 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 	}
 
 	std::cout << "Read " << swrs_.size() << " SWRs.\n";
+	swr_stream.close();
 }
 
 SwReaderProcessor::~SwReaderProcessor() {
@@ -35,15 +37,13 @@ void SwReaderProcessor::process() {
 	if (swrs_.size() == current_sw_)
 		return;
 
-	if (buffer->last_pkg_id > swrs_[current_sw_][2]){
-		buffer->last_swr_end_ = swrs_[current_sw_][2];
+	// TODO assign end later ?
+	if (buffer->last_pkg_id > swrs_[current_sw_][0]){
+
+		buffer->swrs_.push(swrs_[current_sw_]);
 
 		if (current_sw_ < swrs_.size()){
 			current_sw_ ++;
 		}
-	}
-
-	if (buffer->last_pkg_id > swrs_[current_sw_][0]){
-		buffer->last_swr_start_ = swrs_[current_sw_][0];
 	}
 }

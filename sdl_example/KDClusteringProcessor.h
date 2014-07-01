@@ -107,7 +107,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO interface and implementation - OccupancyProvider
 	PlaceFieldProcessor *pfProc_;
 
-	const unsigned int PRED_WIN = 2000;
+	unsigned int PRED_WIN = 2000;
 	// dividable by PRED_WIN
 	unsigned int last_pred_pkg_id_ = 0;
 	// position of spike that last was used for prediction
@@ -126,7 +126,14 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	bool delay_reached_reported = false;
 
+	// SWR-params
+	bool swr_regime_ = false;
+	// not to start processing of the same SWR twice - memorize which one was processed last
+	unsigned int last_processed_swr_start_ = 0;
+	unsigned int SWR_SLOWDOWN_DELAY = 23 * 1000000;
+
 	void update_hmm_prediction();
+	void reset_hmm();
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,

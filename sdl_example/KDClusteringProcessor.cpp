@@ -130,10 +130,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	// initialize with log of prior = pi(x)
 
 	// TODO !!! priors
-	hmm_prediction_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	if (USE_PRIOR){
-		hmm_prediction_ = pix_log_;
-	}
+	reset_hmm();
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -312,6 +309,13 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 1000);
 }
 
+void KDClusteringProcessor::reset_hmm() {
+	hmm_prediction_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	if (USE_PRIOR){
+		hmm_prediction_ = pix_log_;
+	}
+}
+
 void KDClusteringProcessor::process(){
 	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
@@ -412,6 +416,40 @@ void KDClusteringProcessor::process(){
 				continue;
 			}
 
+			// check if NEW swr was detected and has to switch to the SWR regime
+			if (!swr_regime_ && !buffer->swrs_.empty() && buffer->swrs_.front()[0] != last_processed_swr_start_){
+				//DEBUG
+				std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_.front()[0] << "\n";
+
+				swr_regime_ = true;
+				// TODO configurableize
+				PRED_WIN = 400;
+
+				last_pred_pkg_id_ = buffer->swrs_.front()[0];
+				last_processed_swr_start_ = buffer->swrs_.front()[0];
+
+				// rewind until the first spike in the SW
+				while(spike->pkg_id_ > last_pred_pkg_id_){
+					// TODO OOB control
+					buffer->spike_buf_pos_clust_ --;
+					spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
+				}
+
+				// reset HMM
+				reset_hmm();
+			}
+
+			if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_.front()[2]){
+				// DEBUG
+				std::cout << "Switch to theta prediction regime due to end of SWR at " <<  buffer->swrs_.front()[2] << "\n";
+				swr_regime_ = false;
+				PRED_WIN = 2000;
+
+				// reset HMM
+				reset_hmm();
+				buffer->swrs_.pop();
+			}
+
 			ANNpoint pnt = annAllocPt(DIM);
 			double dist;
 			int closest_ind;
@@ -454,6 +492,15 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
+				//DEBUG - slow down to see SWR prediction
+				if (swr_regime_){
+					std::cout << "prediction within SWR...\n";
+
+					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
+						usleep(1000 * 1500);
+					}
+				}
+
 				last_pred_probs_ = pos_pred_;
 				// to avoid OOR
 				double minpred = arma::max(arma::max(last_pred_probs_));
@@ -477,10 +524,8 @@ void KDClusteringProcessor::process(){
 
 				// re-init prediction variables
 				tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
-				pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
-				if (USE_PRIOR){
-					pos_pred_ = pix_log_;
-				}
+
+				reset_hmm();
 
 				if (USE_HMM)
 					update_hmm_prediction();

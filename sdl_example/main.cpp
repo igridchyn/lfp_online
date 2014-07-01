@@ -18,6 +18,7 @@
 #include "SlowDownProcessor.h"
 #include "KDClusteringProcessor.h"
 #include "TransProbEstimationProcessor.h"
+#include "SwReaderProcessor.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y)
 {
@@ -112,7 +113,7 @@ void draw_bin(const char *path){
     // DEBUG, should be used
     const bool KD_USE_MARGINAL = true;
     const float KD_NN_EPS = 10.0;
-    const bool KD_USE_HMM = true;
+    const bool KD_USE_HMM = false;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
@@ -131,6 +132,8 @@ void draw_bin(const char *path){
 
 	pipeline->add_processor(new WhlFileReaderProcessor(buf, dat_path_base + "whl", 512));
     pipeline->add_processor(new FetFileReaderProcessor(buf, dat_path_base +  "fet.", tetrnums));
+
+    pipeline->add_processor(new SwReaderProcessor(buf, dat_path_base + "answ"));
 
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
