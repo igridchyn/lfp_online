@@ -328,7 +328,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/512.0);
 	int corrx = buffer->positions_buf_[ind][0];
 	int corry = (int)buffer->positions_buf_[ind][1];
-	if (corrx != 1023 && last_pred_pkg_id_ > 20 * 1000000){
+//	if (corrx != 1023 && last_pred_pkg_id_ > 20 * 1000000){
 		unsigned int x,y;
 		last_pred_probs_.max(x, y);
 		x = BIN_SIZE * (x + 0.5);
@@ -344,9 +344,24 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		err_hmm_ << sqrt(eh) << "\n";
 		dec_coords_ << corrx << " " << corry << "\n";
 		dec_coords_.flush();
-	}
+//	}
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > 30 * 1000000){
+		// STATS - dump best HMM trajectory by backtracking
+		std::ofstream dec_hmm("dec_hmm.txt");
+		int t = hmm_traj_[0].size() - 1;
+		// best last x,y
+		unsigned int x,y;
+		hmm_prediction_.max(x, y);
+		while (t >= 0){
+			dec_hmm << x * (BIN_SIZE + 0.5) << " " << y * (BIN_SIZE + 0.5) << "\n";
+			int b = hmm_traj_[y * NBINS + x][t];
+			y = b / NBINS;
+			x = b % NBINS;
+			t--;
+		}
+		dec_hmm.flush();
+
 		exit(0);
 	}
 

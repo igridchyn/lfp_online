@@ -143,6 +143,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::ofstream dec_coords_;
 
 	// optimal trajectories TO each bin [bin][time]
+	//		[bin][t] is 'best' previous bin at t-1, backtracking rule: bin_{t-1} = [bin_t][t]
 	std::vector<std::vector<int> > hmm_traj_;
 
 	void update_hmm_prediction();
