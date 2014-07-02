@@ -137,6 +137,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	dist_theta_.open((std::string("dist_theta.txt")));
 	err_bay_.open((std::string("err_bay.txt")));
 	err_hmm_.open((std::string("err_hmm.txt")));
+	dec_coords_.open("dec_coords.txt");
 
 	hmm_traj_.resize(NBINS * NBINS);
 }
@@ -267,7 +268,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	arma::mat hmm_upd_(NBINS, NBINS, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
-	if (!(buffer->last_preidction_window_end_ % 2000000)){
+	if (!(buffer->last_preidction_window_end_ % HMM_RESET_RATE)){
 		// DEBUG
 		std::cout << "Reset HMM at " << buffer->last_preidction_window_end_  << "..\n";
 
@@ -334,11 +335,15 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		y = BIN_SIZE * (y + 0.5);
 		float eb = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
 		err_bay_ << sqrt(eb) << "\n";
+		dec_coords_ << x << " " << y << " ";
 		hmm_prediction_.max(x, y);
 		x = BIN_SIZE * (x + 0.5);
 		y = BIN_SIZE * (y + 0.5);
+		dec_coords_ << x << " " << y << " ";
 		float eh = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
 		err_hmm_ << sqrt(eh) << "\n";
+		dec_coords_ << corrx << " " << corry << "\n";
+		dec_coords_.flush();
 	}
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > 30 * 1000000){

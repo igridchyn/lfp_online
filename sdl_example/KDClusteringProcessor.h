@@ -133,12 +133,14 @@ class KDClusteringProcessor: public LFPProcessor {
 	unsigned int last_processed_swr_start_ = 0;
 	unsigned int SWR_SLOWDOWN_DELAY = 23 * 1000000;
 	const bool SWR_SWITCH = false;
+	const unsigned int HMM_RESET_RATE = 50 * 1000000;
 
 	// STATS / DEBUG
 	std::ofstream dist_theta_;
 	std::ofstream dist_swr_;
 	std::ofstream err_bay_;
 	std::ofstream err_hmm_;
+	std::ofstream dec_coords_;
 
 	// optimal trajectories TO each bin [bin][time]
 	std::vector<std::vector<int> > hmm_traj_;
