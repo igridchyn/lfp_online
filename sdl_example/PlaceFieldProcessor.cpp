@@ -19,7 +19,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)
 : SDLControlInputProcessor(buf)
-, SDLSingleWindowDisplay("Place Field", 420, 420)
+, SDLSingleWindowDisplay("pf", 420, 420)
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbins_(nbins)

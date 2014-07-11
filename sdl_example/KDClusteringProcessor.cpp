@@ -307,8 +307,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			hmm_upd_(xb, yb) = best_to_xb_yb;
 
 			hmm_traj_[yb * NBINS + xb].push_back(besty * NBINS + bestx);
-
-
 		}
 	}
 
@@ -354,7 +352,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		unsigned int x,y;
 		hmm_prediction_.max(x, y);
 		while (t >= 0){
-			dec_hmm << x * (BIN_SIZE + 0.5) << " " << y * (BIN_SIZE + 0.5) << "\n";
+			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << "\n";
 			int b = hmm_traj_[y * NBINS + x][t];
 			y = b / NBINS;
 			x = b % NBINS;
@@ -369,7 +367,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// DEBUG
 //	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
-	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 1000);
+	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 500);
 }
 
 void KDClusteringProcessor::reset_hmm() {
@@ -602,6 +600,14 @@ void KDClusteringProcessor::process(){
 
 				if (USE_HMM)
 					update_hmm_prediction();
+
+
+				// DEBUG
+				npred ++;
+				if (!(npred % 2000)){
+					std::cout << "hmm bia	s control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
+				}
+
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)

@@ -107,7 +107,7 @@ void draw_bin(const char *path){
     const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax5/pf_";
     const bool KD_SAVE = false;
     const bool KD_LOAD = true;
-    const bool KD_USE_PRIOR = true;
+    const bool KD_USE_PRIOR = false;
     const unsigned int KD_SAMPLING_RATE = 3;
     const float KD_SPEED_THOLD = 0;
     // DEBUG, should be used
@@ -200,7 +200,7 @@ int main( int argc, char* args[] )
     //TEST DATA; for this channels: 8-11 : 2 clear CLUSTERS; fixed THRESHOLD !
 //    draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
     
-//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1204_01.BIN");
+//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1t204_01.BIN");
     
 //    draw_bin("/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
     //draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");

@@ -141,6 +141,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::ofstream err_bay_;
 	std::ofstream err_hmm_;
 	std::ofstream dec_coords_;
+	int npred = 0;
 
 	// optimal trajectories TO each bin [bin][time]
 	//		[bin][t] is 'best' previous bin at t-1, backtracking rule: bin_{t-1} = [bin_t][t]

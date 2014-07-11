@@ -37,7 +37,10 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 
 			// TODO do the following in the estimation stage, before saving
 			// smooth
-			PlaceField tp_pf(trans_probs_[b], 10, 20, 1);
+//			PlaceField tp_pf(trans_probs_[b], 10, 20, 1);
+//			trans_probs_[b] = tp_pf.Smooth().Mat();
+			PlaceField tp_pf(arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros), 30, 20, 2);
+			tp_pf(NEIGHB_SIZE/2, NEIGHB_SIZE/2) = 1;
 			trans_probs_[b] = tp_pf.Smooth().Mat();
 
 			// normalize
