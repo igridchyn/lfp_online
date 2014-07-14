@@ -12,7 +12,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const std::string base_path, PlaceFieldProcessor* pfProc,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
 		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps,
-		const bool use_hmm, const unsigned int nbins)
+		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -27,7 +27,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, USE_MARGINAL(use_marginal)
 	, NN_EPS(eps)
 	, USE_HMM(use_hmm)
-	, NBINS(nbins){
+	, NBINS(nbins)
+	, BIN_SIZE(bin_size){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -653,7 +654,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << MULT_INT_FEAT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
 			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS << " " << BASE_PATH;
-	std::cout << "t " << tetr << ": Start external kde_estimator with command\n\t" << os.str() << "\n";
+	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int, mult_int_feat, bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps)\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
 	int retval = system(os.str().c_str());
@@ -798,7 +799,8 @@ void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
-			if (pix_(xb, yb) > 0.001 * pisum){
+			// TODO !!! depends on number of bins !!! - parametrize
+			if (pix_(xb, yb) > 0.00005 * pisum){
 				lxs_[tetr](xb, yb) = mu * pxs_[tetr](xb, yb) / pix_(xb, yb);
 			}
 		}

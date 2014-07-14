@@ -60,7 +60,8 @@ ANNpointArray ann_points_coords;
 // TODO init
 int total_spikes;
 
-long long kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y) {
+// compute value of joint distribution kernel for spike2 centered in spike1 with NORMALIZED (and converted to integer with high precision) coordinates x and y
+long long kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const int& x, const int& y) {
 	// TODO: implement efficiently (integer with high precision)
 	// TODO: check for the overlow (MULT order X DIM X MAX(coord order / feature sorder) X squared = (10 + 1 + 2) * 2 = 26 < 32 bit )
 
@@ -111,6 +112,9 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
 
+	// TODO !!! parametrize from nbins and bin size
+	const double MIN_OCC = 0.0001;
+
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// order of >= 30
@@ -125,7 +129,8 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 					continue;
 				}
 
-				long long logprob = kern_H_ax_(spikei, knn_cache[spikei][ni], tetr, coords_normalized(xb, 0), coords_normalized(yb, 1));
+				// TODO: optimze kernel computation and don't compute (a - a_i) each time
+				long long logprob = kern_H_ax_(spikei, knn_cache[spikei][ni], coords_normalized(xb, 0), coords_normalized(yb, 1));
 
 				// DEBUG
 				if (logprob > 0){
@@ -140,7 +145,7 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 
 			// scaled by MULT_INT ^ 2
 //			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
-			if (occupancy(xb, yb)/occ_sum >= 0.001){
+			if (occupancy(xb, yb)/occ_sum >= MIN_OCC){
 				pf(xb, yb) = log(kern_sum / nspikes / occupancy(xb, yb));
 			}
 		}
@@ -150,7 +155,7 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 	// set min at low occupancy
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
-			if (occupancy(xb, yb)/occ_sum < 0.001){
+			if (occupancy(xb, yb)/occ_sum < MIN_OCC){
 				pf(xb, yb) = occ_min;
 			}
 		}
@@ -322,11 +327,13 @@ int main(int argc, char **argv){
 	std::cout << "t " << tetr << ": done pix\n";
 
 	// compute generalized rate function lambda(x)
+	// TODO !!! uniform + parametrize
+	const double MIN_OCC = 0.0001;
 	double pisum = arma::sum(arma::sum(pix));
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
-			if (pix(xb, yb) > 0.001 * pisum){
+			if (pix(xb, yb) > MIN_OCC * pisum){
 				lx(xb, yb) = mu * px(xb, yb) / pix(xb, yb);
 			}
 		}

@@ -104,12 +104,12 @@ void draw_bin(const char *path){
     const unsigned int AC_N_BINS = 30;
 
     // kd-tree + KDE-based decoding
-    const unsigned int KD_DELAY = 0; // 15 *1000000;
+    const unsigned int KD_DELAY =  15 * 1000000;
     const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax6/pf_";
     const bool KD_SAVE = true;
     const bool KD_LOAD = false;
     const bool KD_USE_PRIOR = false;
-    const unsigned int KD_SAMPLING_RATE = 3;
+    const unsigned int KD_SAMPLING_RATE = 2;
     const float KD_SPEED_THOLD = 0;
     // DEBUG, should be used
     const bool KD_USE_MARGINAL = true;
@@ -148,7 +148,7 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
     KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD,
-    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS, KD_USE_HMM, NBINS);
+    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS, KD_USE_HMM, NBINS, BIN_SIZE);
     pipeline->add_processor(kdClustProc);
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
