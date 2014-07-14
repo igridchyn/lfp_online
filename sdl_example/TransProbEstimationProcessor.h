@@ -17,8 +17,8 @@ class TransProbEstimationProcessor: public LFPProcessor {
 	const unsigned int BIN_SIZE;
 	const unsigned int NEIGHB_SIZE;
 
-	const bool LOAD = true;
-	const bool SAVE = false;
+	const bool LOAD;
+	const bool SAVE;
 
 	std::vector<arma::mat> trans_probs_;
 
@@ -34,7 +34,7 @@ class TransProbEstimationProcessor: public LFPProcessor {
 
 public:
 	TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
-			const unsigned int neighb_size, const unsigned int step, const std::string base_path);
+			const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save, const bool load);
 	virtual ~TransProbEstimationProcessor();
 
 	// LFPProcessor

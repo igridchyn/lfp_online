@@ -11,14 +11,16 @@
 #include <assert.h>
 
 TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
-		const unsigned int neighb_size, const unsigned int step, const std::string base_path)
+		const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save, const bool load)
 	: LFPProcessor(buf)
 	, NBINS(nbins)
 	, BIN_SIZE(bin_size)
 	, NEIGHB_SIZE(neighb_size)
 	, STEP(step)
 	, BASE_PATH(base_path)
-	, pos_buf_ptr_(STEP){
+	, pos_buf_ptr_(STEP)
+	, SAVE(save)
+	, LOAD(load){
 	// TODO Auto-generated constructor stub
 	assert(NEIGHB_SIZE % 2);
 	trans_probs_.resize(NBINS * NBINS, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));

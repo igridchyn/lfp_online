@@ -60,14 +60,13 @@ void draw_bin(const char *path){
     const unsigned int BUF_SAMPLING_RATE = 20000;
     
     LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN_MS, BUF_SAMPLING_RATE);
-
-    LFPPipeline *pipeline = new LFPPipeline();
     
     // DETECTION PARA<S
     const float DET_NSTD = 6.5;
     
     // BINNING
-    const unsigned int NBINS = 20;
+    const unsigned int NBINS = 60;
+    const double BIN_SIZE = 7;
 
     // CLUSTERING PARAMS
     const unsigned int GMM_MIN_OBSERVATIONS = 20000;
@@ -84,9 +83,8 @@ void draw_bin(const char *path){
     
     // PLACE FIELD PARAMS
     const double PF_SIGMA = 60.0f;
-    const double PF_BIN_SIZE = 20;
-    const unsigned int PF_NBINS = 20;
-    const unsigned int PF_SPREAD = 1;
+    const double PF_BIN_SIZE = BIN_SIZE;
+    const unsigned int PF_SPREAD = 3; // DEPENDS ON NBINS and BIN_SIZE
     const bool PF_LOAD = true;
     const bool PF_SAVE = false;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
@@ -96,7 +94,7 @@ void draw_bin(const char *path){
     const bool PF_USE_PRIOR = false;
     
     const unsigned int SD_WAIT_MILLISECONDS = 50;
-    const unsigned int SD_START = 35 * 1000000;
+    const unsigned int SD_START = 350 * 1000000;
 
     // Position display params
     const unsigned int POS_TAIL_LENGTH = 300;
@@ -107,9 +105,9 @@ void draw_bin(const char *path){
 
     // kd-tree + KDE-based decoding
     const unsigned int KD_DELAY = 0; // 15 *1000000;
-    const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax5/pf_";
-    const bool KD_SAVE = false;
-    const bool KD_LOAD = true;
+    const std::string KD_PATH_BASE = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax6/pf_";
+    const bool KD_SAVE = true;
+    const bool KD_LOAD = false;
     const bool KD_USE_PRIOR = false;
     const unsigned int KD_SAMPLING_RATE = 3;
     const float KD_SPEED_THOLD = 0;
@@ -117,6 +115,13 @@ void draw_bin(const char *path){
     const bool KD_USE_MARGINAL = true;
     const float KD_NN_EPS = 10.0;
     const bool KD_USE_HMM = true;
+    const unsigned int KD_MIN_SPIKES = 20000;
+
+    // transition probs estimation steps
+    const unsigned int TP_NEIGHB_SIZE = 15; // DEPENDS on the NBINS and BIN_SIZE
+    const unsigned int TP_STEP = 4;
+    const bool TP_SAVE = true;
+    const bool TP_LOAD = false;
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
     const char* filt_path = "/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
@@ -127,12 +132,13 @@ void draw_bin(const char *path){
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
 //    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
 //
-    PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, PF_NBINS, PF_SPREAD, PF_LOAD, PF_SAVE,
+    PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf, PF_SIGMA, PF_BIN_SIZE, NBINS, PF_SPREAD, PF_LOAD, PF_SAVE,
     		PF_BASE_PATH, PF_RREDICTION_FIRING_RATE_THRESHOLD, PF_MIN_PKG_ID, PF_USE_PRIOR);
 
     std::vector<int> tetrnums = Utils::Math::MergeRanges(Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14,16));
     std::string dat_path_base = "/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_4.";
 
+    LFPPipeline *pipeline = new LFPPipeline();
 	pipeline->add_processor(new WhlFileReaderProcessor(buf, dat_path_base + "whl", 512));
     pipeline->add_processor(new FetFileReaderProcessor(buf, dat_path_base +  "fet.", tetrnums));
 
@@ -141,12 +147,13 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
-    KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD,
+    KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD,
     		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS, KD_USE_HMM, NBINS);
     pipeline->add_processor(kdClustProc);
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
-    pipeline->add_processor(new TransProbEstimationProcessor(buf, NBINS, PF_BIN_SIZE, 7, 4, KD_PATH_BASE));
+    pipeline->add_processor(new TransProbEstimationProcessor(buf, NBINS, PF_BIN_SIZE, TP_NEIGHB_SIZE, TP_STEP, KD_PATH_BASE,
+    		TP_SAVE, TP_LOAD));
 
     pipeline->add_processor(new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS, SD_START));
 
