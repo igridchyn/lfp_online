@@ -66,6 +66,9 @@ void draw_bin(const char *path){
     // DETECTION PARA<S
     const float DET_NSTD = 6.5;
     
+    // BINNING
+    const unsigned int NBINS = 20;
+
     // CLUSTERING PARAMS
     const unsigned int GMM_MIN_OBSERVATIONS = 20000;
     const unsigned int GMM_RATE = 1;
@@ -139,11 +142,11 @@ void draw_bin(const char *path){
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
     KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf, 20000, KD_PATH_BASE, pfProc, KD_DELAY, KD_SAVE, KD_LOAD,
-    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS, KD_USE_HMM);
+    		KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL, KD_NN_EPS, KD_USE_HMM, NBINS);
     pipeline->add_processor(kdClustProc);
 
     pipeline->add_processor(new SpeedEstimationProcessor(buf));
-    pipeline->add_processor(new TransProbEstimationProcessor(buf, PF_NBINS, PF_BIN_SIZE, 7, 4, KD_PATH_BASE));
+    pipeline->add_processor(new TransProbEstimationProcessor(buf, NBINS, PF_BIN_SIZE, 7, 4, KD_PATH_BASE));
 
     pipeline->add_processor(new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS, SD_START));
 

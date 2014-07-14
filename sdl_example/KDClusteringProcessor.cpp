@@ -12,7 +12,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const std::string base_path, PlaceFieldProcessor* pfProc,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
 		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps,
-		const bool use_hmm)
+		const bool use_hmm, const unsigned int nbins)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -26,7 +26,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SPEED_THOLD(speed_thold)
 	, USE_MARGINAL(use_marginal)
 	, NN_EPS(eps)
-	, USE_HMM(use_hmm){
+	, USE_HMM(use_hmm)
+	, NBINS(nbins){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -321,6 +322,9 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 	// add Bayesian pos likelihood from evidence
 	hmm_prediction_ = hmm_upd_ + last_pred_probs_;
+
+	// VISUALIZATION ADJUSTMENT:to avoid overflow
+	hmm_prediction_ = hmm_prediction_ - hmm_prediction_.min();
 
 	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
 	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/512.0);

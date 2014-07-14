@@ -30,7 +30,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int NN_K = 100;
 	const unsigned int NN_K_COORDS = 100;
 	const double NN_EPS = 0.1;
-	const unsigned int NBINS = 20;
+	const unsigned int NBINS;
 	// TODO float
 	const unsigned int BIN_SIZE = 20;
 
@@ -154,7 +154,7 @@ public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
 			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
-			const float eps, const bool use_hmm);
+			const float eps, const bool use_hmm, const unsigned int NBINS);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
