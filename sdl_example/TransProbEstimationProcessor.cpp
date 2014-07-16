@@ -106,8 +106,16 @@ void TransProbEstimationProcessor::process() {
 		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][0] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][0]) / (float)BIN_SIZE);
 		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][1] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][1]) / (float)BIN_SIZE);
 
+		unsigned int tmpx = buffer->positions_buf_[pos_buf_ptr_ - STEP][0];
 		int xb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP][0] / (float)BIN_SIZE - 0.5);
+		unsigned int tmpy = buffer->positions_buf_[pos_buf_ptr_ - STEP][1];
 		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP][1] / (float)BIN_SIZE - 0.5);
+
+		if (tmpx == 0)
+			xb = 0;
+
+		if (tmpy == 0)
+			yb = 0;
 
 		int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
 		int shift_coord_y = b_shift_y + (int)NEIGHB_SIZE / 2;
