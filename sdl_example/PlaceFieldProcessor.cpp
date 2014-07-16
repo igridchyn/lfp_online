@@ -19,7 +19,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)
 : SDLControlInputProcessor(buf)
-, SDLSingleWindowDisplay("pf", 420, 420)
+, SDLSingleWindowDisplay("pf", 430, 430)
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbins_(nbins)
@@ -184,7 +184,7 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     // TODO parametrize
     unsigned int end = MIN(buffer->last_preidction_window_end_/512, buffer->pos_buf_pos_);
     for (int pos = end - 100; pos < end; ++pos) {
-    	FillRect(buffer->positions_buf_[pos][0], buffer->positions_buf_[pos][1], 0, 2, 2);
+    	FillRect(buffer->positions_buf_[pos][0] * binw / bin_size_, buffer->positions_buf_[pos][1] * binh / bin_size_, 0, 2, 2);
     }
 
     SDL_SetRenderTarget(renderer_, NULL);
