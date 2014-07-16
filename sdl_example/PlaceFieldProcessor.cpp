@@ -134,8 +134,10 @@ void PlaceFieldProcessor::process(){
 //        drawPrediction();
 
 //    	if (!(buffer->last_preidction_window_end_ % 10000)){
-    		drawMat(buffer->last_prediction_);
-//    	}
+    	drawMat(buffer->last_prediction_);
+    	//    	}
+
+    	last_predicted_pkg_ = buffer->last_pkg_id;
     }
 }
 

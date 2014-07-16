@@ -48,7 +48,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const std::string base_path, PlaceFieldProcessor* pfProc,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
 		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps,
-		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad)
+		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad,
+		const unsigned int prediction_delay)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -65,7 +66,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, USE_HMM(use_hmm)
 	, NBINS(nbins)
 	, BIN_SIZE(bin_size)
-	, HMM_NEIGHB_RAD(neighb_rad){
+	, HMM_NEIGHB_RAD(neighb_rad)
+	, PREDICTION_DELAY(prediction_delay){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -494,6 +496,18 @@ void KDClusteringProcessor::process(){
 				continue;
 			}
 
+			// prediction only after reaching delay (place field stability, cross-validation etc.)
+			if (buffer->spike_buffer_[buffer->spike_buf_pos_clust_]->pkg_id_ < PREDICTION_DELAY){
+				buffer->spike_buf_pos_clust_ ++;
+				continue;
+			} else if (!prediction_delay_reached_reported){
+				std::cout << "Prediction delay over (" << PREDICTION_DELAY << ").\n";
+				prediction_delay_reached_reported = true;
+
+				last_pred_pkg_id_ = PREDICTION_DELAY;
+				buffer->last_preidction_window_end_ = PREDICTION_DELAY;
+			}
+
 			// check if NEW swr was detected and has to switch to the SWR regime
 			if (SWR_SWITCH){
 				if (!swr_regime_ && !buffer->swrs_.empty() && buffer->swrs_.front()[0] != last_processed_swr_start_){
@@ -562,6 +576,7 @@ void KDClusteringProcessor::process(){
 //					dist_theta_ << dist << "\n";
 //				}
 
+				// add 'place field' of the spike with the closest wave shape
 				pos_pred_ += laxs_[stetr][closest_ind];
 
 				buffer->spike_buf_pos_clust_++;

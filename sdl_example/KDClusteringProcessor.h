@@ -48,6 +48,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool USE_PRIOR;
 	// DEBUG, should be used
 	const bool USE_MARGINAL;
+	const unsigned int PREDICTION_DELAY;
 
 	const unsigned int SAMPLING_RATE;
 	const unsigned int SAMPLING_DELAY;
@@ -126,6 +127,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	const int HMM_NEIGHB_RAD;
 
 	bool delay_reached_reported = false;
+	bool prediction_delay_reached_reported = false;
 
 	// SWR-params
 	bool swr_regime_ = false;
@@ -156,7 +158,8 @@ public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
 			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
-			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad);
+			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad,
+			const unsigned int prediction_delay);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
