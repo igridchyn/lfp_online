@@ -27,8 +27,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int DIM = 12;
 
 	// TODO: parametrize (from main for a start)
-	const unsigned int NN_K = 100;
-	const unsigned int NN_K_COORDS = 100;
+	const unsigned int NN_K ;
+	const unsigned int NN_K_COORDS;
 	const double NN_EPS = 0.1;
 	const unsigned int NBINS;
 	// TODO float
@@ -38,8 +38,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<arma::Mat<int>> coords_normalized_;
 
 	// TODO: test for integer overflow in KDE operations
-	const unsigned int MULT_INT = 1024;
-	const unsigned int MULT_INT_FEAT = 50;
+	const unsigned int MULT_INT;
+	const unsigned int MULT_INT_FEAT;
 
 	const bool SAVE;
 	const bool LOAD;
@@ -91,6 +91,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	std::vector<arma::mat> pxs_;
 	std::vector<arma::mat> lxs_;
+	const float LX_WEIGHT;
 
 	std::vector<std::vector<arma::mat> > laxs_;
 
@@ -159,7 +160,8 @@ public:
 			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
 			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad,
-			const unsigned int prediction_delay);
+			const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
+			const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
