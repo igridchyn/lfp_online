@@ -69,12 +69,12 @@ long long kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, con
 //	sum += (obs_spikes_[tetr][spikei1]->x - obs_spikes_[tetr][spikei2]->x) / X_STD;
 //	sum += (obs_spikes_[tetr][spikei1]->y - obs_spikes_[tetr][spikei2]->y) / Y_STD;
 
-	int *pcoord1 = ann_points_int[spikei1], *pcoord2 = ann_points_int[spikei2];
-	for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
-		int coord1 = *pcoord1, coord2 = *pcoord2;
-		sum += (coord1 - coord2) * (coord1 - coord2);
-//		sum += (*pcoord1 - *pcoord2) ^ 2;
-	}
+	// !!! PRE_COMPUTED AND ADDED AT THE HIGHER LEVEL
+//	int *pcoord1 = ann_points_int[spikei1], *pcoord2 = ann_points_int[spikei2];
+//	for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
+//		int coord1 = *pcoord1, coord2 = *pcoord2;
+//		sum += (coord1 - coord2) * (coord1 - coord2);
+//	}
 
 	// coords are already normalized to have the same variance as features (average)
 	// X coordinate
@@ -115,6 +115,18 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 	// TODO !!! parametrize from nbins and bin size
 	const double MIN_OCC = 0.0001;
 
+	// pre-compute feature part of the sum (same for all coordinates)
+	std::vector<long long> feature_sum;
+	for (int ni = 1; ni < NN_K; ++ni) {
+		long long sum = 0;
+		int *pcoord1 = ann_points_int[spikei], *pcoord2 = ann_points_int[knn_cache[spikei][ni]];
+		for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
+			int coord1 = *pcoord1, coord2 = *pcoord2;
+			sum += (coord1 - coord2) * (coord1 - coord2);
+		}
+		feature_sum.push_back(- sum / 2);
+	}
+
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			// order of >= 30
@@ -131,6 +143,7 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 
 				// TODO: optimze kernel computation and don't compute (a - a_i) each time
 				long long logprob = kern_H_ax_(spikei, knn_cache[spikei][ni], coords_normalized(xb, 0), coords_normalized(yb, 1));
+				logprob += feature_sum[ni];
 
 				// DEBUG
 				if (logprob > 0){
@@ -374,9 +387,9 @@ int main(int argc, char **argv){
 	//const arma::mat& occupancy = pfProc_->GetSmoothedOccupancy();
 	for (int p = 0; p < total_spikes; ++p) {
 		// DEBUG
-		if (!(p % 5000)){
+		if (!(p % 1000)){
 			std::cout.precision(2);
-			std::cout << "t " << tetr << ": " << p << " place fields built, last 5000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+			std::cout << "t " << tetr << ": " << p << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
 			start = clock();
 
 			// for profiling

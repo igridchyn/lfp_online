@@ -11,7 +11,8 @@
 #include <assert.h>
 
 TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
-		const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save, const bool load)
+		const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save,
+		const bool load, const bool smooth, const bool use_parametric, const float sigma, const int spread)
 	: LFPProcessor(buf)
 	, NBINS(nbins)
 	, BIN_SIZE(bin_size)
@@ -20,14 +21,23 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, BASE_PATH(base_path)
 	, pos_buf_ptr_(STEP)
 	, SAVE(save)
-	, LOAD(load){
+	, LOAD(load)
+	, SMOOTH(smooth)
+	, USE_PARAMETRIC(use_parametric)
+	, SIGMA(sigma)
+	, SPREAD(spread){
 	// TODO Auto-generated constructor stub
 	assert(NEIGHB_SIZE % 2);
 	trans_probs_.resize(NBINS * NBINS, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 
 	if (LOAD){
+		std::cout << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
 		arma::mat tps;
 		tps.load(BASE_PATH + "tps.mat");
+
+		if (USE_PARAMETRIC){
+			std::cout << "WARNING: parametric TPs used instead of loading estimates...\n";
+		}
 
 		for (int b = 0; b < NBINS * NBINS; ++b) {
 			// extract
@@ -38,15 +48,23 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + "_raw.mat", arma::raw_ascii);
 
 			// TODO do the following in the estimation stage, before saving
-			// smooth
-//			PlaceField tp_pf(trans_probs_[b], 10, 20, 1);
-//			trans_probs_[b] = tp_pf.Smooth().Mat();
-			PlaceField tp_pf(arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros), 30, 20, 2);
-			tp_pf(NEIGHB_SIZE/2, NEIGHB_SIZE/2) = 1;
-			trans_probs_[b] = tp_pf.Smooth().Mat();
+			// SMOOTH NON-PAREMETRIC ESTIMATE (counts)
+			if (SMOOTH){
+				// TODO !!! parametrize spread, sigma
+				PlaceField tp_pf(trans_probs_[b], SIGMA, BIN_SIZE, SPREAD);
+				trans_probs_[b] = tp_pf.Smooth().Mat();
+			}
+
+			// PARAMETRIC: GAUSSIAN
+			if (USE_PARAMETRIC){
+				PlaceField tp_pf(arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros), SIGMA, BIN_SIZE, SPREAD);
+				tp_pf(NEIGHB_SIZE/2, NEIGHB_SIZE/2) = 1;
+				trans_probs_[b] = tp_pf.Smooth().Mat();
+			}
 
 			// normalize
 			double sum = arma::sum(arma::sum(trans_probs_[b]));
+
 			trans_probs_[b] /= sum;
 
 			// log-transform
@@ -67,6 +85,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 		}
 
 		buffer->tps_ = trans_probs_;
+		std::cout << "done\n";
 	}
 }
 
@@ -100,7 +119,10 @@ void TransProbEstimationProcessor::process() {
 		pos_buf_ptr_ ++;
 	}
 
+	// TODO configurable interval
 	if (buffer->last_pkg_id > 30000000 && !saved && SAVE){
+		std::cout << "save tps...";
+
 		arma::mat tps(NEIGHB_SIZE, NBINS * NBINS * NEIGHB_SIZE);
 
 		for (int b = 0; b < NBINS * NBINS; ++b) {
@@ -112,5 +134,6 @@ void TransProbEstimationProcessor::process() {
 
 		buffer->tps_ = trans_probs_;
 		saved = true;
+		std::cout << "done\n";
 	}
 }

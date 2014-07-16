@@ -123,7 +123,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// hmm prediction at last_pred_pkg_id_
 	arma::mat hmm_prediction_;
-	const int HMM_NEIGHB_RAD = 3;
+	const int HMM_NEIGHB_RAD;
 
 	bool delay_reached_reported = false;
 
@@ -150,11 +150,13 @@ class KDClusteringProcessor: public LFPProcessor {
 	void update_hmm_prediction();
 	void reset_hmm();
 
+	void load_laxs_tetrode(unsigned int tetrode);
+
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
 			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
-			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size);
+			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();

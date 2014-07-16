@@ -8,11 +8,47 @@
 #include "KDClusteringProcessor.h"
 #include <fstream>
 
+void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
+	std::cout << "Load probability estimations for tetrode " << t << "...\n";
+
+	// load l(a,x) for all spikes of the tetrode
+	//			for (int i = 0; i < MIN_SPIKES; ++i) {
+	//				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
+	//			}
+
+	// load binary combined matrix and extract individual l(a,x)
+	arma::mat laxs_tetr_(NBINS, NBINS * MIN_SPIKES);
+	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
+	for (int s = 0; s < MIN_SPIKES; ++s) {
+		laxs_[t][s] = laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1);
+	}
+	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
+
+	// load marginal rate function
+	lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
+	double maxval = arma::max(arma::max(lxs_[t]));
+	for (int xb = 0; xb < NBINS; ++xb) {
+		for (int yb = 0; yb < NBINS; ++yb) {
+			if (lxs_[t](xb, yb) == 0){
+				lxs_[t](xb, yb) = maxval;
+			}
+		}
+	}
+
+	pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_px.mat");
+
+	pf_built_[t] = true;
+
+	std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree");
+	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
+	kdtree_stream.close();
+}
+
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
 		const std::string base_path, PlaceFieldProcessor* pfProc,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
 		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps,
-		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size)
+		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -28,7 +64,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, NN_EPS(eps)
 	, USE_HMM(use_hmm)
 	, NBINS(nbins)
-	, BIN_SIZE(bin_size){
+	, BIN_SIZE(bin_size)
+	, HMM_NEIGHB_RAD(neighb_rad){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -84,41 +121,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		pix_.load(BASE_PATH + "pix.mat");
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
+		std::vector<std::thread*> load_threads;
 		for (int t = 0; t < tetrn; ++t) {
-			std::cout << "Load probability estimations for tetrode " << t << "...\n";
-
-			// load l(a,x) for all spikes of the tetrode
-//			for (int i = 0; i < MIN_SPIKES; ++i) {
-//				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
-//			}
-
-			// load binary combined matrix and extract individual l(a,x)
-			arma::mat laxs_tetr_(NBINS, NBINS * MIN_SPIKES);
-			laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
-			for (int s = 0; s < MIN_SPIKES; ++s) {
-				laxs_[t][s] = laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1);
-			}
-			laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
-
-			// load marginal rate function
-			lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
-			double maxval = arma::max(arma::max(lxs_[t]));
-			for (int xb = 0; xb < NBINS; ++xb) {
-				for (int yb = 0; yb < NBINS; ++yb) {
-					if (lxs_[t](xb, yb) == 0){
-						lxs_[t](xb, yb) = maxval;
-					}
-				}
-			}
-
-			pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_px.mat");
-
-			pf_built_[t] = true;
-
-			std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree");
-			kdtrees_[t] = new ANNkd_tree(kdtree_stream);
-			kdtree_stream.close();
+//			load_threads.push_back(new std::thread(&KDClusteringProcessor::load_laxs_tetrode, this, t));
+			load_laxs_tetrode(t);
 		}
+//		for (int t = 0; t < tetrn; ++t) {
+//			load_threads[t]->join();
+//		}
+//		std::cout << "All laxs loaded \n";
 
 		n_pf_built_ = tetrn;
 
@@ -287,7 +298,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			// find best (x, y) - with highest probability of (x,y)->(xb,yb)
 			// implement hmm{t}(xb,yb) = max_{x,y \in neighb(xb,yb)}(hmm_{t-1}(x,y) * tp(x,y,xb,yb) * prob(xb, yb | a_{1..N}))
 
-			float best_to_xb_yb = -1000 * 1000000;
+			float best_to_xb_yb = -1000.0f * 100000000.0f;
 			int bestx, besty;
 
 			for (int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINS - 1); ++x) {
@@ -295,7 +306,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 					// TODO weight
 					// split for DEBUG
 					float prob_xy = hmm_prediction_(x, y);
-					int shx = xb - x + HMM_NEIGHB_RAD, shy = yb - y + HMM_NEIGHB_RAD;
+					int shx = xb - x + HMM_NEIGHB_RAD;
+					int shy = yb - y + HMM_NEIGHB_RAD;
 					// TODO !!! parametrize
 					prob_xy += 10 * buffer->tps_[y * NBINS + x](shx, shy);
 					if (prob_xy > best_to_xb_yb){
@@ -315,6 +327,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// DEBUG - check that no window is skipped and the chain is broken
 	if(!(hmm_traj_[0].size() % 2000)){
 		std::cout << "hmm bias control: " << hmm_traj_[0].size() << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
+		// DEBUG
+		hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 	}
 
 	// renorm > (subtract min)
@@ -325,7 +339,10 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	hmm_prediction_ = hmm_upd_ + last_pred_probs_;
 
 	// VISUALIZATION ADJUSTMENT:to avoid overflow
-	hmm_prediction_ = hmm_prediction_ - hmm_prediction_.min();
+	hmm_prediction_ = hmm_prediction_ - hmm_prediction_.max();
+
+	// DEBUG
+//	hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 
 	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
 	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/512.0);
@@ -344,30 +361,30 @@ void KDClusteringProcessor::update_hmm_prediction() {
 //	}
 
 	// for consistency of comparison
-	if (last_pred_pkg_id_ > 30 * 1000000){
-		// STATS - dump best HMM trajectory by backtracking
-		std::ofstream dec_hmm("dec_hmm.txt");
-		int t = hmm_traj_[0].size() - 1;
-		// best last x,y
-		unsigned int x,y;
-		hmm_prediction_.max(x, y);
-		while (t >= 0){
-			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << "\n";
-			int b = hmm_traj_[y * NBINS + x][t];
-			y = b / NBINS;
-			x = b % NBINS;
-			t--;
-		}
-		dec_hmm.flush();
-
-		exit(0);
-	}
+//	if (last_pred_pkg_id_ > 30 * 1000000){
+//		// STATS - dump best HMM trajectory by backtracking
+//		std::ofstream dec_hmm("dec_hmm.txt");
+//		int t = hmm_traj_[0].size() - 1;
+//		// best last x,y
+//		unsigned int x,y;
+//		hmm_prediction_.max(x, y);
+//		while (t >= 0){
+//			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << "\n";
+//			int b = hmm_traj_[y * NBINS + x][t];
+//			y = b / NBINS;
+//			x = b % NBINS;
+//			t--;
+//		}
+//		dec_hmm.flush();
+//
+//		exit(0);
+//	}
 
 
 	// DEBUG
 //	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
-	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 500);
+	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 1000);
 }
 
 void KDClusteringProcessor::reset_hmm() {
@@ -605,7 +622,7 @@ void KDClusteringProcessor::process(){
 				// DEBUG
 				npred ++;
 				if (!(npred % 2000)){
-					std::cout << "hmm bia	s control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
+					std::cout << "hmm bias control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
 				}
 
 
