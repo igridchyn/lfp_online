@@ -7,11 +7,14 @@
 
 #include "WhlFileReaderProcessor.h"
 
-WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const unsigned int& sampling_rate)
+WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const unsigned int& sampling_rate,
+		const float sub_x, const float sub_y)
 : LFPProcessor(buffer)
 , whl_path_(whl_path)
 , whl_stream_(whl_path)
 , sampling_rate_(sampling_rate)
+, SUB_X(sub_x)
+, SUB_Y(sub_y)
 {
 
 }
@@ -30,15 +33,15 @@ void WhlFileReaderProcessor::process(){
 		// TODO: rewind (also for spike buffer in fet reader)
 		unsigned int *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
 
-		if (x < 0){
+		if (x < 0 || x <= SUB_X || y <= SUB_Y){
 			pos_rec[0] = 1023;
 			pos_rec[1] = 1023;
 //			pos_rec[2] = 0;
 //			pos_rec[3] = 0;
 		}
 		else{
-			pos_rec[0] = x;
-			pos_rec[1] = y;
+			pos_rec[0] = x - SUB_X;
+			pos_rec[1] = y - SUB_Y;
 //			pos_rec[2] = 0;
 //			pos_rec[3] = 0;
 		}
