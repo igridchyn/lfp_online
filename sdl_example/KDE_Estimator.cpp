@@ -117,7 +117,7 @@ void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::
 
 	// pre-compute feature part of the sum (same for all coordinates)
 	std::vector<long long> feature_sum;
-	for (int ni = 1; ni < NN_K; ++ni) {
+	for (int ni = 0; ni < NN_K; ++ni) {
 		long long sum = 0;
 		int *pcoord1 = ann_points_int[spikei], *pcoord2 = ann_points_int[knn_cache[spikei][ni]];
 		for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
@@ -238,6 +238,8 @@ int main(int argc, char **argv){
 	// NORMALIZE STDS
 	// TODO: !!! KDE / kd-tree search should be performed with the same std normalization !!!
 	// current: don't normalize feature covariances (as clustering is done in this way) but normalize x/y std to have the average feature std
+
+	// Feature stds
 	std::vector<float> stds;
 	float avg_feat_std = .0f;
 	for (int f = 0; f < N_FEAT; ++f) {
@@ -247,6 +249,7 @@ int main(int argc, char **argv){
 		avg_feat_std += stdf;
 	}
 	avg_feat_std /= N_FEAT;
+
 	float stdx = arma::stddev(obs_mat.col(N_FEAT));
 	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
 	std::cout << "t " << tetr << ": " << "std of x  = " << stdx << "\n";
