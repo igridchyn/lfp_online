@@ -107,7 +107,7 @@ void draw_bin(const char *path) {
 	const unsigned int AC_N_BINS = 30;
 
 	// kd-tree + KDE-based decoding
-	const unsigned int KD_DELAY = 0; // 15 * 1000000;
+	const unsigned int KD_DELAY = 0; //15 * 1000000;
 	const std::string KD_PATH_BASE =
 			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax6/pf_";
 	const bool KD_SAVE = false;

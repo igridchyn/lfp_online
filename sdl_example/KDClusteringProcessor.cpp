@@ -408,7 +408,7 @@ void KDClusteringProcessor::process(){
 		// DEBUG
 		if (!delay_reached_reported){
 			delay_reached_reported = true;
-			std::cout << "Delay over. Start spike collection...\n";
+			std::cout << "Delay over (" << SAMPLING_DELAY << "). Start spike collection...\n";
 		}
 
 		if (spike->speed < SPEED_THOLD){
@@ -618,13 +618,13 @@ void KDClusteringProcessor::process(){
 				if (USE_HMM)
 					update_hmm_prediction();
 
-
 				// DEBUG
 				npred ++;
 				if (!(npred % 2000)){
-					std::cout << "hmm bias control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
+					std::cout << "Bayesian prediction window bias control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
 				}
 
+				pos_pred_ = USE_PRIOR ? pix_ : arma::mat(NBINS, NBINS, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)
