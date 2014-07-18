@@ -276,12 +276,13 @@ int main(int argc, char **argv){
 	ANNdist *dists_coord = new ANNdist[NN_K_COORDS];
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
+			// find closest spikes to be used for KDE
 			ANNpoint pnt = annAllocPt(2);
 			double xc = BIN_SIZE * (0.5 + xb);
 			double yc = BIN_SIZE * (0.5 + yb);
 			pnt[0] = xc;
 			pnt[1] = yc;
-			kdtree_coords->annkSearch(pnt, NN_K_COORDS, nnIdx_coord, dists_coord, NN_EPS);
+			kdtree_coords->annkSearch(pnt, NN_K_COORDS, nnIdx_coord, dists_coord, NN_EPS / 10.0f);
 
 			// compute KDE from neighbours
 			double kde_sum = 0;
