@@ -55,6 +55,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const float SPEED_THOLD;
 
 	const bool USE_HMM;
+	const float LX_WEIGHT;
+	const float HMM_TP_WEIGHT;
 
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
 	const unsigned int N_FEAT = 12;
@@ -91,7 +93,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	std::vector<arma::mat> pxs_;
 	std::vector<arma::mat> lxs_;
-	const float LX_WEIGHT;
+
 
 	std::vector<std::vector<arma::mat> > laxs_;
 
@@ -161,7 +163,7 @@ public:
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
 			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad,
 			const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-			const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight);
+			const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight, const float hmm_tp_weight);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();

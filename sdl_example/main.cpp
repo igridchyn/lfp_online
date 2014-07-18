@@ -63,14 +63,14 @@ void draw_bin(const char *path) {
 	LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN_MS,
 			BUF_SAMPLING_RATE);
 
-	// DETECTION PARA<S
+	// DETECTION PARAMS
 	const float DET_NSTD = 6.5;
 
 	// BINNING
 	const unsigned int NBINS = 43;
 	const double BIN_SIZE = 7;
 
-	// CLUSTERING PARAMS
+	// GMM CLUSTERING PARAMS
 	const unsigned int GMM_MIN_OBSERVATIONS = 20000;
 	const unsigned int GMM_RATE = 1;
 	const unsigned int GMM_MAX_CLUSTERS = 18;
@@ -107,31 +107,36 @@ void draw_bin(const char *path) {
 	const unsigned int AC_N_BINS = 30;
 
 	// kd-tree + KDE-based decoding
-	const unsigned int KD_SAMPLING_DELAY =   0; //15 * 1000000;
-	const unsigned int KD_PREDICTION_DELAY = 20 * 1000000;
+	const unsigned int KD_SAMPLING_DELAY =  0; //15 * 1000000;
+	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
 			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax7/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = true;
-	const bool KD_USE_PRIOR = true;
 	const unsigned int KD_SAMPLING_RATE = 2;
 	const float KD_SPEED_THOLD = 0;
-	// DEBUG, should be used
-	const bool KD_USE_MARGINAL = true;
+	// Epsilon for approximate NN search - should be smaller for in (x) than in (a,x) space
 	const float KD_NN_EPS = 10.0;
-	const bool KD_USE_HMM = true;
-	const int KD_HMM_NEIGHB_RAD = 7;
 	const unsigned int KD_MIN_SPIKES = 20000;
 	// number of nearest neighbours for KDE estimation of p(a, x)
 	const unsigned int KD_NN_K = 100;
 	// number of nearest neighbours for KDE estimation of p(x) and pi(x)
-	const unsigned int KD_NN_K_SPACE = 100;
+	const unsigned int KD_NN_K_SPACE = 1000;
+	// DEBUG, should be used
 	// !!! ratio of these multipliers defines ratio between sigma_x and sigma_a in KDE estimate of p(a, x)
 	// used to convert float features and coordinates to int for int calculations
 	const unsigned int KD_MULT_INT = 1024;
 	const unsigned int KD_MULT_INT_FEAT = 100;
-	// weight of the l(x) in prediction ()
-	const float KD_LX_WEIGHT = 0.05;
+
+
+	// KD DECODING PARAMS
+	const bool KD_USE_MARGINAL = true;
+	// weight of the l(x) - marginal firing rate in prediction
+	const float KD_LX_WEIGHT = 0.1;
+	const bool KD_USE_PRIOR = true;
+	const bool KD_USE_HMM = true;
+	const int KD_HMM_NEIGHB_RAD = 7;
+	const float KD_HMM_TP_WEIGHT = 0.5;
 
 
 	// transition probs estimation steps
@@ -182,7 +187,7 @@ void draw_bin(const char *path) {
 			KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_SAMPLING_DELAY, KD_SAVE, KD_LOAD,
 			KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL,
 			KD_NN_EPS, KD_USE_HMM, NBINS, BIN_SIZE, KD_HMM_NEIGHB_RAD, KD_PREDICTION_DELAY,
-			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_MULT_INT_FEAT, KD_LX_WEIGHT);
+			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_MULT_INT_FEAT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT);
 	pipeline->add_processor(kdClustProc);
 
 	pipeline->add_processor(new SpeedEstimationProcessor(buf));

@@ -50,7 +50,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps,
 		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad,
 		const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-		const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight)
+		const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight, const float hmm_tp_weight)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -73,7 +73,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, NN_K_COORDS(nn_k_coords)
 	, MULT_INT(mult_int)
 	, MULT_INT_FEAT(mult_int_feat)
-	, LX_WEIGHT(lx_weight){
+	, LX_WEIGHT(lx_weight)
+	, HMM_TP_WEIGHT(hmm_tp_weight){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -317,7 +318,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 					int shx = xb - x + HMM_NEIGHB_RAD;
 					int shy = yb - y + HMM_NEIGHB_RAD;
 					// TODO !!! parametrize
-					prob_xy += 10 * buffer->tps_[y * NBINS + x](shx, shy);
+					prob_xy += HMM_TP_WEIGHT * buffer->tps_[y * NBINS + x](shx, shy);
 					if (prob_xy > best_to_xb_yb){
 						best_to_xb_yb = prob_xy;
 						bestx = x;
@@ -369,24 +370,29 @@ void KDClusteringProcessor::update_hmm_prediction() {
 //	}
 
 	// for consistency of comparison
-//	if (last_pred_pkg_id_ > 30 * 1000000){
-//		// STATS - dump best HMM trajectory by backtracking
-//		std::ofstream dec_hmm("dec_hmm.txt");
-//		int t = hmm_traj_[0].size() - 1;
-//		// best last x,y
-//		unsigned int x,y;
-//		hmm_prediction_.max(x, y);
-//		while (t >= 0){
-//			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << "\n";
-//			int b = hmm_traj_[y * NBINS + x][t];
-//			y = b / NBINS;
-//			x = b % NBINS;
-//			t--;
-//		}
-//		dec_hmm.flush();
-//
-//		exit(0);
-//	}
+	if (last_pred_pkg_id_ > 55 * 1000000){
+		// STATS - dump best HMM trajectory by backtracking
+		std::ofstream dec_hmm("dec_hmm.txt");
+		int t = hmm_traj_[0].size() - 1;
+		// best last x,y
+		unsigned int x,y;
+		hmm_prediction_.max(x, y);
+		while (t >= 0){
+			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << " ";
+			corrx = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY) / 512.0)][0];
+			corry = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY)/ 512.0)][1];
+			dec_hmm << corrx << " " << corry << "\n";
+			int b = hmm_traj_[y * NBINS + x][t];
+			y = b / NBINS;
+			x = b % NBINS;
+			t--;
+		}
+		dec_hmm.flush();
+
+		std::cout << "Exit after dumping the HMM prediction...\n";
+		// TODO: dump in constructor / parametrized
+		exit(0);
+	}
 
 
 	// DEBUG
