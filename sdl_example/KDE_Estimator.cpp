@@ -20,7 +20,6 @@ int NN_K;
 int NN_K_COORDS;
 int N_FEAT;
 int MULT_INT;
-int MULT_INT_FEAT;
 int BIN_SIZE;
 int NBINS;
 
@@ -31,6 +30,8 @@ int BUFFER_LAST_PKG_ID;
 int SAMPLING_DELAY;
 
 double NN_EPS;
+double SIGMA_X;
+double SIGMA_A;
 
 int tetr;
 
@@ -190,17 +191,21 @@ int main(int argc, char **argv){
 //	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
-	if (argc != 17){
+	if (argc != 18){
 		std::cout << "Exactly 17 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
 		exit(1);
 	}
 
-	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &MULT_INT_FEAT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
-	for(int p=0; p < 14; ++p){
+	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+	for(int p=0; p < 13; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
 	}
-	NN_EPS = atof(argv[15]);
-	BASE_PATH = argv[16];
+	NN_EPS = atof(argv[14]);
+	SIGMA_X = atof(argv[15]);
+	SIGMA_A = atof(argv[16]);
+	BASE_PATH = argv[17];
+
+	std::cout << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << "\n";
 
 	std::cout << "t " << tetr << ": " << "start KDE estimation\n";
 
@@ -257,15 +262,15 @@ int main(int argc, char **argv){
 	// normalize coords to have the average feature std
 	for (int s = 0; s < total_spikes; ++s) {
 		// ... loss of precision 1) from rounding to int; 2) by dividing int on float
-		spike_coords_int(s, 0) = (int)(obs_mat(s, N_FEAT) * avg_feat_std * MULT_INT / stdx);  //= stdx / avg_feat_std;
-		spike_coords_int(s, 1) = (int)(obs_mat(s, N_FEAT + 1) * avg_feat_std * MULT_INT / stdy);  //= stdy / avg_feat_std;
+		spike_coords_int(s, 0) = (int)(obs_mat(s, N_FEAT) * avg_feat_std / SIGMA_X * MULT_INT / stdx);  //= stdx / avg_feat_std;
+		spike_coords_int(s, 1) = (int)(obs_mat(s, N_FEAT + 1) * avg_feat_std / SIGMA_X * MULT_INT / stdy);  //= stdy / avg_feat_std;
 
 		// points to build coords 2d-tree, raw x and y coords
 		ann_points_coords[s][0] = obs_mat(s, N_FEAT);
 		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
 
 		for (int f = 0; f < N_FEAT; ++f) {
-			ann_points_int[s][f] = (int)round(obs_mat(s, f) * MULT_INT_FEAT);
+			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT);
 		}
 	}
 
@@ -365,8 +370,8 @@ int main(int argc, char **argv){
 	// pre-compute matrix of normalized bin centers
 	// ASSUMING xbin size == ybin size
 	for (int xb = 0; xb < NBINS; ++xb) {
-		coords_normalized(xb, 0) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std * MULT_INT / stdx);
-		coords_normalized(xb, 1) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std * MULT_INT / stdy);
+		coords_normalized(xb, 0) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
+		coords_normalized(xb, 1) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
 	std::cout << "t " << tetr << ": done coords_normalized\n";
 
