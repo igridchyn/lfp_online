@@ -87,8 +87,8 @@ void draw_bin(const char *path) {
 	const double PF_SIGMA = 60.0f;
 	const double PF_BIN_SIZE = BIN_SIZE;
 	const unsigned int PF_SPREAD = 3; // DEPENDS ON NBINS and BIN_SIZE
-	const bool PF_LOAD = true;
-	const bool PF_SAVE = false;
+	const bool PF_LOAD = false;
+	const bool PF_SAVE = true;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
 	const std::string PF_BASE_PATH =
 			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
@@ -107,12 +107,13 @@ void draw_bin(const char *path) {
 	const unsigned int AC_N_BINS = 30;
 
 	// kd-tree + KDE-based decoding
-	const unsigned int KD_SAMPLING_DELAY =  0; //15 * 1000000;
+	const unsigned int KD_SAMPLING_DELAY =  15 * 1000000;
+	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax7/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax14/pf_";
 	const bool KD_SAVE = false;
-	const bool KD_LOAD = true;
+	const bool KD_LOAD = ! KD_SAVE;
 	const unsigned int KD_SAMPLING_RATE = 2;
 	const float KD_SPEED_THOLD = 0;
 	// Epsilon for approximate NN search - should be smaller for in (x) than in (a,x) space
@@ -126,8 +127,11 @@ void draw_bin(const char *path) {
 	// !!! ratio of these multipliers defines ratio between sigma_x and sigma_a in KDE estimate of p(a, x)
 	// used to convert float features and coordinates to int for int calculations
 	const unsigned int KD_MULT_INT = 1024;
-	const unsigned int KD_MULT_INT_FEAT = 100;
 
+	const double KD_SIGMA_X = 1.0;  // 0.5  / 0.1
+	const double KD_SIGMA_A = 10.0; // 50.0  / 30.0
+
+	// TODO DUMP PARAMS
 
 	// KD DECODING PARAMS
 	const bool KD_USE_MARGINAL = true;
@@ -143,7 +147,7 @@ void draw_bin(const char *path) {
 	const unsigned int TP_NEIGHB_SIZE = KD_HMM_NEIGHB_RAD * 2 + 1; // DEPENDS on the NBINS and BIN_SIZE
 	const unsigned int TP_STEP = 4;
 	const bool TP_SAVE = false;
-	const bool TP_LOAD = true;
+	const bool TP_LOAD = ! TP_SAVE;
 	const bool TP_SMOOTH = true;
 	const bool TP_USE_PARAMETRIC = false;
 	const float TP_PAR_SIGMA = 5.0f;
@@ -187,7 +191,7 @@ void draw_bin(const char *path) {
 			KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_SAMPLING_DELAY, KD_SAVE, KD_LOAD,
 			KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL,
 			KD_NN_EPS, KD_USE_HMM, NBINS, BIN_SIZE, KD_HMM_NEIGHB_RAD, KD_PREDICTION_DELAY,
-			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_MULT_INT_FEAT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT);
+			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT, KD_SIGMA_X, KD_SIGMA_A);
 	pipeline->add_processor(kdClustProc);
 
 	pipeline->add_processor(new SpeedEstimationProcessor(buf));

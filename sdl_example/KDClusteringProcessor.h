@@ -39,7 +39,8 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT;
-	const unsigned int MULT_INT_FEAT;
+	const double SIGMA_X;
+	const double SIGMA_A;
 
 	const bool SAVE;
 	const bool LOAD;
@@ -163,7 +164,8 @@ public:
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold, const bool use_marginal,
 			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad,
 			const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-			const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight, const float hmm_tp_weight);
+			const unsigned int mult_int, const float lx_weight, const float hmm_tp_weight,
+			const double sigma_x, const double sigma_a);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();

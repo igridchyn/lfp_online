@@ -50,7 +50,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const unsigned int sampling_rate, const float speed_thold, const bool use_marginal, const float eps,
 		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad,
 		const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-		const unsigned int mult_int, const unsigned int mult_int_feat, const float lx_weight, const float hmm_tp_weight)
+		const unsigned int mult_int, const float lx_weight, const float hmm_tp_weight,
+		const double sigma_x, const double sigma_a)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -72,7 +73,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, NN_K(nn_k)
 	, NN_K_COORDS(nn_k_coords)
 	, MULT_INT(mult_int)
-	, MULT_INT_FEAT(mult_int_feat)
+	, SIGMA_X(sigma_x)
+	, SIGMA_A(sigma_a)
 	, LX_WEIGHT(lx_weight)
 	, HMM_TP_WEIGHT(hmm_tp_weight){
 	// TODO Auto-generated constructor stub
@@ -467,7 +469,7 @@ void KDClusteringProcessor::process(){
 						ann_points_[tetr][total_spikes_[tetr]][chan * 3 + pc] = spike->pc[chan][pc];
 
 						// save integer with increased precision for integer KDE operations
-						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT_FEAT);
+						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
 
 						// set from the obs_mats after computing the coordinates normalizing factor
 //						spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
@@ -696,9 +698,9 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
-			MULT_INT << " " << MULT_INT_FEAT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
-			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS << " " << BASE_PATH;
-	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int, mult_int_feat, bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps)\n\t" << os.str() << "\n";
+			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
+			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS << " " << SIGMA_X << " " << SIGMA_A << " " << BASE_PATH;
+	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a,)\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
 	int retval = system(os.str().c_str());
@@ -713,6 +715,10 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 
 	// TODO competitive
 	n_pf_built_ ++;
+
+	if (n_pf_built_ == buffer->tetr_info_->tetrodes_number){
+		std::cout << "KDE at all tetrodes done\n";
+	}
 }
 
 void KDClusteringProcessor::build_lax_and_tree(const unsigned int tetr) {
