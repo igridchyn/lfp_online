@@ -131,7 +131,11 @@ void draw_bin(const char *path) {
 	const double KD_SIGMA_X = 1.0;  // 0.5  / 0.1
 	const double KD_SIGMA_A = 10.0; // 50.0  / 30.0
 
-	// TODO DUMP PARAMS
+	std::ofstream fparams(KD_PATH_BASE + "params.txt");
+	fparams << "SIGMA_X, SIGMA_A, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE, MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
+			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " " << KD_MIN_SPIKES << " " <<
+			KD_SAMPLING_RATE << " " << KD_SAMPLING_DELAY << " " << NBINS << " " << BIN_SIZE << "\n";
+	fparams.close();
 
 	// KD DECODING PARAMS
 	const bool KD_USE_MARGINAL = true;
