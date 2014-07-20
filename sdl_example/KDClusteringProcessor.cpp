@@ -385,8 +385,17 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			corry = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY)/ 512.0)][1];
 			dec_hmm << corrx << " " << corry << "\n";
 			int b = hmm_traj_[y * NBINS + x][t];
-			y = b / NBINS;
-			x = b % NBINS;
+			// TODO !!! fix
+			// WORKAROUND - keep the previous position
+			if (b < NBINS * NBINS){
+				y = b / NBINS;
+				x = b % NBINS;
+			}
+			else
+			{
+				std::cout << "Trajectory is screwed up at " << t << ", keep the previous position\n";
+			}
+
 			t--;
 		}
 		dec_hmm.flush();

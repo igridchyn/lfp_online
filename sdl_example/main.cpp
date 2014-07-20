@@ -111,7 +111,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax14/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax15/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const unsigned int KD_SAMPLING_RATE = 2;
@@ -128,8 +128,8 @@ void draw_bin(const char *path) {
 	// used to convert float features and coordinates to int for int calculations
 	const unsigned int KD_MULT_INT = 1024;
 
-	const double KD_SIGMA_X = 1.0;  // 0.5  / 0.1
-	const double KD_SIGMA_A = 10.0; // 50.0  / 30.0
+	const double KD_SIGMA_X = 1.0;  //
+	const double KD_SIGMA_A = 3.4133; // 10.0 for lax7; 3.4133 for lax9
 
 	std::ofstream fparams(KD_PATH_BASE + "params.txt");
 	fparams << "SIGMA_X, SIGMA_A, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE, MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<

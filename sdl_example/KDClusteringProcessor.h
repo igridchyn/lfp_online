@@ -139,7 +139,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	unsigned int last_processed_swr_start_ = 0;
 	unsigned int SWR_SLOWDOWN_DELAY = 23 * 1000000;
 	const bool SWR_SWITCH = false;
-	const unsigned int HMM_RESET_RATE = 50 * 1000000;
+	const unsigned int HMM_RESET_RATE = 60 * 1000000;
 
 	// STATS / DEBUG
 	std::ofstream dist_theta_;
