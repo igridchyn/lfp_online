@@ -111,7 +111,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax15/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax14/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const unsigned int KD_SAMPLING_RATE = 2;
@@ -140,11 +140,11 @@ void draw_bin(const char *path) {
 	// KD DECODING PARAMS
 	const bool KD_USE_MARGINAL = true;
 	// weight of the l(x) - marginal firing rate in prediction
-	const float KD_LX_WEIGHT = 0.1;
+	const float KD_LX_WEIGHT = 0.05; // 0.1
 	const bool KD_USE_PRIOR = true;
 	const bool KD_USE_HMM = true;
 	const int KD_HMM_NEIGHB_RAD = 7;
-	const float KD_HMM_TP_WEIGHT = 0.5;
+	const float KD_HMM_TP_WEIGHT = 10.0; // 0.5
 
 
 	// transition probs estimation steps
