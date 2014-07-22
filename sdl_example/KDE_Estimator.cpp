@@ -219,7 +219,7 @@ int main(int argc, char **argv){
 	ann_points_ = kdtree_->thePoints();
 
 	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
-	pos_buf.load(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
+	pos_buf.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
 	// DEBUG
 	std::cout << "t " << tetr << ": obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";

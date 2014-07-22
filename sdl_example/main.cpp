@@ -111,7 +111,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax16/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax20/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const float KD_SPEED_THOLD = 0;
@@ -138,8 +138,8 @@ void draw_bin(const char *path) {
 	std::string parpath = KD_PATH_BASE + "params.txt";
 	std::ofstream fparams(parpath);
 	fparams << "SIGMA_X, SIGMA_A, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE, MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
-			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " " << KD_MIN_SPIKES << " " <<
-			KD_SAMPLING_RATE << " " << KD_SAMPLING_DELAY << " " << NBINS << " " << BIN_SIZE << "\n";
+			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " "
+			<< KD_MIN_SPIKES << " " << KD_SAMPLING_RATE << " " << KD_SAMPLING_DELAY << " " << NBINS << " " << BIN_SIZE << "\n";
 	fparams.close();
 	std::cout << "Running params written to " << parpath << "\n";
 
@@ -156,7 +156,7 @@ void draw_bin(const char *path) {
 	// transition probs estimation steps
 	const unsigned int TP_NEIGHB_SIZE = KD_HMM_NEIGHB_RAD * 2 + 1; // DEPENDS on the NBINS and BIN_SIZE
 	const unsigned int TP_STEP = 4;
-	const bool TP_SAVE = false;
+	const bool TP_SAVE = KD_SAVE;
 	const bool TP_LOAD = ! TP_SAVE;
 	const bool TP_SMOOTH = true;
 	const bool TP_USE_PARAMETRIC = false;

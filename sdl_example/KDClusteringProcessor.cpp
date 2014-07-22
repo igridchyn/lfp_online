@@ -708,7 +708,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
-			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS << " " << SIGMA_X << " " << SIGMA_A << " " << BASE_PATH;
+			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
+			<< " " << SIGMA_X << " " << SIGMA_A << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a,)\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
