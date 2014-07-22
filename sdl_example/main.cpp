@@ -111,14 +111,17 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax14/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax16/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
-	const unsigned int KD_SAMPLING_RATE = 2;
 	const float KD_SPEED_THOLD = 0;
 	// Epsilon for approximate NN search - should be smaller for in (x) than in (a,x) space
 	const float KD_NN_EPS = 10.0;
+
+	// sampling rate for spike collection and minimum number of spikes to be collected
+	const unsigned int KD_SAMPLING_RATE = 2;
 	const unsigned int KD_MIN_SPIKES = 20000;
+
 	// number of nearest neighbours for KDE estimation of p(a, x)
 	const unsigned int KD_NN_K = 100;
 	// number of nearest neighbours for KDE estimation of p(x) and pi(x)
@@ -128,14 +131,17 @@ void draw_bin(const char *path) {
 	// used to convert float features and coordinates to int for int calculations
 	const unsigned int KD_MULT_INT = 1024;
 
+	// lax7: 1.0 / 10.0
 	const double KD_SIGMA_X = 1.0;  //
-	const double KD_SIGMA_A = 3.4133; // 10.0 for lax7; 3.4133 for lax9
+	const double KD_SIGMA_A = 10.0; // 10.0 for lax7; 3.4133 for lax9	`
 
-	std::ofstream fparams(KD_PATH_BASE + "params.txt");
+	std::string parpath = KD_PATH_BASE + "params.txt";
+	std::ofstream fparams(parpath);
 	fparams << "SIGMA_X, SIGMA_A, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE, MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
 			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " " << KD_MIN_SPIKES << " " <<
 			KD_SAMPLING_RATE << " " << KD_SAMPLING_DELAY << " " << NBINS << " " << BIN_SIZE << "\n";
 	fparams.close();
+	std::cout << "Running params written to " << parpath << "\n";
 
 	// KD DECODING PARAMS
 	const bool KD_USE_MARGINAL = true;
