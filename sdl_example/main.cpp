@@ -150,7 +150,7 @@ void draw_bin(const char *path) {
 	const bool KD_USE_MARGINAL = true;
 	// weight of the l(x) - marginal firing rate in prediction
 	const float KD_LX_WEIGHT = 1.0; // 0.05
-	const bool KD_USE_PRIOR = true;
+	const bool KD_USE_PRIOR = false;
 	const bool KD_USE_HMM = true;
 	const int KD_HMM_NEIGHB_RAD = 7;
 	const float KD_HMM_TP_WEIGHT = 1.0; // 0.5
