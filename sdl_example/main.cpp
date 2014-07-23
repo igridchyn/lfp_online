@@ -112,7 +112,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax25/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax30/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const float KD_SPEED_THOLD = 0;
@@ -147,12 +147,11 @@ void draw_bin(const char *path) {
 	std::cout << "Running params written to " << parpath << "\n";
 
 	// KD DECODING PARAMS
-	const bool KD_USE_MARGINAL = true;
-	// weight of the l(x) - marginal firing rate in prediction
-	const float KD_LX_WEIGHT = 1.0; // 0.05
-	const bool KD_USE_PRIOR = false;
+	const bool KD_USE_PRIOR = true;
 	const bool KD_USE_HMM = true;
 	const int KD_HMM_NEIGHB_RAD = 7;
+	// weight of the l(x) - marginal firing rate in prediction
+	const float KD_LX_WEIGHT = 1.0; // 0.05
 	const float KD_HMM_TP_WEIGHT = 1.0; // 0.5
 
 
@@ -202,7 +201,7 @@ void draw_bin(const char *path) {
 
 	KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf,
 			KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_SAMPLING_DELAY, KD_SAVE, KD_LOAD,
-			KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL,
+			KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD,
 			KD_NN_EPS, KD_USE_HMM, NBINS, BIN_SIZE, KD_HMM_NEIGHB_RAD, KD_PREDICTION_DELAY,
 			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT, KD_SIGMA_X, KD_SIGMA_A, KD_SIGMA_XX);
 	pipeline->add_processor(kdClustProc);
