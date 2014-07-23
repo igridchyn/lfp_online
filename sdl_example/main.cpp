@@ -112,7 +112,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax22/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax25/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const float KD_SPEED_THOLD = 0;
@@ -132,14 +132,16 @@ void draw_bin(const char *path) {
 	// the larger - the better precision, but should be checked for overflow
 	const unsigned int KD_MULT_INT = 1024; // 1024 for lax16
 
-	// lax7: 1.0 / 10.0
+	// lax7 / lax16: 1.0 / 10.0
 	const double KD_SIGMA_X = 1.0;  // 1.0 for lax16
 	const double KD_SIGMA_A = 10.0; // 10.0 for lax7; 3.4133 for lax9	`
+	// for p(x) and pi(x)
+	const double KD_SIGMA_XX = 0.0577; //0.0577 for lax25 == lax16
 
 	std::string parpath = KD_PATH_BASE + "params.txt";
 	std::ofstream fparams(parpath);
-	fparams << "SIGMA_X, SIGMA_A, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE, MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
-			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " "
+	fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
+			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_SIGMA_XX << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " "
 			<< KD_MIN_SPIKES << " " << KD_SAMPLING_RATE << " " << KD_SAMPLING_DELAY << " " << NBINS << " " << BIN_SIZE << "\n";
 	fparams.close();
 	std::cout << "Running params written to " << parpath << "\n";
@@ -147,11 +149,11 @@ void draw_bin(const char *path) {
 	// KD DECODING PARAMS
 	const bool KD_USE_MARGINAL = true;
 	// weight of the l(x) - marginal firing rate in prediction
-	const float KD_LX_WEIGHT = 0.05; // 0.05
+	const float KD_LX_WEIGHT = 1.0; // 0.05
 	const bool KD_USE_PRIOR = true;
 	const bool KD_USE_HMM = true;
 	const int KD_HMM_NEIGHB_RAD = 7;
-	const float KD_HMM_TP_WEIGHT = 10.0; // 0.5
+	const float KD_HMM_TP_WEIGHT = 1.0; // 0.5
 
 
 	// transition probs estimation steps
@@ -202,7 +204,7 @@ void draw_bin(const char *path) {
 			KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_SAMPLING_DELAY, KD_SAVE, KD_LOAD,
 			KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD, KD_USE_MARGINAL,
 			KD_NN_EPS, KD_USE_HMM, NBINS, BIN_SIZE, KD_HMM_NEIGHB_RAD, KD_PREDICTION_DELAY,
-			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT, KD_SIGMA_X, KD_SIGMA_A);
+			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT, KD_SIGMA_X, KD_SIGMA_A, KD_SIGMA_XX);
 	pipeline->add_processor(kdClustProc);
 
 	pipeline->add_processor(new SpeedEstimationProcessor(buf));

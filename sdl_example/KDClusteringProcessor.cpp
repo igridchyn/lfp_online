@@ -51,7 +51,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad,
 		const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
 		const unsigned int mult_int, const float lx_weight, const float hmm_tp_weight,
-		const double sigma_x, const double sigma_a)
+		const double sigma_x, const double sigma_a, const double sigma_xx)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
@@ -75,6 +75,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, MULT_INT(mult_int)
 	, SIGMA_X(sigma_x)
 	, SIGMA_A(sigma_a)
+	, SIGMA_XX(sigma_xx)
 	, LX_WEIGHT(lx_weight)
 	, HMM_TP_WEIGHT(hmm_tp_weight){
 	// TODO Auto-generated constructor stub
@@ -596,8 +597,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
 			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
-			<< " " << SIGMA_X << " " << SIGMA_A << " " << BASE_PATH;
-	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a,)\n\t" << os.str() << "\n";
+			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << BASE_PATH;
+	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx)\n\t" << os.str() << "\n";
 
 //	if (tetr == 13)
 	int retval = system(os.str().c_str());

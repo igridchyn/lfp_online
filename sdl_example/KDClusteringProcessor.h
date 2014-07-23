@@ -41,6 +41,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int MULT_INT;
 	const double SIGMA_X;
 	const double SIGMA_A;
+	const double SIGMA_XX;
 
 	const bool SAVE;
 	const bool LOAD;
@@ -165,7 +166,7 @@ public:
 			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad,
 			const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
 			const unsigned int mult_int, const float lx_weight, const float hmm_tp_weight,
-			const double sigma_x, const double sigma_a);
+			const double sigma_x, const double sigma_a, const double sigma_xx);
 	virtual ~KDClusteringProcessor();
 
 	const arma::mat& GetPrediction();
