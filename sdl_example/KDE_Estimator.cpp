@@ -32,6 +32,7 @@ int SAMPLING_DELAY;
 double NN_EPS;
 double SIGMA_X;
 double SIGMA_A;
+double SIGMA_XX;
 
 int tetr;
 
@@ -39,7 +40,7 @@ std::string BASE_PATH;
 bool SAVE = true;
 
 // first loaded, 2nd - created
-ANNkd_tree *kdtree_, *kdtree_coords, *kdtree_ax_;
+ANNkd_tree *kdtree_, *kdtree_ax_;
 
 //spike_coords_int - computed; coords_normalized - computed; pos buf - copied from buffer->pos_buf and loaded
 arma::Mat<int> spike_coords_int, coords_normalized, pos_buf;
@@ -57,8 +58,6 @@ std::vector<ANNidx*> knn_cache;
 std::vector<ANNidx*> knn_cache_ax;
 
 ANNpointArray ann_points_;
-ANNpointArray ann_points_coords;
-
 ANNpointArray ax_points_;
 
 // TODO init
@@ -194,19 +193,20 @@ int main(int argc, char **argv){
 //	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
-	if (argc != 18){
-		std::cout << "Exactly 17 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
+	if (argc != 19){
+		std::cout << "Exactly 18 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
 		exit(1);
 	}
-
 	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+
 	for(int p=0; p < 13; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
 	}
 	NN_EPS = atof(argv[14]);
 	SIGMA_X = atof(argv[15]);
 	SIGMA_A = atof(argv[16]);
-	BASE_PATH = argv[17];
+	SIGMA_XX = atof(argv[17]);
+	BASE_PATH = argv[18];
 
 	std::cout << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << "\n";
 
@@ -234,7 +234,6 @@ int main(int argc, char **argv){
 	pix_log = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	lax.resize(MIN_SPIKES,  arma::mat(NBINS, NBINS, arma::fill::zeros));
 
-	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 	spike_coords_int = arma::Mat<int>(total_spikes, 2);
 	coords_normalized = arma::Mat<int>(NBINS, 2);
 	ann_points_int = new int*[MIN_SPIKES];
@@ -268,10 +267,6 @@ int main(int argc, char **argv){
 		spike_coords_int(s, 0) = (int)(obs_mat(s, N_FEAT) * avg_feat_std / SIGMA_X * MULT_INT / stdx);  //= stdx / avg_feat_std;
 		spike_coords_int(s, 1) = (int)(obs_mat(s, N_FEAT + 1) * avg_feat_std / SIGMA_X * MULT_INT / stdy);  //= stdy / avg_feat_std;
 
-		// points to build coords 2d-tree, raw x and y coords
-		ann_points_coords[s][0] = obs_mat(s, N_FEAT);
-		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
-
 		for (int f = 0; f < N_FEAT; ++f) {
 			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT);
 		}
@@ -294,35 +289,25 @@ int main(int argc, char **argv){
 
 
 
-	// build 2d-tree for coords
-	kdtree_coords = new ANNkd_tree(ann_points_coords, total_spikes, 2);
-	// look for nearest neighbours of each bin center and compute p(x) - spike probability
-	ANNidx *nnIdx_coord = new ANNidx[NN_K_COORDS];
-	ANNdist *dists_coord = new ANNdist[NN_K_COORDS];
+	// spike location KDE
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
-			// find closest spikes to be used for KDE
-			ANNpoint pnt = annAllocPt(2);
 			double xc = BIN_SIZE * (0.5 + xb);
 			double yc = BIN_SIZE * (0.5 + yb);
-			pnt[0] = xc;
-			pnt[1] = yc;
-			kdtree_coords->annkSearch(pnt, NN_K_COORDS, nnIdx_coord, dists_coord, NN_EPS / 10.0f);
 
-			// compute KDE from neighbours
 			double kde_sum = 0;
 			unsigned int npoints = 0;
-			for (int n = 0; n < NN_K_COORDS; ++n) {
-				if (ann_points_coords[nnIdx_coord[n]][0] == 1023){
+			for (int n = 0; n < total_spikes; ++n) {
+				if (abs(obs_mat(n, N_FEAT) - 1023) < 0.01){
 					continue;
 				}
 				npoints ++;
 
 				double sum = 0;
-				double xdiff = (xc - ann_points_coords[nnIdx_coord[n]][0]);
-				sum += xdiff * xdiff / stdx;
-				double ydiff = (yc - ann_points_coords[nnIdx_coord[n]][1]);
-				sum += ydiff * ydiff / stdy;
+				double xdiff = (xc - obs_mat(n, N_FEAT)) / stdx / SIGMA_XX;
+				sum += xdiff * xdiff;
+				double ydiff = (yc - obs_mat(n, N_FEAT + 1)) / stdy / SIGMA_XX;
+				sum += ydiff * ydiff;
 
 				kde_sum += exp(- sum / 2);
 			}
@@ -337,10 +322,9 @@ int main(int argc, char **argv){
 	}
 
 	// compute occupancy KDE - pi(x) from tracking position sampling
-	// TODO 2d-tree ? how many neighbours needed ?
 	// overall tetrode average firing rate, spikes / s
 	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / (BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
-	std::cout << "t " << tetr << ": Average firing rate on tetrode: " << mu << "\n";
+	std::cout << "t " << tetr << ": Average firing rate: " << mu << "\n";
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
 			double xc = BIN_SIZE * (0.5 + xb);
@@ -351,11 +335,11 @@ int main(int argc, char **argv){
 			for (int n = 0; n < pos_buf.n_cols; ++n) {
 				double sum = 0;
 
-				double xdiff = xc - pos_buf(0, n);
-				double ydiff = yc - pos_buf(1, n);
+				double xdiff = (xc - pos_buf(0, n)) / stdx / SIGMA_XX;
+				double ydiff = (yc - pos_buf(1, n)) / stdy / SIGMA_XX;
 
-				sum += xdiff * xdiff / stdx;
-				sum += ydiff * ydiff / stdy;
+				sum += xdiff * xdiff;
+				sum += ydiff * ydiff;
 
 				kde_sum += exp(- sum / 2);
 			}
