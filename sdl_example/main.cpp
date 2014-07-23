@@ -96,6 +96,7 @@ void draw_bin(const char *path) {
 	const unsigned int PF_MIN_PKG_ID = 0;
 	const bool PF_USE_PRIOR = false;
 
+	// slow down parameters - delay and interval
 	const unsigned int SD_WAIT_MILLISECONDS = 50;
 	const unsigned int SD_START = 350 * 1000000;
 
@@ -111,7 +112,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax20/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax22/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const float KD_SPEED_THOLD = 0;
@@ -127,12 +128,12 @@ void draw_bin(const char *path) {
 	// number of nearest neighbours for KDE estimation of p(x) and pi(x)
 	const unsigned int KD_NN_K_SPACE = 1000;
 	// DEBUG, should be used
-	// !!! ratio of these multipliers defines ratio between sigma_x and sigma_a in KDE estimate of p(a, x)
 	// used to convert float features and coordinates to int for int calculations
-	const unsigned int KD_MULT_INT = 1024;
+	// the larger - the better precision, but should be checked for overflow
+	const unsigned int KD_MULT_INT = 1024; // 1024 for lax16
 
 	// lax7: 1.0 / 10.0
-	const double KD_SIGMA_X = 1.0;  //
+	const double KD_SIGMA_X = 1.0;  // 1.0 for lax16
 	const double KD_SIGMA_A = 10.0; // 10.0 for lax7; 3.4133 for lax9	`
 
 	std::string parpath = KD_PATH_BASE + "params.txt";
@@ -146,7 +147,7 @@ void draw_bin(const char *path) {
 	// KD DECODING PARAMS
 	const bool KD_USE_MARGINAL = true;
 	// weight of the l(x) - marginal firing rate in prediction
-	const float KD_LX_WEIGHT = 0.05; // 0.1
+	const float KD_LX_WEIGHT = 0.05; // 0.05
 	const bool KD_USE_PRIOR = true;
 	const bool KD_USE_HMM = true;
 	const int KD_HMM_NEIGHB_RAD = 7;
