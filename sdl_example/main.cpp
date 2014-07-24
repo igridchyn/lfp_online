@@ -112,7 +112,7 @@ void draw_bin(const char *path) {
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
 	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
 	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax30/pf_";
+			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax32/pf_";
 	const bool KD_SAVE = false;
 	const bool KD_LOAD = ! KD_SAVE;
 	const float KD_SPEED_THOLD = 0;
@@ -130,11 +130,11 @@ void draw_bin(const char *path) {
 	// DEBUG, should be used
 	// used to convert float features and coordinates to int for int calculations
 	// the larger - the better precision, but should be checked for overflow
-	const unsigned int KD_MULT_INT = 1024; // 1024 for lax16
+	const unsigned int KD_MULT_INT = 256; // 1024 for lax16
 
 	// lax7 / lax16: 1.0 / 10.0
 	const double KD_SIGMA_X = 1.0;  // 1.0 for lax16
-	const double KD_SIGMA_A = 10.0; // 10.0 for lax7; 3.4133 for lax9	`
+	const double KD_SIGMA_A = 10.0; // 10.0 for lax7; 3.4133 for lax9
 	// for p(x) and pi(x)
 	const double KD_SIGMA_XX = 0.0577; //0.0577 for lax25 == lax16
 

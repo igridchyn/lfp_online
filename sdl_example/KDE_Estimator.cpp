@@ -54,9 +54,6 @@ std::vector<arma::mat> lax;
 
 int **ann_points_int;
 
-std::vector<ANNidx*> knn_cache;
-std::vector<ANNidx*> knn_cache_ax;
-
 ANNpointArray ann_points_;
 ANNpointArray ax_points_;
 
@@ -64,24 +61,13 @@ ANNpointArray ax_points_;
 int total_spikes;
 
 // compute value of joint distribution kernel for spike2 centered in spike1 with NORMALIZED (and converted to integer with high precision) coordinates x and y
-long long kern_H_ax_(const unsigned int& spikei1, const unsigned int& spikei2, const int& x, const int& y) {
-	// TODO: implement efficiently (integer with high precision)
+long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 	// TODO: check for the overlow (MULT order X DIM X MAX(coord order / feature sorder) X squared = (10 + 1 + 2) * 2 = 26 < 32 bit )
 
 	long long sum = 0;
-//	sum += (obs_spikes_[tetr][spikei1]->x - obs_spikes_[tetr][spikei2]->x) / X_STD;
-//	sum += (obs_spikes_[tetr][spikei1]->y - obs_spikes_[tetr][spikei2]->y) / Y_STD;
-
-	// !!! PRE_COMPUTED AND ADDED AT THE HIGHER LEVEL
-//	int *pcoord1 = ann_points_int[spikei1], *pcoord2 = ann_points_int[spikei2];
-//	for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
-//		int coord1 = *pcoord1, coord2 = *pcoord2;
-//		sum += (coord1 - coord2) * (coord1 - coord2);
-//	}
 
 	// coords are already normalized to have the same variance as features (average)
 	// X coordinate
-
 	int neighbx = spike_coords_int(spikei2, 0);
 	int xdiff = (neighbx - x);
 	sum += xdiff * xdiff;
@@ -89,22 +75,6 @@ long long kern_H_ax_(const unsigned int& spikei1, const unsigned int& spikei2, c
 	int neighby = spike_coords_int(spikei2, 1);
 	int ydiff = (neighby - y);
 	sum += ydiff * ydiff;
-
-//	ANNcoord *pcoord1 = ann_points_[tetr][spikei1], *pcoord2 = ann_points_[tetr][spikei2];
-
-	// unroll loop - 20% faster
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
-//	sum += (*(pcoord1++) - *(pcoord2++)) ^ 2;
 
 	// order : ~ 10^9 for 12 features scaled by 2^10 = 10^3
 	return - sum / 2;
@@ -120,15 +90,26 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 	// pre-compute feature part of the sum (same for all coordinates)
 	std::vector<long long> feature_sum;
-	for (int ni = 0; ni < NN_K; ++ni) {
+	for (int ni = 0; ni < total_spikes; ++ni) {
 		long long sum = 0;
-		int *pcoord1 = ann_points_int[spikei], *pcoord2 = ann_points_int[knn_cache_ax[spikei][ni]];
+		int *pcoord1 = ann_points_int[spikei], *pcoord2 = ann_points_int[ni];
 		for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
 			int coord1 = *pcoord1, coord2 = *pcoord2;
 			sum += (coord1 - coord2) * (coord1 - coord2);
 		}
 		feature_sum.push_back(- sum / 2);
 	}
+
+	// TODO: cache MIN_SPIKES X NBINS X NBINS distances btw spike loc and bin centers [already computed at p(x) computation]
+
+	ANNpoint p_bin_spike = ax_points_[spikei];
+	// to restore later
+	double x_s = p_bin_spike[N_FEAT];
+	double y_s = p_bin_spike[N_FEAT + 1];
+
+	// TODO don't allocate each time
+	ANNidx *nn_idx = new ANNidx[NN_K];
+	ANNdist *dd = new ANNdist[NN_K];
 
 	for (int xb = 0; xb < NBINS; ++xb) {
 		for (int yb = 0; yb < NBINS; ++yb) {
@@ -138,22 +119,26 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			unsigned int nspikes = 0;
 			// compute KDE (proportional to log-probability) over cached nearest neighbours
 			// TODO ? exclude self from neighbours list ?
-			for (int ni = 1; ni < NN_K; ++ni) {
-				double spikex = obs_mat(knn_cache_ax[spikei][ni], N_FEAT);
+
+			// form a point (a_i, x_b, y_b) and find its nearest neighbours in (a, x) space for KDE
+			p_bin_spike[N_FEAT] = coords_normalized(xb, 0);
+			p_bin_spike[N_FEAT + 1] = coords_normalized(yb, 1);
+
+			// find closest points for 'spike with a given sha'
+			kdtree_ax_->annkSearch(p_bin_spike, NN_K, nn_idx, dd, NN_EPS / 3.0);
+
+			// to rough estimation
+//			int k_in = kdtree_ax_->annkFRSearch(p_bin_spike, 2000000, NN_K, nn_idx, dd, NN_EPS / 5.0);
+
+			for (int ni = 0; ni < NN_K; ++ni) {
+				double spikex = obs_mat(nn_idx[ni], N_FEAT);
 				if (abs(spikex - 1023) < 1){
 					continue;
 				}
 
-				// TODO: optimze kernel computation and don't compute (a - a_i) each time
-				long long logprob = kern_H_ax_(spikei, knn_cache_ax[spikei][ni], coords_normalized(xb, 0), coords_normalized(yb, 1));
-				logprob += feature_sum[ni];
-
-				// DEBUG
-				if (logprob > 0){
-//					std::cout << "alarm : positive log-prob\n";
-//					logprob = kern_(spikei, knn_cache_[tetr][spikei][ni], tetr, coords_normalized_[tetr](xb, 0), coords_normalized_[tetr](yb, 1));
-					continue;
-				}
+				// TODO: optimze kernel computation and don't compute (x_s - x_b) each time
+				long long logprob = kern_H_ax_(nn_idx[ni], coords_normalized(xb, 0), coords_normalized(yb, 1));
+				logprob += feature_sum[nn_idx[ni]];
 
 				nspikes++;
 				kern_sum += exp((double)logprob / (MULT_INT * MULT_INT));
@@ -166,6 +151,10 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			}
 		}
 	}
+
+	// restore ax_point original coordinates
+	p_bin_spike[N_FEAT] = x_s;
+	p_bin_spike[N_FEAT + 1] = y_s;
 
 	double occ_min = pf.min();
 	// set min at low occupancy
@@ -249,12 +238,14 @@ int main(int argc, char **argv){
 	// Feature stds
 	std::vector<float> stds;
 	float avg_feat_std = .0f;
+	std::cout << "t " << tetr << ": std of features: ";
 	for (int f = 0; f < N_FEAT; ++f) {
 		float stdf = arma::stddev(obs_mat.col(f));
-		std::cout << "t " << tetr << ": std of feature " << f << " = " << stdf << "\n";
+		std::cout << stdf << " ";
 		stds.push_back(stdf);
 		avg_feat_std += stdf;
 	}
+	std::cout << "\n";
 	avg_feat_std /= N_FEAT;
 
 	float stdx = arma::stddev(obs_mat.col(N_FEAT));
@@ -272,7 +263,6 @@ int main(int argc, char **argv){
 		}
 	}
 
-
 	// BUILD TREE IN normalized (a, x) space
 	// first normalize coordinates in obs_mat
 	ax_points_ = annAllocPts(MIN_SPIKES, DIM + 2);
@@ -281,13 +271,10 @@ int main(int argc, char **argv){
 			ax_points_[s][f] = obs_mat(s, f) / SIGMA_A * MULT_INT;
 		}
 
-		for (int f = 0; f < 2; ++f) {
-			ax_points_[s][DIM + f] = obs_mat(s, f) / SIGMA_X * MULT_INT;
-		}
+		ax_points_[s][N_FEAT] = obs_mat(s, N_FEAT) / SIGMA_X * MULT_INT * avg_feat_std / stdx;
+		ax_points_[s][N_FEAT + 1] = obs_mat(s, N_FEAT + 1) / SIGMA_X * MULT_INT * avg_feat_std / stdy;
 	}
 	kdtree_ax_ = new ANNkd_tree(ax_points_, total_spikes, DIM + 2);
-
-
 
 	// spike location KDE
 	for (int xb = 0; xb < NBINS; ++xb) {
@@ -379,55 +366,8 @@ int main(int argc, char **argv){
 	}
 	std::cout << "t " << tetr << ": done coords_normalized\n";
 
-	// cache k nearest neighbours for each spike (for KDE computation)
-	ANNdist *dists = new ANNdist[NN_K];
-	// call kNN for each point
-	for (int p = 0; p < total_spikes; ++p) {
-		ANNidx *nnIdx = new ANNidx[NN_K];
-
-		kdtree_->annkSearch(ann_points_[p], NN_K, nnIdx, dists, NN_EPS);
-		// TODO: cast/copy to unsigned short array?
-		knn_cache.push_back(nnIdx);
-
-		// DEBUG
-		if (!(p % 1000)){
-			std::cout << "t " << tetr << ": distances in feature space: ";
-			for(int i=0; i < NN_K; i += 5){
-				std::cout << dists[i] << " ";
-			}
-			std::cout << "\n";
-		}
-	}
-	delete dists;
-	std::cout << "t " << tetr << ": done neighbours caching\n";
-
-
-	// cache neighbours in the (a, x) space
-	dists = new ANNdist[NN_K];
-	// call kNN for each point
-	for (int p = 0; p < total_spikes; ++p) {
-		ANNidx *nnIdx = new ANNidx[NN_K];
-
-		kdtree_ax_->annkSearch(ax_points_[p], NN_K, nnIdx, dists, NN_EPS);
-		// TODO: cast/copy to unsigned short array?
-		knn_cache_ax.push_back(nnIdx);
-
-		// DEBUG
-		if (!(p % 1000)){
-			std::cout << "t " << tetr << ": distances in (a,x) space: ";
-			for(int i=0; i < NN_K; i += 5){
-				std::cout << dists[i] << " ";
-			}
-			std::cout << "\n";
-		}
-	}
-	std::cout << "t " << tetr << ": done (a, x) neighbours caching\n";
-	delete dists;
-
-
-	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours neighbours)
+	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours)
 	time_t start = clock();
-	//const arma::mat& occupancy = pfProc_->GetSmoothedOccupancy();
 	for (int p = 0; p < total_spikes; ++p) {
 		// DEBUG
 		if (!(p % 1000)){
@@ -435,7 +375,7 @@ int main(int argc, char **argv){
 			std::cout << "t " << tetr << ": " << p << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
 			start = clock();
 
-			// for profiling
+			// PROFILING
 			//					if (p > 2500)
 			//						exit(0);
 		}
