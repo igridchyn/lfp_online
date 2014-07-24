@@ -390,8 +390,8 @@ int main(int argc, char **argv){
 		knn_cache.push_back(nnIdx);
 
 		// DEBUG
-		if (tetr == 3 && !(p % 1000)){
-			std::cout << "t 3: distances in feature space: ";
+		if (!(p % 1000)){
+			std::cout << "t " << tetr << ": distances in feature space: ";
 			for(int i=0; i < NN_K; i += 5){
 				std::cout << dists[i] << " ";
 			}
@@ -413,8 +413,8 @@ int main(int argc, char **argv){
 		knn_cache_ax.push_back(nnIdx);
 
 		// DEBUG
-		if (tetr == 3 && !(p % 1000)){
-			std::cout << "t 3: distances in (a,x) space: ";
+		if (!(p % 1000)){
+			std::cout << "t " << tetr << ": distances in (a,x) space: ";
 			for(int i=0; i < NN_K; i += 5){
 				std::cout << dists[i] << " ";
 			}
