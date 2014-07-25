@@ -23,6 +23,9 @@ int MULT_INT;
 int BIN_SIZE;
 int NBINS;
 
+const unsigned int BLOCK_SIZE = 3;
+int NBLOCKS;
+
 int MIN_SPIKES;
 int SAMPLING_RATE;
 int BUFFER_SAMPLING_RATE;
@@ -47,6 +50,9 @@ std::vector<int *> cache_sim_spikes_;
 // also, cache distances [conv. to float if too much memory is used ?]
 std::vector<double *> cache_xy_bin_spikes_dists_;
 std::vector<double *> cache_sim_spikes_dists_;
+
+// cache of NNs for bin blocks [9 X 9]
+std::vector<int *> cache_block_neighbs_;
 
 //spike_coords_int - computed; coords_normalized - computed; pos buf - copied from buffer->pos_buf and loaded
 arma::Mat<int> spike_coords_int, coords_normalized, pos_buf;
@@ -163,12 +169,19 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			// compute KDE (proportional to log-probability) over cached nearest neighbours
 			// TODO ? exclude self from neighbours list ?
 
-			// form a point (a_i, x_b, y_b) and find its nearest neighbours in (a, x) space for KDE
-			p_bin_spike[N_FEAT] = coords_normalized(xb, 0);
-			p_bin_spike[N_FEAT + 1] = coords_normalized(yb, 1);
-
+			// do kd search if first bin in the block, otherwise - use cached neighbours
 			// find closest points for 'spike with a given sha'
-			kdtree_ax_->annkSearch(p_bin_spike, NN_K, nn_idx, dd, NN_EPS / 3.0);
+			int nblock = (yb / BLOCK_SIZE) * NBLOCKS + xb / BLOCK_SIZE;
+			if (!(xb % BLOCK_SIZE) && !(yb % BLOCK_SIZE)){
+				// form a point (a_i, x_b, y_b) and find its nearest neighbours in (a, x) space for KDE
+				// have to choose central bin of the block
+				p_bin_spike[N_FEAT] = coords_normalized(xb < NBINS - 1 ? xb + 1 : xb, 0);
+				p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINS - 1 ? yb + 1 : yb, 1);
+
+				kdtree_ax_->annkSearch(p_bin_spike, NN_K, cache_block_neighbs_[nblock], dd, NN_EPS / 3.0);
+			}
+			nn_idx = cache_block_neighbs_[nblock];
+
 
 			// to rough estimation
 //			int k_in = kdtree_ax_->annkFRSearch(p_bin_spike, 2000000, NN_K, nn_idx, dd, NN_EPS / 5.0);
@@ -414,6 +427,14 @@ int main(int argc, char **argv){
 		coords_normalized(xb, 1) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
 	std::cout << "t " << tetr << ": done coords_normalized\n";
+
+	// prepare bin block neighbours cache - allocate
+	NBLOCKS = NBINS / BLOCK_SIZE + ((NBINS % BLOCK_SIZE) ? 1 : 0);
+	for (int xb = 0; xb < NBLOCKS; ++xb) {
+		for (int yb = 0; yb < NBLOCKS; ++yb) {
+			cache_block_neighbs_.push_back(new int[NN_K]);
+		}
+	}
 
 	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours)
 	time_t start = clock();
