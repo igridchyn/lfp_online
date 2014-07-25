@@ -40,7 +40,13 @@ std::string BASE_PATH;
 bool SAVE = true;
 
 // first loaded, 2nd - created
-ANNkd_tree *kdtree_, *kdtree_ax_;
+ANNkd_tree *kdtree_, *kdtree_ax_, *kd_tree_coords_;
+// neighbours caches: spike locations for each bin and most similar spikes for each spike
+std::vector<int *> cache_xy_bin_spikes_;
+std::vector<int *> cache_sim_spikes_;
+// also, cache distances [conv. to float if too much memory is used ?]
+std::vector<double *> cache_xy_bin_spikes_dists_;
+std::vector<double *> cache_sim_spikes_dists_;
 
 //spike_coords_int - computed; coords_normalized - computed; pos buf - copied from buffer->pos_buf and loaded
 arma::Mat<int> spike_coords_int, coords_normalized, pos_buf;
@@ -56,9 +62,46 @@ int **ann_points_int;
 
 ANNpointArray ann_points_;
 ANNpointArray ax_points_;
+ANNpointArray ann_points_coords;
 
 // TODO init
 int total_spikes;
+
+void cache_spike_and_bin_neighbours(){
+
+	// CACHE spikes with closest WS
+	// number of neihgbours to be cached - both for spikes and bin centers
+	const unsigned int NN_CACHE = 1000;
+	// cache spike neighbours
+	ANNpointArray ann_points_ws = kdtree_->thePoints();
+	for (int s = 0; s < total_spikes; ++s) {
+		// TODO alloc mat ?
+		ANNidx *nn_idx = new ANNidx[NN_CACHE];
+		ANNdist *dd = new ANNdist[NN_CACHE];
+		// TODO relax EPS ?
+		kdtree_->annkSearch(ann_points_ws[s], NN_CACHE, nn_idx, dd, NN_EPS);
+		cache_sim_spikes_.push_back(nn_idx);
+		cache_sim_spikes_dists_.push_back(dd);
+	}
+
+	// build kd-tree in the (x, y) space
+	kd_tree_coords_ = new ANNkd_tree(ann_points_coords, total_spikes, 2);
+	// cache neighbours for each bin center
+	for (int xb = 0; xb < NBINS; ++xb) {
+			for (int yb = 0; yb < NBINS; ++yb) {
+				ANNpoint xy_pnt = annAllocPt(2);
+				xy_pnt[0] = BIN_SIZE * (xb + 0.5);
+				xy_pnt[1] = BIN_SIZE * (yb + 0.5);
+				ANNidx *nn_idx = new ANNidx[NN_CACHE];
+				ANNdist *dd = new ANNdist[NN_CACHE];
+				// TODO relax eps ? ()
+				kd_tree_coords_->annkSearch(xy_pnt, NN_CACHE, nn_idx, dd, NN_EPS);
+				cache_xy_bin_spikes_.push_back(nn_idx);
+				cache_xy_bin_spikes_dists_.push_back(dd);
+			}
+	}
+	std::cout << "Done (x_b, y_b) neighbours and distances caching\n";
+}
 
 // compute value of joint distribution kernel for spike2 centered in spike1 with NORMALIZED (and converted to integer with high precision) coordinates x and y
 long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
@@ -223,6 +266,7 @@ int main(int argc, char **argv){
 	pix_log = arma::mat(NBINS, NBINS, arma::fill::zeros);
 	lax.resize(MIN_SPIKES,  arma::mat(NBINS, NBINS, arma::fill::zeros));
 
+	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 	spike_coords_int = arma::Mat<int>(total_spikes, 2);
 	coords_normalized = arma::Mat<int>(NBINS, 2);
 	ann_points_int = new int*[MIN_SPIKES];
@@ -258,10 +302,15 @@ int main(int argc, char **argv){
 		spike_coords_int(s, 0) = (int)(obs_mat(s, N_FEAT) * avg_feat_std / SIGMA_X * MULT_INT / stdx);  //= stdx / avg_feat_std;
 		spike_coords_int(s, 1) = (int)(obs_mat(s, N_FEAT + 1) * avg_feat_std / SIGMA_X * MULT_INT / stdy);  //= stdy / avg_feat_std;
 
+		ann_points_coords[s][0] = obs_mat(s, N_FEAT);
+		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
+
 		for (int f = 0; f < N_FEAT; ++f) {
 			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT);
 		}
 	}
+
+//	cache_spike_and_bin_neighbours();
 
 	// BUILD TREE IN normalized (a, x) space
 	// first normalize coordinates in obs_mat
@@ -376,8 +425,8 @@ int main(int argc, char **argv){
 			start = clock();
 
 			// PROFILING
-			//					if (p > 2500)
-			//						exit(0);
+//			if (p >= 1000)
+//				exit(0);
 		}
 
 		build_pax_(tetr, p, pix);

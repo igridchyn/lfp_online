@@ -296,7 +296,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// DEBUG
 //	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
-	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 1000);
+	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 200);
 }
 
 void KDClusteringProcessor::reset_hmm() {
