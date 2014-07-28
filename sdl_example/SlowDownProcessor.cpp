@@ -6,6 +6,7 @@
  */
 
 #include "SlowDownProcessor.h"
+#include "unistd.h"
 
 SlowDownProcessor::SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time, const unsigned int& slow_start)
  : LFPProcessor(buffer)

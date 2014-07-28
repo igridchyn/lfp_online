@@ -26,6 +26,15 @@
 		B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */; };
 		B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */; };
 		B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C591918E65500C1328D /* OnlineEstimator.cpp */; };
+		B087CAA519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */; };
+		B087CAA619862D7100FC5E01 /* FetFileReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */; };
+		B087CAA719862D7100FC5E01 /* KDClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9919862D7100FC5E01 /* KDClusteringProcessor.cpp */; };
+		B087CAA819862D7100FC5E01 /* SlowDownProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9B19862D7100FC5E01 /* SlowDownProcessor.cpp */; };
+		B087CAA919862D7100FC5E01 /* SpeedEstimationProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9D19862D7100FC5E01 /* SpeedEstimationProcessor.cpp */; };
+		B087CAAA19862D7100FC5E01 /* SwReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9F19862D7100FC5E01 /* SwReaderProcessor.cpp */; };
+		B087CAAB19862D7100FC5E01 /* TransProbEstimationProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CAA119862D7100FC5E01 /* TransProbEstimationProcessor.cpp */; };
+		B087CAAC19862D7100FC5E01 /* WhlFileReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CAA319862D7100FC5E01 /* WhlFileReaderProcessor.cpp */; };
+		B087CAAE1986373300FC5E01 /* libANN.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B087CAAD1986373300FC5E01 /* libANN.a */; };
 		B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */; };
 		B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */; };
 		B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */; };
@@ -75,6 +84,23 @@
 		B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetectorProcessor.cpp; sourceTree = "<group>"; };
 		B0797C591918E65500C1328D /* OnlineEstimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnlineEstimator.cpp; sourceTree = "<group>"; };
 		B0797C5A1918E65500C1328D /* OnlineEstimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnlineEstimator.h; sourceTree = "<group>"; };
+		B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CluReaderClusteringProcessor.cpp; sourceTree = "<group>"; };
+		B087CA9619862D7100FC5E01 /* CluReaderClusteringProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CluReaderClusteringProcessor.h; sourceTree = "<group>"; };
+		B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FetFileReaderProcessor.cpp; sourceTree = "<group>"; };
+		B087CA9819862D7100FC5E01 /* FetFileReaderProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FetFileReaderProcessor.h; sourceTree = "<group>"; };
+		B087CA9919862D7100FC5E01 /* KDClusteringProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KDClusteringProcessor.cpp; sourceTree = "<group>"; };
+		B087CA9A19862D7100FC5E01 /* KDClusteringProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KDClusteringProcessor.h; sourceTree = "<group>"; };
+		B087CA9B19862D7100FC5E01 /* SlowDownProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SlowDownProcessor.cpp; sourceTree = "<group>"; };
+		B087CA9C19862D7100FC5E01 /* SlowDownProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SlowDownProcessor.h; sourceTree = "<group>"; };
+		B087CA9D19862D7100FC5E01 /* SpeedEstimationProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpeedEstimationProcessor.cpp; sourceTree = "<group>"; };
+		B087CA9E19862D7100FC5E01 /* SpeedEstimationProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpeedEstimationProcessor.h; sourceTree = "<group>"; };
+		B087CA9F19862D7100FC5E01 /* SwReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SwReaderProcessor.cpp; sourceTree = "<group>"; };
+		B087CAA019862D7100FC5E01 /* SwReaderProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwReaderProcessor.h; sourceTree = "<group>"; };
+		B087CAA119862D7100FC5E01 /* TransProbEstimationProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransProbEstimationProcessor.cpp; sourceTree = "<group>"; };
+		B087CAA219862D7100FC5E01 /* TransProbEstimationProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransProbEstimationProcessor.h; sourceTree = "<group>"; };
+		B087CAA319862D7100FC5E01 /* WhlFileReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhlFileReaderProcessor.cpp; sourceTree = "<group>"; };
+		B087CAA419862D7100FC5E01 /* WhlFileReaderProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhlFileReaderProcessor.h; sourceTree = "<group>"; };
+		B087CAAD1986373300FC5E01 /* libANN.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libANN.a; path = ../../soft/libs/ann_1.1.2/lib/libANN.a; sourceTree = "<group>"; };
 		B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTestingProcessor.cpp; sourceTree = "<group>"; };
 		B096A1AC1911112900846EBD /* UnitTestingProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestingProcessor.h; sourceTree = "<group>"; };
 		B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositionDisplayProcessor.cpp; sourceTree = "<group>"; };
@@ -109,6 +135,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B087CAAE1986373300FC5E01 /* libANN.a in Frameworks */,
 				B0611B71193887E60066583E /* libboost_system.dylib in Frameworks */,
 				B00005F81901B71D00502C4B /* libarmadillo.3.92.2.dylib in Frameworks */,
 				B00005F61901697900502C4B /* libmlpack.1.0.dylib in Frameworks */,
@@ -125,6 +152,7 @@
 		B052743118A9375400193EAA = {
 			isa = PBXGroup;
 			children = (
+				B087CAAD1986373300FC5E01 /* libANN.a */,
 				B0611B70193887E60066583E /* libboost_system.dylib */,
 				B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */,
 				B00005F51901697900502C4B /* libmlpack.1.0.dylib */,
@@ -149,6 +177,16 @@
 			isa = PBXGroup;
 			children = (
 				B0C023A3193F335800778F00 /* include */,
+				B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */,
+				B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */,
+				B087CA9919862D7100FC5E01 /* KDClusteringProcessor.cpp */,
+				B087CA9A19862D7100FC5E01 /* KDClusteringProcessor.h */,
+				B087CA9B19862D7100FC5E01 /* SlowDownProcessor.cpp */,
+				B087CA9D19862D7100FC5E01 /* SpeedEstimationProcessor.cpp */,
+				B087CA9E19862D7100FC5E01 /* SpeedEstimationProcessor.h */,
+				B087CA9F19862D7100FC5E01 /* SwReaderProcessor.cpp */,
+				B087CAA119862D7100FC5E01 /* TransProbEstimationProcessor.cpp */,
+				B087CAA319862D7100FC5E01 /* WhlFileReaderProcessor.cpp */,
 				B052743D18A9375500193EAA /* main.cpp */,
 				B052743F18A9375500193EAA /* sdl_example.1 */,
 				B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */,
@@ -179,6 +217,12 @@
 		B0C023A3193F335800778F00 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				B087CA9619862D7100FC5E01 /* CluReaderClusteringProcessor.h */,
+				B087CA9819862D7100FC5E01 /* FetFileReaderProcessor.h */,
+				B087CA9C19862D7100FC5E01 /* SlowDownProcessor.h */,
+				B087CAA019862D7100FC5E01 /* SwReaderProcessor.h */,
+				B087CAA219862D7100FC5E01 /* TransProbEstimationProcessor.h */,
+				B087CAA419862D7100FC5E01 /* WhlFileReaderProcessor.h */,
 				B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */,
 				B0C023A5193F33E900778F00 /* GMMClusteringProcessor.h */,
 				B0C023AA193F34AA00778F00 /* LFPBuffer.h */,
@@ -257,10 +301,13 @@
 				B0C023B31940747700778F00 /* PackageExractorProcessor.cpp in Sources */,
 				B0C023B91940750700778F00 /* SDLSingleWindowDisplay.cpp in Sources */,
 				B0611B74193CDF600066583E /* PlaceFieldProcessor.cpp in Sources */,
+				B087CAA719862D7100FC5E01 /* KDClusteringProcessor.cpp in Sources */,
 				B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */,
+				B087CAA819862D7100FC5E01 /* SlowDownProcessor.cpp in Sources */,
 				B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */,
 				B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */,
 				B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */,
+				B087CAA519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp in Sources */,
 				B0611B6F1934C62F0066583E /* AutocorrelogramProcessor.cpp in Sources */,
 				B0C023B6194074DA00778F00 /* SDLControlInputMetaProcessor.cpp in Sources */,
 				B03EACC2190006BF0087C88F /* SpikeAlignmentProcessor.cpp in Sources */,
@@ -268,10 +315,15 @@
 				B052743E18A9375500193EAA /* main.cpp in Sources */,
 				B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */,
 				B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */,
+				B087CAAB19862D7100FC5E01 /* TransProbEstimationProcessor.cpp in Sources */,
 				B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */,
+				B087CAAC19862D7100FC5E01 /* WhlFileReaderProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
 				B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */,
+				B087CAA919862D7100FC5E01 /* SpeedEstimationProcessor.cpp in Sources */,
+				B087CAAA19862D7100FC5E01 /* SwReaderProcessor.cpp in Sources */,
 				B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */,
+				B087CAA619862D7100FC5E01 /* FetFileReaderProcessor.cpp in Sources */,
 				B0C023C01941CBDA00778F00 /* PlaceField.cpp in Sources */,
 				B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */,
 			);
@@ -375,6 +427,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
+					/Users/igridchyn/soft/libs/ann_1.1.2/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"VALID_ARCHS[sdk=*]" = "i386 x86_64";
@@ -392,6 +445,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
+					/Users/igridchyn/soft/libs/ann_1.1.2/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
