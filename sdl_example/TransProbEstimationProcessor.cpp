@@ -45,7 +45,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			trans_probs_[b] = tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
 
 			// DEBUG
-			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + "_raw.mat", arma::raw_ascii);
+//			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + "_raw.mat", arma::raw_ascii);
 
 			// TODO do the following in the estimation stage, before saving
 			// SMOOTH NON-PAREMETRIC ESTIMATE (counts)
@@ -78,10 +78,10 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 						trans_probs_[b](dx, dy) = -100000;
 					}
 				}
-			}
+			}	
 
 			// DEBUG
-			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + ".mat", arma::raw_ascii);
+//			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + ".mat", arma::raw_ascii);
 		}
 
 		buffer->tps_ = trans_probs_;
