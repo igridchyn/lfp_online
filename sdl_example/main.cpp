@@ -37,10 +37,10 @@ typedef short t_bin;
 // ESC - exit
 // SHIFT+NUM ~ 10+NUM
 
-void draw_bin(const char *path) {
+void draw_bin() {
+	Config *config = new Config("../Res/decoding_32_jc84.conf");
+	const char* path = config->getString("bin.path").c_str();
 	FILE *f = fopen(path, "rb");
-
-	Config *config = new Config("decoding_32_jc84.conf");
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
@@ -186,8 +186,7 @@ void draw_bin(const char *path) {
 
 	std::vector<int> tetrnums = Utils::Math::MergeRanges(
 			Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14, 16));
-	std::string dat_path_base =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/mjc84-1910-0116_4.";
+	std::string dat_path_base = config->getString("dat.path.base");
 
 	LFPPipeline *pipeline = new LFPPipeline();
 	pipeline->add_processor(
@@ -288,7 +287,7 @@ int main(int argc, char* args[]) {
 
 //    draw_bin("/run/media/igor/63ce153c-da52-47cf-b229-f0bc4078cd52/data/bindata/jc58/trial100.bin");
 //	draw_bin("/hd1/data/bindata/jc103/0606/jc103-0606_03l.bin");
-	draw_bin("/home/igor/tmp/jc103-0606_03l.bin");
+	draw_bin();
 
 	return 0;
 }
