@@ -161,11 +161,11 @@ public:
 	KDClusteringProcessor(LFPBuffer *buf);
 
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
-			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
+			const unsigned int sampling_delay, const bool save, const bool load,
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold,
 			const float eps, const bool use_hmm, const unsigned int NBINS, const unsigned int bin_size, const int neighb_rad,
 			const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-			const unsigned int mult_int, const float lx_weight, const float hmm_tp_weight,
+			const unsigned int mult_int,
 			const double sigma_x, const double sigma_a, const double sigma_xx);
 	virtual ~KDClusteringProcessor();
 

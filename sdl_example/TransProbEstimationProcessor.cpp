@@ -10,6 +10,22 @@
 
 #include <assert.h>
 
+TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer* buf)
+	: TransProbEstimationProcessor(buf,
+			buf->config_->getInt("nbins"),
+			buf->config_->getInt("bin.size"),
+			buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1,
+			buf->config_->getInt("tp.step"),
+			buf->config_->getString("kd.path.base"),
+			buf->config_->getBool("kd.save"),
+			!buf->config_->getBool("kd.save"),
+			buf->config_->getBool("tp.smooth"),
+			buf->config_->getBool("tp.use.parametric"),
+			buf->config_->getFloat("tp.par.sigma"),
+			buf->config_->getInt("tp.par.spread")
+	){
+}
+
 TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
 		const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save,
 		const bool load, const bool smooth, const bool use_parametric, const float sigma, const int spread)

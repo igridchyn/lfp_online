@@ -93,64 +93,6 @@ void draw_bin() {
 	const float AC_BIN_SIZE_MS = config->getFloat("ac.bin.size.ms");
 	const unsigned int AC_N_BINS = config->getInt("ac.n.bins");
 
-	// kd-tree + KDE-based decoding
-	const unsigned int KD_SAMPLING_DELAY =  config->getInt("kd.sampling.delay");
-	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
-	const unsigned int KD_PREDICTION_DELAY = config->getInt("kd.prediction.delay");
-	const std::string KD_PATH_BASE = config->getString("kd.path.base");
-	const bool KD_SAVE = config->getInt("kd.save");
-	const bool KD_LOAD = ! KD_SAVE;
-	const float KD_SPEED_THOLD = config->getFloat("kd.speed.thold");
-	// Epsilon for approximate NN search - should be smaller for in (x) than in (a,x) space
-	const float KD_NN_EPS = config->getFloat("kd.nn.eps");
-
-	// sampling rate for spike collection and minimum number of spikes to be collected
-	const unsigned int KD_SAMPLING_RATE = config->getInt("kd.sampling.rate");
-	const unsigned int KD_MIN_SPIKES = config->getInt("kd.min.spikes");
-
-	// number of nearest neighbours for KDE estimation of p(a, x)
-	const unsigned int KD_NN_K = config->getInt("kd.nn.k");
-	// number of nearest neighbours for KDE estimation of p(x) and pi(x)
-	const unsigned int KD_NN_K_SPACE = config->getInt("kd.nn.k.space");
-	// DEBUG, should be used
-	// used to convert float features and coordinates to int for int calculations
-	// the larger - the better precision, but should be checked for overflow
-	const unsigned int KD_MULT_INT = config->getInt("kd.mult.int"); // 1024 for lax16
-
-	// lax7 / lax16: 1.0 / 10.0
-	const double KD_SIGMA_X = config->getFloat("kd.sigma.x");  // 1.0 for lax16
-	const double KD_SIGMA_A = config->getFloat("kd.sigma.a"); // 10.0 for lax7; 3.4133 for lax9
-	// for p(x) and pi(x)
-	const double KD_SIGMA_XX = config->getFloat("kd.sigma.xx"); //0.0577 for lax25 == lax16
-
-	std::string parpath = KD_PATH_BASE + "params.txt";
-	std::ofstream fparams(parpath);
-	fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
-			KD_SIGMA_X << " " << KD_SIGMA_A << " " << KD_SIGMA_XX << " " << KD_MULT_INT << " " << KD_SAMPLING_RATE << " " << KD_NN_K << " " << KD_NN_K_SPACE << " "
-			<< KD_MIN_SPIKES << " " << KD_SAMPLING_RATE << " " << KD_SAMPLING_DELAY << " " << NBINS << " " << BIN_SIZE << "\n";
-	fparams.close();
-	std::cout << "Running params written to " << parpath << "\n";
-
-	// KD DECODING PARAMS
-	const bool KD_USE_PRIOR = config->getBool("kd.use.prior");
-	const bool KD_USE_HMM = config->getBool("kd.use.hmm");
-	const int KD_HMM_NEIGHB_RAD = config->getInt("kd.hmm.neighb.rad");
-	// weight of the l(x) - marginal firing rate in prediction
-	// THESE SHOULD ALWAYS BE 1 FOR CORRECT MODEL, THEREFORE NOT PARAMETRIZED
-	const float KD_LX_WEIGHT = 1.0; // 0.05
-	const float KD_HMM_TP_WEIGHT = 1.0; // 0.5
-
-
-	// transition probs estimation steps
-	const unsigned int TP_NEIGHB_SIZE = KD_HMM_NEIGHB_RAD * 2 + 1; // DEPENDS on the NBINS and BIN_SIZE
-	const unsigned int TP_STEP = config->getInt("tp.step");
-	const bool TP_SAVE = KD_SAVE;
-	const bool TP_LOAD = ! TP_SAVE;
-	const bool TP_SMOOTH = config->getBool("tp.smooth");
-	const bool TP_USE_PARAMETRIC = config->getBool("tp.use.parametric");
-	const float TP_PAR_SIGMA = config->getFloat("tp.par.sigma");
-	const int TP_PAR_SPREAD = config->getInt("tp.par.spread");
-
 	// Whl Reader Params
 	const float WHL_SUB_X = config->getFloat("whl.sub.x");
 	const float WHL_SUB_Y = config->getFloat("whl.sub.y");
@@ -181,18 +123,12 @@ void draw_bin() {
 //    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
 //    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
 
-	KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf,
-			KD_MIN_SPIKES, KD_PATH_BASE, pfProc, KD_SAMPLING_DELAY, KD_SAVE, KD_LOAD,
-			KD_USE_PRIOR, KD_SAMPLING_RATE, KD_SPEED_THOLD,
-			KD_NN_EPS, KD_USE_HMM, NBINS, BIN_SIZE, KD_HMM_NEIGHB_RAD, KD_PREDICTION_DELAY,
-			KD_NN_K, KD_NN_K_SPACE, KD_MULT_INT, KD_LX_WEIGHT, KD_HMM_TP_WEIGHT, KD_SIGMA_X, KD_SIGMA_A, KD_SIGMA_XX);
+	KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf);
 	pipeline->add_processor(kdClustProc);
 
 	pipeline->add_processor(new SpeedEstimationProcessor(buf));
 	pipeline->add_processor(
-			new TransProbEstimationProcessor(buf, NBINS, PF_BIN_SIZE,
-					TP_NEIGHB_SIZE, TP_STEP, KD_PATH_BASE, TP_SAVE, TP_LOAD,
-					TP_SMOOTH, TP_USE_PARAMETRIC, TP_PAR_SIGMA, TP_PAR_SPREAD));
+			new TransProbEstimationProcessor(buf));
 
 	pipeline->add_processor(
 			new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS, SD_START));

@@ -45,19 +45,44 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	kdtree_stream.close();
 }
 
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf)
+	: KDClusteringProcessor(buf,
+			buf->config_->getInt("kd.min.spikes"),
+			buf->config_->getString("kd.path.base"),
+			buf->config_->getInt("kd.sampling.delay"),
+			buf->config_->getBool("kd.save"),
+			!buf->config_->getBool("kd.save"),
+			buf->config_->getBool("kd.use.prior"),
+			buf->config_->getInt("kd.sampling.rate"),
+			buf->config_->getFloat("kd.speed.thold"),
+			buf->config_->getFloat("kd.nn.eps"),
+			buf->config_->getBool("kd.use.hmm"),
+			buf->config_->getInt("nbins"),
+			buf->config_->getInt("bin.size"),
+			buf->config_->getInt("kd.hmm.neighb.rad"),
+			buf->config_->getInt("kd.prediction.delay"),
+			buf->config_->getInt("kd.nn.k"),
+			buf->config_->getInt("kd.nn.k.space"),
+			buf->config_->getInt("kd.mult.int"),
+			buf->config_->getFloat("kd.sigma.x"),
+			buf->config_->getFloat("kd.sigma.a"),
+			buf->config_->getFloat("kd.sigma.xx")
+			){
+}
+
+
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
-		const std::string base_path, PlaceFieldProcessor* pfProc,
+		const std::string base_path,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
 		const unsigned int sampling_rate, const float speed_thold, const float eps,
 		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad,
 		const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-		const unsigned int mult_int, const float lx_weight, const float hmm_tp_weight,
+		const unsigned int mult_int,
 		const double sigma_x, const double sigma_a, const double sigma_xx)
 	: LFPProcessor(buf)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
 	, BASE_PATH(base_path)
-	, pfProc_(pfProc)
 	, SAMPLING_DELAY(sampling_delay)
 	, SAVE(save)
 	, LOAD(load)
@@ -76,8 +101,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SIGMA_X(sigma_x)
 	, SIGMA_A(sigma_a)
 	, SIGMA_XX(sigma_xx)
-	, LX_WEIGHT(lx_weight)
-	, HMM_TP_WEIGHT(hmm_tp_weight){
+	, LX_WEIGHT(1.0)
+	, HMM_TP_WEIGHT(1.0){
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -165,6 +190,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	dec_coords_.open("dec_coords.txt");
 
 	hmm_traj_.resize(NBINS * NBINS);
+
+	std::string parpath = base_path + "params.txt";
+	std::ofstream fparams(parpath);
+	fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
+			sigma_x << " " << sigma_a << " " << sigma_xx<< " " << mult_int << " " << sampling_rate<< " "
+			<< nn_k << " "<< nn_k_coords << " "
+			<< MIN_SPIKES << " " << sampling_rate << " " << sampling_delay<< " " << NBINS << " " << BIN_SIZE << "\n";
+	fparams.close();
+	std::cout << "Running params written to " << parpath << "\n";
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -624,7 +658,4 @@ void KDClusteringProcessor::JoinKDETasks(){
             fitting_jobs_[t]->join();
     }
     std::cout << "All KDE jobs joined...\n";
-}
-
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf) {
 }
