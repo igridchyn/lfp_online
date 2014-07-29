@@ -1,0 +1,19 @@
+position: every 240 = 100Hz
+
+---
+if prediction rate = 100ms, mult divide occupancy by 10 (as it is added every 10 ms)
+
+--
+Place Field:
+	count spikes in bin
+	count occupancy in bin
+
+	smooth spikes map + occupancy
+
+	divide
+
+	cache Poisson pdf for computed lambdas in each bin
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+WHL - RES alignment:
+	first whl record = 0 res time
