@@ -257,7 +257,20 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     
 }
 
-PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform, const std::string& pc_path)
+PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer* buffer)
+: PCAExtractionProcessor(buffer,
+		buffer->config_->getInt("pca.num.pc"),
+		buffer->config_->getInt("pca.waveshape.samples"),
+		buffer->config_->getInt("pca.min.samples"),
+		buffer->config_->getBool("pca.load"),
+		!buffer->config_->getBool("pca.load"),
+		buffer->config_->getString("pca.path.base")
+		){
+}
+
+PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc,
+		const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform,
+		const bool save_transform, const std::string& pc_path)
 : LFPProcessor(buffer)
 , num_pc_(num_pc)
 , waveshape_samples_(waveshape_samples)
@@ -494,3 +507,4 @@ void PCAExtractionProcessor::process(){
         }
     }
 }
+

@@ -22,7 +22,19 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     return gmm;
 }
 
-GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model, const std::string& gmm_path_base)
+GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer* buf)
+	:GMMClusteringProcessor(buf,
+			buf->config_->getInt("gmm.min.observations"),
+			buf->config_->getInt("gmm.rate"),
+			buf->config_->getInt("gmm.max.clusters"),
+			buf->config_->getBool("gmm.load"),
+			! buf->config_->getBool("gmm.load"),
+			buf->config_->getString("gmm.path.base")
+			){
+}
+
+GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate,
+		const unsigned int& max_clusters, const bool load_model, const bool save_model, const std::string& gmm_path_base)
     : LFPProcessor(buf)
     , min_observations_(min_observations)
     , rate_(rate)
@@ -265,3 +277,4 @@ void GMMClusteringProcessor::JoinGMMTasks(){
     }
     std::cout << "All running GMM finished...\n";
 }
+

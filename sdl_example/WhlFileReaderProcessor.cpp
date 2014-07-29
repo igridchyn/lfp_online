@@ -7,6 +7,15 @@
 
 #include "WhlFileReaderProcessor.h"
 
+WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer* buffer)
+: WhlFileReaderProcessor(buffer,
+		buffer->config_->getString("dat.path.base") + "whl",
+		buffer->config_->getInt("whl.sampling.factor"),
+		buffer->config_->getFloat("whl.sub.x"),
+		buffer->config_->getFloat("whl.sub.y")
+) {
+}
+
 WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const unsigned int& sampling_rate,
 		const float sub_x, const float sub_y)
 : LFPProcessor(buffer)
@@ -50,3 +59,5 @@ void WhlFileReaderProcessor::process(){
 		buffer->pos_buf_pos_ ++;
 	}
 }
+
+

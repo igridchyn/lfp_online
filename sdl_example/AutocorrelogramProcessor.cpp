@@ -8,6 +8,13 @@
 
 #include "AutocorrelogramProcessor.h"
 
+AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer* buf)
+:AutocorrelogramProcessor(buf,
+		buf->config_->getFloat("ac.bin.size.ms"),
+		buf->config_->getInt("ac.n.bins")
+		){
+}
+
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins)
 : SDLSingleWindowDisplay("Autocorrelogramms", 1600, 500)
 , SDLControlInputProcessor(buf)
@@ -147,3 +154,5 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
         SDL_RenderFillRect(renderer_, &rect);
     }
 }
+
+

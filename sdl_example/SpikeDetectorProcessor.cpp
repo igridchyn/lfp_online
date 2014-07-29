@@ -10,6 +10,14 @@
 #include "OnlineEstimator.cpp"
 #include "SpikeDetectorProcessor.h"
 
+SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer)
+:SpikeDetectorProcessor(buffer,
+		buffer->config_->getString("spike.detection.filter.path").c_str(),
+		buffer->config_->getFloat("spike.detection.nstd"),
+		buffer->config_->getInt("spike.detection.refractory")
+		){
+}
+
 SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory)
 : LFPProcessor(buffer)
 ,last_processed_id(0)
@@ -179,3 +187,4 @@ void SpikeDetectorProcessor::process()
     
     det_pos = filt_pos;
 }
+

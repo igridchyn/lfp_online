@@ -16,6 +16,7 @@ class SlowDownProcessor: public LFPProcessor {
 	const unsigned int SLOW_START;
 
 public:
+	SlowDownProcessor(LFPBuffer* buffer);
 	SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time, const unsigned int& slow_start);
 	virtual ~SlowDownProcessor();
 

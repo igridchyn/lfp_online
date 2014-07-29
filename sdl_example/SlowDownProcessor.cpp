@@ -8,6 +8,14 @@
 #include "SlowDownProcessor.h"
 #include "unistd.h"
 
+SlowDownProcessor::SlowDownProcessor(LFPBuffer* buffer)
+:SlowDownProcessor(buffer,
+		buffer->config_->getInt("sd.wait.milliseconds"),
+		buffer->config_->getInt("sd.start")
+		){
+
+}
+
 SlowDownProcessor::SlowDownProcessor(LFPBuffer* buffer, const unsigned int& wait_time, const unsigned int& slow_start)
  : LFPProcessor(buffer)
 , WAIT_TIME_MS(wait_time)

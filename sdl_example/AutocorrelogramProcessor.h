@@ -41,6 +41,7 @@ class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLContro
     const unsigned int NBINS;
 
 public:
+    AutocorrelogramProcessor(LFPBuffer *buf);
     AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins);
     
     virtual void process();

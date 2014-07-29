@@ -57,6 +57,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     void gmm_task(int *ptr);
     
 public:
+    GMMClusteringProcessor(LFPBuffer* buf);
     GMMClusteringProcessor(LFPBuffer* buf, const unsigned int& min_observations, const unsigned int& rate, const unsigned int& max_clusters, const bool load_model, const bool save_model, const std::string& gmm_path_base);
     
     // LFPProcessor

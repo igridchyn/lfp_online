@@ -138,7 +138,7 @@ public:
 
     //====================================================================================================
     
-    LFPBuffer(TetrodesInfo* tetr_info, Config* config, const unsigned int& pop_vec_win_len, const unsigned int& sampling_rate);
+    LFPBuffer(TetrodesInfo* tetr_info, Config* config);
     
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     

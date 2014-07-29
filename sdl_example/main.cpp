@@ -43,68 +43,21 @@ void draw_bin() {
 
 	TetrodesInfo *tetr_inf = new TetrodesInfo(config->getString("tetr.conf.path"));
 
-	// in ms
-	const unsigned int BUF_POP_VEC_WIN_LEN_MS = 100;
-	const unsigned int BUF_SAMPLING_RATE = config->getInt("sampling.rate");
-
-	LFPBuffer *buf = new LFPBuffer(tetr_inf, config, BUF_POP_VEC_WIN_LEN_MS,
-			BUF_SAMPLING_RATE);
-
-	// DETECTION PARAMS
-	const float DET_NSTD = config->getFloat("spike.detection.nstd");
-
-	// BINNING
-	const unsigned int NBINS = config->getInt("nbins");
-	const double BIN_SIZE = config->getInt("bin.size");
-
-	// GMM CLUSTERING PARAMS
-	const unsigned int GMM_MIN_OBSERVATIONS = config->getInt("gmm.min.observations");
-	const unsigned int GMM_RATE = config->getInt("gmm.rate");
-	const unsigned int GMM_MAX_CLUSTERS = config->getInt("gmm.max.clusters");
-	const bool GMM_LOAD_MODELS = config->getBool("gmm.load");
-	const bool GMM_SAVE_MODELS = !GMM_LOAD_MODELS;
-
-	// PCA PARAMS
-	const unsigned int PCA_MIN_SAMPLES = config->getInt("pca.min.samples");
-	const bool DISPLAY_UNCLASSIFIED = config->getBool("pca.display.unclassified");
-	const bool PCA_LOAD_TRANSFORM = config->getBool("pca.load");
-	const bool PCA_SAVE_TRANSFORM = !PCA_LOAD_TRANSFORM;
-
-	// PLACE FIELD PARAMS
-	const double PF_SIGMA = config->getFloat("pf.sigma");
-	const double PF_BIN_SIZE = BIN_SIZE;
-	const unsigned int PF_SPREAD = config->getInt("pf.spread"); // DEPENDS ON NBINS and BIN_SIZE
-	const bool PF_LOAD = config->getBool("pf.load");
-	const bool PF_SAVE = !PF_LOAD;
-//    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
-	const std::string PF_BASE_PATH = config->getString("pf.base.path");
-	const float PF_RREDICTION_FIRING_RATE_THRESHOLD = config->getFloat("pf.prediction.firing.rate.threshold");
-	const unsigned int PF_MIN_PKG_ID = config->getInt("pf.min.pkg.id");
-	const bool PF_USE_PRIOR = config->getBool("pf.use.prior");
-
-	// slow down parameters - delay and interval
-	const unsigned int SD_WAIT_MILLISECONDS = config->getInt("sd.wait.milliseconds");
-	const unsigned int SD_START = config->getInt("sd.start");
+	LFPBuffer *buf = new LFPBuffer(tetr_inf, config);
 
 	// Position display params
 	const unsigned int POS_TAIL_LENGTH = config->getInt("pos.tail.length");
 
-	// Autocorrelation display params
-	const float AC_BIN_SIZE_MS = config->getFloat("ac.bin.size.ms");
-	const unsigned int AC_N_BINS = config->getInt("ac.n.bins");
-
-	// Whl Reader Params
-	const float WHL_SUB_X = config->getFloat("whl.sub.x");
-	const float WHL_SUB_Y = config->getFloat("whl.sub.y");
+	LFPPipeline *pipeline = new LFPPipeline();
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
 	const char* filt_path = config->getString("spike.detection.filter.path").c_str();
 //    pipeline->add_processor(new PackageExractorProcessor(buf));
-//    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
+//    pipeline->add_processor(new SpikeDetectorProcessor(buf));
 //    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
 //    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
-//    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
+//    pipeline->add_processor(new PCAExtractionProcessor(buf));
 //
 	PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf);
 
@@ -112,43 +65,26 @@ void draw_bin() {
 			Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14, 16));
 	std::string dat_path_base = config->getString("dat.path.base");
 
-	LFPPipeline *pipeline = new LFPPipeline();
-	pipeline->add_processor(
-			new WhlFileReaderProcessor(buf, dat_path_base + "whl", 512, WHL_SUB_X, WHL_SUB_Y));
+	pipeline->add_processor(new WhlFileReaderProcessor(buf));
 	pipeline->add_processor(
 			new FetFileReaderProcessor(buf, dat_path_base + "fet.", tetrnums));
-
 	pipeline->add_processor(new SwReaderProcessor(buf, dat_path_base + "answ"));
-
-//    pipeline->add_processor(new FetFileReaderProcessor(buf, "/Users/igridchyn/test-data/haibing/jc86/jc86-2612-01103.fet.9"));
-//    pipeline->add_processor(new CluReaderClusteringProcessor(buf, dat_path_base +  + "clu.", dat_path_base +  +"res.", tetrnums));
-
 	KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf);
 	pipeline->add_processor(kdClustProc);
-
 	pipeline->add_processor(new SpeedEstimationProcessor(buf));
-	pipeline->add_processor(
-			new TransProbEstimationProcessor(buf));
+	pipeline->add_processor(new TransProbEstimationProcessor(buf));
+	pipeline->add_processor(new SlowDownProcessor(buf));
 
-	pipeline->add_processor(
-			new SlowDownProcessor(buf, SD_WAIT_MILLISECONDS, SD_START));
-
-//    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf, GMM_MIN_OBSERVATIONS, GMM_RATE, GMM_MAX_CLUSTERS, GMM_LOAD_MODELS, GMM_SAVE_MODELS, "/hd1/data/bindata/jc103/0606/clust/gmm_");
+//    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf);
 //    pipeline->add_processor(gmmClustProc);
-
 //    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
 //    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED, .5, 300));
-
 	// TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
 	//pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
-
 //    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0, POS_TAIL_LENGTH));
-
 	//pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
-
 //    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
-
-//    pipeline->add_processor(new AutocorrelogramProcessor(buf, AC_BIN_SIZE_MS, AC_N_BINS));
+//    pipeline->add_processor(new AutocorrelogramProcessor(buf));
 
 	pipeline->add_processor(pfProc);
 
