@@ -28,6 +28,8 @@ void read_processors(std::ifstream& fconf);
 public:
 	static const std::vector<std::string> known_processors_;
 
+	std::vector<int> tetrodes;
+
 	Config(std::string path);
 
 	int getInt(std::string name);

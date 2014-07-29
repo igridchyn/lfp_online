@@ -7,6 +7,15 @@
 
 #include "CluReaderClusteringProcessor.h"
 
+CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer)
+: CluReaderClusteringProcessor(buffer,
+		buffer->config_->getString("dat.path.base") + "clu.",
+		buffer->config_->getString("dat.path.base") + "res.",
+		buffer->config_->tetrodes
+		){
+
+}
+
 CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, const std::string& clu_path,
 		const std::string& res_path_base, const std::vector<int>& tetrodes)
 : LFPProcessor(buffer)

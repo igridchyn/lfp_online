@@ -7,6 +7,14 @@
 
 #include "FetFileReaderProcessor.h"
 
+FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
+:FetFileReaderProcessor(buffer,
+		buffer->config_->getString("dat.path.base") + "fet.",
+		buffer->config_->tetrodes
+		){
+
+}
+
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers)
 : LFPProcessor(buffer)
 , fet_path_base_(fet_path_base){

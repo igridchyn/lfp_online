@@ -29,6 +29,7 @@ class FetFileReaderProcessor: public LFPProcessor {
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
 public:
+	FetFileReaderProcessor(LFPBuffer *buffer);
 	FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers);
 	virtual ~FetFileReaderProcessor();
 

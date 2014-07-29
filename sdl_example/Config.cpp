@@ -55,6 +55,16 @@ Config::Config(std::string path) {
 			continue;
 		}
 
+		if (line == std::string("tetrodes")){
+			int ntetr, tetr;
+			fconf >> ntetr;
+			for (int t = 0; t < ntetr; ++t) {
+				fconf >> tetr;
+				tetrodes.push_back(tetr);
+			}
+			continue;
+		}
+
 		std::istringstream ssline(line);
 
 		std::string key;
