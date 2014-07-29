@@ -54,26 +54,38 @@ bool Config::check_parameter(std::string name){
 
 int Config::getInt(std::string name) {
 	check_parameter(name);
+	requested_params_.insert(name);
 
 	return atoi(params_[name].c_str());
 }
 
 float Config::getFloat(std::string name) {
 	check_parameter(name);
+	requested_params_.insert(name);
 
 	return atof(params_[name].c_str());
 }
 
 bool Config::getBool(std::string name) {
 	check_parameter(name);
+	requested_params_.insert(name);
 
 	return (bool)atoi(params_[name].c_str());
 }
 
 std::string Config::getString(std::string name) {
 	check_parameter(name);
+	requested_params_.insert(name);
 
 	return params_[name];
+}
+
+void Config::checkUnused() {
+	for(std::map<std::string, std::string>::iterator iter = params_.begin(); iter != params_.end(); ++iter){
+		if (requested_params_.find(iter->first) == requested_params_.end()){
+			std::cout << "WARNING: param " << iter->first << " read but not requested\n";
+		}
+	}
 }
 
 Config::~Config() {

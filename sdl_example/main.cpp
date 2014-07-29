@@ -239,6 +239,9 @@ void draw_bin() {
 			new SDLControlInputMetaProcessor(buf,
 					pipeline->GetSDLControlInputProcessors()));
 
+	// check for unused params in the config
+	config->checkUnused();
+
 	// TODO: parallel threads ?
 	while (!feof(f)) {
 		fread((void*) block, CHUNK_SIZE, 1, f);
