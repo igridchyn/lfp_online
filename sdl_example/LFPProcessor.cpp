@@ -269,3 +269,34 @@ TetrodesInfo* TetrodesInfo::GetMergedTetrodesInfo(const TetrodesInfo* ti1, const
 
 	return tetrinf;
 }
+
+TetrodesInfo::TetrodesInfo(std::string config_path) {
+	std::cout << "Read tetrodes configuration from " << config_path << "\n";
+
+	std::ifstream tconfig(config_path);
+
+	tconfig >> tetrodes_number;
+
+	if (tetrodes_number <= 0){
+		std::cout << "# of tetrodes should be positive! Terminating...\n";
+		exit(1);
+	}
+
+	channels_numbers = new int[tetrodes_number];
+	tetrode_channels = new int*[tetrodes_number];
+
+	int chnum;
+	for (int t = 0; t < tetrodes_number; ++t) {
+		tconfig >> chnum;
+		channels_numbers[t] = chnum;
+		tetrode_channels[t] = new int[chnum];
+		for(int c=0; c < chnum; ++c){
+			tconfig >> tetrode_channels[t][c];
+		}
+	}
+
+	tconfig.close();
+}
+
+TetrodesInfo::TetrodesInfo() {
+}

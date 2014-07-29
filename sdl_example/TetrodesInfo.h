@@ -30,6 +30,9 @@ public:
 
     static TetrodesInfo* GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to);
     static TetrodesInfo* GetMergedTetrodesInfo(const TetrodesInfo* ti1, const TetrodesInfo* ti2);
+
+    TetrodesInfo(std::string config_path);
+    TetrodesInfo();
 };
 
 #endif
