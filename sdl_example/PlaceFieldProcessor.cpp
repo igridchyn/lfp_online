@@ -15,6 +15,21 @@
 
 // ============================================================================================================================================
 
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)
+	: PlaceFieldProcessor(buf,
+			buf->config_->getFloat("pf.sigma"),
+			buf->config_->getFloat("bin.size"),
+			buf->config_->getInt("nbins"),
+			buf->config_->getInt("pf.spread"),
+			!buf->config_->getBool("pf.save"),
+			buf->config_->getBool("pf.save"),
+			buf->config_->getString("pf.base.path"),
+			buf->config_->getFloat("pf.prediction.firing.rate.threshold"),
+			buf->config_->getInt("pf.min.pkg.id"),
+			buf->config_->getBool("pf.use.prior"))
+{
+}
+
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)

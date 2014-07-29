@@ -87,6 +87,9 @@ public:
     		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
     		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior);
     
+    // call the constructor above after reading params from config
+    PlaceFieldProcessor(LFPBuffer *buf);
+
     const arma::mat& GetSmoothedOccupancy();
 
     // LFPProcessor

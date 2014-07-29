@@ -164,9 +164,7 @@ void draw_bin() {
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
 //    pipeline->add_processor(new PCAExtractionProcessor(buf, 3, 16, PCA_MIN_SAMPLES, PCA_LOAD_TRANSFORM, PCA_SAVE_TRANSFORM, "/hd1/data/bindata/jc103/0606/pca/pc_"));
 //
-	PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf, PF_SIGMA,
-			PF_BIN_SIZE, NBINS, PF_SPREAD, PF_LOAD, PF_SAVE, PF_BASE_PATH,
-			PF_RREDICTION_FIRING_RATE_THRESHOLD, PF_MIN_PKG_ID, PF_USE_PRIOR);
+	PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf);
 
 	std::vector<int> tetrnums = Utils::Math::MergeRanges(
 			Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14, 16));

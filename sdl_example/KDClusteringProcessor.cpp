@@ -625,3 +625,6 @@ void KDClusteringProcessor::JoinKDETasks(){
     }
     std::cout << "All KDE jobs joined...\n";
 }
+
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf) {
+}

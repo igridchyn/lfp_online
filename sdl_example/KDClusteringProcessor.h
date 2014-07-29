@@ -158,6 +158,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	void load_laxs_tetrode(unsigned int tetrode);
 
 public:
+	KDClusteringProcessor(LFPBuffer *buf);
+
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes, const std::string base_path,
 			PlaceFieldProcessor* pfProc, const unsigned int sampling_delay, const bool save, const bool load,
 			const bool use_prior, const unsigned int sampling_rate, const float speed_thold,
