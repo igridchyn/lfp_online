@@ -43,17 +43,11 @@ void draw_bin() {
 
 	TetrodesInfo *tetr_inf = new TetrodesInfo(config->getString("tetr.conf.path"));
 
-	// clustering saved
-//    tetr_inf->tetrodes_number = 5;
-//    tetr_inf->channels_numbers = new int[5]{4, 4, 4, 4, 4};
-////    tetr_inf->tetrode_channels = new int*[5]{new int[4]{32,33,34,35}, new int[4]{36,37,38,39}, new int[4]{40,41,42,43}, new int[4]{52,53,54,55}, new int[4]{60,61,62,63}};
-//    tetr_inf->tetrode_channels = new int*[5]{new int[4]{4,5,6,7}, new int[4]{8,9,10,11}, new int[4]{12,13,14,15}, new int[4]{16,17,18,19}, new int[4]{20,21,22,23}};
-
 	// in ms
 	const unsigned int BUF_POP_VEC_WIN_LEN_MS = 100;
 	const unsigned int BUF_SAMPLING_RATE = config->getInt("sampling.rate");
 
-	LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN_MS,
+	LFPBuffer *buf = new LFPBuffer(tetr_inf, config, BUF_POP_VEC_WIN_LEN_MS,
 			BUF_SAMPLING_RATE);
 
 	// DETECTION PARAMS

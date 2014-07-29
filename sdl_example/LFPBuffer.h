@@ -16,12 +16,15 @@
 #include "TetrodesInfo.h"
 #include "Spike.h"
 #include "OnlineEstimator.h"
+#include "Config.h"
 
 #include <armadillo>
 
 class LFPBuffer{
     
 public:
+	Config *config_;
+
     static const int CHANNEL_NUM = 64;
     static const int LFP_BUF_LEN = 1 << 20; // 11
     // TODO: large buffer now needed only for delayed spike registration
@@ -135,7 +138,7 @@ public:
 
     //====================================================================================================
     
-    LFPBuffer(TetrodesInfo* tetr_info, const unsigned int& pop_vec_win_len, const unsigned int& sampling_rate);
+    LFPBuffer(TetrodesInfo* tetr_info, Config* config, const unsigned int& pop_vec_win_len, const unsigned int& sampling_rate);
     
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     
