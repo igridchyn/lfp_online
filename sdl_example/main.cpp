@@ -106,8 +106,7 @@ void draw_bin() {
 		pipeline->process(block, 1);
 	}
 
-	std::cout
-			<< "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
+	std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
 
 	buf->chunk_ptr = NULL;
 	while (true) {

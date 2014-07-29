@@ -9,6 +9,33 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
+const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderClustering", "FetFileReader",
+		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField",
+		"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
+		"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
+		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
+		"WhlFileReader"};
+
+const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + 23);
+
+void Config::read_processors(std::ifstream& fconf) {
+	int numproc;
+	fconf >> numproc;
+	std::cout << numproc << " processors to be used in the pipeline\n";
+
+	std::string proc_name;
+	for (int p = 0; p < numproc; ++p) {
+		fconf >> proc_name;
+		if (std::find(known_processors_.begin(), known_processors_.end(), proc_name) == known_processors_.end()){
+			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
+			exit(1);
+		}
+
+		processors_list_.push_back(proc_name);
+	}
+}
 
 Config::Config(std::string path) {
 	std::ifstream fconf(path);
@@ -22,6 +49,11 @@ Config::Config(std::string path) {
 	while(std::getline(fconf, line)){
 		if (line[0] == '/' || line.length() == 0)
 			continue;
+
+		if (line == std::string("pipeline")){
+			read_processors(fconf);
+			continue;
+		}
 
 		std::istringstream ssline(line);
 
