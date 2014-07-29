@@ -19,6 +19,7 @@
 #include "KDClusteringProcessor.h"
 #include "TransProbEstimationProcessor.h"
 #include "SwReaderProcessor.h"
+#include "Config.h"
 
 void putPixel(SDL_Renderer *renderer, int x, int y) {
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -39,7 +40,9 @@ typedef short t_bin;
 void draw_bin(const char *path) {
 	FILE *f = fopen(path, "rb");
 
-	const int CHUNK_SIZE = 432; // bytes
+	Config *config = new Config("decoding_32_jc84.conf");
+
+	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
 	unsigned char block[CHUNK_SIZE];
 
@@ -58,85 +61,83 @@ void draw_bin(const char *path) {
 
 	// in ms
 	const unsigned int BUF_POP_VEC_WIN_LEN_MS = 100;
-	const unsigned int BUF_SAMPLING_RATE = 20000;
+	const unsigned int BUF_SAMPLING_RATE = config->getInt("sampling.rate");
 
 	LFPBuffer *buf = new LFPBuffer(tetr_inf, BUF_POP_VEC_WIN_LEN_MS,
 			BUF_SAMPLING_RATE);
 
 	// DETECTION PARAMS
-	const float DET_NSTD = 6.5;
+	const float DET_NSTD = config->getFloat("spike.detection.nstd");
 
 	// BINNING
-	const unsigned int NBINS = 43;
-	const double BIN_SIZE = 7;
+	const unsigned int NBINS = config->getInt("nbins");
+	const double BIN_SIZE = config->getInt("bin.size");
 
 	// GMM CLUSTERING PARAMS
-	const unsigned int GMM_MIN_OBSERVATIONS = 20000;
-	const unsigned int GMM_RATE = 1;
-	const unsigned int GMM_MAX_CLUSTERS = 18;
-	const bool GMM_LOAD_MODELS = true;
-	const bool GMM_SAVE_MODELS = false;
+	const unsigned int GMM_MIN_OBSERVATIONS = config->getInt("gmm.min.observations");
+	const unsigned int GMM_RATE = config->getInt("gmm.rate");
+	const unsigned int GMM_MAX_CLUSTERS = config->getInt("gmm.max.clusters");
+	const bool GMM_LOAD_MODELS = config->getBool("gmm.load");
+	const bool GMM_SAVE_MODELS = !GMM_LOAD_MODELS;
 
 	// PCA PARAMS
-	const unsigned int PCA_MIN_SAMPLES = 10000;
-	const bool DISPLAY_UNCLASSIFIED = false;
-	const bool PCA_LOAD_TRANSFORM = true;
-	const bool PCA_SAVE_TRANSFORM = false;
+	const unsigned int PCA_MIN_SAMPLES = config->getInt("pca.min.samples");
+	const bool DISPLAY_UNCLASSIFIED = config->getBool("pca.display.unclassified");
+	const bool PCA_LOAD_TRANSFORM = config->getBool("pca.load");
+	const bool PCA_SAVE_TRANSFORM = !PCA_LOAD_TRANSFORM;
 
 	// PLACE FIELD PARAMS
-	const double PF_SIGMA = 60.0f;
+	const double PF_SIGMA = config->getFloat("pf.sigma");
 	const double PF_BIN_SIZE = BIN_SIZE;
-	const unsigned int PF_SPREAD = 3; // DEPENDS ON NBINS and BIN_SIZE
-	const bool PF_LOAD = false;
-	const bool PF_SAVE = true;
+	const unsigned int PF_SPREAD = config->getInt("pf.spread"); // DEPENDS ON NBINS and BIN_SIZE
+	const bool PF_LOAD = config->getBool("pf.save");
+	const bool PF_SAVE = !PF_LOAD;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
-	const std::string PF_BASE_PATH =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf/pf_";
-	const float PF_RREDICTION_FIRING_RATE_THRESHOLD = 0.3;
-	const unsigned int PF_MIN_PKG_ID = 0;
-	const bool PF_USE_PRIOR = false;
+	const std::string PF_BASE_PATH = config->getString("pf.base.path");
+	const float PF_RREDICTION_FIRING_RATE_THRESHOLD = config->getFloat("pf.prediction.firing.rate.threshold");
+	const unsigned int PF_MIN_PKG_ID = config->getInt("pf.min.pkg.id");
+	const bool PF_USE_PRIOR = config->getBool("pf.use.prior");
 
 	// slow down parameters - delay and interval
-	const unsigned int SD_WAIT_MILLISECONDS = 50;
-	const unsigned int SD_START = 350 * 1000000;
+	const unsigned int SD_WAIT_MILLISECONDS = config->getInt("sd.wait.milliseconds");
+	const unsigned int SD_START = config->getInt("sd.start");
 
 	// Position display params
-	const unsigned int POS_TAIL_LENGTH = 300;
+	const unsigned int POS_TAIL_LENGTH = config->getInt("pos.tail.length");
 
 	// Autocorrelation display params
-	const float AC_BIN_SIZE_MS = 1;
-	const unsigned int AC_N_BINS = 30;
+	const float AC_BIN_SIZE_MS = config->getFloat("ac.bin.size.ms");
+	const unsigned int AC_N_BINS = config->getInt("ac.n.bins");
 
 	// kd-tree + KDE-based decoding
-	const unsigned int KD_SAMPLING_DELAY =  15 * 1000000;
+	const unsigned int KD_SAMPLING_DELAY =  config->getInt("kd.sampling.delay");
 	// CV-period: after LAST SPIKE USED FOR KDE [approx. 39M]
-	const unsigned int KD_PREDICTION_DELAY = 40 * 1000000;
-	const std::string KD_PATH_BASE =
-			"/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/lax36/pf_";
-	const bool KD_SAVE = false;
+	const unsigned int KD_PREDICTION_DELAY = config->getInt("kd.prediction.delay");
+	const std::string KD_PATH_BASE = config->getString("kd.path.base");
+	const bool KD_SAVE = config->getInt("kd.save");
 	const bool KD_LOAD = ! KD_SAVE;
-	const float KD_SPEED_THOLD = 0;
+	const float KD_SPEED_THOLD = config->getFloat("kd.speed.thold");
 	// Epsilon for approximate NN search - should be smaller for in (x) than in (a,x) space
-	const float KD_NN_EPS = 10.0;
+	const float KD_NN_EPS = config->getFloat("kd.nn.eps");
 
 	// sampling rate for spike collection and minimum number of spikes to be collected
-	const unsigned int KD_SAMPLING_RATE = 2;
-	const unsigned int KD_MIN_SPIKES = 20000;
+	const unsigned int KD_SAMPLING_RATE = config->getInt("kd.sampling.rate");
+	const unsigned int KD_MIN_SPIKES = config->getInt("kd.min.spikes");
 
 	// number of nearest neighbours for KDE estimation of p(a, x)
-	const unsigned int KD_NN_K = 100;
+	const unsigned int KD_NN_K = config->getInt("kd.nn.k");
 	// number of nearest neighbours for KDE estimation of p(x) and pi(x)
-	const unsigned int KD_NN_K_SPACE = 1000;
+	const unsigned int KD_NN_K_SPACE = config->getInt("kd.nn.k.space");
 	// DEBUG, should be used
 	// used to convert float features and coordinates to int for int calculations
 	// the larger - the better precision, but should be checked for overflow
-	const unsigned int KD_MULT_INT = 256; // 1024 for lax16
+	const unsigned int KD_MULT_INT = config->getInt("kd.mult.int"); // 1024 for lax16
 
 	// lax7 / lax16: 1.0 / 10.0
-	const double KD_SIGMA_X = 1.0;  // 1.0 for lax16
-	const double KD_SIGMA_A = 10.0; // 10.0 for lax7; 3.4133 for lax9
+	const double KD_SIGMA_X = config->getFloat("kd.sigma.x");  // 1.0 for lax16
+	const double KD_SIGMA_A = config->getFloat("kd.sigma.a"); // 10.0 for lax7; 3.4133 for lax9
 	// for p(x) and pi(x)
-	const double KD_SIGMA_XX = 0.0577; //0.0577 for lax25 == lax16
+	const double KD_SIGMA_XX = config->getFloat("kd.sigma.xx"); //0.0577 for lax25 == lax16
 
 	std::string parpath = KD_PATH_BASE + "params.txt";
 	std::ofstream fparams(parpath);
@@ -147,31 +148,31 @@ void draw_bin(const char *path) {
 	std::cout << "Running params written to " << parpath << "\n";
 
 	// KD DECODING PARAMS
-	const bool KD_USE_PRIOR = true;
-	const bool KD_USE_HMM = true;
-	const int KD_HMM_NEIGHB_RAD = 7;
+	const bool KD_USE_PRIOR = config->getBool("kd.use.prior");
+	const bool KD_USE_HMM = config->getBool("kd.use.hmm");
+	const int KD_HMM_NEIGHB_RAD = config->getInt("kd.hmm.neighb.rad");
 	// weight of the l(x) - marginal firing rate in prediction
+	// THESE SHOULD ALWAYS BE 1 FOR CORRECT MODEL, THEREFORE NOT PARAMETRIZED
 	const float KD_LX_WEIGHT = 1.0; // 0.05
 	const float KD_HMM_TP_WEIGHT = 1.0; // 0.5
 
 
 	// transition probs estimation steps
 	const unsigned int TP_NEIGHB_SIZE = KD_HMM_NEIGHB_RAD * 2 + 1; // DEPENDS on the NBINS and BIN_SIZE
-	const unsigned int TP_STEP = 4;
+	const unsigned int TP_STEP = config->getInt("tp.step");
 	const bool TP_SAVE = KD_SAVE;
 	const bool TP_LOAD = ! TP_SAVE;
-	const bool TP_SMOOTH = true;
-	const bool TP_USE_PARAMETRIC = false;
-	const float TP_PAR_SIGMA = 5.0f;
-	const int TP_PAR_SPREAD = 1;
+	const bool TP_SMOOTH = config->getBool("tp.smooth");
+	const bool TP_USE_PARAMETRIC = config->getBool("tp.use.parametric");
+	const float TP_PAR_SIGMA = config->getFloat("tp.par.sigma");
+	const int TP_PAR_SPREAD = config->getInt("tp.par.spread");
 
 	// Whl Reader Params
-	const float WHL_SUB_X = 70.0f;
-	const float WHL_SUB_Y = 49.0f;
+	const float WHL_SUB_X = config->getFloat("whl.sub.x");
+	const float WHL_SUB_Y = config->getFloat("whl.sub.y");
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
-	const char* filt_path =
-			"/home/igor/code/ews/lfp_online/sdl_example/24k800-8000-50.txt";
+	const char* filt_path = config->getString("spike.detection.filter.path").c_str();
 //    pipeline->add_processor(new PackageExractorProcessor(buf));
 //    pipeline->add_processor(new SpikeDetectorProcessor(buf, filt_path, DET_NSTD, 16));
 //    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
