@@ -90,7 +90,7 @@ void draw_bin() {
 	const double PF_SIGMA = config->getFloat("pf.sigma");
 	const double PF_BIN_SIZE = BIN_SIZE;
 	const unsigned int PF_SPREAD = config->getInt("pf.spread"); // DEPENDS ON NBINS and BIN_SIZE
-	const bool PF_LOAD = config->getBool("pf.save");
+	const bool PF_LOAD = config->getBool("pf.load");
 	const bool PF_SAVE = !PF_LOAD;
 //    const std::string PF_BASE_PATH = "/hd1/data/bindata/jc103/0606/pf/pf_";
 	const std::string PF_BASE_PATH = config->getString("pf.base.path");

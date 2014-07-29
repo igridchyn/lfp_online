@@ -35,6 +35,7 @@
 		B087CAAB19862D7100FC5E01 /* TransProbEstimationProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CAA119862D7100FC5E01 /* TransProbEstimationProcessor.cpp */; };
 		B087CAAC19862D7100FC5E01 /* WhlFileReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CAA319862D7100FC5E01 /* WhlFileReaderProcessor.cpp */; };
 		B087CAAE1986373300FC5E01 /* libANN.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B087CAAD1986373300FC5E01 /* libANN.a */; };
+		B087CAB1198790DD00FC5E01 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CAB0198790DD00FC5E01 /* Config.cpp */; };
 		B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */; };
 		B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */; };
 		B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */; };
@@ -101,6 +102,8 @@
 		B087CAA319862D7100FC5E01 /* WhlFileReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhlFileReaderProcessor.cpp; sourceTree = "<group>"; };
 		B087CAA419862D7100FC5E01 /* WhlFileReaderProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhlFileReaderProcessor.h; sourceTree = "<group>"; };
 		B087CAAD1986373300FC5E01 /* libANN.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libANN.a; path = ../../soft/libs/ann_1.1.2/lib/libANN.a; sourceTree = "<group>"; };
+		B087CAAF198790D400FC5E01 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
+		B087CAB0198790DD00FC5E01 /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
 		B096A1A9191106A600846EBD /* UnitTestingProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTestingProcessor.cpp; sourceTree = "<group>"; };
 		B096A1AC1911112900846EBD /* UnitTestingProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestingProcessor.h; sourceTree = "<group>"; };
 		B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositionDisplayProcessor.cpp; sourceTree = "<group>"; };
@@ -178,6 +181,7 @@
 			children = (
 				B0C023A3193F335800778F00 /* include */,
 				B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */,
+				B087CAB0198790DD00FC5E01 /* Config.cpp */,
 				B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */,
 				B087CA9919862D7100FC5E01 /* KDClusteringProcessor.cpp */,
 				B087CA9A19862D7100FC5E01 /* KDClusteringProcessor.h */,
@@ -217,6 +221,7 @@
 		B0C023A3193F335800778F00 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				B087CAAF198790D400FC5E01 /* Config.h */,
 				B087CA9619862D7100FC5E01 /* CluReaderClusteringProcessor.h */,
 				B087CA9819862D7100FC5E01 /* FetFileReaderProcessor.h */,
 				B087CA9C19862D7100FC5E01 /* SlowDownProcessor.h */,
@@ -320,6 +325,7 @@
 				B087CAAC19862D7100FC5E01 /* WhlFileReaderProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
 				B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */,
+				B087CAB1198790DD00FC5E01 /* Config.cpp in Sources */,
 				B087CAA919862D7100FC5E01 /* SpeedEstimationProcessor.cpp in Sources */,
 				B087CAAA19862D7100FC5E01 /* SwReaderProcessor.cpp in Sources */,
 				B096A1AB191106A600846EBD /* UnitTestingProcessor.cpp in Sources */,
