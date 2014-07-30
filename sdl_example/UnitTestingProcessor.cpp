@@ -60,6 +60,11 @@ void ArrayValidator<T>::report_mismatch(){
     std::cout << "\nValidation failed in " << name_ << " at buffer position " << *(buf_pos_ptr_);
 }
 
+UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf)
+		:UnitTestingProcessor(buf,
+				buf->config_->getString("unit.test.dir")
+				){}
+
 UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string test_dir)
     : LFPProcessor(buf)
     , test_dir_(test_dir){
