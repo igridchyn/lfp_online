@@ -73,6 +73,18 @@ Config::Config(std::string path) {
 			if (std::getline(ssline, value)){
 				params_[key] = value;
 				std::cout << " " << key << " = " << value << "\n";
+
+				if (key == "lfpdisp.channels.number"){
+					// read lfp channel numbers to display
+					int nchan = atoi(value.c_str());
+					lfp_disp_channels_ = new unsigned int[nchan];
+					int chan;
+					for (int ch = 0; ch < nchan; ++ch) {
+						fconf >> chan;
+						lfp_disp_channels_[ch] = chan;
+					}
+				}
+
 			}
 			else{
 				std::cout << "WARNING: unreadable config entry: " << line << "\n";

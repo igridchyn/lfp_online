@@ -18,8 +18,6 @@ class Config {
 std::map<std::string, std::string> params_;
 std::set<std::string> requested_params_;
 
-std::vector<std::string> processors_list_;
-
 static const char *known_processors_ar[];
 
 bool check_parameter(std::string name);
@@ -28,7 +26,13 @@ void read_processors(std::ifstream& fconf);
 public:
 	static const std::vector<std::string> known_processors_;
 
+	std::vector<std::string> processors_list_;
+
+	// which whl/clu/res etc files to process
 	std::vector<int> tetrodes;
+
+	// channels to be displayed in the SDLSignalDisplay
+	int unsigned  *lfp_disp_channels_ = NULL;
 
 	Config(std::string path);
 
