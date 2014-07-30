@@ -121,6 +121,11 @@ void WaveShapeReconstructionProcessor::find_one_peak(Spike* spike, int *ptmout,i
     *ptmval=pmax;
 }
 
+WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer *buf)
+:WaveShapeReconstructionProcessor(buf,
+		buf->config_->getInt("waveshape.rec.mul")
+		){}
+
 WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul)
 :LFPProcessor(buffer)
 , mul(mul){

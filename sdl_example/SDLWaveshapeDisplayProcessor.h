@@ -21,9 +21,9 @@ class SDLWaveshapeDisplayProcessor : public SDLSingleWindowDisplay, public SDLCo
     static const unsigned int DISPLAY_RATE = 10;
     
 public:
-    SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width, const unsigned int& window_height)
-    : SDLControlInputProcessor(buf)
-    , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+    SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
+    SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,
+    		const unsigned int& window_height);
     
     // LFPProcessor
     virtual void process();

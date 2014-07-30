@@ -26,6 +26,7 @@ class PositionDisplayProcessor : public SDLControlInputProcessor, public SDLSing
     const unsigned int TAIL_LENGTH;
 
 public:
+    PositionDisplayProcessor(LFPBuffer *buf);
     PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width,
     		const unsigned int& window_height, const unsigned int& target_tetrode, const unsigned int& tail_length);
    

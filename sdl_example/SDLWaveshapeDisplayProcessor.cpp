@@ -9,6 +9,19 @@
 #include "LFPProcessor.h"
 #include "SDLWaveshapeDisplayProcessor.h"
 
+SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf)
+:SDLWaveshapeDisplayProcessor(buf,
+		buf->config_->getString("waveshapedisp.window.name"),
+		buf->config_->getInt("waveshapedisp.window.width"),
+		buf->config_->getInt("waveshapedisp.window.height")
+		){}
+
+SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name,
+		const unsigned int& window_width,
+    		const unsigned int& window_height)
+    : SDLControlInputProcessor(buf)
+    , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+
 int transform(int smpl, int chan){
     return 100 + smpl/25 + 200 * chan;
 }

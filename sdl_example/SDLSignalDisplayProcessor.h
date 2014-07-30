@@ -10,9 +10,9 @@
 #define sdl_example_SDLSignalDisplayProcessor_h
 
 class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay{
-    static const int SCREEN_HEIGHT = 600;
-    static const int SCREEN_WIDTH = 1280;
-    
+    const int SCREEN_HEIGHT;
+    const int SCREEN_WIDTH;
+
     static const int DISP_FREQ = 30;
     
     // 11000
@@ -40,9 +40,11 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     
 public:
     virtual void process();
-    virtual void SetDisplayTetrode(const int& display_tetrode);
+    virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     
-    SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels);
+    SDLSignalDisplayProcessor(LFPBuffer *buffer);
+    SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
+    		const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels);
     
     virtual void process_SDL_control_input(const SDL_Event& e);
 };

@@ -157,6 +157,7 @@ class WaveShapeReconstructionProcessor : public LFPProcessor{
     int rec_tmp_[64][128];
     
 public:
+    WaveShapeReconstructionProcessor(LFPBuffer* buffer);
     WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul);
     virtual void process();
 };
@@ -175,16 +176,15 @@ public:
 //==========================================================================================
 
 class FrequencyPowerBandProcessor : public LFPProcessor, public SDLSingleWindowDisplay{
-    static const int FACTOR = 4;
-    static const int BUF_LEN = 20000 * FACTOR;
-    static const int ANAL_RATE = 5000;
+    const int FACTOR;
+    const int BUF_LEN;
+    const int ANAL_RATE;
     
     unsigned int last_performed_an = 0;
     
 public:
-    FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height)
-    : LFPProcessor(buf)
-    , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+    FrequencyPowerBandProcessor(LFPBuffer *buf);
+    FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height);
     virtual void process();
 };
 

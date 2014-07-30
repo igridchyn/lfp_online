@@ -9,6 +9,22 @@
 #include "armadillo"
 #include "LFPProcessor.h"
 
+FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf)
+:FrequencyPowerBandProcessor(buf,
+		buf->config_->getString("freqpow.win.name"),
+		buf->config_->getInt("freqpow.win.width"),
+		buf->config_->getInt("freqpow.win.height")
+		){}
+
+ FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name,
+		 const unsigned int window_width, const unsigned int window_height)
+ 	 	 : LFPProcessor(buf)
+ 	 	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
+		 , FACTOR(buf->config_->getInt("freqpow.factor"))
+		 , BUF_LEN(buf->config_->getInt("freqpow.factor") * buf->SAMPLING_RATE)
+		 , ANAL_RATE(buf->config_->getInt("freqpow.anal.rate.frac") * buf->config_->getFloat("freqpow.anal.rate.frac"))
+		 {}
+
 // http://arma.sourceforge.net/docs.html#fft
 void FrequencyPowerBandProcessor::process(){
     

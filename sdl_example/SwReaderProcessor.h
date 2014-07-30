@@ -17,6 +17,7 @@ class SwReaderProcessor: public LFPProcessor {
 	int current_sw_ = 0;
 
 public:
+	SwReaderProcessor(LFPBuffer *buf);
 	SwReaderProcessor(LFPBuffer *buf, std::string path);
 	virtual ~SwReaderProcessor();
 

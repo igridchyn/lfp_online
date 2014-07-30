@@ -8,6 +8,15 @@
 
 #include "PositionDisplayProcessor.h"
 
+PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf)
+: PositionDisplayProcessor(buf,
+		buf->config_->getString("posdisp.window.name"),
+		buf->config_->getInt("posdisp.window.width"),
+		buf->config_->getInt("posdisp.window.height"),
+		buf->config_->getInt("posdisp.tetrode"),
+		buf->config_->getInt("posdisp.tail.length")
+		){}
+
 PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width,
 		const unsigned int& window_height, const unsigned int& target_tetrode, const unsigned int& tail_length)
     : SDLControlInputProcessor(buf)
@@ -19,7 +28,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 //    SDL_SetRenderTarget(renderer_, NULL);
 //    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
 //    SDL_RenderPresent(renderer_);
-    display_cluster_.resize(20, false);
+    display_cluster_.resize(200, false);
     
 }
 

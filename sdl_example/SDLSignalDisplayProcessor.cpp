@@ -9,7 +9,7 @@
 #include "LFPProcessor.h"
 #include "SDLSignalDisplayProcessor.h"
 
-void SDLSignalDisplayProcessor::SetDisplayTetrode(const int& display_tetrode){
+void SDLSignalDisplayProcessor::SetDisplayTetrode(const unsigned  int& display_tetrode){
     // TODO: configurableize
     
     displayed_channels_number_ = buffer->tetr_info_->channels_numbers[display_tetrode];
@@ -22,13 +22,25 @@ void SDLSignalDisplayProcessor::SetDisplayTetrode(const int& display_tetrode){
     }
 }
 
-SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width, const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels)
+SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer)
+		: SDLSignalDisplayProcessor(buffer,
+				buffer->config_->getString("lfpdisp.window.name"),
+				buffer->config_->getInt("lfpdisp.window.width"),
+				buffer->config_->getInt("lfpdisp.window.height"),
+				buffer->config_->getInt("lfpdisp.channels.number"),
+				buffer->config_->lfp_disp_channels_
+				){}
+
+SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
+		const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels)
     : SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
     , displayed_channels_number_(displayed_channels_number)
     , displayed_channels_(displayed_channels)
     , current_x(0)
-    , last_disp_pos(0){
+    , last_disp_pos(0)
+	, SCREEN_HEIGHT(window_height)
+	, SCREEN_WIDTH(window_width){
         
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);

@@ -9,7 +9,19 @@
 #include "LFPProcessor.h"
 #include "SDLPCADisplayProcessor.h"
 
-SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift)
+SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer)
+:SDLPCADisplayProcessor(buffer,
+		buffer->config_->getString("pcadisp.window.name"),
+		buffer->config_->getInt("pcadisp.window.width"),
+		buffer->config_->getInt("pcadisp.window.height"),
+		buffer->config_->getInt("pcadisp.tetrode"),
+		buffer->config_->getBool("pcadisp.display.unclassified"),
+		buffer->config_->getFloat("pcadisp.scale"),
+		buffer->config_->getInt("pcadisp.shift")
+		){}
+
+SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
+		const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift)
 : SDLControlInputProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 // paired qualitative brewer palette

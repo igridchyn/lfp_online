@@ -81,6 +81,7 @@ class UnitTestingProcessor : public LFPProcessor{
     std::vector<SpikeValidator<float>*> float_spike_validators_;
     
 public:
+    UnitTestingProcessor(LFPBuffer *buf);
     UnitTestingProcessor(LFPBuffer *buf, const std::string test_dir);
     virtual void process();
 };

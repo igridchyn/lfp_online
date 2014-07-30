@@ -8,6 +8,11 @@
 #include "SwReaderProcessor.h"
 #include <fstream>
 
+SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf)
+:SwReaderProcessor(buf,
+		buf->config_->getString("dat.path.base") + "answ"
+		){}
+
 SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 	: LFPProcessor(buf){
 	// TODO Auto-generated constructor stub
