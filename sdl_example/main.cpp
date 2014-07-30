@@ -45,53 +45,27 @@ void draw_bin() {
 
 	LFPBuffer *buf = new LFPBuffer(tetr_inf, config);
 
-	// Position display params
-	const unsigned int POS_TAIL_LENGTH = config->getInt("pos.tail.length");
-
-	LFPPipeline *pipeline = new LFPPipeline();
+	LFPPipeline *pipeline = new LFPPipeline(buf);
 
 //    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
 	const char* filt_path = config->getString("spike.detection.filter.path").c_str();
 //    pipeline->add_processor(new PackageExractorProcessor(buf));
 //    pipeline->add_processor(new SpikeDetectorProcessor(buf));
 //    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
-//    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf, 4));
+//    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf));
 //    //pipeline->add_processor(new FileOutputProcessor(buf));
 //    pipeline->add_processor(new PCAExtractionProcessor(buf));
-//
-	PlaceFieldProcessor *pfProc = new PlaceFieldProcessor(buf);
-
-	std::vector<int> tetrnums = Utils::Math::MergeRanges(
-			Utils::Math::GetRange(1, 12), Utils::Math::GetRange(14, 16));
-	std::string dat_path_base = config->getString("dat.path.base");
-
-	pipeline->add_processor(new WhlFileReaderProcessor(buf));
-	pipeline->add_processor(
-			new FetFileReaderProcessor(buf, dat_path_base + "fet.", tetrnums));
-	pipeline->add_processor(new SwReaderProcessor(buf, dat_path_base + "answ"));
-	KDClusteringProcessor *kdClustProc = new KDClusteringProcessor(buf);
-	pipeline->add_processor(kdClustProc);
-	pipeline->add_processor(new SpeedEstimationProcessor(buf));
-	pipeline->add_processor(new TransProbEstimationProcessor(buf));
-	pipeline->add_processor(new SlowDownProcessor(buf));
 
 //    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf);
 //    pipeline->add_processor(gmmClustProc);
-//    pipeline->add_processor( new SDLSignalDisplayProcessor(buf, "LFP", 1280, 600, 4, new unsigned int[4]{0, 1, 2, 3}) );
-//    pipeline->add_processor(new SDLPCADisplayProcessor(buf, "PCA", 800, 600, 0, DISPLAY_UNCLASSIFIED, .5, 300));
+//    pipeline->add_processor( new SDLSignalDisplayProcessor(buf));
+//    pipeline->add_processor(new SDLPCADisplayProcessor(buf));
 	// TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
-	//pipeline->add_processor(new UnitTestingProcessor(buf, std::string("/Users/igridchyn/Projects/sdl_example/unit_tests/")));
-//    pipeline->add_processor(new PositionDisplayProcessor(buf, "Tracking", 450, 450, 0, POS_TAIL_LENGTH));
-	//pipeline->add_processor(new FrequencyPowerBandProcessor(buf, "Power Frequency Band", 1600, 600));
-//    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf, "Waveshapes", 127*4+1, 800));
+	//pipeline->add_processor(new UnitTestingProcessor(buf)));
+//    pipeline->add_processor(new PositionDisplayProcessor(buf));
+	//pipeline->add_processor(new FrequencyPowerBandProcessor(buf));
+//    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf));
 //    pipeline->add_processor(new AutocorrelogramProcessor(buf));
-
-	pipeline->add_processor(pfProc);
-
-	// should be added after all control processor
-	pipeline->add_processor(
-			new SDLControlInputMetaProcessor(buf,
-					pipeline->GetSDLControlInputProcessors()));
 
 	// check for unused params in the config
 	config->checkUnused();
@@ -115,7 +89,8 @@ void draw_bin() {
 
 	std::cout << "EOF, waiting for processors jobs to join...\n";
 
-	kdClustProc->JoinKDETasks();
+	// TODO: perfrom from within pipeline (virtual 'End tasks' ?)
+//	kdClustProc->JoinKDETasks();
 //    gmmClustProc->JoinGMMTasks();
 }
 

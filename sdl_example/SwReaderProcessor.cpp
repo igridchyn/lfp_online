@@ -10,7 +10,7 @@
 
 SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf)
 :SwReaderProcessor(buf,
-		buf->config_->getString("dat.path.base") + "answ"
+		buf->config_->getString("dat.path.base") + buf->config_->getString("swreader.ext")
 		){}
 
 SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
