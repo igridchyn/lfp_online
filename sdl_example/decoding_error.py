@@ -1,5 +1,8 @@
 from math import *
 from sys import argv
+import os, time
+
+print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
 
 f = open(argv[1])
 sum = 0
