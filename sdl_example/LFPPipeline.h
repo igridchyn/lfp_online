@@ -23,6 +23,8 @@ public:
     LFPProcessor *get_processor(const unsigned int& index);
     
     std::vector<SDLControlInputProcessor *> GetSDLControlInputProcessors();
+
+    LFPPipeline(LFPBuffer *buf);
 };
 
 #endif /* defined(__sdl_example__LFPPipeline__) */
