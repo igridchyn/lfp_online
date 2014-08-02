@@ -12,7 +12,7 @@
 #include <algorithm>
 
 const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderClustering", "FetFileReader",
-		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField",
+		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
 		"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
 		"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
 		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
