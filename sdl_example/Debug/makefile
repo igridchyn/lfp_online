@@ -97,4 +97,4 @@ clean:
 	rm lfp_online
 	
 kde_estimator: LFPProcessor.o ../KDE_Estimator.cpp
-	${CC} ${CFLAGS} -lANN ../KDE_Estimator.cpp LFPProcessor.o ${LDFLAGS} -o kde_estimator
+	${CC} ${CFLAGS} -lANN ../KDE_Estimator.cpp LFPProcessor.o Config.o ${LDFLAGS} -o kde_estimator
