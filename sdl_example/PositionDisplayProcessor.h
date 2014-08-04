@@ -24,6 +24,8 @@ class PositionDisplayProcessor : public SDLControlInputProcessor, public SDLSing
     PosDisplayMode disp_mode_ = POS_DISPLAY_ALL;
 
     const unsigned int TAIL_LENGTH;
+    const bool WAIT_PREDICTION;
+    const bool DISPLAY_PREDICTION;
 
 public:
     PositionDisplayProcessor(LFPBuffer *buf);
