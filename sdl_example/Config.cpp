@@ -18,7 +18,7 @@ const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderCluste
 		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
 		"WhlFileReader"};
 
-const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + 23);
+const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + 24);
 
 void Config::read_processors(std::ifstream& fconf) {
 	int numproc;
