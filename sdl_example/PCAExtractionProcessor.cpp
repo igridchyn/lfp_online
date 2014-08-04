@@ -238,7 +238,9 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     for(j=0;j<prno;j++){
         for(i=0;i<ftno;i++)         {
             prm[j][i]=cor[i][ind[j]];
-            //printf("%f ", prm[j][i]);
+
+            // DEBUG
+//            printf("%f ", prm[j][i]);
         }
     }
     
