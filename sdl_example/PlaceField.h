@@ -24,6 +24,8 @@ class PlaceField{
     // how many bins around spikes to take into account
     int spread_;
     
+    int NBINS;
+
 public:
     static const int MAX_SPIKES = 20;
     
