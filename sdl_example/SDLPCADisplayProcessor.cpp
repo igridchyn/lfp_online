@@ -29,7 +29,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , target_tetrode_(target_tetrode)
 , display_unclassified_(display_unclassified)
 , scale_(scale)
-,shift_(shift)
+, shift_(shift)
+, time_end_(buffer->SAMPLING_RATE * 60)
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 }
@@ -59,10 +60,22 @@ void SDLPCADisplayProcessor::process(){
                 break;
             }
         }
-        
-        int x = spike->pc[comp1_ % nchan_][comp1_ / nchan_]/scale_ + shift_;
-        int y = spike->pc[comp2_ % nchan_][comp2_ / nchan_]/scale_ + shift_;
-        
+
+        int x;
+        int y;
+
+        x = spike->pc[comp1_ % nchan_][comp1_ / nchan_]/scale_ + shift_;
+        y = spike->pc[comp2_ % nchan_][comp2_ / nchan_]/scale_ + shift_;
+
+        // time
+        // TODO: check numeration
+        if (comp1_ == 15){
+        	x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+        }
+        if (comp2_ == 15){
+        	y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+        }
+
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
         
         SDL_SetRenderTarget(renderer_, texture_);
@@ -170,6 +183,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             // TODO: case-wise
             buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
             
+            time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
+            if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != NULL)
+            time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
+
             // TODO: EXTRACT
             SDL_SetRenderTarget(renderer_, texture_);
             SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);

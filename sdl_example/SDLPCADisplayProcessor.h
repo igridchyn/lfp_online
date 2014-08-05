@@ -26,6 +26,9 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     const float scale_;
     const int shift_;
 
+    unsigned int time_start_= 0;
+    unsigned int time_end_;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift);
