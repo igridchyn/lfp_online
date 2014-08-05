@@ -16,7 +16,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer* buf)
 }
 
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins)
-: SDLSingleWindowDisplay("Autocorrelogramms", 1600, 500)
+: SDLSingleWindowDisplay("Autocorrelogramms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
 , SDLControlInputProcessor(buf)
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins){
