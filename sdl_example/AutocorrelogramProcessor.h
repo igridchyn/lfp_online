@@ -19,6 +19,9 @@ class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLContro
     
     unsigned int display_tetrode_ = 0;
     
+    const int BWIDTH = 2;
+    const int XCLUST = 7;
+
     // TODO: rewind implementation
     unsigned int spike_buf_pos_auto_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
     

@@ -132,15 +132,15 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
     if (tetr != display_tetrode_)
         return;
     
-    const int BWIDTH = 2;
-    const int XCLUST = 7;
-    
     // shift for the plot
     const int xsh = ((BWIDTH + 1) * NBINS + 15) * (cluster % XCLUST) + 30;
     const int ysh = (cluster / XCLUST) * 50 + 100;
     
     ColorPalette palette_ = ColorPalette::BrewerPalette12;
     
+    SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+    SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
+
     for (int b=0; b < NBINS; ++b) {
         int height = autocorrs_[tetr][cluster][b] * NBINS / total_counts_[tetr][cluster] * Y_SCALE;
         
