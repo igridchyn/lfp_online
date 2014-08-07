@@ -92,11 +92,13 @@ void AutocorrelogramProcessor::process(){
         // report
         // TODO: plot
         if (total_counts_[tetrode][cluster_id] >= NBINS * AVG_PER_BIN && !reported_[tetrode][cluster_id]){
-            std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
-            for (int b=0; b < NBINS; ++b) {
-                std::cout << autocorrs_[tetrode][cluster_id][b] << " ";
-            }
-            std::cout << "\n";
+        	// DEBUG
+//            std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
+//            for (int b=0; b < NBINS; ++b) {
+//                std::cout << autocorrs_[tetrode][cluster_id][b] << " ";
+//            }
+//            std::cout << "\n";
+
             reported_[tetrode][cluster_id] = true;
             
             plotAC(tetrode, cluster_id);
