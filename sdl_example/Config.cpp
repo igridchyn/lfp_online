@@ -98,10 +98,14 @@ Config::Config(std::string path) {
 	fconf.close();
 }
 
-bool Config::check_parameter(std::string name){
+bool Config::check_parameter(std::string name, bool exit_on_fail){
 	if (params_.find(name) == params_.end()){
-		std::cout << "ERROR: no parameter named " << name;
-		exit(1);
+		std::cout << (exit_on_fail ? "ERROR" : "WARNING") << ": no parameter named " << name << "\n";
+		if (exit_on_fail){
+			exit(1);
+		}else{
+			return false;
+		}
 	}
 	return true;
 }
@@ -139,6 +143,42 @@ void Config::checkUnused() {
 		if (requested_params_.find(iter->first) == requested_params_.end()){
 			std::cout << "WARNING: param " << iter->first << " read but not requested\n";
 		}
+	}
+}
+
+int Config::getInt(std::string name, const int def_val) {
+	if (check_parameter(name, false))
+		return getInt(name);
+	else{
+		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		return def_val;
+	}
+}
+
+float Config::getFloat(std::string name, const float def_val) {
+	if (check_parameter(name, false))
+			return getFloat(name);
+	else{
+		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		return def_val;
+	}
+}
+
+bool Config::getBool(std::string name, bool def_val) {
+	if (check_parameter(name, false))
+		return getBool(name);
+	else{
+		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		return def_val;
+	}
+}
+
+std::string Config::getString(std::string name, std::string def_val) {
+	if (check_parameter(name, false))
+		return getString(name);
+	else{
+		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		return def_val;
 	}
 }
 
