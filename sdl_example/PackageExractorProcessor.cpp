@@ -9,6 +9,11 @@
 #include "LFPProcessor.h"
 #include "OnlineEstimator.cpp"
 
+PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
+    : LFPProcessor(buffer)
+	, SCALE(buffer->config_->getFloat("pack.extr.xyscale"))
+{}
+
 void PackageExractorProcessor::process(){
     // IDLE processing, waiting for user input
     if (buffer->chunk_ptr == NULL){
@@ -47,8 +52,14 @@ void PackageExractorProcessor::process(){
         // EVERY 240 !!! = 100 Hz
 //        std::cout << "new pos at " << buffer->buf_pos << "\n";
 
-        buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)bx;
-        buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)by;
+        // WORKAROUND
+        if (bx != buffer->pos_unknown_){
+        	buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE);
+        	buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE);
+        }else{
+        	buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
+        	buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
+        }
         buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)sx;
         buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)sy;
         buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)buffer->last_pkg_id;

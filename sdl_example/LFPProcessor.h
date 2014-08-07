@@ -120,10 +120,11 @@ public:
 
 
 class PackageExractorProcessor : public LFPProcessor{
+	const float SCALE;
+
 public:
     virtual void process();
-    PackageExractorProcessor(LFPBuffer *buffer)
-    :LFPProcessor(buffer){}
+    PackageExractorProcessor(LFPBuffer *buffer);
 };
 
 //==========================================================================================

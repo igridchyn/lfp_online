@@ -89,6 +89,9 @@ public:
     // last for speed estimatino
     unsigned int pos_buf_pos_speed_est = 0;
 
+    // value of pos., meaning that position is unknown
+    const int pos_unknown_;
+
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
     

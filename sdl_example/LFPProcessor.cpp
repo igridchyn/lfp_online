@@ -89,7 +89,8 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info, Config* config)
 , POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
 , cluster_spike_counts_(tetr_info->tetrodes_number, 40, arma::fill::zeros)
 , SAMPLING_RATE(config->getInt("sampling.rate"))
-, config_(config){
+, config_(config)
+, pos_unknown_(config_->getInt("pos.unknown", 1023)){
     
     for(int c=0; c < CHANNEL_NUM; ++c){
         memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
