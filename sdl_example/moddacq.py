@@ -428,7 +428,7 @@ DWORD attributes, HANDLE templ )
 						std::string value;
 						if( std::getline(is_line, value) ){
 						  std::istringstream valss;
-						  
+						  // circle, closer, right, red left
 						  if (key == "peak.value"){
 							valss >> peak_value;
 						  }else if (key == "screen.width"){
@@ -473,6 +473,29 @@ BIN FILE E.G. SET UP A  TCP STREAM
       }
   """       
   return C
+  
+  // start FD beforehand !!!
+  // badge (ask Karel)
+  // start box, remove marks, clean maze
+  // 5 minutes in the box, explore maze 15 minutes, remove cage
+  // towel, leave animal in the cage and in the room
+  // 7-10 days to learn the task
+  // ! put small pelettes in the cage - lot of them. overnight
+  // 2 minutes in start box -> cage -> leave cage in the room (15-20 minutes)
+  // 	put palettes randomly in the holes
+  // randomize sleeping intervals !!! after learning to pick in the hole -  strainght to the task
+  // sleeping box !!!
+  
+  // 7/10 in 15 minutes; 9/10 in 8 minutes; 5/6 in 4 minutes (+1 in 3 more); 3/6 1 minutes + 6/6 - 7; tired? (sitting in place)
+  // (put food in clusters around target locations: 5-4-3-2 palettes per site)
+  
+  // 4/4 in 6 minutes; 4/4 in 6 minutes; switch to 2
+  // [-1; 2] to the right
+  // 2/2 in 4; 2/2 in 1; 2/2 in 3; 2/2 in 1.5; tired - sleep
+  // 2/2 in 2; 2/2 in 2; 2/2 in 7; 2/2 in 1; 2/2 in 1; 2/2 in 1; 2/2 in 1L(starting) : back to the same; 2/2 in 2L; 2/2 in 1R; 2/2 in 1R; 2/2 in 1L - tired
+  
+  // !!! badge; hide? pneum? push? leave open?
+  // !!! no pause btw waking trials
   
 def proxy_WriteFile():
   C = """
@@ -552,6 +575,8 @@ nNumberOfBytesToWrite,
 								val_prev = val;
 							}
 
+							// DON'T DRAW FOR THE EFFICIENCY
+							
 							//SDL_SetRenderTarget(renderer, NULL);
 							//SDL_RenderCopy(renderer, texture, NULL, NULL);
 							//SDL_RenderPresent(renderer);
