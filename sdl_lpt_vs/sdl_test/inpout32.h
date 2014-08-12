@@ -5,6 +5,9 @@
 #include <conio.h>
 #include <winsvc.h>
 #include <minwindef.h>
+#include <stdio.h>
+#include <tchar.h>
 
-int Opendriver(BOOL bX64);
-void _stdcall Out32(short PortAddress, short data);
+
+int __declspec(dllexport) Opendriver();
+void __declspec(dllexport) Out32(short PortAddress, short data);

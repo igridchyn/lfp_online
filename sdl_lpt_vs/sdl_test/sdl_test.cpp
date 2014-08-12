@@ -119,7 +119,7 @@ void write_ltp(){
 	// #define IOCTL_WRITE_PORT_UCHAR	 -1673519096 //CTL_CODE(40000, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
 	 DWORD IOCTL_WRITE_IO_PORT_BYTE = -1673519096;
 
-	for (int i = 0; i < 2; ++i){
+	for (int i = 0; i < 200000; ++i){
 		// unsigned long
 
 		unsigned char val = 0;
@@ -163,7 +163,7 @@ void write_ltp(){
 			wprintf(L"%s", lpMsgBuf);
 		}
 
-		Sleep(200);
+		Sleep(20);
 	}
 }
 
@@ -184,7 +184,7 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
 	FILE *f = fopen(path, "rb");
 
 	const int CHUNK_SIZE = 432; // bytes
-	int CHANNEL = 1;
+	int CHANNEL = 2;
 	const int HEADER_LEN = 32; // bytes
 	const int BLOCK_SIZE = 64 * 2; // bytes
 
@@ -203,6 +203,8 @@ void draw_bin(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *texture, 
 
 	for (int i = 0; i < 40000; ++i){
 		fread((void*)block, CHUNK_SIZE, 1, f);
+
+		//write_ltp();
 
 		// iterate throug 3 batches in 1 chunk
 		for (int batch = 0; batch < 3; ++batch){
@@ -338,8 +340,8 @@ int get_image(){
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// InpOut32 - way
-	Opendriver(true);
-
+	Opendriver();
+	
 	//To place a TTL pulse use the command
 	//>> calllib('inpout32', 'Out32', 888, 255)
 	// 888 = x0378, 255 = 0xFF
@@ -349,7 +351,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//write_ltp_logic_analyzer();
 
 	//write_ltp();
-	//get_image();
+	get_image();
 
 	return 0;
 }

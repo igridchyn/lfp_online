@@ -428,7 +428,7 @@ DWORD attributes, HANDLE templ )
 						std::string value;
 						if( std::getline(is_line, value) ){
 						  std::istringstream valss;
-						  
+						  // circle, closer, right, red left
 						  if (key == "peak.value"){
 							valss >> peak_value;
 						  }else if (key == "screen.width"){
@@ -473,7 +473,7 @@ BIN FILE E.G. SET UP A  TCP STREAM
       }
   """       
   return C
-  
+   
 def proxy_WriteFile():
   C = """
       BOOL WINAPI proxy_WriteFile( HANDLE hFile, LPCVOID lpBuffer, DWORD
@@ -481,6 +481,29 @@ nNumberOfBytesToWrite,
           LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped )
       {
           BOOL retval;
+		  
+		    // start FD beforehand !!!
+  // badge (ask Karel)
+  // start box, remove marks, clean maze
+  // 5 minutes in the box, explore maze 15 minutes, remove cage
+  // towel, leave animal in the cage and in the room
+  // 7-10 days to learn the task
+  // ! put small pelettes in the cage - lot of them. overnight
+  // 2 minutes in start box -> cage -> leave cage in the room (15-20 minutes)
+  // 	put palettes randomly in the holes
+  // randomize sleeping intervals !!! after learning to pick in the hole -  strainght to the task
+  // sleeping box !!!
+  
+  // 7/10 in 15 minutes; 9/10 in 8 minutes; 5/6 in 4 minutes (+1 in 3 more); 3/6 1 minutes + 6/6 - 7; tired? (sitting in place)
+  // (put food in clusters around target locations: 5-4-3-2 palettes per site)
+  
+  // 4/4 in 6 minutes; 4/4 in 6 minutes; switch to 2
+  // [-1; 2] to the right
+  // 2/2 in 4; 2/2 in 1; 2/2 in 3; 2/2 in 1.5; tired - sleep
+  // 2/2 in 2; 2/2 in 2; 2/2 in 7; 2/2 in 1; 2/2 in 1; 2/2 in 1; 2/2 in 1L(starting) : back to the same; 2/2 in 2L; 2/2 in 1R; 2/2 in 1R; 2/2 in 1L - tired
+  
+  // !!! badge; hide? pneum? push? leave open?
+  // !!! no pause btw waking trials
 		  
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
@@ -526,24 +549,28 @@ nNumberOfBytesToWrite,
 							sum += signalh[(signal_pos + shift - filter_width/2) % SIG_BUF_LEN] < signalh[(signal_pos - filter_width/2) % SIG_BUF_LEN];
 							sum += signalh[(signal_pos - shift - filter_width/2) % SIG_BUF_LEN] < signalh[(signal_pos - filter_width/2) % SIG_BUF_LEN];
 						}
-						int peak = sum >= thold;
+						int pos = sum >= thold;
 						
 						// VALIDATE decoding: compare periodic
 						// val = signalh[( signal_pos - 1 ) % SIG_BUF_LEN] - signalh[(signal_pos - 241 ) % SIG_BUF_LEN];
 						
 						val = scaleToScreen(val);
 
-						SDL_SetRenderTarget(renderer, texture);
+						//SDL_SetRenderTarget(renderer, texture);
 						if (x_prev > 1){
 							// DISPLAY all points / TTL on the peak
 							for (int i=0; i<nsamples && x_prev < SCREEN_WIDTH; ++i, ++x_prev){
-								peak = (signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - 10 - nsamples + i) % SIG_BUF_LEN] < -1000);
+								// (delayed) crossing of the 0
+								//peak = (signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN] > 0) && (signalh[(signal_pos - 1 - nsamples + i) % SIG_BUF_LEN] < -5000);
+								pos = (signalh[(signal_pos - nsamples + i) % SIG_BUF_LEN] > 0);
 								
 								// if peak and cooldown has passed, send TTL
-								if (peak && (first_pkg_id + i) - last_peak >= 50){
+								// 240 - one square = 1 ms
+								if (pos && (first_pkg_id + i - last_peak >= 240)){
 									Out32(0x0378, 0xFF);
 									last_peak = first_pkg_id + i;
-								}else if (first_pkg_id - last_peak < 100){
+								//}else if (!pos && (first_pkg_id + i - last_peak > 50)){
+								}else if ((!pos) && (first_pkg_id + i - last_peak >= 24)){
 									Out32(0x0378, 0x00);
 								}
 								
@@ -552,21 +579,23 @@ nNumberOfBytesToWrite,
 								val_prev = val;
 							}
 
+							// DON'T DRAW FOR THE EFFICIENCY
+							
 							//SDL_SetRenderTarget(renderer, NULL);
 							//SDL_RenderCopy(renderer, texture, NULL, NULL);
 							//SDL_RenderPresent(renderer);
 
 							// not to hang up
-							SDL_PumpEvents();
+							//SDL_PumpEvents();
 						}
 						else{
 							// reset screen
-							SDL_SetRenderTarget(renderer, texture);
-							SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-							SDL_RenderClear(renderer);
-							SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-							SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
-							SDL_RenderPresent(renderer);
+							//SDL_SetRenderTarget(renderer, texture);
+							//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+							//SDL_RenderClear(renderer);
+							//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+							//SDL_RenderDrawLine(renderer, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
+							//SDL_RenderPresent(renderer);
 						}
 						
 						// update variables
