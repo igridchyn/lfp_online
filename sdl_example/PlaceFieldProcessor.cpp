@@ -34,7 +34,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)
 : SDLControlInputProcessor(buf)
-, SDLSingleWindowDisplay("pf", 430, 430)
+, SDLSingleWindowDisplay("pf", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbins_(nbins)
@@ -46,7 +46,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , BASE_PATH(base_path)
 , RREDICTION_FIRING_RATE_THRESHOLD(prediction_fr_thold)
 , MIN_PKG_ID(min_pkg_id)
-, USE_PRIOR(use_prior){
+, USE_PRIOR(use_prior)
+, display_prediction_(buf->config_->getBool("pf.display.prediction")){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
@@ -85,6 +86,13 @@ void PlaceFieldProcessor::AddPos(int x, int y){
         return;
     }
  
+    // WORKAROUND
+    // TODO handle x/y overflow
+    if (xb >= nbins_ || yb >= nbins_){
+    	std::cout << "WARNING: overflow x/y: " << xb << ", " << yb << "\n";
+    	return;
+    }
+
     occupancy_(yb, xb) += 1.f;
     
     // !!! smoothed later
@@ -261,16 +269,16 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 display_cluster_ = 5 + shift;
                 break;
             case SDLK_6:
-                display_cluster_ = 6;
+                display_cluster_ = 6 + shift;
                 break;
             case SDLK_7:
-                display_cluster_ = 7;
+                display_cluster_ = 7 + shift;
                 break;
             case SDLK_8:
-                display_cluster_ = 8;
+                display_cluster_ = 8 + shift;
                 break;
             case SDLK_9:
-                display_cluster_ = 9;
+                display_cluster_ = 9 + shift;
                 break;
             case SDLK_0:
                 display_cluster_ = 0 + shift;

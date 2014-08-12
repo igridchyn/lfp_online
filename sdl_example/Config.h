@@ -20,7 +20,7 @@ std::set<std::string> requested_params_;
 
 static const char *known_processors_ar[];
 
-bool check_parameter(std::string name);
+bool check_parameter(std::string name, bool exit_on_fail = true);
 void read_processors(std::ifstream& fconf);
 
 public:
@@ -37,9 +37,13 @@ public:
 	Config(std::string path);
 
 	int getInt(std::string name);
+	int getInt(std::string name, const int def_val);
 	float getFloat(std::string name);
+	float getFloat(std::string name, const float def_val);
 	bool getBool(std::string name);
+	bool getBool(std::string name, bool def_val);
 	std::string getString(std::string name);
+	std::string getString(std::string name, std::string def_val);
 
 	void checkUnused();
 

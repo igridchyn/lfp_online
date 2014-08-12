@@ -11,7 +11,8 @@
 PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
 : sigma_(sigma)
 , bin_size_(bin_size)
-, spread_(spread){
+, spread_(spread)
+, NBINS(nbins){
     place_field_ = arma::mat(nbins, nbins, arma::fill::zeros);
 }
 
@@ -29,6 +30,15 @@ void PlaceField::AddSpike(Spike *spike){
         return;
     }
     
+    // WORKAOURND
+    // TODO handle x/y overflow
+    if (xb >= NBINS || yb >= NBINS){
+    	// DEBUG
+    	std::cout << "overflow in x/y: " << xb << ", " << yb << "\n";
+    	return;
+    }
+
+
     place_field_(yb, xb) += 1;
     
     // normalizer - sum of all values to be added
@@ -180,5 +190,6 @@ PlaceField::PlaceField(const arma::mat& mat, const double& sigma,
 	, sigma_(sigma)
 	, bin_size_(bin_size)
 	, spread_(spread)
+	, NBINS(mat.n_rows)
 {
 }

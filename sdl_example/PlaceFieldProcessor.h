@@ -38,7 +38,7 @@ class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWin
     
     unsigned int display_tetrode_ = 0;
     
-    bool display_prediction_ = true;
+    bool display_prediction_;
     bool pos_updated_ = false;
     unsigned int last_predicted_pkg_ = 0;
     

@@ -51,27 +51,7 @@ void draw_bin() {
 
 	LFPPipeline *pipeline = new LFPPipeline(buf);
 
-//    const char* filt_path = "/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection//filters/24k800-8000-50.txt";
-	const char* filt_path = config->getString("spike.detection.filter.path").c_str();
-//    pipeline->add_processor(new PackageExractorProcessor(buf));
-//    pipeline->add_processor(new SpikeDetectorProcessor(buf));
-//    pipeline->add_processor(new SpikeAlignmentProcessor(buf));
-//    pipeline->add_processor(new WaveShapeReconstructionProcessor(buf));
-//    //pipeline->add_processor(new FileOutputProcessor(buf));
-//    pipeline->add_processor(new PCAExtractionProcessor(buf));
-
-//    GMMClusteringProcessor *gmmClustProc = new GMMClusteringProcessor(buf);
-//    pipeline->add_processor(gmmClustProc);
-//    pipeline->add_processor( new SDLSignalDisplayProcessor(buf));
-//    pipeline->add_processor(new SDLPCADisplayProcessor(buf));
-	// TESTING: jc11-1704_20.BIN, 8-11 channels; 2 PCs from channel 8
-	//pipeline->add_processor(new UnitTestingProcessor(buf)));
-//    pipeline->add_processor(new PositionDisplayProcessor(buf));
-	//pipeline->add_processor(new FrequencyPowerBandProcessor(buf));
-//    pipeline->add_processor(new SDLWaveshapeDisplayProcessor(buf));
-//    pipeline->add_processor(new AutocorrelogramProcessor(buf));
-
-	// check for unused params in the config
+	// check for unused parameters in the config
 	config->checkUnused();
 
 	// TODO: parallel threads ?

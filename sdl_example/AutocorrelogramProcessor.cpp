@@ -16,7 +16,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer* buf)
 }
 
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins)
-: SDLSingleWindowDisplay("Autocorrelogramms", 1600, 500)
+: SDLSingleWindowDisplay("Autocorrelogramms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
 , SDLControlInputProcessor(buf)
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins){
@@ -92,11 +92,13 @@ void AutocorrelogramProcessor::process(){
         // report
         // TODO: plot
         if (total_counts_[tetrode][cluster_id] >= NBINS * AVG_PER_BIN && !reported_[tetrode][cluster_id]){
-            std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
-            for (int b=0; b < NBINS; ++b) {
-                std::cout << autocorrs_[tetrode][cluster_id][b] << " ";
-            }
-            std::cout << "\n";
+        	// DEBUG
+//            std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
+//            for (int b=0; b < NBINS; ++b) {
+//                std::cout << autocorrs_[tetrode][cluster_id][b] << " ";
+//            }
+//            std::cout << "\n";
+
             reported_[tetrode][cluster_id] = true;
             
             plotAC(tetrode, cluster_id);
@@ -132,15 +134,15 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
     if (tetr != display_tetrode_)
         return;
     
-    const int BWIDTH = 2;
-    const int XCLUST = 7;
-    
     // shift for the plot
     const int xsh = ((BWIDTH + 1) * NBINS + 15) * (cluster % XCLUST) + 30;
     const int ysh = (cluster / XCLUST) * 50 + 100;
     
     ColorPalette palette_ = ColorPalette::BrewerPalette12;
     
+    SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+    SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
+
     for (int b=0; b < NBINS; ++b) {
         int height = autocorrs_[tetr][cluster][b] * NBINS / total_counts_[tetr][cluster] * Y_SCALE;
         

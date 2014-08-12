@@ -342,7 +342,8 @@ void KDClusteringProcessor::reset_hmm() {
 }
 
 void KDClusteringProcessor::process(){
-	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
+	// need both speed and PCs
+	while(buffer->spike_buf_pos_clust_ < MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 		const unsigned int tetr = spike->tetrode_;
 
@@ -358,7 +359,7 @@ void KDClusteringProcessor::process(){
 			std::cout << "Delay over (" << SAMPLING_DELAY << "). Start spike collection...\n";
 		}
 
-		if (spike->speed < SPEED_THOLD){
+		if (spike->speed < SPEED_THOLD || spike->discarded_){
 			buffer->spike_buf_pos_clust_ ++;
 			continue;
 		}
@@ -384,7 +385,7 @@ void KDClusteringProcessor::process(){
 			}
 			else{
 				// sample every SAMLING_RATE spikes for KDE estimation
-				if (missed_spikes_[tetr] < SAMPLING_RATE){
+				if (missed_spikes_[tetr] < SAMPLING_RATE - 1){
 					missed_spikes_[tetr] ++;
 					buffer->spike_buf_pos_clust_ ++;
 					continue;

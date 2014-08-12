@@ -23,6 +23,8 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
     , target_tetrode_(target_tetrode)
 	, TAIL_LENGTH(tail_length)
+	, WAIT_PREDICTION(buf->config_->getBool("posdisp.wait.prediction"))
+	, DISPLAY_PREDICTION(buf->config_->getBool("posdisp.display.prediction"))
 {
     
 //    SDL_SetRenderTarget(renderer_, NULL);
@@ -39,10 +41,9 @@ void PositionDisplayProcessor::process(){
     // TODO: small lag due to speed computation delay
 //    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
     while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_spike_speed_) {
-    
-    	// WORKAOURND
+
     	// if exceeded clustering prediction - exit
-    	if (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_end_){
+    	if (WAIT_PREDICTION && (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_end_)){
     		break;
     	}
 
@@ -65,12 +66,14 @@ void PositionDisplayProcessor::process(){
             render = true;
 
         // display predicted position
-        int predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][2];
-        int predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][3];
-        if (predx > 0 && predy > 0){
-        	SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
-//        	SDL_RenderDrawPoint(renderer_, predx, predy);
-        	FillRect(predx, predy, 0, 2, 2);
+        if (DISPLAY_PREDICTION){
+			int predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][2];
+			int predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][3];
+			if (predx > 0 && predy > 0){
+				SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
+	//        	SDL_RenderDrawPoint(renderer_, predx, predy);
+				FillRect(predx, predy, 0, 2, 2);
+			}
         }
     }
     
