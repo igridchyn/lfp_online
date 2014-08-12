@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 //#include <SDL2/SDL_ttf.h>
 
+#include <tchar.h>
+
 #include "LFPProcessor.h"
 #include "LFPPipeline.h"
 #include "UnitTestingProcessor.h"
@@ -33,13 +35,15 @@ typedef short t_bin;
 // SHIFT+NUM ~ 10+NUM
 
 void draw_bin() {
-	Config *config = new Config("../Res/decoding_32_jc84.conf");
+	// Config *config = new Config("../Res/decoding_32_jc84.conf");
+	Config *config = new Config("Res/spike_detection_jc103.conf");
+
 	const char* path = config->getString("bin.path").c_str();
 	FILE *f = fopen(path, "rb");
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
-	unsigned char block[CHUNK_SIZE];
+	unsigned char *block = new unsigned char[CHUNK_SIZE];
 
 	TetrodesInfo *tetr_inf = new TetrodesInfo(config->getString("tetr.conf.path"));
 
@@ -94,7 +98,11 @@ void draw_bin() {
 //    gmmClustProc->JoinGMMTasks();
 }
 
-int main(int argc, char* args[]) {
+#ifdef WIN32
+int wmain(int argc, wchar_t *argv[]){
+#elif // WIN32
+int main(int argc, wchar_t *argv[]){
+#endif // WIN32
 	// draw_test(window, renderer, texture);
 
 	//TEST DATA; for this channels: 8-11 : 2 clear CLUSTERS; fixed THRESHOLD !
