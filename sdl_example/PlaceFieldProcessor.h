@@ -15,8 +15,8 @@
 //==========================================================================================
 
 class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
-    constexpr static const float SPEED_THOLD = 80.0f;
-    constexpr static const float EPS = 0.001f;
+    const float SPEED_THOLD = 80.0f;
+    const float EPS = 0.001f;
     
     unsigned int spike_buf_pos_;
     unsigned int pos_buf_pos_;
