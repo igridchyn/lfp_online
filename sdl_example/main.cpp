@@ -36,10 +36,13 @@ typedef short t_bin;
 
 void draw_bin() {
 	// Config *config = new Config("../Res/decoding_32_jc84.conf");
-	Config *config = new Config("Res/spike_detection_jc103.conf");
 
+#ifdef _WIN32
+	Config *config = new Config("../Res/spike_detection_jc103_win.conf");
 	const char* path = config->getString("bin.path").c_str();
-	FILE *f = fopen(path, "rb");
+	FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
+#else
+#endif
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
