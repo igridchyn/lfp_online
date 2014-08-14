@@ -16,10 +16,10 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     static const int DISP_FREQ = 30;
     
     // 11000
-    static const int SHIFT = 3000; // 1300
+    int SHIFT; // 1300
     
-    int plot_scale = 40; // 40 - 1
-    int plot_hor_scale = 10; // controlled
+    float plot_scale; // 40 - 1
+    int plot_hor_scale; // controlled
     
     //
     unsigned int displayed_channels_number_;
