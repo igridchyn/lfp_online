@@ -37,7 +37,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         buf_pointer_ = LFPBuffer::BUF_HEAD_LEN;
     }
     
-    int last_pkg_id;
+    int last_pkg_id = 0;
     
     SDL_SetRenderTarget(renderer_, texture_);
     const ColorPalette& colpal = ColorPalette::BrewerPalette12;
