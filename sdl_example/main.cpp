@@ -83,9 +83,9 @@ void draw_bin() {
 }
 
 #ifdef WIN32
-int wmain(int argc, wchar_t *argv[]){
-#elif // WIN32
-int main(int argc, char *argv[]){
+	int wmain(int argc, wchar_t *argv[]){
+#else // WIN32
+	int main(int argc, char *argv[]){
 #endif // WIN32
 	// draw_test(window, renderer, texture);
 
