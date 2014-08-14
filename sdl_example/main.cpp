@@ -33,8 +33,15 @@ typedef short t_bin;
 // SHIFT+NUM ~ 10+NUM
 
 void draw_bin() {
+//	Config *config = new Config("../Res/build_model_jc84.conf");
+//	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
-	Config *config = new Config("../Res/spike_detection_jc103.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
+//	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
+//	Config *config = new Config("../Res/spike_detection_jc103.conf");
+	Config *config = new Config("../Res/signal_display.conf");
+//	Config *config = new Config("../Res/spike_detection_jc11.conf");
+
 	const char* path = config->getString("bin.path").c_str();
 	FILE *f = fopen(path, "rb");
 
@@ -78,8 +85,7 @@ void draw_bin() {
 int main(int argc, char* args[]) {
 	// draw_test(window, renderer, texture);
 
-	//TEST DATA; for this channels: 8-11 : 2 clear CLUSTERS; fixed THRESHOLD !
-//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
+
 
 //    draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1t204_01.BIN");
 
