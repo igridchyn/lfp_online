@@ -11,14 +11,16 @@
 #include <sstream>
 #include <algorithm>
 
+const unsigned int NPROC = 25;
+
 const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderClustering", "FetFileReader",
 		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
 		"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
 		"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
 		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
-		"WhlFileReader"};
+		"WhlFileReader", "LPTTrigger"};
 
-const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + 24);
+const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + NPROC);
 
 void Config::read_processors(std::ifstream& fconf) {
 	int numproc;
