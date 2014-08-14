@@ -26,7 +26,7 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
 //, palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928}){
 , palette_(ColorPalette::BrewerPalette12){
     
-    window_ = SDL_CreateWindow(window_name.c_str(), 0,0,window_width, window_height, 0);
+    window_ = SDL_CreateWindow(window_name.c_str(), 50,50,window_width, window_height, 0);
     renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window_width, window_height);
     //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???

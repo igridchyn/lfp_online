@@ -10,7 +10,7 @@
 HINSTANCE hmodule;
 char path[MAX_PATH];
 
-void ReportError(){
+void __declspec(dllexport) ReportError(){
 	unsigned int error = GetLastError();
 	LPTSTR lpMsgBuf;
 
@@ -85,7 +85,7 @@ int inst(LPCSTR pszDriver)
 	}
 	else
 	{
-		char szFullPath[MAX_PATH] = "C:\\Windows\\System32\\Drivers\\";
+		char szFullPath[MAX_PATH] = "C:\\Windows\\System32\\Drivers\\";		
 		strcat_s(szFullPath, MAX_PATH, szDriverSys);
 		Ser = CreateServiceA(Mgr,
 			pszDriver,
@@ -163,8 +163,10 @@ int start(LPCSTR pszDriver)
 }
 
 // open driver - after starting service?
-int Opendriver(BOOL bX64)
+int __declspec(dllexport) Opendriver()
 {
+	BOOL bX64 = true;
+
 	OutputDebugStringW(L"Attempting to open InpOut driver...\n");
 
 	char szFileName[MAX_PATH] = { NULL };
@@ -214,7 +216,7 @@ int Opendriver(BOOL bX64)
 	return 0;
 }
 
-void _stdcall Out32(short PortAddress, short data)
+void __declspec(dllexport) Out32(short PortAddress, short data)
 {
 	unsigned int error;
 	DWORD BytesReturned;
@@ -235,7 +237,7 @@ void _stdcall Out32(short PortAddress, short data)
 			&BytesReturned,
 			NULL);
 
-		Sleep(2);
+		Sleep(5);
 	}
 
 	if (!DeviceIoControl(hdriver,

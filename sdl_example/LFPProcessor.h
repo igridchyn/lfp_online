@@ -12,6 +12,16 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+
+#ifdef _WIN32
+#include <windows.h>
+#undef max
+#undef min
+void usleep(__int64 usec);
+#elif // _WIN32
+#include "unistd.h"
+#endif // _WIN32
+
 #include <math.h>
 
 #include <iostream>
