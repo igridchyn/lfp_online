@@ -33,22 +33,12 @@ typedef short t_bin;
 // SHIFT+NUM ~ 10+NUM
 
 void draw_bin() {
-	// Config *config = new Config("../Res/decoding_32_jc84.conf");
-	Config *config = new Config("Res/spike_detection_jc103.conf");
-	// Config *config = new Config("../Res/decoding_32_jc84.conf");
-//	Config *config = new Config("../Res/build_model_jc84.conf");
-//	Config *config = new Config("../Res/build_model_jc84_2110.conf");
-//	Config *config = new Config("../Res/decoding_32_jc84.conf");
-//	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
-//	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
-//	Config *config = new Config("../Res/spike_detection_jc103.conf");
-	Config *config = new Config("../Res/signal_display.conf");
-//	Config *config = new Config("../Res/spike_detection_jc11.conf");
-
 #ifdef _WIN32
-	Config *config = new Config("../Res/spike_detection_jc103_win.conf");
+	//Config *config = new Config("../Res/spike_detection_jc103_win.conf");
+	Config *config = new Config("../Res/signal_display_win.conf");
 	const char* path = config->getString("bin.path").c_str();
-	FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
+	//FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
+	FILE *f = fopen("D:/data/igor/test/square.bin", "rb");
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
