@@ -154,9 +154,11 @@
     <ClCompile Include="..\FetFileReaderProcessor.cpp" />
     <ClCompile Include="..\FrequencyPowerBandProcessor.cpp" />
     <ClCompile Include="..\GMMClusteringProcessor.cpp" />
+    <ClCompile Include="..\inpout32.cpp" />
     <ClCompile Include="..\KDClusteringProcessor.cpp" />
     <ClCompile Include="..\LFPPipeline.cpp" />
     <ClCompile Include="..\LFPProcessor.cpp" />
+    <ClCompile Include="..\LPTTriggerProcessor.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\OnlineEstimator.cpp" />
     <ClCompile Include="..\PackageExractorProcessor.cpp" />
@@ -195,10 +197,12 @@
     <ClInclude Include="..\Config.h" />
     <ClInclude Include="..\FetFileReaderProcessor.h" />
     <ClInclude Include="..\GMMClusteringProcessor.h" />
+    <ClInclude Include="..\inpout32.h" />
     <ClInclude Include="..\KDClusteringProcessor.h" />
     <ClInclude Include="..\LFPBuffer.h" />
     <ClInclude Include="..\LFPPipeline.h" />
     <ClInclude Include="..\LFPProcessor.h" />
+    <ClInclude Include="..\LPTTriggerProcessor.h" />
     <ClInclude Include="..\OnlineEstimator.h" />
     <ClInclude Include="..\PCAExtractionProcessor.h" />
     <ClInclude Include="..\PlaceField.h" />
