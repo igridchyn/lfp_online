@@ -294,7 +294,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 //	}
 
 	// for consistency of comparison
-	if (last_pred_pkg_id_ > 55 * 1000000){
+	if (last_pred_pkg_id_ > 46 * 1000000){
 		// STATS - dump best HMM trajectory by backtracking
 		std::ofstream dec_hmm("dec_hmm.txt");
 		int t = hmm_traj_[0].size() - 1;

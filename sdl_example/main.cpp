@@ -1,8 +1,6 @@
 #include <SDL2/SDL.h>
 //#include <SDL2/SDL_ttf.h>
 
-#include <tchar.h>
-
 #include "LFPProcessor.h"
 #include "LFPPipeline.h"
 #include "UnitTestingProcessor.h"
@@ -36,12 +34,31 @@ typedef short t_bin;
 
 void draw_bin() {
 	// Config *config = new Config("../Res/decoding_32_jc84.conf");
+	Config *config = new Config("Res/spike_detection_jc103.conf");
+	// Config *config = new Config("../Res/decoding_32_jc84.conf");
+//	Config *config = new Config("../Res/build_model_jc84.conf");
+//	Config *config = new Config("../Res/build_model_jc84_2110.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
+//	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
+//	Config *config = new Config("../Res/spike_detection_jc103.conf");
+	Config *config = new Config("../Res/signal_display.conf");
+//	Config *config = new Config("../Res/spike_detection_jc11.conf");
 
 #ifdef _WIN32
 	Config *config = new Config("../Res/spike_detection_jc103_win.conf");
 	const char* path = config->getString("bin.path").c_str();
 	FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
 #else
+//	Config *config = new Config("../Res/build_model_jc84.conf");
+//	Config *config = new Config("../Res/build_model_jc84_2110.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
+//	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
+//	Config *config = new Config("../Res/spike_detection_jc103.conf");
+	Config *config = new Config("../Res/signal_display.conf");
+//	Config *config = new Config("../Res/spike_detection_jc11.conf");
+	FILE *f = fopen(path, "rb");
 #endif
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
@@ -82,9 +99,9 @@ void draw_bin() {
 }
 
 #ifdef WIN32
-int wmain(int argc, wchar_t *argv[]){
-#elif // WIN32
-int main(int argc, wchar_t *argv[]){
+	int wmain(int argc, wchar_t *argv[]){
+#else // WIN32
+	int main(int argc, char *argv[]){
 #endif // WIN32
 	// draw_test(window, renderer, texture);
 

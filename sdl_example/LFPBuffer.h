@@ -120,7 +120,9 @@ public:
     int power_buf[CHANNEL_NUM][LFP_BUF_LEN];
     
     // ??? for all arrays ?
-    int buf_pos;
+    int buf_pos = BUF_HEAD_LEN;
+    int buf_pos_trig_ = BUF_HEAD_LEN;
+
     unsigned int last_pkg_id = 0;
     // for each tetrode
     int *last_spike_pos_;

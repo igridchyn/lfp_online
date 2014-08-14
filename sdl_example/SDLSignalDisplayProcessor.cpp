@@ -29,7 +29,8 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer)
 				buffer->config_->getInt("lfpdisp.window.height"),
 				buffer->config_->getInt("lfpdisp.channels.number"),
 				buffer->config_->lfp_disp_channels_
-				){}
+				)
+{}
 
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
 		const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels)
@@ -40,7 +41,10 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
     , current_x(0)
     , last_disp_pos(0)
 	, SCREEN_HEIGHT(window_height)
-	, SCREEN_WIDTH(window_width){
+	, SCREEN_WIDTH(window_width)
+	, plot_hor_scale(buffer->config_->getInt("lfpdisp.horizontal.scale", 10))
+	, plot_scale(buffer->config_->getFloat("lfpdisp.vertical.scale", 40))
+	, SHIFT(buffer->config_->getInt("lfpdisp.shift", 3000)){
         
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
