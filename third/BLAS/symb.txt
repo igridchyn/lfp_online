@@ -1,0 +1,3256 @@
+Microsoft (R) COFF/PE Dumper Version 12.00.21005.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file BLAS.lib
+
+File Type: LIBRARY
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\chbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  CE0, #relocs    A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   18, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000014 SECT2  notype       Static       | _2il0floatpacket.75
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\csyr2k.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1140, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSYR2K
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.72
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\drot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  370, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DROT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtpmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 16B0, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sasum.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  140, #relocs    5, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SASUM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.3
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x34 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\scnrm2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  100, #relocs    4, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SCNRM2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.6
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.5
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x34 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sger.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  390, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SGER
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_0
+00B 00000000 UNDEF  notype ()    External     | _XERBLA
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zgeru.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  360, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZGERU
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_0
+00B 00000000 UNDEF  notype ()    External     | _XERBLA
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zswap.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  100, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZSWAP
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\csscal.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   A0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSSCAL
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctbsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1370, #relocs   26, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTBSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.70
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_8
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_6
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_3
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_2
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_0
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_5
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dcabs1.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DCABS1
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.1
+00B 00000000 UNDEF  notype       External     | __fltused
+00C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x21 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\drotm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  D90, #relocs    1, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DROTM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _DROTM$TWO.0.1
+00B 00000000 UNDEF  notype       External     | __fltused
+00C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1D bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dspr.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  B10, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSPR
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sgemv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  910, #relocs    E, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SGEMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_5
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_4
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2il0floatpacket.12
+011 00000000 UNDEF  notype ()    External     | _LSAME
+012 00000000 UNDEF  notype ()    External     | _XERBLA
+013 00000000 UNDEF  notype       External     | __fltused
+014 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x82 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\srotg.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  100, #relocs    5, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SROTG
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.6
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000014 SECT2  notype       Static       | _2il0floatpacket.5
+00D 00000000 UNDEF  notype       External     | __fltused
+00E 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x47 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssymm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1AA0, #relocs    F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSYMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.14
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zgbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  BC0, #relocs   10, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZGBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.50
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zsymm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 5F90, #relocs    F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZSYMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.240
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x93 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cgbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  B10, #relocs   10, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CGBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_3
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.50
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cher2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  CD0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHER2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dasum.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  240, #relocs    C, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DASUM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.3
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x34 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsymv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1210, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSYMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.11
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsyr2k.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1B00, #relocs   13, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSYR2K
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   30, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.14
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_7
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_6
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_5
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_4
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_3
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_2
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_0
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_1
+013 00000000 UNDEF  notype ()    External     | _LSAME
+014 00000000 UNDEF  notype ()    External     | _XERBLA
+015 00000000 UNDEF  notype       External     | __fltused
+016 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xA2 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\stbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1040, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zdotc.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  150, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZDOTC
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zherk.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  DA0, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHERK
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.55
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztpmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1050, #relocs   1A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   38, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_4
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_2
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_5
+017 00000000 UNDEF  notype ()    External     | _LSAME
+018 00000000 UNDEF  notype ()    External     | _XERBLA
+019 00000000 UNDEF  notype       External     | __fltused
+01A 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE1 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\chpmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  AC0, #relocs    A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   18, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000014 SECT2  notype       Static       | _2il0floatpacket.73
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctrmm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1430, #relocs   22, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTRMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_13
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_11
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_10
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_8
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_7
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_6
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_5
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_4
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_3
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_0
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000034 SECT2  notype       Static       | _2_STRLITPACK_2
+018 0000003C SECT2  notype       Static       | _2il0floatpacket.90
+019 00000000 UNDEF  notype ()    External     | _LSAME
+01A 00000000 UNDEF  notype ()    External     | _XERBLA
+01B 00000000 UNDEF  notype       External     | __fltused
+01C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x106 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\drotg.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  110, #relocs    6, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DROTG
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.6
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000018 SECT2  notype       Static       | _2il0floatpacket.5
+00D 00000000 UNDEF  notype       External     | __fltused
+00E 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x47 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtrsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1360, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTRSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\icamax.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  150, #relocs    6, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ICAMAX
+008 00000000 UNDEF  notype ()    External     | _SCABS1
+009 00000000 UNDEF  notype       External     | __fltused
+00A 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\saxpy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  130, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SAXPY
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssyr.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  5F0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSYR
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zher.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  6F0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHER
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\crotg.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  160, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CROTG
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.11
+00B 00000000 UNDEF  notype       External     | __fltused
+00C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x22 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctpsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1090, #relocs   26, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTPSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.68
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_8
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_6
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_3
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_2
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_0
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_5
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dgemv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  F80, #relocs    E, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DGEMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.12
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_4
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_0
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_2
+011 00000000 UNDEF  notype ()    External     | _LSAME
+012 00000000 UNDEF  notype ()    External     | _XERBLA
+013 00000000 UNDEF  notype       External     | __fltused
+014 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x82 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsyr2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  FC0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSYR2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dzasum.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  120, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DZASUM
+008 00000000 UNDEF  notype ()    External     | _DCABS1
+009 00000000 UNDEF  notype       External     | __fltused
+00A 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sgbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  B30, #relocs    E, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SGBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_5
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_4
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2il0floatpacket.14
+011 00000000 UNDEF  notype ()    External     | _LSAME
+012 00000000 UNDEF  notype ()    External     | _XERBLA
+013 00000000 UNDEF  notype       External     | __fltused
+014 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x82 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sscal.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  140, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSCAL
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssyrk.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1260, #relocs   13, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSYRK
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_7
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_5
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_2
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_0
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000024 SECT2  notype       Static       | _2il0floatpacket.12
+013 00000000 UNDEF  notype ()    External     | _LSAME
+014 00000000 UNDEF  notype ()    External     | _XERBLA
+015 00000000 UNDEF  notype       External     | __fltused
+016 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xA2 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zhemv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  BE0, #relocs    A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHEMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.74
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zsyrk.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  CF0, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZSYRK
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.60
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\chpr2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  BF0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHPR2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\daxpy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  390, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DAXPY
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1510, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.12
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtrmm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1DD0, #relocs   1C, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTRMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.15
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_8
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_6
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_5
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_4
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_3
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_0
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_2
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\stpmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  CF0, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zdotu.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  150, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZDOTU
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zher2k.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 14A0, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHER2K
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.73
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztrsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1120, #relocs   26, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTRSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   50, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.69
+00B 00000010 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 00000014 SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000018 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 0000001C SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000020 SECT2  notype       Static       | _2_STRLITPACK_8
+010 00000024 SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000028 SECT2  notype       Static       | _2_STRLITPACK_6
+012 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000030 SECT2  notype       Static       | _2_STRLITPACK_3
+014 00000034 SECT2  notype       Static       | _2_STRLITPACK_2
+015 00000038 SECT2  notype       Static       | _2_STRLITPACK_0
+016 0000003C SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000040 SECT2  notype       Static       | _2_STRLITPACK_5
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\caxpy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  150, #relocs    1, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CAXPY
+008 00000000 UNDEF  notype ()    External     | _SCABS1
+009 00000000 UNDEF  notype       External     | __fltused
+00A 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctrmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  F30, #relocs   1A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTRMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   38, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_4
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_2
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_5
+017 00000000 UNDEF  notype ()    External     | _LSAME
+018 00000000 UNDEF  notype ()    External     | _XERBLA
+019 00000000 UNDEF  notype       External     | __fltused
+01A 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE1 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctrsm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1840, #relocs   2F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTRSM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   48, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.83
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_13
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_12
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_11
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_10
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_9
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_8
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_7
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_6
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_5
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_3
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_0
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_1
+018 0000003C SECT2  notype       Static       | _2_STRLITPACK_2
+019 00000044 SECT2  notype       Static       | _2il0floatpacket.82
+01A 00000000 UNDEF  notype ()    External     | _LSAME
+01B 00000000 UNDEF  notype ()    External     | _XERBLA
+01C 00000000 UNDEF  notype       External     | __fltused
+01D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x11A bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dscal.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  270, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSCAL
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtbsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 15F0, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTBSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\scopy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  140, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SCOPY
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sspr.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  600, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSPR
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zhpr.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  660, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHPR
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cgerc.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  320, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CGERC
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_0
+00B 00000000 UNDEF  notype ()    External     | _XERBLA
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cscal.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   E0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSCAL
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dspr2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1080, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSPR2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dznrm2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  110, #relocs    4, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DZNRM2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.6
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.5
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x34 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sswap.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  140, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSWAP
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssymv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  C20, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSYMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   18, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000014 SECT2  notype       Static       | _2il0floatpacket.11
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssyr2k.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1690, #relocs   13, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSYR2K
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_7
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_5
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_2
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_0
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000024 SECT2  notype       Static       | _2il0floatpacket.14
+013 00000000 UNDEF  notype ()    External     | _LSAME
+014 00000000 UNDEF  notype ()    External     | _XERBLA
+015 00000000 UNDEF  notype       External     | __fltused
+016 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xA2 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zhbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  D30, #relocs    A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.75
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zsyr2k.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1190, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZSYR2K
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.72
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cgemm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1680, #relocs   12, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CGEMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.86
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dcopy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  150, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DCOPY
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dspmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 11A0, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.10
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtrsm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 2530, #relocs   20, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTRSM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.15
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_8
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_6
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_5
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_4
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_3
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_0
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_2
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\lsame.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   50, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _LSAME
+008 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\strsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  E60, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STRSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zdscal.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   B0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZDSCAL
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztbsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 11F0, #relocs   26, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTBSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   50, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.70
+00B 00000010 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 00000014 SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000018 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 0000001C SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000020 SECT2  notype       Static       | _2_STRLITPACK_8
+010 00000024 SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000028 SECT2  notype       Static       | _2_STRLITPACK_6
+012 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000030 SECT2  notype       Static       | _2_STRLITPACK_3
+014 00000034 SECT2  notype       Static       | _2_STRLITPACK_2
+015 00000038 SECT2  notype       Static       | _2_STRLITPACK_0
+016 0000003C SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000040 SECT2  notype       Static       | _2_STRLITPACK_5
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ccopy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  160, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CCOPY
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\chemm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 53A0, #relocs    F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHEMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.240
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x93 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1190, #relocs   1A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   38, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_4
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_2
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_5
+017 00000000 UNDEF  notype ()    External     | _LSAME
+018 00000000 UNDEF  notype ()    External     | _XERBLA
+019 00000000 UNDEF  notype       External     | __fltused
+01A 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE1 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsdot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  470, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSDOT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtpsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 12E0, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTPSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sdot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  160, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SDOT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssyr2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  7F0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSYR2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zher2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  D10, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHER2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cgeru.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  310, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CGERU
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_0
+00B 00000000 UNDEF  notype ()    External     | _XERBLA
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cswap.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   F0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSWAP
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dgemm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1160, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DGEMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.15
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_0
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\izamax.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  150, #relocs    6, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _IZAMAX
+008 00000000 UNDEF  notype ()    External     | _DCABS1
+009 00000000 UNDEF  notype       External     | __fltused
+00A 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sdsdot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  490, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SDSDOT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ssbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  DB0, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   18, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000014 SECT2  notype       Static       | _2il0floatpacket.12
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\strmm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1A00, #relocs   1C, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STRMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   3C, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_5
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_3
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_2
+017 00000038 SECT2  notype       Static       | _2il0floatpacket.15
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zhpmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  BE0, #relocs    A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.73
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_3
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_0
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztrmm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 15A0, #relocs   22, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTRMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   48, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.90
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_13
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_12
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_11
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_10
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_9
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_8
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_7
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_6
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_5
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_3
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_0
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_1
+018 0000003C SECT2  notype       Static       | _2_STRLITPACK_2
+019 00000000 UNDEF  notype ()    External     | _LSAME
+01A 00000000 UNDEF  notype ()    External     | _XERBLA
+01B 00000000 UNDEF  notype       External     | __fltused
+01C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x106 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\csymm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 59E0, #relocs    F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSYMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.240
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x93 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ddot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  470, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DDOT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtrmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 16E0, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTRMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\scabs1.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SCABS1
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.1
+00B 00000000 UNDEF  notype       External     | __fltused
+00C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x21 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\stbsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1040, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STBSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\xerbla.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   90, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _XERBLA
+008 00000000 UNDEF  notype ()    External     | _for_len_trim
+009 00000000 SECT2  notype       Static       | .rdata
+    Section length   80, #relocs    0, #linenums    0, checksum        0
+00B 00000074 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 00000000 UNDEF  notype ()    External     | _for_write_seq_fmt
+00D 00000000 UNDEF  notype ()    External     | _for_write_seq_fmt_xmit
+00E 00000000 UNDEF  notype ()    External     | _for_stop_core
+00F 00000000 SECT2  notype       Static       | XERBLA$BLK$format_pack.0.1
+010 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x77 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zrotg.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  100, #relocs    1, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZROTG
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.11
+00B 00000000 UNDEF  notype       External     | __fltused
+00C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x22 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztpsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1050, #relocs   26, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTPSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   50, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.68
+00B 00000010 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 00000014 SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000018 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 0000001C SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000020 SECT2  notype       Static       | _2_STRLITPACK_8
+010 00000024 SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000028 SECT2  notype       Static       | _2_STRLITPACK_6
+012 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000030 SECT2  notype       Static       | _2_STRLITPACK_3
+014 00000034 SECT2  notype       Static       | _2_STRLITPACK_2
+015 00000038 SECT2  notype       Static       | _2_STRLITPACK_0
+016 0000003C SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000040 SECT2  notype       Static       | _2_STRLITPACK_5
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cdotc.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  130, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CDOTC
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cherk.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  F40, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHERK
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.75
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctpmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  E50, #relocs   1A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   38, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_4
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_2
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_5
+017 00000000 UNDEF  notype ()    External     | _LSAME
+018 00000000 UNDEF  notype ()    External     | _XERBLA
+019 00000000 UNDEF  notype       External     | __fltused
+01A 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE1 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dger.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  5C0, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DGER
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_0
+00B 00000000 UNDEF  notype ()    External     | _XERBLA
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dswap.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  440, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSWAP
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\snrm2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   D0, #relocs    4, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SNRM2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.4
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.3
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x34 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sspr2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  8B0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSPR2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zdrot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  1A0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZDROT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zhpr2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  CA0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHPR2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cher.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  620, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHER
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\csrot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  190, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSROT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsymm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1EA0, #relocs    F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSYMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.14
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\srotmg.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  3F0, #relocs   23, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SROTMG
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000010 SECT2  notype       Static       | _2il0floatpacket.11
+00B 00000020 SECT2  notype       Static       | _2il0floatpacket.5
+00C 00000028 SECT2  notype       Static       | _2il0floatpacket.7
+00D 0000002C SECT2  notype       Static       | _2il0floatpacket.8
+00E 00000030 SECT2  notype       Static       | _2il0floatpacket.9
+00F 00000034 SECT2  notype       Static       | _2il0floatpacket.10
+010 00000038 SECT2  notype       Static       | _2il0floatpacket.12
+011 00000000 SECT2  notype       Static       | _SROTMG$ONE.0.1
+012 00000024 SECT2  notype       Static       | _2il0floatpacket.6
+013 00000000 UNDEF  notype       External     | __fltused
+014 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xB9 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sspmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  AE0, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SSPMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   18, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000014 SECT2  notype       Static       | _2il0floatpacket.10
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\strsm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 2090, #relocs   20, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STRSM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   3C, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_5
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_3
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_2
+017 00000038 SECT2  notype       Static       | _2il0floatpacket.15
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zaxpy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  180, #relocs    1, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZAXPY
+008 00000000 UNDEF  notype ()    External     | _DCABS1
+009 00000000 UNDEF  notype       External     | __fltused
+00A 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztrmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1170, #relocs   1A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTRMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   38, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_4
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_2
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_5
+017 00000000 UNDEF  notype ()    External     | _LSAME
+018 00000000 UNDEF  notype ()    External     | _XERBLA
+019 00000000 UNDEF  notype       External     | __fltused
+01A 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE1 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztrsm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1900, #relocs   3A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTRSM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   60, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.82
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.83
+00C 00000020 SECT2  notype       Static       | _2_STRLITPACK_13
+00D 00000024 SECT2  notype       Static       | _2_STRLITPACK_12
+00E 00000028 SECT2  notype       Static       | _2_STRLITPACK_11
+00F 0000002C SECT2  notype       Static       | _2_STRLITPACK_10
+010 00000030 SECT2  notype       Static       | _2_STRLITPACK_9
+011 00000034 SECT2  notype       Static       | _2_STRLITPACK_8
+012 00000038 SECT2  notype       Static       | _2_STRLITPACK_7
+013 0000003C SECT2  notype       Static       | _2_STRLITPACK_6
+014 00000040 SECT2  notype       Static       | _2_STRLITPACK_5
+015 00000044 SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000048 SECT2  notype       Static       | _2_STRLITPACK_3
+017 0000004C SECT2  notype       Static       | _2_STRLITPACK_0
+018 00000050 SECT2  notype       Static       | _2_STRLITPACK_1
+019 00000054 SECT2  notype       Static       | _2_STRLITPACK_2
+01A 00000000 UNDEF  notype ()    External     | _LSAME
+01B 00000000 UNDEF  notype ()    External     | _XERBLA
+01C 00000000 UNDEF  notype       External     | __fltused
+01D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x11A bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\chemv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  BC0, #relocs    A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHEMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   18, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000014 SECT2  notype       Static       | _2il0floatpacket.74
+00F 00000000 UNDEF  notype ()    External     | _LSAME
+010 00000000 UNDEF  notype ()    External     | _XERBLA
+011 00000000 UNDEF  notype       External     | __fltused
+012 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x62 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\csyrk.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  C30, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CSYRK
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.60
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dnrm2.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   E0, #relocs    4, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DNRM2
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.4
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.3
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x34 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dtbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 19E0, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DTBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\isamax.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  3C0, #relocs    9, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ISAMAX
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.3
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000020 SECT2  notype       Static       | _2il0floatpacket.5
+00D 00000030 SECT2  notype       Static       | _2il0floatpacket.6
+00E 00000000 UNDEF  notype       External     | __fltused
+00F 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x5A bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\scasum.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   C0, #relocs    4, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SCASUM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.7
+00B 00000000 UNDEF  notype       External     | __fltused
+00C 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x21 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\stpsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  D50, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STPSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\xerbla_array.f
+005 00000001 ABS    notype       Static       | @feat.00
+006 00000000 SECT1  notype       Static       | .text
+    Section length   D0, #relocs   15, #linenums    0, checksum        0
+008 00000000 SECT1  notype ()    External     | _XERBLA_ARRAY
+009 00000000 SECT2  notype       Static       | .rdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+00B 00000000 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000000 SECT3  notype       Static       | .bss
+    Section length   20, #relocs    0, #linenums    0, checksum        0
+00E 00000000 UNDEF  notype ()    External     | _XERBLA
+00F 00000000 SECT3  notype       Static       | _XERBLA_ARRAY$SRNAME.0.1
+010 00000000 SECT4  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x3E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zgerc.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  370, #relocs    2, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZGERC
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_0
+00B 00000000 UNDEF  notype ()    External     | _XERBLA
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x1E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zscal.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   E0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZSCAL
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cdotu.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  130, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CDOTU
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cher2k.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1630, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHER2K
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.93
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ctrsv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1160, #relocs   26, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CTRSV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   40, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.69
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_12
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_11
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_10
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_9
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_8
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_7
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_6
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_4
+013 00000028 SECT2  notype       Static       | _2_STRLITPACK_3
+014 0000002C SECT2  notype       Static       | _2_STRLITPACK_2
+015 00000030 SECT2  notype       Static       | _2_STRLITPACK_0
+016 00000034 SECT2  notype       Static       | _2_STRLITPACK_1
+017 00000038 SECT2  notype       Static       | _2_STRLITPACK_5
+018 00000000 UNDEF  notype ()    External     | _LSAME
+019 00000000 UNDEF  notype ()    External     | _XERBLA
+01A 00000000 UNDEF  notype       External     | __fltused
+01B 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xF5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\drotmg.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  400, #relocs   20, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DROTMG
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   50, #relocs    0, #linenums    0, checksum        0
+00A 00000010 SECT2  notype       Static       | _2il0floatpacket.11
+00B 00000020 SECT2  notype       Static       | _2il0floatpacket.5
+00C 00000028 SECT2  notype       Static       | _2il0floatpacket.6
+00D 00000030 SECT2  notype       Static       | _2il0floatpacket.7
+00E 00000038 SECT2  notype       Static       | _2il0floatpacket.8
+00F 00000040 SECT2  notype       Static       | _2il0floatpacket.9
+010 00000048 SECT2  notype       Static       | _2il0floatpacket.10
+011 00000000 SECT2  notype       Static       | _DROTMG$ONE.0.1
+012 00000000 UNDEF  notype       External     | __fltused
+013 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xA5 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsyr.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  AC0, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSYR
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\sgemm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  E60, #relocs   11, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SGEMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.15
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\srot.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  230, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SROT
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zgemm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1790, #relocs   12, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZGEMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.86
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_1
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_0
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zgemv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  A50, #relocs   10, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZGEMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.48
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_2
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_1
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\cgemv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  9E0, #relocs   10, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CGEMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   24, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_6
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_4
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_2
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_0
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_3
+011 00000020 SECT2  notype       Static       | _2il0floatpacket.48
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x92 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\chpr.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  580, #relocs    8, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _CHPR
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_3
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_2
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_0
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_1
+00E 00000000 UNDEF  notype ()    External     | _LSAME
+00F 00000000 UNDEF  notype ()    External     | _XERBLA
+010 00000000 UNDEF  notype       External     | __fltused
+011 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x4E bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dgbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1280, #relocs    E, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DGBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.14
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_5
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_4
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_3
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_1
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_0
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_2
+011 00000000 UNDEF  notype ()    External     | _LSAME
+012 00000000 UNDEF  notype ()    External     | _XERBLA
+013 00000000 UNDEF  notype       External     | __fltused
+014 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x82 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\dsyrk.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1460, #relocs   13, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _DSYRK
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   30, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.12
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_7
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_6
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_5
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_4
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_3
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_2
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_0
+012 00000024 SECT2  notype       Static       | _2_STRLITPACK_1
+013 00000000 UNDEF  notype ()    External     | _LSAME
+014 00000000 UNDEF  notype ()    External     | _XERBLA
+015 00000000 UNDEF  notype       External     | __fltused
+016 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xA2 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\idamax.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  350, #relocs    B, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _IDAMAX
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   50, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.3
+00B 00000010 SECT2  notype       Static       | _2il0floatpacket.4
+00C 00000020 SECT2  notype       Static       | _2il0floatpacket.5
+00D 00000030 SECT2  notype       Static       | _2il0floatpacket.6
+00E 00000040 SECT2  notype       Static       | _2il0floatpacket.7
+00F 00000000 UNDEF  notype       External     | __fltused
+010 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x6D bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\srotm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  2C0, #relocs    1, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _SROTM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+00A 00000008 SECT2  notype       Static       | _2il0floatpacket.6
+00B 00000000 SECT2  notype       Static       | _SROTM$TWO.0.1
+00C 00000000 UNDEF  notype       External     | __fltused
+00D 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x30 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\strmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length  E00, #relocs   18, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _STRMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   34, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_11
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_10
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_9
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_8
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_7
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_6
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_5
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_3
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_2
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_0
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_1
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_4
+016 00000000 UNDEF  notype ()    External     | _LSAME
+017 00000000 UNDEF  notype ()    External     | _XERBLA
+018 00000000 UNDEF  notype       External     | __fltused
+019 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xD0 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zcopy.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length   C0, #relocs    0, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZCOPY
+008 00000000 UNDEF  notype       External     | __fltused
+009 00000000 SECT2  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\zhemm.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 5A50, #relocs    F, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZHEMM
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2il0floatpacket.240
+00B 00000008 SECT2  notype       Static       | _2_STRLITPACK_6
+00C 0000000C SECT2  notype       Static       | _2_STRLITPACK_5
+00D 00000010 SECT2  notype       Static       | _2_STRLITPACK_4
+00E 00000014 SECT2  notype       Static       | _2_STRLITPACK_3
+00F 00000018 SECT2  notype       Static       | _2_STRLITPACK_2
+010 0000001C SECT2  notype       Static       | _2_STRLITPACK_0
+011 00000020 SECT2  notype       Static       | _2_STRLITPACK_1
+012 00000000 UNDEF  notype ()    External     | _LSAME
+013 00000000 UNDEF  notype ()    External     | _XERBLA
+014 00000000 UNDEF  notype       External     | __fltused
+015 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0x93 bytes
+
+COFF SYMBOL TABLE
+000 00000000 DEBUG  notype       Filename     | .file
+    D:\julie\lapack\tags\lapack-3.5.0\BLAS\SRC\ztbmv.f
+004 00000001 ABS    notype       Static       | @feat.00
+005 00000000 SECT1  notype       Static       | .text
+    Section length 1340, #relocs   1A, #linenums    0, checksum        0
+007 00000000 SECT1  notype ()    External     | _ZTBMV
+008 00000000 SECT2  notype       Static       | .rdata
+    Section length   38, #relocs    0, #linenums    0, checksum        0
+00A 00000000 SECT2  notype       Static       | _2_STRLITPACK_12
+00B 00000004 SECT2  notype       Static       | _2_STRLITPACK_11
+00C 00000008 SECT2  notype       Static       | _2_STRLITPACK_10
+00D 0000000C SECT2  notype       Static       | _2_STRLITPACK_9
+00E 00000010 SECT2  notype       Static       | _2_STRLITPACK_8
+00F 00000014 SECT2  notype       Static       | _2_STRLITPACK_7
+010 00000018 SECT2  notype       Static       | _2_STRLITPACK_6
+011 0000001C SECT2  notype       Static       | _2_STRLITPACK_4
+012 00000020 SECT2  notype       Static       | _2_STRLITPACK_3
+013 00000024 SECT2  notype       Static       | _2_STRLITPACK_2
+014 00000028 SECT2  notype       Static       | _2_STRLITPACK_0
+015 0000002C SECT2  notype       Static       | _2_STRLITPACK_1
+016 00000030 SECT2  notype       Static       | _2_STRLITPACK_5
+017 00000000 UNDEF  notype ()    External     | _LSAME
+018 00000000 UNDEF  notype ()    External     | _XERBLA
+019 00000000 UNDEF  notype       External     | __fltused
+01A 00000000 SECT3  notype       Static       | .drectve
+    Section length   B9, #relocs    0, #linenums    0, checksum        0
+
+String Table Size = 0xE1 bytes
+
+  Summary
+
+          20 .bss
+        6D1F .drectve
+        11E0 .rdata
+       76E80 .text
