@@ -75,7 +75,7 @@ void SpikeAlignmentProcessor::process(){
         
         // if not within refractory period from previous spike
         
-        if (peak_pos - prev_spike_pos_[tetrode] > 16)
+		if (peak_pos - prev_spike_pos_[tetrode] > 16 || prev_spike_[tetrode] == NULL)
     	{
             if (prev_spike_pos_[tetrode] > 0){
                 // DEBUG

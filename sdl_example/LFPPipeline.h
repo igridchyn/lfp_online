@@ -13,12 +13,12 @@
 
 #include "LFPProcessor.h"
 
-class LFPPipeline{
+class LFPONLINEAPI LFPPipeline{
     std::vector<LFPProcessor*> processors;
     
 public:
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
-    void process(unsigned char *data, int nchunks);
+    void process(unsigned char *data);
     
     LFPProcessor *get_processor(const unsigned int& index);
     

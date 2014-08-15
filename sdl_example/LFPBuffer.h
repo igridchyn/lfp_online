@@ -13,6 +13,7 @@
 #include <stack>
 #include <queue>
 
+#include "LFPOnline.h"
 #include "TetrodesInfo.h"
 #include "Spike.h"
 #include "OnlineEstimator.h"
@@ -20,7 +21,13 @@
 
 #include <armadillo>
 
-class LFPBuffer{
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#include <cmath>
+#define M_PI 3.14159265358979323846
+#endif
+
+class LFPONLINEAPI LFPBuffer{
     
 public:
 	Config *config_;
@@ -89,6 +96,9 @@ public:
     // last for speed estimatino
     unsigned int pos_buf_pos_speed_est = 0;
 
+    // value of pos., meaning that position is unknown
+    const int pos_unknown_;
+
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
     
@@ -111,7 +121,9 @@ public:
     int power_buf[CHANNEL_NUM][LFP_BUF_LEN];
     
     // ??? for all arrays ?
-    int buf_pos;
+    int buf_pos = BUF_HEAD_LEN;
+    int buf_pos_trig_ = BUF_HEAD_LEN;
+
     unsigned int last_pkg_id = 0;
     // for each tetrode
     int *last_spike_pos_;
@@ -136,9 +148,11 @@ public:
 
     std::vector<arma::mat> tps_;
 
+	std::ofstream log_stream;
+
     //====================================================================================================
     
-    LFPBuffer(TetrodesInfo* tetr_info, Config* config);
+    LFPBuffer(Config* config);
     
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     

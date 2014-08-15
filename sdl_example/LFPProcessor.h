@@ -12,6 +12,16 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+
+#ifdef _WIN32
+	#include <windows.h>
+	#undef max
+	#undef min
+	void usleep(__int64 usec);
+#else
+	#include "unistd.h"
+#endif // _WIN32
+
 #include <math.h>
 
 #include <iostream>
@@ -120,10 +130,11 @@ public:
 
 
 class PackageExractorProcessor : public LFPProcessor{
+	const float SCALE;
+
 public:
     virtual void process();
-    PackageExractorProcessor(LFPBuffer *buffer)
-    :LFPProcessor(buffer){}
+    PackageExractorProcessor(LFPBuffer *buffer);
 };
 
 //==========================================================================================

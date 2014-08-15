@@ -9,6 +9,11 @@
 #include "LFPProcessor.h"
 #include "OnlineEstimator.cpp"
 
+PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
+    : LFPProcessor(buffer)
+	, SCALE(buffer->config_->getFloat("pack.extr.xyscale"))
+{}
+
 void PackageExractorProcessor::process(){
     // IDLE processing, waiting for user input
     if (buffer->chunk_ptr == NULL){
@@ -24,6 +29,7 @@ void PackageExractorProcessor::process(){
         
         buffer->zero_level = buffer->buf_pos + 1;
         buffer->buf_pos = buffer->BUF_HEAD_LEN;
+		buffer->buf_pos_trig_ = buffer->BUF_HEAD_LEN;
         
         std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
     }
@@ -47,8 +53,14 @@ void PackageExractorProcessor::process(){
         // EVERY 240 !!! = 100 Hz
 //        std::cout << "new pos at " << buffer->buf_pos << "\n";
 
-        buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)bx;
-        buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)by;
+        // WORKAROUND
+        if (bx != buffer->pos_unknown_){
+        	buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE);
+        	buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE);
+        }else{
+        	buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
+        	buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
+        }
         buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)sx;
         buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)sy;
         buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)buffer->last_pkg_id;
@@ -76,6 +88,13 @@ void PackageExractorProcessor::process(){
     
     buffer->buf_pos += 3 * buffer->num_chunks;
     buffer->last_pkg_id += 3 * buffer->num_chunks;
+
+	// DEBUG
+	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){
+		buffer->log_stream << "INFO: PackExtr pkg id = " << buffer->last_pkg_id << "\n";
+		buffer->log_stream << "INFO: PackExtr pkg value = " << buffer->signal_buf[0][buffer->buf_pos - 1]<< "\n";
+		buffer->log_stream.flush();
+	}
     
     // TODO: use filter width !!!
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);

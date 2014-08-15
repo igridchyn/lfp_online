@@ -28,6 +28,7 @@
 #include "TransProbEstimationProcessor.h"
 #include "UnitTestingProcessor.h"
 #include "WhlFileReaderProcessor.h"
+#include "LPTTriggerProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf){
 	const std::vector<std::string>& processor_names = buf->config_->processors_list_;
@@ -85,14 +86,17 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf){
 			processors.push_back(new WaveShapeReconstructionProcessor(buf));
 		} else if (proc_name == "WhlFileReader"){
 			processors.push_back(new WhlFileReaderProcessor(buf));
+		} else if (proc_name == "LPTTrigger"){
+			processors.push_back(new LPTTriggerProcessor(buf));
 		} else{
 			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
+			buf->log_stream << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			exit(1);
 		}
 	}
 }
 
-void LFPPipeline::process(unsigned char *data, int nchunks){
+void LFPPipeline::process(unsigned char *data){
     // TODO: put data into buffer
     
     for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
