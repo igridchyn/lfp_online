@@ -13,7 +13,7 @@
 
 #include "LFPProcessor.h"
 
-class LFPPipeline{
+class LFPONLINEAPI LFPPipeline{
     std::vector<LFPProcessor*> processors;
     
 public:

@@ -2,7 +2,7 @@
  * Config.h
  *
  *  Created on: Jul 28, 2014
- *      Author: igor
+ *      Author: Igor Gridchyn
  */
 
 #ifndef CONFIG_H_
@@ -13,9 +13,12 @@
 #include <fstream>
 #include <vector>
 
-class Config {
+#include "LFPOnline.h"
+
+class LFPONLINEAPI Config {
 
 std::map<std::string, std::string> params_;
+// to check whether params from config file that were intended to be used have ever been requested
 std::set<std::string> requested_params_;
 
 static const char *known_processors_ar[];

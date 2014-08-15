@@ -13,6 +13,7 @@
 #include <stack>
 #include <queue>
 
+#include "LFPOnline.h"
 #include "TetrodesInfo.h"
 #include "Spike.h"
 #include "OnlineEstimator.h"
@@ -26,7 +27,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-class LFPBuffer{
+class LFPONLINEAPI LFPBuffer{
     
 public:
 	Config *config_;

@@ -72,7 +72,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>c:\Users\data\igor\code\sdl_example\third\libiconv-1.9.2-1-lib\include\;c:\Users\data\igor\code\sdl_example\third\ann_1.1.2\include\;c:\Users\data\igor\code\sdl_example\third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;c:\Users\data\igor\code\sdl_example\sdl_lpt_vs;c:\Users\data\igor\code\sdl_example\third\mlpack-1.0.9\src\;c:\Users\data\igor\code\sdl_example\third\armadillo-4.320.0\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ARMA_USE_LAPACK;ARMA_USE_BLAS;WIN32;DLL_EXPORTS;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LFP_ONLINE_LIB_EXPORT;ARMA_USE_LAPACK;ARMA_USE_BLAS;WIN32;DLL_EXPORTS;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -200,6 +200,7 @@
     <ClInclude Include="..\inpout32.h" />
     <ClInclude Include="..\KDClusteringProcessor.h" />
     <ClInclude Include="..\LFPBuffer.h" />
+    <ClInclude Include="..\LFPOnline.h" />
     <ClInclude Include="..\LFPPipeline.h" />
     <ClInclude Include="..\LFPProcessor.h" />
     <ClInclude Include="..\LPTTriggerProcessor.h" />
