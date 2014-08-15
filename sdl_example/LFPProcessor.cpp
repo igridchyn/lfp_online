@@ -97,24 +97,31 @@ const ColorPalette ColorPalette::MatlabJet256(256, new int[256] {0x83, 0x87, 0x8
 
 // ============================================================================================================
 
-LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info, Config* config)
-: tetr_info_(tetr_info)
-, POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
-, cluster_spike_counts_(tetr_info->tetrodes_number, 40, arma::fill::zeros)
+LFPBuffer::LFPBuffer(Config* config)
+: POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
 , SAMPLING_RATE(config->getInt("sampling.rate"))
 , config_(config)
 , pos_unknown_(config_->getInt("pos.unknown", 1023)){
-    
+  
+	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
+	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
+	log_stream = std::ofstream("lfponline_LOG.txt");
+
+	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number << "\n";
+	log_stream << "INFO: set memory...";
     for(int c=0; c < CHANNEL_NUM; ++c){
         memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
         memset(filtered_signal_buf[c], LFP_BUF_LEN, sizeof(int));
         memset(power_buf[c], LFP_BUF_LEN, sizeof(int));
         powerEstimatorsMap_[c] = NULL;
     }
-    
+	log_stream << "done\n";
+
+	log_stream << "INFO: Create online estimators...";
     powerEstimators_ = new OnlineEstimator<float>[tetr_info_->tetrodes_number];
     // TODO: configurableize
     speedEstimator_ = new OnlineEstimator<float>(16);
+	log_stream << "done\n";
     
     tetr_info_->tetrode_by_channel = new int[CHANNEL_NUM];
     
@@ -131,6 +138,8 @@ LFPBuffer::LFPBuffer(TetrodesInfo* tetr_info, Config* config)
     last_spike_pos_ = new int[tetr_info_->tetrodes_number];
     
     population_vector_window_.resize(tetr_info_->tetrodes_number);
+
+	log_stream << "INFO: BUFFER CREATED\n";
 }
 
 void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
