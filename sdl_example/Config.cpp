@@ -23,6 +23,8 @@ const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderCluste
 const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + NPROC);
 
 void Config::read_processors(std::ifstream& fconf) {
+	log_.open("lfponline_config_log.txt");
+
 	int numproc;
 	fconf >> numproc;
 	std::cout << numproc << " processors to be used in the pipeline\n";
@@ -32,6 +34,8 @@ void Config::read_processors(std::ifstream& fconf) {
 		fconf >> proc_name;
 		if (std::find(known_processors_.begin(), known_processors_.end(), proc_name) == known_processors_.end()){
 			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
+			log_ << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
+			log_.close();
 			exit(1);
 		}
 
@@ -104,6 +108,8 @@ bool Config::check_parameter(std::string name, bool exit_on_fail){
 	if (params_.find(name) == params_.end()){
 		std::cout << (exit_on_fail ? "ERROR" : "WARNING") << ": no parameter named " << name << "\n";
 		if (exit_on_fail){
+			log_ << "ERROR: no parameter named " << name << "\n";
+			log_.close();
 			exit(1);
 		}else{
 			return false;
