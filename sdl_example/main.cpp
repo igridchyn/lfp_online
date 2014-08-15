@@ -15,11 +15,11 @@ typedef short t_bin;
 
 void draw_bin() {
 #ifdef _WIN32
-	//Config *config = new Config("../Res/spike_detection_jc103_win.conf");
-	Config *config = new Config("../Res/signal_display_win.conf");
+	Config *config = new Config("../Res/spike_detection_jc103_win.conf");
+	//Config *config = new Config("../Res/signal_display_win.conf");
 	const char* path = config->getString("bin.path").c_str();
-	//FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
-	FILE *f = fopen("D:/data/igor/test/square.bin", "rb");
+	FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
+	//FILE *f = fopen("D:/data/igor/test/square.bin", "rb");
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
@@ -36,10 +36,7 @@ void draw_bin() {
 
 	unsigned char *block = new unsigned char[CHUNK_SIZE];
 
-	TetrodesInfo *tetr_inf = new TetrodesInfo(config->getString("tetr.conf.path"));
-
-	LFPBuffer *buf = new LFPBuffer(tetr_inf, config);
-
+	LFPBuffer *buf = new LFPBuffer(config);
 	LFPPipeline *pipeline = new LFPPipeline(buf);
 
 	// check for unused parameters in the config
@@ -51,15 +48,14 @@ void draw_bin() {
 
 		buf->chunk_ptr = block;
 		buf->num_chunks = 1;
-
-		pipeline->process(block, 1);
+		pipeline->process(block);
 	}
 
 	std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
 
 	buf->chunk_ptr = NULL;
 	while (true) {
-		pipeline->process(block, 1);
+		pipeline->process(block);
 	}
 
 	std::cout << "EOF, waiting for processors jobs to join...\n";
