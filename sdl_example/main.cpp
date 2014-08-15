@@ -1,24 +1,5 @@
-#include <SDL2/SDL.h>
-//#include <SDL2/SDL_ttf.h>
-
 #include "LFPProcessor.h"
 #include "LFPPipeline.h"
-#include "UnitTestingProcessor.h"
-#include "PositionDisplayProcessor.h"
-#include "AutocorrelogramProcessor.h"
-#include "SpikeDetectorProcessor.h"
-#include "PCAExtractionProcessor.h"
-#include "GMMClusteringProcessor.h"
-#include "SDLPCADisplayProcessor.h"
-#include "PlaceFieldProcessor.h"
-#include "FetFileReaderProcessor.h"
-#include "CluReaderClusteringProcessor.h"
-#include "WhlFileReaderProcessor.h"
-#include "SpeedEstimationProcessor.h"
-#include "SlowDownProcessor.h"
-#include "KDClusteringProcessor.h"
-#include "TransProbEstimationProcessor.h"
-#include "SwReaderProcessor.h"
 #include "Config.h"
 
 typedef short t_bin;
