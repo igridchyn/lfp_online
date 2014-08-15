@@ -29,6 +29,7 @@ void PackageExractorProcessor::process(){
         
         buffer->zero_level = buffer->buf_pos + 1;
         buffer->buf_pos = buffer->BUF_HEAD_LEN;
+		buffer->buf_pos_trig_ = buffer->BUF_HEAD_LEN;
         
         std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
     }
@@ -87,6 +88,13 @@ void PackageExractorProcessor::process(){
     
     buffer->buf_pos += 3 * buffer->num_chunks;
     buffer->last_pkg_id += 3 * buffer->num_chunks;
+
+	// DEBUG
+	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){
+		buffer->log_stream << "INFO: PackExtr pkg id = " << buffer->last_pkg_id << "\n";
+		buffer->log_stream << "INFO: PackExtr pkg value = " << buffer->signal_buf[0][buffer->buf_pos - 1]<< "\n";
+		buffer->log_stream.flush();
+	}
     
     // TODO: use filter width !!!
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
