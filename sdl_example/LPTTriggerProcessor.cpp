@@ -26,21 +26,23 @@ LPTTriggerProcessor::~LPTTriggerProcessor() {
 
 void LPTTriggerProcessor::process() {
 	while(buffer->buf_pos_trig_ < buffer->buf_pos){
-		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] > 0 &&
-				buffer->signal_buf[channel_][buffer->buf_pos_trig_] < 0)
+		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] > 10000 &&
+				buffer->signal_buf[channel_][buffer->buf_pos_trig_] < 10000)
 		{
 			// set to low
 			std::cout << "set low at " << buffer->buf_pos_trig_ << "\n";
+			buffer->log_stream << "INFO: LPT Trigger: detect DROP at " << buffer->buf_pos_trig_ << "\n";
 #ifdef _WIN32
 			Out32(0x0378, 0xFF);
 #endif
 		}
 
-		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] < 0 &&
-				buffer->signal_buf[channel_][buffer->buf_pos_trig_] > 0)
+		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] < -10000 &&
+				buffer->signal_buf[channel_][buffer->buf_pos_trig_] > -10000)
 		{
 			// set to high
 			std::cout << "set high at " << buffer->buf_pos_trig_ << "\n";
+			buffer->log_stream << "INFO: LPT Trigger: detect CLIMB at " << buffer->buf_pos_trig_ << "\n";
 #ifdef _WIN32
 			Out32(0x0378, 0x00);
 #endif
