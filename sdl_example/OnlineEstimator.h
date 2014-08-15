@@ -23,7 +23,7 @@ class OnlineEstimator{
     T sumsq = 0;
     
 public:
-    OnlineEstimator(unsigned int buf_size = (2 << 24));
+    OnlineEstimator(unsigned int buf_size = (2 << 15));
     
     void push(T value);
     T get_mean_estimate();
