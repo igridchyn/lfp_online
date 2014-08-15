@@ -37,7 +37,7 @@ int inst(LPCSTR pszDriver)
 	strcat_s(szDriverSys, MAX_PATH, ".sys\0");
 
 	SC_HANDLE  Mgr;
-	SC_HANDLE  Ser;
+	SC_HANDLE  Ser = NULL;
 	GetSystemDirectoryA(path, sizeof(path));
 	HRSRC hResource = FindResource(hmodule, MAKEINTRESOURCE(IDR_BIN1), "bin");
 	if (hResource)
