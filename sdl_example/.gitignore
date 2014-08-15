@@ -1,2 +1,8 @@
 Working/
 Res/*bu
+
+perf.*
+ss/
+ss*
+*.working
+.settings
