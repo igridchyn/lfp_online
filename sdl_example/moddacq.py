@@ -60,12 +60,6 @@ lpReserved)
           }
           return TRUE;
       }
-
-
-void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int peak){
-	SDL_SetRenderDrawColor(renderer, 255,  peak ? 0 : 255,  peak ? 0 : 255, 255);
-	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-}
 		
 #define IDR_BIN1                        101
 #define IOCTL_READ_PORT_UCHAR	 -1673519100 //CTL_CODE(40000, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)
@@ -138,9 +132,9 @@ DWORD attributes, HANDLE templ )
           HANDLE tmph;
           BOOL openbin = FALSE;
           /* is dacq opening a .BIN file for writing? */
-		  //MessageBoxW(0, filename, L"Creating file W!", 0);
 		  
-          if(wcslen(filename) > 4) {	
+          if(wcslen(filename) > 4) {
+		  
 		      LPCWSTR fileext;
 			  LPCWSTR ebin = L".BIN";
               fileext = filename + wcslen(filename) - 4;
@@ -148,17 +142,15 @@ DWORD attributes, HANDLE templ )
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
 				 //MessageBoxW(0, fileext, L"Creating BIN W!", 0);
-				 if (check_bin > 2 && !pipeline){
-					
-					// Create and run the pipeline - code similar to main in the LFPOnline project
+				 if (check_bin > 1 && !pipeline){
 					Config *config = new Config("c:/Users/data/igor/code/sdl_example/sdl_example/Res/signal_display_win.conf");
-					f = fopen("D:/data/igor/test/square.bin", "rb");
-					const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
-					block = new unsigned char[CHUNK_SIZE];
-					TetrodesInfo *tetr_inf = new TetrodesInfo(config->getString("tetr.conf.path"));
-					buf = new LFPBuffer(tetr_inf, config);
+					CHUNK_SIZE = config->getInt("chunk.size"); // bytes
+					buf = new LFPBuffer(config);
 					pipeline = new LFPPipeline(buf);
+					
+					MessageBoxW(0, filename, L"Pipeline created !", 0);
 				 }
+				 
 				openbin = TRUE;
 			  }
           }
@@ -211,13 +203,15 @@ nNumberOfBytesToWrite,
 		  
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
-						int nsamples = nNumberOfBytesToWrite / 432 * 3;
+						int nsamples = nNumberOfBytesToWrite / 432;
 						
-						// dummy reading and processing
-						fread((void*) block, CHUNK_SIZE, 1, f);
-						buf->chunk_ptr = block;
-						buf->num_chunks = 1;
-						pipeline->process(block, 1);
+						// buf->log_stream << "write " << nsamples << " packages ...\\n";
+						
+						if (nsamples > 0){
+							buf->chunk_ptr = (unsigned char*)lpBuffer;//block;
+							buf->num_chunks = nsamples;
+							pipeline->process(NULL);
+						}
 
 		 }  else /* not USB packet, just proxy */{
 				retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
@@ -323,7 +317,7 @@ f.close()
 # os.system('cl -O2 /w -LD Mod__k32.c inpout32.cpp Mod__k32.def /link /DYNAMICBASE "SDL2.lib"')
 # OPTIONS:
 # /D "UNICODE" - use unicode calls ...W
-os.system('cl -O2 /w -LD  /D "UNICODE" /Gd Mod__k32.cpp Mod__k32.def /link /INCREMENTAL /DYNAMICBASE "SDL2.lib" /DYNAMICBASE inpout.lib /DYNAMICBASE Advapi32.lib /EXPORT:Opendriver /OPT:NOREF')
+os.system('cl -O2 /w -LD  /D "UNICODE" /Gd Mod__k32.cpp Mod__k32.def /link /INCREMENTAL /DYNAMICBASE "lfponlinevs.lib" /DYNAMICBASE "SDL2.lib" /DYNAMICBASE inpout.lib /DYNAMICBASE Advapi32.lib /EXPORT:Opendriver /OPT:NOREF')
 
 # clean up os.system("del Mod__k32.def");
 os.system("del Mod__k32.obj");
