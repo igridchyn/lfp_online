@@ -114,7 +114,7 @@ void SpikeDetectorProcessor::process()
     
     // DETECT only after enough samples for power estimation
     // TODO parametrize
-    if (buffer->powerEstimators_[0].n_samples() < 200000)
+    if (buffer->powerEstimators_[0].n_samples() < 20000)
         return;
     
     // TODO: do not estiamte every time
