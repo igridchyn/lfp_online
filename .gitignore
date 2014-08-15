@@ -1,3 +1,18 @@
+third/LogicAnalyzer 1.5/*.cpp
+third/*.zip
+sdl_example.xcodeproj/*
+third/Release
+sdl2.txt
+moddacq.diff
+code_bad.cpp
+08_*
+Packt*
+16_true*
+third/dependencies.txt
+third/mlpack/
+unit_tests/
+third/parallel/
+
 *orig
 sdl_example/lfponlinevs/lfponline_config_log.txt
 sdl_example/lfponlinevs/lfponline_LOG.txt
