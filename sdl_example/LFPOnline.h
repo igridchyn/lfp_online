@@ -1,10 +1,16 @@
 #ifndef sdl_example_LFPOnline_h
 #define sdl_example_LFPOnline_h
 
-	#if defined(LFP_ONLINE_LIB_EXPORT) && defined(_WIN32) // inside DLL
-		#   define LFPONLINEAPI   __declspec(dllexport)
-	#else // outside DLL
-		#   define LFPONLINEAPI   __declspec(dllimport)
-	#endif  // LFP_ONLINE_LIB_EXPORT
+	#ifndef LFPONLINEAPI
+		#ifdef _WIN32
+			#if defined(LFP_ONLINE_LIB_EXPORT) // inside DLL
+				#   define LFPONLINEAPI   __declspec(dllexport)
+			#else // outside DLL
+				#   define LFPONLINEAPI   __declspec(dllimport)
+			#endif  // LFP_ONLINE_LIB_EXPORT
+		#else
+			#define LFPONLINEAPI
+		#endif
+	#endif
 
 #endif // sdl_example_LFPOnline_h
