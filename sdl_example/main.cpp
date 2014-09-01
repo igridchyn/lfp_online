@@ -20,6 +20,15 @@ void draw_bin() {
 	const char* path = config->getString("bin.path").c_str();
 	FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
 	//FILE *f = fopen("D:/data/igor/test/square.bin", "rb");
+#elif defined(__APPLE__)
+    // square wave signal - for delay and stability testing
+//    Config *config = new Config("../Res/signal_display_mac.conf");
+    
+    // decoding position with best params - from fet files
+    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
+    
+    //	Config *config = new Config("../Res/spike_detection_jc11.conf");
+	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
@@ -29,7 +38,7 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc103.conf");
 	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
-	FILE *f = fopen(path, "rb");
+	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #endif
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
