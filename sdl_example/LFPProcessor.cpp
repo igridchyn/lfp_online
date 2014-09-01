@@ -90,6 +90,24 @@ Spike::Spike(int pkg_id, int tetrode)
 {
 }
 
+// TODO finish implementation and use if deleting/ creating is too slow
+void Spike::init(int pkg_id, int tetrode) {
+	pkg_id_ = pkg_id;
+	tetrode_ = tetrode;
+}
+
+Spike::~Spike() {
+	for (int c = 0; c < num_channels_; ++c) {
+		delete[] waveshape[c];
+		delete[] waveshape_final[c];
+		delete[] pc[c];
+	}
+
+	delete[] waveshape;
+	delete[] waveshape_final;
+	delete[] pc;
+}
+
 // !!! TODO: INTRODUCE PALETTE WITH LARGER NUMBER OF COLOURS (but categorical)
 const ColorPalette ColorPalette::BrewerPalette12(20, new int[20]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928, 0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00});
 

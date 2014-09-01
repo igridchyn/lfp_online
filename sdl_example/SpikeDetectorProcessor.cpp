@@ -169,8 +169,10 @@ void SpikeDetectorProcessor::process()
                 
                 // check if rewind is requried
                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_LEN - 1){
-                    // TODO: !!! delete the rest of spikes !
                     memcpy(buffer->spike_buffer_, buffer->spike_buffer_ + buffer->spike_buf_pos - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
+                    for (int del_spike = buffer->SPIKE_BUF_HEAD_LEN; del_spike < buffer->spike_buf_pos; ++del_spike) {
+                    	delete buffer->spike_buffer_[del_spike];
+					}
                     
                     const int shift_new_start = buffer->spike_buf_pos - buffer->SPIKE_BUF_HEAD_LEN;
 

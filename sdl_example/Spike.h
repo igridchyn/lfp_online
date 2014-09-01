@@ -30,8 +30,6 @@ public:
     int tetrode_;
     int num_channels_;
     
-    Spike(int pkg_id, int tetrode);
-    
     // workaround ? - has to be checked in every processor
     // TODO: list of spikes or new buffer
     bool discarded_ = false;
@@ -47,6 +45,11 @@ public:
     // TODO: fill
     unsigned int power_;
 
+    Spike(int pkg_id, int tetrode);
+    // to optimize for speed spike objects in buffer are reinitialized instead of deleting and creating new
+    void init(int pkg_id, int tetrode);
+
+    ~Spike();
 };
 
 #endif
