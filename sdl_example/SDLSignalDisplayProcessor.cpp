@@ -11,14 +11,9 @@
 
 void SDLSignalDisplayProcessor::SetDisplayTetrode(const unsigned  int& display_tetrode){
     // TODO: configurableize
-    
-    displayed_channels_number_ = buffer->tetr_info_->channels_numbers[display_tetrode];
-    
-    delete[] displayed_channels_;
-    displayed_channels_ = new unsigned int[4];
-    
-    for (int c=0; c < displayed_channels_number_; ++c) {
-        displayed_channels_[c] = buffer->tetr_info_->tetrode_channels[display_tetrode][c];
+
+    for (int c=0; c < displayed_channels_.size(); ++c) {
+        displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode][c]);
     }
 }
 
@@ -27,16 +22,14 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer)
 				buffer->config_->getString("lfpdisp.window.name"),
 				buffer->config_->getInt("lfpdisp.window.width"),
 				buffer->config_->getInt("lfpdisp.window.height"),
-				buffer->config_->getInt("lfpdisp.channels.number"),
 				buffer->config_->lfp_disp_channels_
 				)
 {}
 
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
-		const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels)
+		const unsigned int& window_height, std::vector<unsigned int> displayed_channels)
     : SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
-    , displayed_channels_number_(displayed_channels_number)
     , displayed_channels_(displayed_channels)
     , current_x(0)
     , last_disp_pos(0)
@@ -48,7 +41,16 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
         
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
-    prev_vals_ = new int[displayed_channels_number_];
+    prev_vals_ = new int[displayed_channels_.size()];
+
+    // check if lfp display channels is a subset of read channels
+    if (!buffer->tetr_info_->ContainsChannels(displayed_channels_)){
+    	std::cout << "WARNING: requested channels are absent in channels config, displaying first tetrode channels...\n";
+    	displayed_channels_.clear();
+    	for (int c = 0; c < buffer->tetr_info_->channels_numbers[0]; ++c) {
+    		displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[0][c]);
+		}
+    }
 }
 
 void SDLSignalDisplayProcessor::process(){
@@ -62,7 +64,7 @@ void SDLSignalDisplayProcessor::process(){
     
     for (int pos = last_disp_pos + plot_hor_scale; pos < buffer->buf_pos; pos += plot_hor_scale){
         
-        for (int chani = 0; chani<displayed_channels_number_; ++chani) {
+        for (int chani = 0; chani<displayed_channels_.size(); ++chani) {
             int channel = displayed_channels_[chani];
 
             int val = transform_to_y_coord(buffer->signal_buf[channel][pos]) + 40 * chani;
@@ -70,7 +72,7 @@ void SDLSignalDisplayProcessor::process(){
             SDL_SetRenderTarget(renderer_, texture_);
             drawLine(renderer_, current_x, prev_vals_[channel], current_x + 1, val);
 
-            if (current_x == SCREEN_WIDTH - 1 && chani == displayed_channels_number_ - 1){
+            if (current_x == SCREEN_WIDTH - 1 && chani == displayed_channels_.size() - 1){
                 current_x = 1;
                 
                 // reset screen
@@ -167,34 +169,34 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
                 break;
                 // TODO: check whether channels are available in the TetrodeInfo
             case SDLK_1:
-                displayed_channels_ = new unsigned int[4]{0,1,2,3};
+                displayed_channels_ = std::vector<unsigned int>{0,1,2,3};
                 break;
             case SDLK_2:
-                displayed_channels_ = new unsigned int[4]{4,5,6,7};
+                displayed_channels_ = std::vector<unsigned int>{4,5,6,7};
                 break;
             case SDLK_3:
-                displayed_channels_ = new unsigned int[4]{8,9,10,11};
+                displayed_channels_ = std::vector<unsigned int>{8,9,10,11};
                 break;
             case SDLK_4:
-                displayed_channels_ = new unsigned int[4]{12,13,14,15};
+                displayed_channels_ = std::vector<unsigned int>{12,13,14,15};
                 break;
             case SDLK_5:
-                displayed_channels_ = new unsigned int[4]{16,17,18,19};
+                displayed_channels_ = std::vector<unsigned int>{16,17,18,19};
                 break;
             case SDLK_6:
-                displayed_channels_ = new unsigned int[4]{20,21,22,23};
+                displayed_channels_ = std::vector<unsigned int>{20,21,22,23};
                 break;
             case SDLK_7:
-                displayed_channels_ = new unsigned int[4]{24,25,26,27};
+                displayed_channels_ = std::vector<unsigned int>{24,25,26,27};
                 break;
             case SDLK_8:
-                displayed_channels_ = new unsigned int[4]{28,29,30,31};
+                displayed_channels_ = std::vector<unsigned int>{28,29,30,31};
                 break;
             case SDLK_9:
-                displayed_channels_ = new unsigned int[4]{32,33,34,35};
+                displayed_channels_ = std::vector<unsigned int>{32,33,34,35};
                 break;
             case SDLK_0:
-                displayed_channels_ = new unsigned int[4]{36,37,38,39};
+                displayed_channels_ = std::vector<unsigned int>{36,37,38,39};
                 break;
         }
     }

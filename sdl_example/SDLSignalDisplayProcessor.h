@@ -22,8 +22,7 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     int plot_hor_scale; // controlled
     
     //
-    unsigned int displayed_channels_number_;
-    unsigned int *displayed_channels_;
+    std::vector<unsigned int> displayed_channels_;
     
     // previous displayed coordinate (y)
     int *prev_vals_;
@@ -44,7 +43,7 @@ public:
     
     SDLSignalDisplayProcessor(LFPBuffer *buffer);
     SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
-    		const unsigned int& window_height, unsigned int displayed_channels_number, unsigned int *displayed_channels);
+    		const unsigned int& window_height, std::vector<unsigned int> displayed_channels);
     
     virtual void process_SDL_control_input(const SDL_Event& e);
 };
