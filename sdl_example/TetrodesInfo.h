@@ -13,6 +13,7 @@
 #include <vector>
 
 class TetrodesInfo{
+
 public:
     // number of tetrodes = channel groups
     int tetrodes_number;
@@ -33,6 +34,9 @@ public:
 
     TetrodesInfo(std::string config_path);
     TetrodesInfo();
+
+    bool ContainsChannel(const unsigned int& channel);
+    bool ContainsChannels(const std::vector<unsigned int>& channels);
 };
 
 #endif

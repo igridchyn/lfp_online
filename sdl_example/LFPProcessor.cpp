@@ -324,3 +324,22 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 
 TetrodesInfo::TetrodesInfo() {
 }
+
+bool TetrodesInfo::ContainsChannel(const unsigned int& channel) {
+	for (int t = 0; t < tetrodes_number; ++t) {
+		for (int c = 0; c < channels_numbers[t]; ++c) {
+			if (tetrode_channels[t][c] == channel)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
+	for (int c = 0; c < channels.size(); ++c) {
+		if (!ContainsChannel(c))
+			return false;
+	}
+	return true;
+}
