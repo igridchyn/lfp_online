@@ -105,7 +105,7 @@ LFPBuffer::LFPBuffer(Config* config)
   
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
-	log_stream = std::ofstream("lfponline_LOG.txt");
+	log_stream.open("lfponline_LOG.txt");
 
 	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number << "\n";
 	log_stream << "INFO: set memory...";
