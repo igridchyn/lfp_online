@@ -107,6 +107,9 @@ void AutocorrelogramProcessor::process(){
 }
 
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
+	if (display_tetrode_ >= reported_.size())
+		return;
+
     display_tetrode_ = display_tetrode;
     
     SDL_SetRenderTarget(renderer_, texture_);

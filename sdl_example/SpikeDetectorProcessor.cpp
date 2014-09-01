@@ -172,12 +172,18 @@ void SpikeDetectorProcessor::process()
                     // TODO: !!! delete the rest of spikes !
                     memcpy(buffer->spike_buffer_, buffer->spike_buffer_ + buffer->spike_buf_pos - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
                     
-                    buffer->spike_buf_no_rec = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_rec);
-                    buffer->spike_buf_nows_pos = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_nows_pos);
-                    buffer->spike_buf_pos_unproc_ = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_unproc_);
-                    buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_no_disp_pca);
-                    buffer->spike_buf_pos_out = buffer->SPIKE_BUF_HEAD_LEN - (buffer->spike_buf_pos - buffer->spike_buf_pos_out);
-                    
+                    const int shift_new_start = buffer->spike_buf_pos - buffer->SPIKE_BUF_HEAD_LEN;
+
+                    buffer->spike_buf_no_rec -= shift_new_start;
+                    buffer->spike_buf_nows_pos -= shift_new_start;
+                    buffer->spike_buf_pos_unproc_ -= shift_new_start;
+                    buffer->spike_buf_no_disp_pca -= shift_new_start;
+                    buffer->spike_buf_pos_out -= shift_new_start;
+                    buffer->spike_buf_pos_unproc_ -= shift_new_start;
+                    buffer->spike_buf_pos_draw_xy -= shift_new_start;
+                    buffer->spike_buf_pos_speed_ -= shift_new_start;
+                    buffer->spike_buf_pos_pop_vec_ -= shift_new_start;
+
                     buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
 
                     std::cout << "Spike buffer rewind (at pos " << buffer->buf_pos <<  ")!\n";

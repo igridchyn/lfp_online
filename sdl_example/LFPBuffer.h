@@ -54,7 +54,6 @@ public:
     // which channel is at i-th position in the BIN chunk
     static const int CH_MAP_INV[];
     
-    // TODO: move to context class
     TetrodesInfo *tetr_info_;
     
     // spikes buffer and POINTERS [all have to be reset at buffer rewind]
@@ -72,7 +71,6 @@ public:
     // first non-outputted
     unsigned int spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
     //  first non-clustered
-    // TODO: rewind
     unsigned int spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
     // drawing spikes in pos
     unsigned int spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
@@ -82,6 +80,7 @@ public:
     unsigned int spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
     
     // POSITION BUFFER
+    // TODO rewind ??? [max = 8h]
     static const int POS_BUF_SIZE = 1 << 20;
     // 4 coords, pkg_id and speed magnitude
     unsigned int positions_buf_[POS_BUF_SIZE][6];
