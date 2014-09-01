@@ -37,7 +37,7 @@ public:
 	std::vector<int> tetrodes;
 
 	// channels to be displayed in the SDLSignalDisplay
-	int unsigned  *lfp_disp_channels_ = NULL;
+	std::vector<unsigned int> lfp_disp_channels_;
 
 	Config(std::string path);
 

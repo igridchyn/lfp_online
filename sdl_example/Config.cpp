@@ -83,11 +83,11 @@ Config::Config(std::string path) {
 				if (key == "lfpdisp.channels.number"){
 					// read lfp channel numbers to display
 					int nchan = atoi(value.c_str());
-					lfp_disp_channels_ = new unsigned int[nchan];
 					int chan;
+					// TODO !!! ensure this is consistent with tetrodes config - may be in LFP display
 					for (int ch = 0; ch < nchan; ++ch) {
 						fconf >> chan;
-						lfp_disp_channels_[ch] = chan;
+						lfp_disp_channels_.push_back(chan);
 					}
 				}
 
