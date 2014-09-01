@@ -44,6 +44,9 @@ void SDLControlInputMetaProcessor::process(){
                 if (kmod & KMOD_LCTRL){
                     // switch to corresponding processor
                     const unsigned int& cp_num = (unsigned int)control_processors_.size();
+
+                    if (cp_num == 0 )
+                    	return;
                     
                     switch( e.key.keysym.sym )
                     {
@@ -117,9 +120,11 @@ void SDLControlInputMetaProcessor::process(){
 
 SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, std::vector<SDLControlInputProcessor *> control_processors)
 : LFPProcessor(buffer)
-, control_processor_(control_processors[0])
 , control_processors_(control_processors)
-{}
+{
+	if (control_processors_.size() > 0 && control_processors_[0] != NULL)
+		control_processor_ = control_processors_[0];
+}
 
 void SDLControlInputMetaProcessor::SwitchDisplayTetrode(const unsigned int& display_tetrode){
     for (int pi=0; pi < control_processors_.size(); ++pi) {
