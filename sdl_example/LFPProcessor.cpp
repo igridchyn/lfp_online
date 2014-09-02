@@ -98,14 +98,24 @@ void Spike::init(int pkg_id, int tetrode) {
 
 Spike::~Spike() {
 	for (int c = 0; c < num_channels_; ++c) {
+		if (waveshape && waveshape[c])
 		delete[] waveshape[c];
-		delete[] waveshape_final[c];
-		delete[] pc[c];
+
+		if (waveshape_final && waveshape_final[c])
+			delete[] waveshape_final[c];
+
+		if (pc && pc[c])
+			delete[] pc[c];
 	}
 
-	delete[] waveshape;
-	delete[] waveshape_final;
-	delete[] pc;
+	if (waveshape)
+		delete[] waveshape;
+
+	if (waveshape_final)
+		delete[] waveshape_final;
+
+	if (pc)
+		delete[] pc;
 }
 
 // !!! TODO: INTRODUCE PALETTE WITH LARGER NUMBER OF COLOURS (but categorical)
@@ -128,9 +138,9 @@ LFPBuffer::LFPBuffer(Config* config)
 	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number << "\n";
 	log_stream << "INFO: set memory...";
     for(int c=0; c < CHANNEL_NUM; ++c){
-        memset(signal_buf[c], LFP_BUF_LEN, sizeof(int));
-        memset(filtered_signal_buf[c], LFP_BUF_LEN, sizeof(int));
-        memset(power_buf[c], LFP_BUF_LEN, sizeof(int));
+        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
         powerEstimatorsMap_[c] = NULL;
     }
 	log_stream << "done\n";
@@ -143,6 +153,8 @@ LFPBuffer::LFPBuffer(Config* config)
     
     tetr_info_->tetrode_by_channel = new int[CHANNEL_NUM];
     
+    memset(is_valid_channel_, 0, CHANNEL_NUM);
+
     // create a map of pointers to tetrode power estimators for each electrode
     for (int tetr = 0; tetr < tetr_info_->tetrodes_number; ++tetr ){
         for (int ci = 0; ci < tetr_info_->channels_numbers[tetr]; ++ci){
@@ -158,6 +170,13 @@ LFPBuffer::LFPBuffer(Config* config)
     population_vector_window_.resize(tetr_info_->tetrodes_number);
 
 	log_stream << "INFO: BUFFER CREATED\n";
+
+	memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
+
+	for (int pos_buf = 0; pos_buf < POS_BUF_SIZE; ++pos_buf) {
+		// TODO fix
+		memset(positions_buf_[pos_buf], 0, 6 * sizeof(unsigned int));
+	}
 }
 
 void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){

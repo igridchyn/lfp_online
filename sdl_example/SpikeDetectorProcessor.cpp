@@ -170,21 +170,23 @@ void SpikeDetectorProcessor::process()
                 // check if rewind is requried
                 if (buffer->spike_buf_pos == buffer->SPIKE_BUF_LEN - 1){
                     memcpy(buffer->spike_buffer_, buffer->spike_buffer_ + buffer->spike_buf_pos - buffer->SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*buffer->SPIKE_BUF_HEAD_LEN);
-                    for (int del_spike = buffer->SPIKE_BUF_HEAD_LEN; del_spike < buffer->spike_buf_pos; ++del_spike) {
-                    	delete buffer->spike_buffer_[del_spike];
-					}
+//                    for (int del_spike = buffer->SPIKE_BUF_HEAD_LEN; del_spike < buffer->spike_buf_pos; ++del_spike) {
+//                    	delete buffer->spike_buffer_[del_spike];
+//                    	buffer->spike_buffer_[del_spike] = NULL;
+//					}
                     
                     const int shift_new_start = buffer->spike_buf_pos - buffer->SPIKE_BUF_HEAD_LEN;
 
-                    buffer->spike_buf_no_rec -= shift_new_start;
-                    buffer->spike_buf_nows_pos -= shift_new_start;
-                    buffer->spike_buf_pos_unproc_ -= shift_new_start;
-                    buffer->spike_buf_no_disp_pca -= shift_new_start;
-                    buffer->spike_buf_pos_out -= shift_new_start;
-                    buffer->spike_buf_pos_unproc_ -= shift_new_start;
-                    buffer->spike_buf_pos_draw_xy -= shift_new_start;
-                    buffer->spike_buf_pos_speed_ -= shift_new_start;
-                    buffer->spike_buf_pos_pop_vec_ -= shift_new_start;
+                    buffer->spike_buf_no_rec -= std::min(shift_new_start, (int)buffer->spike_buf_no_rec);
+                    buffer->spike_buf_nows_pos -= std::min(shift_new_start, (int)buffer->spike_buf_nows_pos);
+                    buffer->spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)buffer->spike_buf_pos_unproc_);
+                    buffer->spike_buf_no_disp_pca -= std::min(shift_new_start, (int)buffer->spike_buf_no_disp_pca );
+                    buffer->spike_buf_pos_out -= std::min(shift_new_start, (int)buffer->spike_buf_pos_out );
+                    buffer->spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)buffer->spike_buf_pos_unproc_);
+                    buffer->spike_buf_pos_draw_xy -= std::min(shift_new_start, (int)buffer->spike_buf_pos_draw_xy );
+                    buffer->spike_buf_pos_speed_ -= std::min(shift_new_start, (int)buffer->spike_buf_pos_speed_);
+                    buffer->spike_buf_pos_pop_vec_ -= std::min(shift_new_start, (int)buffer->spike_buf_pos_pop_vec_);
+                    buffer->spike_buf_pos_clust_ -= std::min(shift_new_start, (int)buffer->spike_buf_pos_clust_);
 
                     buffer->spike_buf_pos = buffer->SPIKE_BUF_HEAD_LEN;
 
