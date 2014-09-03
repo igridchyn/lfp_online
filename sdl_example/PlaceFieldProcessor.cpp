@@ -66,7 +66,6 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     }
     
     palette_ = ColorPalette::MatlabJet256;
-    spike_buf_pos_ = buffer->SPIKE_BUF_HEAD_LEN;
 
     // load smoothed occupancy
     if(LOAD){
@@ -115,16 +114,16 @@ void PlaceFieldProcessor::AddPos(int x, int y){
 
 void PlaceFieldProcessor::process(){
 	if (buffer->last_pkg_id < MIN_PKG_ID){
-		spike_buf_pos_ = buffer->spike_buf_pos_speed_;
+		buffer->spike_buf_pos_pf_ = buffer->spike_buf_pos_speed_;
 		pos_buf_pos_ = buffer->pos_buf_pos_ - 8;
 		return;
 	}
 
-    while (spike_buf_pos_ < buffer->spike_buf_pos_speed_){
-        Spike *spike = buffer->spike_buffer_[spike_buf_pos_];
+    while (buffer->spike_buf_pos_pf_ < buffer->spike_buf_pos_speed_){
+        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_pf_];
         
         if(spike->discarded_){
-            spike_buf_pos_++;
+        	buffer->spike_buf_pos_pf_++;
             continue;
         }
         
@@ -139,7 +138,7 @@ void PlaceFieldProcessor::process(){
             place_fields_[tetr][clust].AddSpike(spike);
         }
         
-        spike_buf_pos_++;
+        buffer->spike_buf_pos_pf_++;
     }
     
     // TODO: configurable [in LFPProc ?]

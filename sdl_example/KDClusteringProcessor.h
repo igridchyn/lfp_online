@@ -114,9 +114,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	unsigned int PRED_WIN = 2000;
 	// dividable by PRED_WIN
-	unsigned int last_pred_pkg_id_ = 0;
-	// position of spike that last was used for prediction
-	unsigned int spike_buf_pos_pred_;
+	unsigned int last_pred_pkg_id_ = 0;;
 	// last prediction probabilities
 	// TODO array of predictions if more than 1 window available
 	arma::mat last_pred_probs_;

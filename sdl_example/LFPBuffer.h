@@ -78,6 +78,8 @@ public:
     unsigned int spike_buf_pos_speed_;
     // pointers to the first spike in the population time window, for each tetrode
     unsigned int spike_buf_pos_pop_vec_;
+    // place field processor
+    unsigned int spike_buf_pos_pf_;
     
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]
@@ -157,6 +159,8 @@ public:
     
     void RemoveSpikesOutsideWindow(const unsigned int& right_border);
     void UpdateWindowVector(Spike *spike);
+
+    void AddSpike(Spike *spike);
 };
 
 //==========================================================================================

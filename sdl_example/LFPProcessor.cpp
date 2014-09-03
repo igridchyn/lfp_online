@@ -143,6 +143,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_pf_ = SPIKE_BUF_HEAD_LEN;
 
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
 
@@ -234,6 +235,39 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
             std::cout << "\n";
         }
     }
+}
+
+
+void LFPBuffer::AddSpike(Spike* spike) {
+	spike_buffer_[spike_buf_pos] = spike;
+	spike_buf_pos++;
+
+	// check if rewind is requried
+	if (spike_buf_pos == SPIKE_BUF_LEN - 1){
+		memcpy(spike_buffer_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+		//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
+		//                    	delete spike_buffer_[del_spike];
+		//                    	spike_buffer_[del_spike] = NULL;
+		//					}
+
+		const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;
+
+		spike_buf_no_rec -= std::min(shift_new_start, (int)spike_buf_no_rec);
+		spike_buf_nows_pos -= std::min(shift_new_start, (int)spike_buf_nows_pos);
+		spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
+		spike_buf_no_disp_pca -= std::min(shift_new_start, (int)spike_buf_no_disp_pca );
+		spike_buf_pos_out -= std::min(shift_new_start, (int)spike_buf_pos_out );
+		spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
+		spike_buf_pos_draw_xy -= std::min(shift_new_start, (int)spike_buf_pos_draw_xy );
+		spike_buf_pos_speed_ -= std::min(shift_new_start, (int)spike_buf_pos_speed_);
+		spike_buf_pos_pop_vec_ -= std::min(shift_new_start, (int)spike_buf_pos_pop_vec_);
+		spike_buf_pos_clust_ -= std::min(shift_new_start, (int)spike_buf_pos_clust_);
+		spike_buf_pos_pf_ -= std::min(shift_new_start, (int)spike_buf_pos_pf_);
+
+		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
+
+		std::cout << "Spike buffer rewind (at pos " << buf_pos <<  ")!\n";
+	}
 }
 
 // ============================================================================================================

@@ -113,7 +113,7 @@ void FetFileReaderProcessor::process() {
 		}
 
 		// add the earliest spike to the buffer and
-		buffer->spike_buffer_[buffer->spike_buf_pos++] = last_spikies_[earliest_spike_tetrode_];
+		buffer->AddSpike(last_spikies_[earliest_spike_tetrode_]);
 		last_spike_pkg_id = earliest_spike_time_;
 
 		// advance with the corresponding file reading and check for the end of file [change flag + cache = number of available files]

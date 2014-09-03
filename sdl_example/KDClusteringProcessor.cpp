@@ -106,7 +106,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
-	spike_buf_pos_pred_ = buffer->SPIKE_BUF_HEAD_LEN;
 
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
@@ -342,6 +341,8 @@ void KDClusteringProcessor::reset_hmm() {
 }
 
 void KDClusteringProcessor::process(){
+	// TODO !!! check if buffer size affects prediction quality
+
 	// need both speed and PCs
 	while(buffer->spike_buf_pos_clust_ < MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
