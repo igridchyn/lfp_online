@@ -22,8 +22,8 @@ class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLContro
     const int BWIDTH = 2;
     const int XCLUST = 7;
 
-    // TODO: rewind implementation
-    unsigned int spike_buf_pos_auto_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
+    // TODO: rewind implementation or put along with other pointers
+    unsigned int spike_buf_pos_auto_;
     
     // tetrode / cluster / bin values
     std::vector<std::vector<std::vector<float> > > autocorrs_;

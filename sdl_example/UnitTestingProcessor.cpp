@@ -75,7 +75,7 @@ UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string tes
     // filtered signal
         int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "filtered.txt", "filtered", buf->filtered_signal_buf[CHANNEL], &buffer->buf_pos, 1));
         int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "pow.txt", "pow", buf->power_buf[CHANNEL], &buffer->buf_pos, 1));
-        int_spike_validators_.push_back(new SpikeDetectionValidator(test_dir_ + "detect.txt", "detected", buf->spike_buffer_, &buffer->spike_buf_pos, 1));
+        int_spike_validators_.push_back(new SpikeDetectionValidator(test_dir_ + "detect.txt", "detected", buf->spike_buffer_, &buffer->spike_buf_pos, 1, buf->SPIKE_BUF_HEAD_LEN));
 }
 
 void UnitTestingProcessor::process(){
@@ -94,11 +94,13 @@ void UnitTestingProcessor::process(){
 }
 
 template<class T>
-SpikeValidator<T>::SpikeValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift)
+SpikeValidator<T>::SpikeValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift,
+		const int buf_head_size)
     : name_(name)
     , targ_buf_(buf)
     , buf_pos_ptr_(buf_pos_ptr)
-    , gt_data_shift_(gt_data_shift){
+    , gt_data_shift_(gt_data_shift)
+    , BUF_HEAD_SIZE(buf_head_size){
     
     std::ifstream f_filt_sig(spike_path);
     f_filt_sig >> gt_data_len_;
@@ -113,15 +115,15 @@ SpikeValidator<T>::SpikeValidator(std::string spike_path, std::string name, Spik
 
 template <class T>
 bool SpikeValidator<T>::validate(){
-    while(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN] != NULL && targ_buf_pos_ < *(buf_pos_ptr_) && gt_pos_ < gt_data_len_){
-        Spike *spike = targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN];
+    while(targ_buf_[targ_buf_pos_ + BUF_HEAD_SIZE] != NULL && targ_buf_pos_ < *(buf_pos_ptr_) && gt_pos_ < gt_data_len_){
+        Spike *spike = targ_buf_[targ_buf_pos_ + BUF_HEAD_SIZE];
         if (spike->tetrode_ !=0){
             targ_buf_pos_++;
             continue;
         }
 
         if (get_feature(spike) != gt_data_[gt_pos_]){
-            std::cout << "Spike validation mismatch (" << name_ << "): " << get_feature(targ_buf_[targ_buf_pos_ + LFPBuffer::SPIKE_BUF_HEAD_LEN]) << " != " << gt_data_[gt_pos_] << "\n";
+            std::cout << "Spike validation mismatch (" << name_ << "): " << get_feature(targ_buf_[targ_buf_pos_ + BUF_HEAD_SIZE]) << " != " << gt_data_[gt_pos_] << "\n";
             return false;
         }
         targ_buf_pos_++;

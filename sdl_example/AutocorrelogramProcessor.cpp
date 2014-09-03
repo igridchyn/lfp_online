@@ -20,6 +20,8 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , SDLControlInputProcessor(buf)
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins){
+	 spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
     
     autocorrs_.resize(tetrn);

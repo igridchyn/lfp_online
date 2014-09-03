@@ -10,7 +10,7 @@
 #define sdl_example_SDLWaveshapeDisplayProcessor_h
 
 class SDLWaveshapeDisplayProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor {
-    unsigned int buf_pointer_ = LFPBuffer::SPIKE_BUF_HEAD_LEN;
+    unsigned int buf_pointer_;
     unsigned last_disp_pkg_id_ = 0;
     
     unsigned int targ_tetrode_ = 0;

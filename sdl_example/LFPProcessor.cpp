@@ -129,8 +129,23 @@ LFPBuffer::LFPBuffer(Config* config)
 : POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
 , SAMPLING_RATE(config->getInt("sampling.rate"))
 , config_(config)
-, pos_unknown_(config_->getInt("pos.unknown", 1023)){
+, pos_unknown_(config_->getInt("pos.unknown", 1023))
+, SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
+, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 14)){
   
+	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
+	spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
+	spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
+	spike_buf_no_disp_pca = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
+
+	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
+
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
 	log_stream.open("lfponline_LOG.txt");

@@ -38,8 +38,8 @@ public:
     //      STORE WAVESHAPE with prev_spike
     static const int BUF_HEAD_LEN = 1 << 15;
     
-    static const int SPIKE_BUF_LEN = 1 << 24;
-    static const int SPIKE_BUF_HEAD_LEN = 1 << 14; // = 128
+    const int SPIKE_BUF_LEN;
+    const int SPIKE_BUF_HEAD_LEN;
     
     // in bytes
     const int CHUNK_SIZE = 432;
@@ -57,27 +57,27 @@ public:
     TetrodesInfo *tetr_info_;
     
     // spikes buffer and POINTERS [all have to be reset at buffer rewind]
-    Spike* spike_buffer_[SPIKE_BUF_LEN];
+    Spike* *spike_buffer_;
     // position, at which next spike will be put
-    unsigned int spike_buf_pos = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos;
     // position of first spike, not populated with original waveshape data (due to signal lag)
-    unsigned int spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_nows_pos;
     // position of first spike without reconstructed waveshape
-    unsigned int spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_no_rec;
     // position of first non-displayed PCA
-    unsigned int spike_buf_no_disp_pca = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_no_disp_pca;
     // last unprocessed with PCA
-    unsigned int spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos_unproc_;
     // first non-outputted
-    unsigned int spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos_out;
     //  first non-clustered
-    unsigned int spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos_clust_;
     // drawing spikes in pos
-    unsigned int spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos_draw_xy;
     // spikes with speed estimate
-    unsigned int spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos_speed_;
     // pointers to the first spike in the population time window, for each tetrode
-    unsigned int spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
+    unsigned int spike_buf_pos_pop_vec_;
     
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]

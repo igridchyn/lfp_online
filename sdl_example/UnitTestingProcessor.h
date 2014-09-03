@@ -14,6 +14,8 @@
 template<class T>
 class SpikeValidator{
 protected:
+	const int BUF_HEAD_SIZE;
+
     // taget buffer to be validated
     Spike **targ_buf_;
     int targ_buf_pos_ = 0;
@@ -30,7 +32,7 @@ protected:
     virtual T get_feature(Spike *spike) = 0;
     
 public:
-    SpikeValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift);
+    SpikeValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift, const int head_size);
     virtual bool validate();
 
 };
@@ -39,8 +41,9 @@ class SpikeDetectionValidator : public SpikeValidator<int>{
 protected:
     virtual int get_feature(Spike *spike);
 public:
-    SpikeDetectionValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift)
-    : SpikeValidator<int>(spike_path, name, buf, buf_pos_ptr, gt_data_shift){}
+    SpikeDetectionValidator(std::string spike_path, std::string name, Spike** buf, unsigned int const *buf_pos_ptr, const int& gt_data_shift
+    		, const int head_size)
+    : SpikeValidator<int>(spike_path, name, buf, buf_pos_ptr, gt_data_shift, head_size){}
 };
 
 // classes for validation of signal / spike features

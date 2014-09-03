@@ -14,7 +14,9 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf)
 		buf->config_->getString("waveshapedisp.window.name"),
 		buf->config_->getInt("waveshapedisp.window.width"),
 		buf->config_->getInt("waveshapedisp.window.height")
-		){}
+		){
+	buf_pointer_ = buf->SPIKE_BUF_HEAD_LEN;
+}
 
 SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name,
 		const unsigned int& window_width,
