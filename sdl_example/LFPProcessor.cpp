@@ -204,8 +204,7 @@ void LFPBuffer::Reset(Config* config) {
 LFPBuffer::LFPBuffer(Config* config)
 : POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
 , SAMPLING_RATE(config->getInt("sampling.rate"))
-, config_(config)
-, pos_unknown_(config_->getInt("pos.unknown", 1023))
+, pos_unknown_(config->getInt("pos.unknown", 1023))
 , SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
 , SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18)){
   

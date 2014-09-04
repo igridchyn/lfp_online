@@ -25,6 +25,7 @@ public:
     std::vector<SDLControlInputProcessor *> GetSDLControlInputProcessors();
 
     LFPPipeline(LFPBuffer *buf);
+    ~LFPPipeline();
 };
 
 #endif /* defined(__sdl_example__LFPPipeline__) */

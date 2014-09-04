@@ -96,6 +96,12 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf){
 	}
 }
 
+LFPPipeline::~LFPPipeline(){
+	for (int i=0; i > processors.size(); ++i){
+		delete processors[i];
+	}
+}
+
 void LFPPipeline::process(unsigned char *data){
     // TODO: put data into buffer
     
