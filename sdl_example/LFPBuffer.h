@@ -155,6 +155,8 @@ public:
     
     LFPBuffer(Config* config);
     
+    void Reset(Config* config);
+
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     
     void RemoveSpikesOutsideWindow(const unsigned int& right_border);

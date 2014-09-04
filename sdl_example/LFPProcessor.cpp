@@ -125,14 +125,10 @@ const ColorPalette ColorPalette::MatlabJet256(256, new int[256] {0x83, 0x87, 0x8
 
 // ============================================================================================================
 
-LFPBuffer::LFPBuffer(Config* config)
-: POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
-, SAMPLING_RATE(config->getInt("sampling.rate"))
-, config_(config)
-, pos_unknown_(config_->getInt("pos.unknown", 1023))
-, SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
-, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18)){
-  
+
+void LFPBuffer::Reset(Config* config) {
+	config_ = config;
+
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 	spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
 	spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
@@ -145,20 +141,23 @@ LFPBuffer::LFPBuffer(Config* config)
 	spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_pf_ = SPIKE_BUF_HEAD_LEN;
 
-	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
-
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
-	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
-	log_stream.open("lfponline_LOG.txt");
 
+	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
+	log_stream << "Buffer reset\n";
 	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number << "\n";
 	log_stream << "INFO: set memory...";
-    for(int c=0; c < CHANNEL_NUM; ++c){
-        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
-        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
-        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
-        powerEstimatorsMap_[c] = NULL;
-    }
+
+	for(int c=0; c < CHANNEL_NUM; ++c){
+	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        if (powerEstimatorsMap_[c] != NULL){
+	        	delete powerEstimatorsMap_[c];
+	        	powerEstimatorsMap_[c] = NULL;
+	        }
+	}
+
 	log_stream << "done\n";
 
 	log_stream << "INFO: Create online estimators...";
@@ -166,23 +165,25 @@ LFPBuffer::LFPBuffer(Config* config)
     // TODO: configurableize
     speedEstimator_ = new OnlineEstimator<float>(16);
 	log_stream << "done\n";
-    
-    tetr_info_->tetrode_by_channel = new int[CHANNEL_NUM];
-    
+
     memset(is_valid_channel_, 0, CHANNEL_NUM);
+    tetr_info_->tetrode_by_channel = new int[CHANNEL_NUM];
+
+    if (last_spike_pos_)
+    	delete[] last_spike_pos_;
+    last_spike_pos_ = new int[tetr_info_->tetrodes_number];
 
     // create a map of pointers to tetrode power estimators for each electrode
     for (int tetr = 0; tetr < tetr_info_->tetrodes_number; ++tetr ){
         for (int ci = 0; ci < tetr_info_->channels_numbers[tetr]; ++ci){
             powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = powerEstimators_ + tetr;
             is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
-            
+
             tetr_info_->tetrode_by_channel[tetr_info_->tetrode_channels[tetr][ci]] = tetr;
         }
     }
-    
-    last_spike_pos_ = new int[tetr_info_->tetrodes_number];
-    
+
+    population_vector_window_.clear();
     population_vector_window_.resize(tetr_info_->tetrodes_number);
 
 	log_stream << "INFO: BUFFER CREATED\n";
@@ -193,6 +194,22 @@ LFPBuffer::LFPBuffer(Config* config)
 		// TODO fix
 		memset(positions_buf_[pos_buf], 0, 6 * sizeof(unsigned int));
 	}
+}
+
+
+LFPBuffer::LFPBuffer(Config* config)
+: POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
+, SAMPLING_RATE(config->getInt("sampling.rate"))
+, config_(config)
+, pos_unknown_(config_->getInt("pos.unknown", 1023))
+, SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
+, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18)){
+  
+	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
+
+	log_stream.open("lfponline_LOG.txt");
+
+    Reset(config);
 }
 
 void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){

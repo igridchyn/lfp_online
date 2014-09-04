@@ -26,7 +26,7 @@ KDClusteringProcessor.o: ../KDClusteringProcessor.cpp ../KDClusteringProcessor.h
 LFPPipeline.o: ../LFPPipeline.cpp ../LFPPipeline.h
 	${CC} ${CFLAGS} -c ../LFPPipeline.cpp
 	
-LFPProcessor.o: ../LFPProcessor.cpp ../LFPProcessor.h
+LFPProcessor.o: ../LFPProcessor.cpp ../LFPProcessor.h ../LFPBuffer.h
 	${CC} ${CFLAGS} -c ../LFPProcessor.cpp
 	
 LPTTriggerProcessor.o: ../LPTTriggerProcessor.cpp ../LPTTriggerProcessor.h
