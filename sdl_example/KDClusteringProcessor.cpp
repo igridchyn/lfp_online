@@ -103,7 +103,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SIGMA_XX(sigma_xx)
 	, LX_WEIGHT(1.0)
 	, HMM_TP_WEIGHT(1.0){
-	// TODO Auto-generated constructor stub
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 
@@ -240,7 +239,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 					float prob_xy = hmm_prediction_(x, y);
 					int shx = xb - x + HMM_NEIGHB_RAD;
 					int shy = yb - y + HMM_NEIGHB_RAD;
-					// TODO !!! parametrize
+
 					prob_xy += HMM_TP_WEIGHT * buffer->tps_[y * NBINS + x](shx, shy);
 					if (prob_xy > best_to_xb_yb){
 						best_to_xb_yb = prob_xy;

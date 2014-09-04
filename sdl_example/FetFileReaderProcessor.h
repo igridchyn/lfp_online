@@ -21,6 +21,8 @@ class FetFileReaderProcessor: public LFPProcessor {
 	const unsigned int SAMPLING_RATE = 1000;
 	unsigned int last_pkg_id_;
 
+	const unsigned int WINDOW_SIZE;
+
 	unsigned int num_files_with_spikes_;
 
 	std::vector<bool> file_over_;
@@ -30,7 +32,7 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 public:
 	FetFileReaderProcessor(LFPBuffer *buffer);
-	FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers);
+	FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers, const unsigned int window_size);
 	virtual ~FetFileReaderProcessor();
 
 	// LFPProcessor

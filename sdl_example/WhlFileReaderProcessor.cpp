@@ -29,7 +29,7 @@ WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer *buffer, const std::str
 }
 
 WhlFileReaderProcessor::~WhlFileReaderProcessor() {
-	// TODO Auto-generated destructor stub
+	whl_stream_.close();
 }
 
 void WhlFileReaderProcessor::process(){

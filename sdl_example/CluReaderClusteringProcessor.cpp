@@ -36,7 +36,13 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 }
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
-	// TODO Auto-generated destructor stub
+	for (int i = 0; i < clu_streams_.size(); ++i) {
+		clu_streams_[i]->close();
+	}
+
+	for (int i = 0; i < res_streams_.size(); ++i) {
+		res_streams_[i]->close();
+	}
 }
 
 void CluReaderClusteringProcessor::process() {

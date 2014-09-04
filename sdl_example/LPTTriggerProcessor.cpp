@@ -14,14 +14,12 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	: LFPProcessor(buffer)
 	, channel_(buffer->config_->getInt("lpt.trigger.channel"))
 {
-	// TODO Auto-generated constructor stub
 #ifdef _WIN32
 	Opendriver();
 #endif
 }
 
 LPTTriggerProcessor::~LPTTriggerProcessor() {
-	// TODO Auto-generated destructor stub
 }
 
 void LPTTriggerProcessor::process() {

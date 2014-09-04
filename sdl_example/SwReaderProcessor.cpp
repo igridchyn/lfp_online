@@ -15,7 +15,6 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf)
 
 SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 	: LFPProcessor(buf){
-	// TODO Auto-generated constructor stub
 
 	std::ifstream swr_stream(path);
 
@@ -35,7 +34,6 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 }
 
 SwReaderProcessor::~SwReaderProcessor() {
-	// TODO Auto-generated destructor stub
 }
 
 void SwReaderProcessor::process() {

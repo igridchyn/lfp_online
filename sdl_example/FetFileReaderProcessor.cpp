@@ -10,14 +10,16 @@
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 :FetFileReaderProcessor(buffer,
 		buffer->config_->getString("dat.path.base") + "fet.",
-		buffer->config_->tetrodes
+		buffer->config_->tetrodes,
+		buffer->config_->getInt("fet.file.reader.window", 2000)
 		){
 
 }
 
-FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers)
+FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers, const unsigned int window_size)
 : LFPProcessor(buffer)
-, fet_path_base_(fet_path_base){
+, fet_path_base_(fet_path_base)
+, WINDOW_SIZE(window_size){
 	// number of feature files that still have spike records
 	num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
 	file_over_.resize(num_files_with_spikes_);
@@ -36,7 +38,9 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
-	// TODO Auto-generated destructor stub
+	for (int i = 0; i < fet_streams_.size(); ++i) {
+		fet_streams_[i]->close();
+	}
 }
 
 // returns NULL if spike time < 0
@@ -95,8 +99,7 @@ void FetFileReaderProcessor::process() {
 //		exit(0);
 //	}
 
-	// TODO !!! parametrize
-	while(last_spike_pkg_id - last_pkg_id_ < 2000 && num_files_with_spikes_ > 0){
+	while(last_spike_pkg_id - last_pkg_id_ < WINDOW_SIZE && num_files_with_spikes_ > 0){
 		// find the earliest spike
 		int earliest_spike_tetrode_ = -1;
 		unsigned int earliest_spike_time_ = std::numeric_limits<unsigned int>::max();

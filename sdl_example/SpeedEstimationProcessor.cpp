@@ -10,12 +10,10 @@
 
 SpeedEstimationProcessor::SpeedEstimationProcessor(LFPBuffer *buffer)
 : LFPProcessor(buffer) {
-	// TODO Auto-generated constructor stub
 
 }
 
 SpeedEstimationProcessor::~SpeedEstimationProcessor() {
-	// TODO Auto-generated destructor stub
 }
 
 void SpeedEstimationProcessor::process(){

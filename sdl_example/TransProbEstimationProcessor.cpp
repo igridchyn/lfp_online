@@ -42,7 +42,6 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, USE_PARAMETRIC(use_parametric)
 	, SIGMA(sigma)
 	, SPREAD(spread){
-	// TODO Auto-generated constructor stub
 	assert(NEIGHB_SIZE % 2);
 	trans_probs_.resize(NBINS * NBINS, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 
@@ -66,7 +65,6 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			// TODO do the following in the estimation stage, before saving
 			// SMOOTH NON-PAREMETRIC ESTIMATE (counts)
 			if (SMOOTH){
-				// TODO !!! parametrize spread, sigma
 				PlaceField tp_pf(trans_probs_[b], SIGMA, BIN_SIZE, SPREAD);
 				trans_probs_[b] = tp_pf.Smooth().Mat();
 			}
@@ -106,7 +104,6 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 }
 
 TransProbEstimationProcessor::~TransProbEstimationProcessor() {
-	// TODO Auto-generated destructor stub
 }
 
 void TransProbEstimationProcessor::process() {

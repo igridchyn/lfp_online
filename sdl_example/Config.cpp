@@ -84,7 +84,6 @@ Config::Config(std::string path) {
 					// read lfp channel numbers to display
 					int nchan = atoi(value.c_str());
 					int chan;
-					// TODO !!! ensure this is consistent with tetrodes config - may be in LFP display
 					for (int ch = 0; ch < nchan; ++ch) {
 						fconf >> chan;
 						lfp_disp_channels_.push_back(chan);
@@ -191,6 +190,6 @@ std::string Config::getString(std::string name, std::string def_val) {
 }
 
 Config::~Config() {
-	// TODO Auto-generated destructor stub
+	log_.close();
 }
 

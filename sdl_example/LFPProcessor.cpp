@@ -131,7 +131,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , config_(config)
 , pos_unknown_(config_->getInt("pos.unknown", 1023))
 , SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
-, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 14)){
+, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18)){
   
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 	spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
