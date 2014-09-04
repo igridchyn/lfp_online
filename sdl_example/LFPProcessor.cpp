@@ -127,6 +127,8 @@ const ColorPalette ColorPalette::MatlabJet256(256, new int[256] {0x83, 0x87, 0x8
 
 
 void LFPBuffer::Reset(Config* config) {
+	if (config_)
+		delete config_;
 	config_ = config;
 
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
@@ -141,6 +143,8 @@ void LFPBuffer::Reset(Config* config) {
 	spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_pf_ = SPIKE_BUF_HEAD_LEN;
 
+	if (tetr_info_)
+		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 
 	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
@@ -426,6 +430,14 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 }
 
 TetrodesInfo::TetrodesInfo() {
+}
+
+TetrodesInfo::~TetrodesInfo() {
+	delete[] tetrode_by_channel;
+	delete[] channels_numbers;
+	for (int i = 0; i < tetrodes_number; ++i){
+		delete[] tetrode_channels[i];
+	}
 }
 
 bool TetrodesInfo::ContainsChannel(const unsigned int& channel) {

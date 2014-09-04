@@ -34,6 +34,7 @@ public:
 
     TetrodesInfo(std::string config_path);
     TetrodesInfo();
+    ~TetrodesInfo();
 
     bool ContainsChannel(const unsigned int& channel);
     bool ContainsChannels(const std::vector<unsigned int>& channels);
