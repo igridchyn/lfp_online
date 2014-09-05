@@ -6,3 +6,5 @@ ss/
 ss*
 *.working
 .settings
+
+lfponline_test/*txt
