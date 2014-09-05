@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lfponlinevs", "lfponlinevs.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kde_win", "..\kde_win\kde_win.vcxproj", "{A0E0E202-DBB0-457E-AAAE-44D92E18B4DC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lfponline_test", "..\lfponline_test\lfponline_test.vcxproj", "{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7C789ABE-C495-4D7F-9A97-84778C5570A5} = {7C789ABE-C495-4D7F-9A97-84778C5570A5}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +34,12 @@ Global
 		{A0E0E202-DBB0-457E-AAAE-44D92E18B4DC}.Release|Win32.ActiveCfg = Release|Win32
 		{A0E0E202-DBB0-457E-AAAE-44D92E18B4DC}.Release|Win32.Build.0 = Release|Win32
 		{A0E0E202-DBB0-457E-AAAE-44D92E18B4DC}.Release|x64.ActiveCfg = Release|Win32
+		{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}.Debug|Win32.Build.0 = Debug|Win32
+		{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}.Debug|x64.ActiveCfg = Debug|Win32
+		{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}.Release|Win32.ActiveCfg = Release|Win32
+		{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}.Release|Win32.Build.0 = Release|Win32
+		{F2FE3E61-ACB9-4835-BE3F-DD4B15961653}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
