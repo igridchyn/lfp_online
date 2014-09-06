@@ -62,7 +62,11 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
 }
 
 void SDLSignalDisplayProcessor::process(){
-    // buffer has been reinitizlied
+    // buffer has been reinitizliedz`
+
+	//Log("process start");
+	//Log(SDL_GetError());
+
     if ( buffer->zero_level > 0 )
     {
         last_disp_pos = buffer->BUF_HEAD_LEN - (buffer->BUF_HEAD_LEN - buffer->zero_level) % plot_hor_scale;
@@ -77,8 +81,12 @@ void SDLSignalDisplayProcessor::process(){
 
             int val = transform_to_y_coord(buffer->signal_buf[channel][pos]) + 40 * chani;
             
+			//Log("SetRenderTarget and draw line, last error:");
+			//Log(SDL_GetError());
             SDL_SetRenderTarget(renderer_, texture_);
+			//Log(SDL_GetError());
             drawLine(renderer_, current_x, prev_vals_[channel], current_x + 1, val);
+			//Log("done");
 
             if (current_x == SCREEN_WIDTH - 1 && chani == displayed_channels_.size() - 1){
                 current_x = 1;
@@ -134,6 +142,8 @@ void SDLSignalDisplayProcessor::process(){
             SDL_RenderPresent(renderer_);
         }
     }
+
+	//Log("process done");
 }
 
 
@@ -149,6 +159,7 @@ int SDLSignalDisplayProcessor::transform_to_y_coord(int voltage){
 void SDLSignalDisplayProcessor::drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2){
     SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
     SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+	//SDL_RenderDrawPoint(renderer_, x1, y1);
 }
 
 void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){

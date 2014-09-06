@@ -29,7 +29,7 @@ bool check_parameter(std::string name, bool exit_on_fail = true);
 void read_processors(std::ifstream& fconf);
 
 public:
-	static const std::vector<std::string> known_processors_;
+	std::vector<std::string> known_processors_;
 
 	std::vector<std::string> processors_list_;
 

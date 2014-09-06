@@ -17,6 +17,8 @@ PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
 }
 
 void PackageExractorProcessor::process(){
+	//Log("Extract package...");
+
     // IDLE processing, waiting for user input
     if (buffer->chunk_ptr == NULL){
         return;
@@ -89,6 +91,7 @@ void PackageExractorProcessor::process(){
     }
     
     buffer->buf_pos += 3 * buffer->num_chunks;
+	// TODO extract from package
     buffer->last_pkg_id += 3 * buffer->num_chunks;
 
 	// DEBUG
@@ -100,6 +103,8 @@ void PackageExractorProcessor::process(){
     
     // TODO: use filter width !!!
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
+
+	//Log("Package extraction done");
 }
 
 std::string PackageExractorProcessor::name() {

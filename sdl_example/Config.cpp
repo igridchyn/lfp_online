@@ -20,8 +20,6 @@ const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderCluste
 		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
 		"WhlFileReader", "LPTTrigger"};
 
-const std::vector<std::string> Config::known_processors_(Config::known_processors_ar, Config::known_processors_ar + NPROC);
-
 void Config::read_processors(std::ifstream& fconf) {
 	log_.open("lfponline_config_log.txt");
 
@@ -49,6 +47,12 @@ Config::Config(std::string path) {
 	// <param name> <param_value>
 	// with commend lines starting with '//'
 	std::string line;
+
+	for (size_t i = 0; i < NPROC; i++)
+	{
+		std::string proc(known_processors_ar[i]);
+		known_processors_.push_back(proc);
+	}
 
 	std::cout << "Read config file: " << path << "\n";
 

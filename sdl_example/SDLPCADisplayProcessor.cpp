@@ -79,6 +79,7 @@ void SDLPCADisplayProcessor::process(){
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
         
         SDL_SetRenderTarget(renderer_, texture_);
+		std::string sdlerror(SDL_GetError());
         //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
         SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
         SDL_RenderDrawPoint(renderer_, x, y);

@@ -15,10 +15,11 @@ typedef short t_bin;
 
 void draw_bin() {
 #ifdef _WIN32
-	Config *config = new Config("../Res/spike_detection_jc103_win.conf");
-	//Config *config = new Config("../Res/signal_display_win.conf");
-	const char* path = config->getString("bin.path").c_str();
-	FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
+	std::string conf_path = "../Res/spike_detection_jc103_win.conf";
+	//Config *config = new Config(conf_path);
+	Config *config = new Config("../Res/signal_display_win.conf");
+	//FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
+	FILE *f = fopen("D:/data/igor/test1.bin", "rb");
 	//FILE *f = fopen("D:/data/igor/test/square.bin", "rb");
 #elif defined(__APPLE__)
     // square wave signal - for delay and stability testing
@@ -44,7 +45,8 @@ void draw_bin() {
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
-	unsigned char *block = new unsigned char[CHUNK_SIZE];
+	const unsigned int nblock = 1;
+	unsigned char *block = new unsigned char[CHUNK_SIZE * nblock];
 
 	LFPBuffer *buf = new LFPBuffer(config);
 	LFPPipeline *pipeline = new LFPPipeline(buf);
@@ -54,18 +56,18 @@ void draw_bin() {
 
 	// TODO: parallel threads ?
 	while (!feof(f)) {
-		fread((void*) block, CHUNK_SIZE, 1, f);
+		fread((void*)block, 1, CHUNK_SIZE*nblock, f);
 
 		buf->chunk_ptr = block;
-		buf->num_chunks = 1;
-		pipeline->process(block);
+		buf->num_chunks = nblock;
+		pipeline->process(NULL);
 	}
 
 	std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
 
 	buf->chunk_ptr = NULL;
 	while (true) {
-		pipeline->process(block);
+		pipeline->process(NULL);
 	}
 
 	std::cout << "EOF, waiting for processors jobs to join...\n";
