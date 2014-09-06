@@ -32,12 +32,12 @@ void draw_bin() {
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
-	Config *config = new Config("../Res/decoding_32_jc84.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
 //	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
 //	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");
 //	Config *config = new Config("../Res/spike_detection_jc103.conf");
-//	Config *config = new Config("../Res/signal_display.conf");
+	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #endif
