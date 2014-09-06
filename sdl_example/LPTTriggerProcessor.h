@@ -18,6 +18,7 @@ public:
 	virtual ~LPTTriggerProcessor();
 
 	// LFPProcessor
+	virtual std::string name();
 	virtual void process();
 };
 

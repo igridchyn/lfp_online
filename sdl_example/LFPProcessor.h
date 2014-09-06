@@ -63,8 +63,10 @@ class LFPProcessor{
     
 protected:
     LFPBuffer* buffer;
-    
+    virtual void Log(std::string message);
+
 public:
+    virtual std::string name();
     virtual void process() = 0;
     LFPProcessor(LFPBuffer *buf)
     :buffer(buf){}
@@ -121,6 +123,7 @@ class SDLControlInputMetaProcessor : public LFPProcessor{
     void SwitchDisplayTetrode(const unsigned int& display_tetrode);
     
 public:
+    virtual std::string name();
     virtual void process();
     
     SDLControlInputMetaProcessor(LFPBuffer* buffer, std::vector<SDLControlInputProcessor *> control_processors);
@@ -133,6 +136,7 @@ class PackageExractorProcessor : public LFPProcessor{
 	const float SCALE;
 
 public:
+	virtual std::string name();
     virtual void process();
     PackageExractorProcessor(LFPBuffer *buffer);
 };

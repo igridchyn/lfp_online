@@ -12,7 +12,9 @@
 PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
     : LFPProcessor(buffer)
 	, SCALE(buffer->config_->getFloat("pack.extr.xyscale"))
-{}
+{
+	Log("Created");
+}
 
 void PackageExractorProcessor::process(){
     // IDLE processing, waiting for user input
@@ -98,4 +100,8 @@ void PackageExractorProcessor::process(){
     
     // TODO: use filter width !!!
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
+}
+
+std::string PackageExractorProcessor::name() {
+	return "PackageExtractorProcessor";
 }

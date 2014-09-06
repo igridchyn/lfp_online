@@ -38,6 +38,7 @@ class SDLSignalDisplayProcessor : public SDLControlInputProcessor, public SDLSin
     int unrendered = 0;
     
 public:
+    virtual std::string name();
     virtual void process();
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     

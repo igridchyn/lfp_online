@@ -163,6 +163,8 @@ public:
     void UpdateWindowVector(Spike *spike);
 
     void AddSpike(Spike *spike);
+
+    void Log(std::string message);
 };
 
 //==========================================================================================

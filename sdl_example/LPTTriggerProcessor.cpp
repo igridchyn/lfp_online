@@ -14,9 +14,13 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	: LFPProcessor(buffer)
 	, channel_(buffer->config_->getInt("lpt.trigger.channel"))
 {
+	Log("Constructor start");
+
 #ifdef _WIN32
 	Opendriver();
 #endif
+
+	Log("Constructor done");
 }
 
 LPTTriggerProcessor::~LPTTriggerProcessor() {
@@ -48,4 +52,8 @@ void LPTTriggerProcessor::process() {
 
 		buffer->buf_pos_trig_ ++;
 	}
+}
+
+std::string LPTTriggerProcessor::name() {
+	return "LPTTriggerProcessor";
 }

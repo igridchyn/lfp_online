@@ -26,6 +26,10 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer)
 				)
 {}
 
+std::string SDLSignalDisplayProcessor::name(){
+	return "SDLSignalDisplayProcessor";
+}
+
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
 		const unsigned int& window_height, std::vector<unsigned int> displayed_channels)
     : SDLControlInputProcessor(buffer)
@@ -38,7 +42,9 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
 	, plot_hor_scale(buffer->config_->getInt("lfpdisp.horizontal.scale", 10))
 	, plot_scale(buffer->config_->getFloat("lfpdisp.vertical.scale", 40))
 	, SHIFT(buffer->config_->getInt("lfpdisp.shift", 3000)){
-        
+
+	Log("Constructor start");
+
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
     prev_vals_ = new int[displayed_channels_.size()];
@@ -51,6 +57,8 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
     		displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[0][c]);
 		}
     }
+
+    Log("Constructor done");
 }
 
 void SDLSignalDisplayProcessor::process(){

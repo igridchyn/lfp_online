@@ -457,3 +457,18 @@ bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
 	}
 	return true;
 }
+
+void LFPBuffer::Log(std::string message) {
+	std::cout << message << "\n";
+	log_stream << message << "\n";
+	// TODO remove in release
+	log_stream.flush();
+}
+
+void LFPProcessor::Log(std::string message) {
+	buffer->Log(name() + ": " + message);
+}
+
+std::string LFPProcessor::name() {
+	return "<processor name not specidied>";
+}

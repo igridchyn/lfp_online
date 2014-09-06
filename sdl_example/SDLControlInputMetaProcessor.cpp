@@ -122,8 +122,12 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, st
 : LFPProcessor(buffer)
 , control_processors_(control_processors)
 {
+	Log("Constructor start");
+
 	if (control_processors_.size() > 0 && control_processors_[0] != NULL)
 		control_processor_ = control_processors_[0];
+
+	Log("Constructor done");
 }
 
 void SDLControlInputMetaProcessor::SwitchDisplayTetrode(const unsigned int& display_tetrode){
@@ -138,4 +142,9 @@ SDLControlInputProcessor::SDLControlInputProcessor(LFPBuffer *buf)
 FileOutputProcessor::FileOutputProcessor(LFPBuffer* buf)
 : LFPProcessor(buf){
     f_ = fopen("/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection/cpp/cppout.txt", "w");
+}
+
+
+std::string SDLControlInputMetaProcessor::name() {
+	return "SDLControlInputMetaProcessor";
 }
