@@ -72,7 +72,7 @@ void PackageExractorProcessor::process(){
         buffer->pos_buf_pos_++;
     }
     
-    for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN) {
+    for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
         for (int block=0; block < 3; ++block) {
             short * sbin_ptr = (short*)bin_ptr;
             for (int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {

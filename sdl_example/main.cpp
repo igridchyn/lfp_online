@@ -45,7 +45,7 @@ void draw_bin() {
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
-	const unsigned int nblock = 1;
+	const unsigned int nblock = 2;
 	unsigned char *block = new unsigned char[CHUNK_SIZE * nblock];
 
 	LFPBuffer *buf = new LFPBuffer(config);
