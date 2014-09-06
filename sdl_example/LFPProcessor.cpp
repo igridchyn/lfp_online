@@ -129,6 +129,7 @@ const ColorPalette ColorPalette::MatlabJet256(256, new int[256] {0x83, 0x87, 0x8
 void LFPBuffer::Reset(Config* config) {
 	if (config_)
 		delete config_;
+
 	config_ = config;
 
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
@@ -208,6 +209,11 @@ LFPBuffer::LFPBuffer(Config* config)
 , SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
 , SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18)){
   
+	for (size_t i = 0; i < CHANNEL_NUM; i++)
+	{
+		powerEstimatorsMap_[i] = NULL;
+	}
+
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
 
 	log_stream.open("lfponline_LOG.txt");
