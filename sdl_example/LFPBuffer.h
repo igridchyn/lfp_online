@@ -12,6 +12,7 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <sys/stat.h>
 
 #include "LFPOnline.h"
 #include "TetrodesInfo.h"
@@ -188,6 +189,19 @@ public:
     class Output{
     public:
     	static void printIntArray(int *array, const unsigned int num_el);
+    };
+
+    class FS{
+    public:
+    	static bool FileExists(const std::string& filename)
+    	{
+    	    struct stat buf;
+    	    if (stat(filename.c_str(), &buf) != -1)
+    	    {
+    	        return true;
+    	    }
+    	    return false;
+    	}
     };
 };
 
