@@ -77,7 +77,7 @@ void SpikeAlignmentProcessor::process(){
         
 		if (peak_pos - prev_spike_pos_[tetrode] > 16 || prev_spike_[tetrode] == NULL)
     	{
-            if (prev_spike_pos_[tetrode] > 0){
+            if (prev_spike_[tetrode] != NULL){
                 // DEBUG
                 // printf("Aligned spike pos: %d\n", prev_spike_pos_);
                 // printf("%d ", prev_spike_pos_);
