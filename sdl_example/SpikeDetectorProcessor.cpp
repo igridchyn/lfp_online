@@ -16,6 +16,10 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer)
 		buffer->config_->getFloat("spike.detection.nstd"),
 		buffer->config_->getInt("spike.detection.refractory")
 		){
+	filt_pos = buffer->BUF_HEAD_LEN;
+	det_pos = buffer->BUF_HEAD_LEN;
+
+	coord_unknown = buffer->config_->getInt("pos.unknown");
 }
 
 SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory)
@@ -108,7 +112,7 @@ void SpikeDetectorProcessor::process()
     
     filt_pos = buffer->buf_pos - filter_len / 2;
     
-    //
+    // TODO !!! check if fine with rewinds
     if (filt_pos < buffer->HEADER_LEN)
         filt_pos = buffer->HEADER_LEN;
     
@@ -163,8 +167,15 @@ void SpikeDetectorProcessor::process()
                     buffer->pos_buf_spike_pos_++;
                 }
                 // TODO: average of two LED coords
-                spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
-                spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+                if (buffer->pos_buf_spike_pos_ > 0){
+                	spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
+                	spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+                }
+                else{
+                	// TODO read unknown pos
+                	spike->x = coord_unknown;
+                	spike->y = coord_unknown;
+                }
             }
         }
     }

@@ -39,6 +39,8 @@ class SpikeDetectorProcessor : public LFPProcessor{
     
     std::vector<Spike*> spikes;
     
+    int coord_unknown = 0;
+
 public:
     SpikeDetectorProcessor(LFPBuffer* buffer);
     SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory);
