@@ -17,7 +17,15 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     const char **suffs = new const char*[10]{"0", "1", "2", "3", "4", "5", "6"};
     
     mlpack::gmm::GMM<> gmm;
-    gmm.Load(gmm_path_basename + suffs[tetrode] + ".xml");
+
+    std::string gmm_file_name = gmm_path_basename + Utils::NUMBERS[tetrode] + ".xml";
+    if (Utils::FS::FileExists(gmm_file_name)){
+    	gmm.Load(gmm_file_name);
+    	gmm_fitted_[tetrode] = true;
+    }
+    else{
+    	buffer->Log(std::string("No GMM for tetrode ") + Utils::NUMBERS[tetrode]);
+    }
 
     return gmm;
 }
@@ -28,7 +36,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer* buf)
 			buf->config_->getInt("gmm.rate"),
 			buf->config_->getInt("gmm.max.clusters"),
 			buf->config_->getBool("gmm.load"),
-			! buf->config_->getBool("gmm.load"),
+			buf->config_->getBool("gmm.save", ! buf->config_->getBool("gmm.load")),
 			buf->config_->getString("gmm.path.base")
 			){
 }
@@ -74,7 +82,6 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     if (load_clustering_){
         for (int tetr=0; tetr < ntetr; ++tetr) {
             gmm_[tetr] = loadGMM((unsigned int)tetr, gmm_path_base);
-            gmm_fitted_[tetr] = true;
             
             std::cout << "Loaded GMM with " << gmm_[tetr].Gaussians() << " clusters for tetrode " << tetr << "\n";
 
@@ -105,7 +112,14 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
 
         // PROFILING
         clock_t start = clock();
-        double likelihood = gmmn.Estimate(observations_train);
+        double likelihood = std::numeric_limits<double>::infinity();
+        try{
+        	likelihood = gmmn.Estimate(observations_train);
+        }
+        catch(...){
+        	buffer->Log(std::string("Exception occurred during GMM fit for tetrode #") + Utils::NUMBERS[tetr] + " with " + Utils::NUMBERS[nclust] + " clusters");
+        }
+
         double gmm_time = ((double)clock() - start) / CLOCKS_PER_SEC;
         printf("GMM time = %.1lf sec.\n", gmm_time);
         
@@ -130,6 +144,8 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
 
     if (save_clustering_){
         saveGMM(gmm_[tetr], tetr);
+    }else{
+    	buffer->Log("GMM model has not been save due to configuration");
     }
     
     printf("%ld clusters in BIC-optimal model with full covariance matrix (tetrode #%d)\n", gmm_[tetr].Gaussians(), tetr);

@@ -51,7 +51,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     const std::string gmm_path_basename_;
 
     void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode);
-    static mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename);
+    mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename);
     
     void fit_gmm_thread(const unsigned int& tetr);
     void gmm_task(int *ptr);
