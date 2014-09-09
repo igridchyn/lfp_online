@@ -265,7 +265,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer* buffer)
 		buffer->config_->getInt("pca.waveshape.samples"),
 		buffer->config_->getInt("pca.min.samples"),
 		buffer->config_->getBool("pca.load"),
-		!buffer->config_->getBool("pca.load"),
+		buffer->config_->getBool("pca.save", !buffer->config_->getBool("pca.load")),
 		buffer->config_->getString("pca.path.base")
 		){
 }
@@ -336,7 +336,13 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
         for (int i=0; i < buffer->tetr_info_->tetrodes_number; ++i) {
             for (int ci=0; ci < buffer->tetr_info_->channels_numbers[i]; ++ci) {
                 const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
-                std::ifstream fpc(pc_path_ + Utils::NUMBERS[chan] + ".txt");
+                std::string pca_path(pc_path_ + Utils::NUMBERS[chan] + ".txt");
+                if (!Utils::FS::FileExists(pca_path)){
+                	pca_done_[i] = false;
+                	break;
+                }
+
+                std::ifstream fpc(pca_path);
                 
                 for (int pc = 0; pc < num_pc_; ++pc) {
                     for (int w = 0; w < waveshape_samples_; ++w) {
@@ -470,7 +476,10 @@ void PCAExtractionProcessor::process(){
                 
                 // SAVE PC transform
                 if (save_transform_){
-                    saveArray(pc_path_ + Utils::NUMBERS[channel] + std::string(".txt"), pc_transform_[channel], 3, 16);
+                	// TODO parametrize waveshape dimension
+                	std::string save_path = pc_path_ + Utils::NUMBERS[channel] + std::string(".txt");
+                    saveArray(save_path, pc_transform_[channel], num_pc_, waveshape_samples_);
+                    buffer->Log(std::string("Saved GMM model for tetrode ") + Utils::NUMBERS[tetr] + " to " + save_path);
                 }
                 
                 // DEBUG - print PCA transform matrix
