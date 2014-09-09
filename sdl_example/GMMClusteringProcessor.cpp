@@ -14,8 +14,6 @@
 using namespace mlpack::gmm;
 
 mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename){
-    const char **suffs = new const char*[10]{"0", "1", "2", "3", "4", "5", "6"};
-    
     mlpack::gmm::GMM<> gmm;
 
     std::string gmm_file_name = gmm_path_basename + Utils::NUMBERS[tetrode] + ".xml";
@@ -38,7 +36,8 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer* buf)
 			buf->config_->getBool("gmm.load"),
 			buf->config_->getBool("gmm.save", ! buf->config_->getBool("gmm.load")),
 			buf->config_->getString("gmm.path.base")
-			){
+			)
+	{
 }
 
 GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned int& min_observations, const unsigned int& rate,
@@ -49,25 +48,19 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     , max_clusters_(max_clusters)
     , save_clustering_(save_model)
     , load_clustering_(load_model)
-	, gmm_path_basename_(gmm_path_base) {
+	, gmm_path_basename_(gmm_path_base)
+	, num_princomp_(buf->config_->getInt("gmm.num.princomp", 3))
+	, nclust_step_(buf->config_->getInt("gmm.nclust.step", 1)){
     
-    unsigned int gaussians = 4;
-    dimensionality_ = 12;
-
-    means_.resize(buf->tetr_info_->tetrodes_number);
-    covariances_.resize(buf->tetr_info_->tetrodes_number);
-        
     const unsigned int ntetr =buf->tetr_info_->tetrodes_number;
         
     for (int tetr=0; tetr<buf->tetr_info_->tetrodes_number; ++tetr) {
+    	unsigned int dimensionality = buffer->tetr_info_->channels_numbers[tetr] * num_princomp_;
+
         // more spikes will be collected while clustering happens
-        observations_.push_back(arma::mat(dimensionality_, 2 * min_observations * rate_, arma::fill::zeros));
-        observations_train_.push_back(arma::mat(dimensionality_, min_observations, arma::fill::zeros));
-        
-        means_[tetr].resize(gaussians, arma::mat(dimensionality_, 1));
-        covariances_[tetr].resize(gaussians, arma::mat(dimensionality_, dimensionality_));
-        weights_.push_back(arma::vec(gaussians));
-    }
+        observations_.push_back(arma::mat(dimensionality, 2 * min_observations * rate_, arma::fill::zeros));
+        observations_train_.push_back(arma::mat(dimensionality, min_observations, arma::fill::zeros));
+     }
 
     total_observations_.resize(ntetr);
     spikes_collected_.resize(ntetr);
@@ -107,7 +100,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     int dimensionality = observations_train.n_rows;
     
     printf("# of observations = %u\n", observations_train.n_cols);
-    for (int nclust = 1; nclust <= max_clusters_; ++nclust) {
+    for (int nclust = 1; nclust <= max_clusters_; nclust += nclust_step_) {
         mlpack::gmm::GMM<> gmmn(nclust, dimensionality);
 
         // PROFILING
@@ -126,7 +119,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
         // = # mixing probabilities + # means + # covariances
         int nparams = (nclust - 1) + nclust * dimensionality + nclust * dimensionality * (dimensionality + 1) / 2;
         // !!! TODO: check
-        double BIC = -2 * likelihood + nparams * log(observations_train.n_cols);
+        double BIC = -2 * likelihood + nparams * log(dimensionality);
         
         if (BIC < BIC_min){
             gmm_best = gmmn;
@@ -180,6 +173,7 @@ void GMMClusteringProcessor::process(){
         }
         
         const unsigned int tetr = spike->tetrode_;
+        const unsigned int nchan = buffer->tetr_info_->channels_numbers[tetr];
         
         // if PCA has not been computed yet
         if (spike->pc == NULL){
@@ -187,15 +181,15 @@ void GMMClusteringProcessor::process(){
         }
         
         // TODO: configurableize
-        for (int pc=0; pc < 3; ++pc) {
+        for (int pc=0; pc < num_princomp_; ++pc) {
             // TODO: tetrode channels
-            for(int chan=0; chan < 4; ++chan){
+            for(int chan=0; chan < nchan; ++chan){
                 // TODO: disable OFB check in armadillo settings
                 if (observations_[tetr].n_cols <= total_observations_[tetr]){
                     observations_[tetr].resize(observations_[tetr].n_rows, observations_[tetr].n_cols * 2);
                 }
 
-                observations_[tetr](chan*3 + pc, total_observations_[tetr]) = (double)spike->pc[chan][pc];
+                observations_[tetr](chan * num_princomp_ + pc, total_observations_[tetr]) = (double)spike->pc[chan][pc];
             }
         }
         obs_spikes_[tetr].push_back(spike);
@@ -205,10 +199,10 @@ void GMMClusteringProcessor::process(){
             if (spikes_collected_[tetr] < min_observations_){
                 // TODO: use submatrix of total observations
                 if (!(total_observations_[tetr] % rate_)){
-                    for (int pc=0; pc < 3; ++pc) {
-                        for(int chan=0; chan < 4; ++chan){
+                    for (int pc=0; pc < num_princomp_; ++pc) {
+                        for(int chan=0; chan < nchan; ++chan){
                             // TODO: disable OFB check in armadillo settings
-                            observations_train_[tetr](chan*3 + pc, spikes_collected_[tetr]) = (double)spike->pc[chan][pc];
+                            observations_train_[tetr](chan * num_princomp_ + pc, spikes_collected_[tetr]) = (double)spike->pc[chan][pc];
                         }
                     }
 
@@ -258,9 +252,10 @@ void GMMClusteringProcessor::process(){
                 if (first_class_after_clust){
                 	// re-cluster units with bad autocorrelation and high firing rate
                 	for (int clust = 0; clust < gmm_[tetr].Gaussians(); ++clust) {
-                		float clust_rate = 24000 / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
+                		float clust_rate = buffer->SAMPLING_RATE / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
                 		if (clust_rate > 40){
                 			// 2nd iteration of clustering
+                			// TODO !!! implement 2nd iteration
                 		}
 					}
                 }
@@ -278,7 +273,7 @@ void GMMClusteringProcessor::process(){
                 total_observations_[tetr] = 0;
                 // TODO: optimize (use fixed dize)
                 obs_spikes_[tetr].clear();
-                observations_[tetr] = arma::mat(dimensionality_, classification_rate_, arma::fill::zeros);
+                observations_[tetr] = arma::mat(num_princomp_ * nchan, classification_rate_, arma::fill::zeros);
             }
         }
         

@@ -14,9 +14,12 @@
 
 // TODO: create abstract clustering class
 class GMMClusteringProcessor : public LFPProcessor{
-    unsigned int dimensionality_;
+//    unsigned int dimensionality_;
+	unsigned int num_princomp_;
+
     unsigned int rate_;
     unsigned int max_clusters_;
+    unsigned int nclust_step_;
     int min_observations_;
     
     bool save_clustering_ = false;
