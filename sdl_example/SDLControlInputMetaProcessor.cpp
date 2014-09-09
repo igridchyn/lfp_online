@@ -73,42 +73,54 @@ void SDLControlInputMetaProcessor::process(){
                 
                 if (kmod & KMOD_LALT) {
                     // switch tetrode
+
+                	int shift = (kmod & KMOD_LSHIFT) ? 10 : 0;
+                	int tetrode = -1;
                     
                     switch( e.key.keysym.sym ) {
                             // TODO: all tetrodes (10-16: numpad; 17-32: RALT)
-                            
                         case SDLK_0:
-                            SwitchDisplayTetrode(0);
+                            tetrode = 0 + shift;
                             break;
                         case SDLK_1:
-                            SwitchDisplayTetrode(1);
+                            tetrode = 1 + shift;
                             break;
                         case SDLK_2:
-                            SwitchDisplayTetrode(2);
+                            tetrode = 2 + shift;
                             break;
                         case SDLK_3:
-                            SwitchDisplayTetrode(3);
+                            tetrode = 3 + shift;
                             break;
                         case SDLK_4:
-                            SwitchDisplayTetrode(4);
+                            tetrode = 4 + shift;
                             break;
                         case SDLK_5:
-                            SwitchDisplayTetrode(5);
+                            tetrode = 5 + shift;
                             break;
                         case SDLK_6:
-                            SwitchDisplayTetrode(6);
+                            tetrode = 6 + shift;
                             break;
                         case SDLK_7:
-                            SwitchDisplayTetrode(7);
+                            tetrode = 7 + shift;
                             break;
                         case SDLK_8:
-                            SwitchDisplayTetrode(8);
+                            tetrode = 8 + shift;
                             break;
                         case SDLK_9:
-                            SwitchDisplayTetrode(9);
+                            tetrode = 9 + shift;
                             break;
                     }
                     
+                    if (tetrode >= 0){
+                    	if (tetrode < buffer->tetr_info_->tetrodes_number){
+                    		SwitchDisplayTetrode(tetrode);
+                    		buffer->Log(std::string("Switch displays to tetrode #") + Utils::NUMBERS[tetrode]);
+                    	}
+                    	else{
+                    		buffer->Log("Requested tetrode number is higher that number of available tetrodes");
+                    	}
+                    }
+
                     continue;
                 }
             }
