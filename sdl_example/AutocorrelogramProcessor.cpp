@@ -138,6 +138,12 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 
 void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
     // TODO: implement
+
+	if (e.type == SDL_WINDOWEVENT) {
+		if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
+			SetDisplayTetrode(display_tetrode_);
+		}
+	}
 }
 
 // plot the autocorrelogramms function
