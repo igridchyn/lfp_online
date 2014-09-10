@@ -49,3 +49,8 @@ void SDLSingleWindowDisplay::ReinitScreen(){
     SDL_RenderClear(renderer_);
     SDL_RenderPresent(renderer_);
 }
+
+
+unsigned int SDLSingleWindowDisplay::GetWindowID() {
+	return SDL_GetWindowID(window_);
+}

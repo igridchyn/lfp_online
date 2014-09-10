@@ -33,6 +33,16 @@ void SDLControlInputMetaProcessor::process(){
     // SDL_PollEvent took 2/3 of runtime without limitations
     while( SDL_PollEvent( &e ) != 0 )
     {
+    	// changed focus -> switch control + redraw
+    	 if (e.type == SDL_WINDOWEVENT) {
+    		 if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
+    		     	if (cp_by_win_id_.find(e.window.windowID) != cp_by_win_id_.end()){
+    		     		buffer->Log("Change focus");
+    		     		control_processor_ = cp_by_win_id_[e.window.windowID];
+    		     	}
+    		  }
+    	 }
+
         //User requests quit
         if( e.type == SDL_QUIT ) {
             quit = true;
@@ -140,6 +150,11 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, st
 		control_processor_ = control_processors_[0];
 
 	Log("Constructor done");
+
+	for(int i = 0; i < control_processors_.size(); ++i){
+		SDLSingleWindowDisplay *cp_w = dynamic_cast<SDLSingleWindowDisplay*>(control_processors_[i]);
+		cp_by_win_id_[cp_w->GetWindowID()] = control_processors_[i];
+	}
 }
 
 void SDLControlInputMetaProcessor::SwitchDisplayTetrode(const unsigned int& display_tetrode){

@@ -90,6 +90,7 @@ protected:
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
     virtual void ReinitScreen();
+    virtual unsigned int GetWindowID();
 };
 
 //====================================================================================================
@@ -111,6 +112,8 @@ class SDLControlInputMetaProcessor : public LFPProcessor{
     SDLControlInputProcessor* control_processor_;
     std::vector<SDLControlInputProcessor*> control_processors_;
     
+    std::map<unsigned int, SDLControlInputProcessor*> cp_by_win_id_;
+
     // id of last package with which the input was obtained
     int last_input_pkg_id_ = 0;
     int last_pkg_id = 0;

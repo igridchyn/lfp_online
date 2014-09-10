@@ -478,3 +478,4 @@ void LFPProcessor::Log(std::string message) {
 std::string LFPProcessor::name() {
 	return "<processor name not specidied>";
 }
+
