@@ -23,8 +23,8 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     // diplay non-assigned spikes
     bool display_unclassified_;
     
-    const float scale_;
-    const int shift_;
+    float scale_;
+    int shift_;
 
     unsigned int time_start_= 0;
     unsigned int time_end_;

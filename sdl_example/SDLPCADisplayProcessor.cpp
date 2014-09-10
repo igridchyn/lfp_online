@@ -93,6 +93,11 @@ void SDLPCADisplayProcessor::process(){
     if (render){
         SDL_SetRenderTarget(renderer_, NULL);
         SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+
+        SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+        SDL_RenderDrawLine(renderer_, 0, shift_, window_width_, shift_);
+        SDL_RenderDrawLine(renderer_, shift_, 0, shift_, window_height_);
+
         SDL_RenderPresent(renderer_);
     }
 }
@@ -175,6 +180,18 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_KP_0:
                 comp2_ = 0 + shift;
                 break;
+            case SDLK_KP_MINUS:
+            	scale_ /= 1.1;
+            	break;
+            case SDLK_KP_PLUS:
+            	scale_ *= 1.1;
+            	break;
+            case SDLK_RIGHT:
+            	shift_ += 50;
+            	break;
+            case SDLK_LEFT:
+            	shift_ -= 50;
+            	break;
             default:
                 need_redraw = false;
                 
