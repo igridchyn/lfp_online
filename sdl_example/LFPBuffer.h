@@ -42,7 +42,7 @@ public:
     const int SPIKE_BUF_LEN;
     const int SPIKE_BUF_HEAD_LEN;
     
-    // in bytes
+    // Axona package configuration in bytes
     const int CHUNK_SIZE = 432;
     const int HEADER_LEN = 32;
     const int TAIL_LEN = 16;

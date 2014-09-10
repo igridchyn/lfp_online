@@ -20,9 +20,39 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     if (Utils::FS::FileExists(gmm_file_name)){
     	gmm.Load(gmm_file_name);
     	gmm_fitted_[tetrode] = true;
+
+    	// TODO: filter out tiny clusters after clustering
+
+    	std::vector<arma::vec> means;
+    	std::vector<arma::mat> covs;
+    	arma::vec weights;
+
+    	std::cout << "Cluster weights: ";
+    	const double EPS = 0.00001;
+    	int ngauss = 0;
+    	for (int c = 0; c < gmm.Gaussians(); ++c) {
+    		double w = gmm.Weights()(c);
+    		std::cout << w << " ";
+
+    		if (w > EPS){
+    			ngauss ++;
+    			means.push_back(gmm.Means()[c]);
+    			covs.push_back(gmm.Covariances()[c]);
+    			weights.resize(weights.size() + 1);
+    			weights(ngauss - 1) = w;
+    		}
+		}
+    	std::cout << "\n";
+
+    	gmm = mlpack::gmm::GMM<>(means, covs, weights);
+    	buffer->Log(std::string("Number of clusters after filtering: ") + Utils::NUMBERS[gmm.Gaussians()]);
     }
     else{
     	buffer->Log(std::string("No GMM for tetrode ") + Utils::NUMBERS[tetrode]);
+    }
+
+    if (gmm.Gaussians() == 0){
+    	gmm_fitted_[tetrode] = false;
     }
 
     return gmm;

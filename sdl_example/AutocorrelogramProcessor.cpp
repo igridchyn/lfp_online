@@ -19,7 +19,8 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 : SDLSingleWindowDisplay("Autocorrelogramms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
 , SDLControlInputProcessor(buf)
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
-, NBINS(nbins){
+, NBINS(nbins)
+, wait_clustering_(buffer->config_->getBool("ac.wait.clust", true)){
 	 spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
 
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -45,7 +46,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 }
 
 void AutocorrelogramProcessor::process(){
-    while(spike_buf_pos_auto_ < buffer->spike_buf_pos){
+    while(spike_buf_pos_auto_ < buffer->spike_buf_pos_clust_){
         Spike *spike = buffer->spike_buffer_[spike_buf_pos_auto_];
         
         if (spike->discarded_){
@@ -54,7 +55,12 @@ void AutocorrelogramProcessor::process(){
         }
         
         if (spike->cluster_id_ == -1){
-            break;
+        	if (wait_clustering_)
+        		break;
+        	else{
+        		spike_buf_pos_auto_++;
+        		continue;
+        	}
         }
         
         unsigned int tetrode = spike->tetrode_;

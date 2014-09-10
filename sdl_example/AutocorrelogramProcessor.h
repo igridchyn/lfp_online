@@ -18,6 +18,7 @@
 class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor{
     
     unsigned int display_tetrode_ = 0;
+    bool wait_clustering_;
     
     const int BWIDTH = 2;
     const int XCLUST = 7;
