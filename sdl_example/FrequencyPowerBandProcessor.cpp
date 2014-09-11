@@ -18,11 +18,12 @@ FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf)
 
  FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name,
 		 const unsigned int window_width, const unsigned int window_height)
- 	 	 : LFPProcessor(buf)
+ 	 	 : SDLControlInputProcessor(buf)
  	 	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 		 , FACTOR(buf->config_->getInt("freqpow.factor"))
 		 , BUF_LEN(buf->config_->getInt("freqpow.factor") * buf->SAMPLING_RATE)
 		 , ANAL_RATE(buf->config_->getInt("freqpow.anal.rate.frac") * buf->config_->getFloat("freqpow.anal.rate.frac"))
+ 	 	 , channel_(buf->config_->getInt("freqpow.channel", 0))
 		 {}
 
 // http://arma.sourceforge.net/docs.html#fft
@@ -34,8 +35,8 @@ void FrequencyPowerBandProcessor::process(){
     
     arma::Mat<double> X(BUF_LEN, 1);
     int i=0;
-    short *buf_fft = buffer->signal_buf[0] + buffer->buf_pos-BUF_LEN;
-    for (; buf_fft != buffer->signal_buf[0] + buffer->buf_pos; ++buf_fft, ++i  ) {
+    short *buf_fft = buffer->signal_buf[channel_] + buffer->buf_pos-BUF_LEN;
+    for (; buf_fft != buffer->signal_buf[channel_] + buffer->buf_pos; ++buf_fft, ++i  ) {
         X(i, 0) = *buf_fft;
     }
     
@@ -80,3 +81,14 @@ void FrequencyPowerBandProcessor::process(){
     SDL_RenderCopy(renderer_, texture_, NULL, NULL);
     SDL_RenderPresent(renderer_);
 }
+
+void FrequencyPowerBandProcessor::process_SDL_control_input(
+		const SDL_Event& e) {
+	// TODO: implement
+}
+
+void FrequencyPowerBandProcessor::SetDisplayTetrode(
+		const unsigned int& display_tetrode) {
+	channel_ = display_tetrode * 4;
+}
+

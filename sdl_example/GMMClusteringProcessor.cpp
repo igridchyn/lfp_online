@@ -106,7 +106,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
         for (int tetr=0; tetr < ntetr; ++tetr) {
             gmm_[tetr] = loadGMM((unsigned int)tetr, gmm_path_base);
             
-            std::cout << "Loaded GMM with " << gmm_[tetr].Gaussians() << " clusters for tetrode " << tetr << "\n";
+            buffer->Log(std::string("Loaded GMM with ") + Utils::NUMBERS[gmm_[tetr].Gaussians()] + " clusters for tetrode " + Utils::NUMBERS[tetr] + "\n\n");
 
             // resize population vector in window buffer
             buf->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians());
