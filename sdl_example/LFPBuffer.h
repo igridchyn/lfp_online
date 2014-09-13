@@ -166,6 +166,7 @@ public:
     void AddSpike(Spike *spike);
 
     void Log(std::string message);
+    void Log(std::string message, int num);
 };
 
 //==========================================================================================

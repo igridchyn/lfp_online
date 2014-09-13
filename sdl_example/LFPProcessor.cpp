@@ -479,3 +479,9 @@ std::string LFPProcessor::name() {
 	return "<processor name not specidied>";
 }
 
+void LFPBuffer::Log(std::string message, int num) {
+	std::cout << message << num << "\n";
+	log_stream << message << num << "\n";
+	// TODO remove in release
+	log_stream.flush();
+}
