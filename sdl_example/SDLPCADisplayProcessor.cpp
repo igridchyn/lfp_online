@@ -17,11 +17,12 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer)
 		buffer->config_->getInt("pcadisp.tetrode"),
 		buffer->config_->getBool("pcadisp.display.unclassified"),
 		buffer->config_->getFloat("pcadisp.scale"),
-		buffer->config_->getInt("pcadisp.shift")
+		buffer->config_->getInt("pcadisp.shift.x", buffer->config_->getInt("pcadisp.shift")),
+		buffer->config_->getInt("pcadisp.shift.y", buffer->config_->getInt("pcadisp.shift"))
 		){}
 
 SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
-		const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift)
+		const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift_x, const int shift_y)
 : SDLControlInputProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 // paired qualitative brewer palette
@@ -29,8 +30,10 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , target_tetrode_(target_tetrode)
 , display_unclassified_(display_unclassified)
 , scale_(scale)
-, shift_(shift)
+, shift_x_(shift_x)
+, shift_y_(shift_y)
 , time_end_(buffer->SAMPLING_RATE * 60)
+, rend_freq_(buffer->config_->getInt("pcadisp.rend.rate", 5))
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 
@@ -41,8 +44,6 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 
 void SDLPCADisplayProcessor::process(){
     // TODO: parametrize displayed channels and pc numbers
-    
-    const int rend_freq = 5;
     bool render = false;
     
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
@@ -68,8 +69,8 @@ void SDLPCADisplayProcessor::process(){
         int x;
         int y;
 
-        x = spike->pc[comp1_ % nchan_][comp1_ / nchan_]/scale_ + shift_;
-        y = spike->pc[comp2_ % nchan_][comp2_ / nchan_]/scale_ + shift_;
+        x = spike->pc[comp1_ % nchan_][comp1_ / nchan_]/scale_ + shift_x_;
+        y = spike->pc[comp2_ % nchan_][comp2_ / nchan_]/scale_ + shift_y_;
 
         // polygon cluster
         // TODO use scaled coordinates
@@ -102,7 +103,7 @@ void SDLPCADisplayProcessor::process(){
         
         buffer->spike_buf_no_disp_pca++;
         
-        if (!(buffer->spike_buf_no_disp_pca % rend_freq))
+        if (!(buffer->spike_buf_no_disp_pca % rend_freq_))
             render = true;
     }
     
@@ -111,8 +112,8 @@ void SDLPCADisplayProcessor::process(){
         SDL_RenderCopy(renderer_, texture_, NULL, NULL);
 
         SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
-        SDL_RenderDrawLine(renderer_, 0, shift_, window_width_, shift_);
-        SDL_RenderDrawLine(renderer_, shift_, 0, shift_, window_height_);
+        SDL_RenderDrawLine(renderer_, 0, shift_y_, window_width_, shift_y_);
+        SDL_RenderDrawLine(renderer_, shift_x_, 0, shift_x_, window_height_);
 
         // polygon vertices
         for(int i=0; i < polygon_x_.size(); ++i){
@@ -157,10 +158,17 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 		}
 	}
 
+	bool need_redraw = false;
+
+	if (e.type == SDL_MOUSEWHEEL){
+//		std::cout << e.wheel.y << "\n";
+		scale_ *= pow(1.1, e.wheel.y);
+		need_redraw = true;
+	}
+
     if( e.type == SDL_KEYDOWN )
     {
-        bool need_redraw = true;
-        
+    	need_redraw = true;
         SDL_Keymod kmod = SDL_GetModState();
         
         // select clusters from 10 to 29
@@ -269,37 +277,43 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 comp2_ = 0 + shift;
                 break;
             case SDLK_KP_MINUS:
-            	scale_ /= 1.1;
-            	break;
-            case SDLK_KP_PLUS:
             	scale_ *= 1.1;
             	break;
+            case SDLK_KP_PLUS:
+            	scale_ /= 1.1;
+            	break;
             case SDLK_RIGHT:
-            	shift_ += 50;
+            	shift_x_ -= 50;
             	break;
             case SDLK_LEFT:
-            	shift_ -= 50;
+            	shift_x_ += 50;
+            	break;
+            case SDLK_UP:
+            	shift_y_ += 50;
+            	break;
+            case SDLK_DOWN:
+            	shift_y_ -= 50;
             	break;
             default:
                 need_redraw = false;
                 
         }
-        
-        if (need_redraw){
-            // TODO: case-wise
-            buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
-            
-            time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
-            if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != NULL)
-            time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
-
-            // TODO: EXTRACT
-            SDL_SetRenderTarget(renderer_, texture_);
-            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-            SDL_RenderClear(renderer_);
-            SDL_RenderPresent(renderer_);
-        }
     }
+
+    if (need_redraw){
+                // TODO: case-wise
+                buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
+
+                time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
+                if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != NULL)
+                time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
+
+                // TODO: EXTRACT
+                SDL_SetRenderTarget(renderer_, texture_);
+                SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+                SDL_RenderClear(renderer_);
+                SDL_RenderPresent(renderer_);
+            }
 }
 
 void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetrode) {

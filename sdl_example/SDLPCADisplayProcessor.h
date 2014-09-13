@@ -26,7 +26,8 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     bool display_unclassified_;
     
     float scale_;
-    int shift_;
+    int shift_x_;
+    int shift_y_;
 
     unsigned int time_start_= 0;
     unsigned int time_end_;
@@ -38,9 +39,14 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     // polygon clusters
     std::vector< std::vector<PolygonCluster> > polygon_clusters_;
 
+    // rendering frequency (redraw each rend_freq spikes)
+    const int rend_freq_;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
-    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width, const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift);
+    SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
+    		const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale,
+    		const int shift_x, const int shift_y);
     
     // LFPProcessor
     virtual void process();
