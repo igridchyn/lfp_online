@@ -44,13 +44,16 @@ PlaceField.o: ../PlaceField.cpp ../PlaceField.h
 PlaceFieldProcessor.o: PlaceField.o ../PlaceFieldProcessor.cpp ../PlaceFieldProcessor.h
 	${CC} ${CFLAGS} -c ../PlaceFieldProcessor.cpp
 	
+PolygonCluster.o: ../PolygonCluster.cpp ../PolygonCluster.h
+	${CC} ${CFLAGS} -c ../PolygonCluster.cpp
+	
 PositionDisplayProcessor.o: ../PositionDisplayProcessor.cpp ../PositionDisplayProcessor.h
 	${CC} ${CFLAGS} -c ../PositionDisplayProcessor.cpp
 	
 SDLControlInputMetaProcessor.o: ../SDLControlInputMetaProcessor.cpp
 	${CC} ${CFLAGS} -c ../SDLControlInputMetaProcessor.cpp
 	
-SDLPCADisplayProcessor.o: ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h
+SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h
 	${CC} ${CFLAGS} -c ../SDLPCADisplayProcessor.cpp
 	
 SDLSignalDisplayProcessor.o: ../SDLSignalDisplayProcessor.cpp ../SDLSignalDisplayProcessor.h
@@ -92,8 +95,8 @@ WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcesso
 main.o: ../main.cpp
 	${CC} ${CFLAGS} -c ../main.cpp
 		
-lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
-	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
+lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
+	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TransProbEstimationProcessor.o UnitTestingProcessor.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
 	
 clean:
 	rm *.o
