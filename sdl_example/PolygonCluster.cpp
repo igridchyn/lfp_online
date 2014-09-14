@@ -12,6 +12,21 @@ PolygonCluster::PolygonCluster() {
 
 }
 
+void PolygonCluster::Serialize(std::ofstream& file) {
+	file << projections_.size() << "\n";
+	for (int i=0; i < projections_.size(); ++i){
+		projections_[i].Serialize(file);
+	}
+}
+
+PolygonCluster::PolygonCluster(std::ifstream& file) {
+	int sz = 0;
+	file >> sz;
+	for (int i=0; i < sz; ++i){
+		projections_.push_back(PolygonClusterProjection(file));
+	}
+}
+
 PolygonCluster::~PolygonCluster() {
 
 }
@@ -72,3 +87,20 @@ bool PolygonCluster::Contains(float x, float y) {
 	return IsFromRight(pcp.coords1_[last], pcp.coords2_[last], pcp.coords1_[0], pcp.coords2_[0], x, y);
 }
 
+PolygonClusterProjection::PolygonClusterProjection(std::ifstream& file) {
+	int size = 0;
+	file >> dim1_ >> dim2_ >> size;
+	coords1_.resize(size);
+	coords2_.resize(size);
+	for(int i=0; i < size; ++i){
+		file >> coords1_[i] >> coords2_[i];
+	}
+}
+
+void PolygonClusterProjection::Serialize(std::ofstream& file) {
+	file << dim1_ << " " << dim2_ << " " << coords1_.size() << "\n";
+	for(int i=0; i < Size(); ++i){
+		file << coords1_[i] << " " << coords2_[i] << " ";
+	}
+	file << "\n";
+}

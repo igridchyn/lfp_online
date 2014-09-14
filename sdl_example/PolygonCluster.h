@@ -9,6 +9,7 @@
 #define POLYGONCLUSTER_H_
 
 #include <vector>
+#include <fstream>
 
 class PolygonClusterProjection{
 public:
@@ -17,6 +18,9 @@ public:
 
 	inline int Size() {return coords1_.size(); }
 	PolygonClusterProjection(const std::vector<float> coords1, const std::vector<float> coords2, int dim1, int dim2);
+	PolygonClusterProjection(std::ifstream& file);
+
+	void Serialize(std::ofstream& file);
 };
 
 class PolygonCluster {
@@ -25,9 +29,11 @@ public:
 
 	inline int NProj() { return projections_.size(); };
 	bool Contains(float x, float y);
+	void Serialize(std::ofstream& file);
 
 	PolygonCluster();
 	PolygonCluster(const PolygonClusterProjection& proj);
+	PolygonCluster(std::ifstream& file);
 	virtual ~PolygonCluster();
 };
 
