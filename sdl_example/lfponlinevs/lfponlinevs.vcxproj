@@ -169,6 +169,7 @@
     <ClCompile Include="..\PCAExtractionProcessor.cpp" />
     <ClCompile Include="..\PlaceField.cpp" />
     <ClCompile Include="..\PlaceFieldProcessor.cpp" />
+    <ClCompile Include="..\PolygonCluster.cpp" />
     <ClCompile Include="..\PositionDisplayProcessor.cpp" />
     <ClCompile Include="..\PositionReconstructionProcessor.cpp" />
     <ClCompile Include="..\SDLControlInputMetaProcessor.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="..\PCAExtractionProcessor.h" />
     <ClInclude Include="..\PlaceField.h" />
     <ClInclude Include="..\PlaceFieldProcessor.h" />
+    <ClInclude Include="..\PolygonCluster.h" />
     <ClInclude Include="..\PositionDisplayProcessor.h" />
     <ClInclude Include="..\PositionReconstructionProcessor.h" />
     <ClInclude Include="..\SDLPCADisplayProcessor.h" />

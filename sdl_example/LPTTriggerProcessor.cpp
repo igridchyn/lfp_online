@@ -28,6 +28,9 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 		gfpIsInpOutDriverOpen = (lpIsInpOutDriverOpen)GetProcAddress(hInpOutDll, "IsInpOutDriverOpen");
 		gfpIsXP64Bit = (lpIsXP64Bit)GetProcAddress(hInpOutDll, "IsXP64Bit");
 	}
+	else{
+		buffer->Log("ERROR: cannot load inpout32.DLL");
+	}
 #endif
 
 	Log("Constructor done");
@@ -50,7 +53,7 @@ void LPTTriggerProcessor::process() {
 
 			// way2
 			short iPort = 0xE050;
-			gfpOut32(iPort, 0xFF);
+			gfpOut32(iPort, 0x00);
 #endif
 		}
 
@@ -66,7 +69,7 @@ void LPTTriggerProcessor::process() {
 
 			//way 2
 			short iPort = 0xE050;
-			gfpOut32(iPort, 0x00);
+			gfpOut32(iPort, 0xFF);
 #endif
 		}
 
