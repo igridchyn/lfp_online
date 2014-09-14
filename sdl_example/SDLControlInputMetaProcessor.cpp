@@ -135,7 +135,9 @@ void SDLControlInputMetaProcessor::process(){
                 }
             }
             
-            control_processor_->process_SDL_control_input(e);
+            if (control_processor_ != NULL){
+            	control_processor_->process_SDL_control_input(e);
+            }
         }
     }
 }
@@ -148,6 +150,9 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, st
 
 	if (control_processors_.size() > 0 && control_processors_[0] != NULL)
 		control_processor_ = control_processors_[0];
+	else{
+		control_processor_ = NULL;
+	}
 
 	Log("Constructor done");
 

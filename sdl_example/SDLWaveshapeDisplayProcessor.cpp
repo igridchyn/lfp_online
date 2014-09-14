@@ -45,7 +45,7 @@ void SDLWaveshapeDisplayProcessor::process() {
     const ColorPalette& colpal = ColorPalette::BrewerPalette12;
     SDL_SetRenderDrawColor(renderer_, colpal.getR(disp_cluster_) ,colpal.getG(disp_cluster_), colpal.getB(disp_cluster_),255);
     
-    while(buf_pointer_ < buffer->spike_buf_no_rec){
+    while(buf_pointer_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
         // !!! PLOTTING EVERY N-th spike

@@ -39,14 +39,25 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
 //	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");
 //	Config *config = new Config("../Res/spike_detection_jc103.conf");
-	Config *config = new Config("../Res/signal_display.conf");
+//	Config *config = new Config("../Res/spike_detection_jc117_load_pc_gmm.conf");
+//	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2.conf");
+//	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2_npc2_step2.conf");
+//	Config *config = new Config("../Res/jc117_power.conf");
+	Config *config = new Config("../Res/spike_detection_jc117_0911_screen2.conf");
+
+//	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
-	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
+	std::string binpath = config->getString("bin.path");
+	if (!Utils::FS::FileExists(binpath)){
+		std::cout << "File doesn't exist: " << binpath << "\n";
+		exit(1);
+	}
+	FILE *f = fopen(binpath.c_str(), "rb");
 #endif
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
-	const unsigned int nblock = 2;
+	const unsigned int nblock = 1;
 	unsigned char *block = new unsigned char[CHUNK_SIZE * nblock];
 
 	LFPBuffer *buf = new LFPBuffer(config);
@@ -83,29 +94,6 @@ void draw_bin() {
 #else // WIN32
 	int main(int argc, char *argv[]){
 #endif // WIN32
-	// draw_test(window, renderer, texture);
-
-	//TEST DATA; for this channels: 8-11 : 2 clear CLUSTERS; fixed THRESHOLD !
-//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/jc11-1704_20.BIN");
-
-//    draw_bin("/Users/igridchyn/test-data/haibing/jc11/1403-1406/jc11-1t204_01.BIN");
-
-//    draw_bin("/Users/igridchyn/test-data/peter/jc85-2211-02checkaxona10m.bin.64.1");
-	//draw_bin(window, renderer, texture, "/Users/igridchyn/Projects/sdl_example/bin/polarity.bin");
-
-	// many units
-//    draw_bin("/Users/igridchyn/test-data/haibing/jc86/jc86-2612_01.bin");
-
-	// jc-103, screening
-	// 12th tetrode
-//    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2305_02_explore.bin");
-
-	// SAVED CLUSTERING AVAILABLE, tetrodes in layer: 1,3,(4),5,6,7,9,10
-//    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-2705_02l.bin");
-//    draw_bin("/Users/igridchyn/data/bindata/jc103/jc103-0106_03l.bin");
-
-//    draw_bin("/run/media/igor/63ce153c-da52-47cf-b229-f0bc4078cd52/data/bindata/jc58/trial100.bin");
-//	draw_bin("/hd1/data/bindata/jc103/0606/jc103-0606_03l.bin");
 	draw_bin();
 
 	return 0;
