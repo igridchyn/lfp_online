@@ -17,7 +17,17 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	Log("Constructor start");
 
 #ifdef _WIN32
-	Opendriver();
+	//Opendriver();
+
+	// way 2
+	hInpOutDll = LoadLibrary("InpOut32.DLL");
+	if (hInpOutDll != NULL)
+	{
+		gfpOut32 = (lpOut32)GetProcAddress(hInpOutDll, "Out32");
+		gfpInp32 = (lpInp32)GetProcAddress(hInpOutDll, "Inp32");
+		gfpIsInpOutDriverOpen = (lpIsInpOutDriverOpen)GetProcAddress(hInpOutDll, "IsInpOutDriverOpen");
+		gfpIsXP64Bit = (lpIsXP64Bit)GetProcAddress(hInpOutDll, "IsXP64Bit");
+	}
 #endif
 
 	Log("Constructor done");
@@ -35,7 +45,12 @@ void LPTTriggerProcessor::process() {
 			std::cout << "set low at " << buffer->buf_pos_trig_ << "\n";
 			buffer->log_stream << "INFO: LPT Trigger: detect DROP at " << buffer->buf_pos_trig_ << "\n";
 #ifdef _WIN32
-			Out32(0x0378, 0xFF);
+			//Out32(0x0378, 0xFF);
+			//Out32(0xE050, 0xFF);
+
+			// way2
+			short iPort = 0xE050;
+			gfpOut32(iPort, 0xFF);
 #endif
 		}
 
@@ -46,7 +61,12 @@ void LPTTriggerProcessor::process() {
 			std::cout << "set high at " << buffer->buf_pos_trig_ << "\n";
 			buffer->log_stream << "INFO: LPT Trigger: detect CLIMB at " << buffer->buf_pos_trig_ << "\n";
 #ifdef _WIN32
-			Out32(0x0378, 0x00);
+			//Out32(0x0378, 0x00);
+			//Out32(0xE050, 0x00);
+
+			//way 2
+			short iPort = 0xE050;
+			gfpOut32(iPort, 0x00);
 #endif
 		}
 
