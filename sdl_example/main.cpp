@@ -17,10 +17,11 @@ void draw_bin() {
 #ifdef _WIN32
 	std::string conf_path = "../Res/spike_detection_jc103_win.conf";
 	//Config *config = new Config(conf_path);
-	Config *config = new Config("../Res/signal_display_win.conf");
+	Config *config = new Config("../Res/signal_display_win2.conf");
 	//FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
-	FILE *f = fopen("D:/data/igor/test1.bin", "rb");
+	//FILE *f = fopen("D:/data/igor/test1.bin", "rb");
 	//FILE *f = fopen("D:/data/igor/test/square.bin", "rb");
+	FILE *f = fopen("d:/Igor/data/jc117_0914_screen3.bin", "rb");
 #elif defined(__APPLE__)
     // square wave signal - for delay and stability testing
 //    Config *config = new Config("../Res/signal_display_mac.conf");
