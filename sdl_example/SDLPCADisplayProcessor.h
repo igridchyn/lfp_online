@@ -42,6 +42,13 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     // rendering frequency (redraw each rend_freq spikes)
     const int rend_freq_;
 
+    // save/load polygon clusters
+    const int poly_save_;
+    const int poly_load_;
+    std::string poly_path_;
+
+    void save_polygon_clusters();
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,

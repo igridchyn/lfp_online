@@ -34,11 +34,40 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , shift_y_(shift_y)
 , time_end_(buffer->SAMPLING_RATE * 60)
 , rend_freq_(buffer->config_->getInt("pcadisp.rend.rate", 5))
+, poly_save_(buffer->config_->getBool("pcadisp.poly.save", false))
+, poly_load_(buffer->config_->getBool("pcadisp.poly.load", false))
+, poly_path_(buffer->config_->getString("pcadisp.poly.path", ""))
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 
     for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
     	polygon_clusters_.push_back(std::vector<PolygonCluster>());
+    }
+
+    if(poly_load_){
+
+    	if (Utils::FS::FileExists(poly_path_)){
+
+			std::ifstream fpoly(poly_path_);
+			// n tetr / n polycs / polycs
+			int ntetr = 0;
+			fpoly >> ntetr;
+
+			if (ntetr == buffer->tetr_info_->tetrodes_number){
+				for(int t=0; t < ntetr; ++t){
+					int nclust = 0;
+					fpoly >> nclust;
+					for (int c=0; c < nclust; ++c){
+						polygon_clusters_[t].push_back(PolygonCluster(fpoly));
+					}
+				}
+			}
+			else{
+				buffer->Log("Number of tetrodes in clustering file is different from current number of tetrodes");
+			}
+    	}else{
+    		buffer->Log("ERROR: Polygon clusters file not found!");
+    	}
     }
 }
 
@@ -138,6 +167,27 @@ void SDLPCADisplayProcessor::process(){
     }
 }
 
+void SDLPCADisplayProcessor::save_polygon_clusters() {
+	if (poly_path_.length() == 0){
+		buffer->Log("ERROR: Polygon cluster file path was not specified in the config");
+		return;
+	}
+
+	std::ofstream fpoly(poly_path_);
+
+	int ntetr = buffer->tetr_info_->tetrodes_number;
+	fpoly << ntetr << "\n";
+
+	for(int t=0; t < ntetr; ++t){
+		fpoly << polygon_clusters_[t].size() << "\n";
+		for (int c=0; c < polygon_clusters_[t].size(); ++c){
+			polygon_clusters_[t][c].Serialize(fpoly);
+		}
+	}
+
+	fpoly.close();
+}
+
 void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	if (e.type == SDL_MOUSEBUTTONDOWN){
 		if (e.button.button == SDL_BUTTON_LEFT){
@@ -188,6 +238,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         	case SDLK_a:
         		polygon_clusters_[target_tetrode_].push_back(PolygonCluster(PolygonClusterProjection(polygon_x_, polygon_y_, comp1_, comp2_)));
         		buffer->Log("Created new polygon cluster, total clusters = ", polygon_clusters_[target_tetrode_].size());
+        		save_polygon_clusters();
 
         		polygon_closed_ = false;
         		polygon_x_.clear();
