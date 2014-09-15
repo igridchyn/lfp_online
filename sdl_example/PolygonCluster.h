@@ -20,6 +20,8 @@ public:
 	PolygonClusterProjection(const std::vector<float> coords1, const std::vector<float> coords2, int dim1, int dim2);
 	PolygonClusterProjection(std::ifstream& file);
 
+	bool Contains(float x, float y);
+
 	void Serialize(std::ofstream& file);
 };
 
@@ -28,6 +30,7 @@ public:
 	std::vector<PolygonClusterProjection> projections_;
 
 	inline int NProj() { return projections_.size(); };
+	bool ContainsConvex(float x, float y);
 	bool Contains(float x, float y);
 	void Serialize(std::ofstream& file);
 
