@@ -89,6 +89,9 @@ void FrequencyPowerBandProcessor::process_SDL_control_input(
 
 void FrequencyPowerBandProcessor::SetDisplayTetrode(
 		const unsigned int& display_tetrode) {
-	channel_ = display_tetrode * 4;
+	channel_ = buffer->tetr_info_->tetrode_channels[display_tetrode][0];
 }
 
+FrequencyPowerBandProcessor::~FrequencyPowerBandProcessor(){
+	buffer->Log("Deleting Frequency Power Band Processor...");
+}
