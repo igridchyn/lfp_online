@@ -251,8 +251,10 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
         sz2+=ev[j];
     }
     
-    printf("  Overall projected variances : %f5.4\n",sz2/sz1);
-    assert(sz2 <= sz1);
+    printf("  Overall projected variances : %f5.4\n",sz2 / sz1);
+
+	// TODO !!! debug this with file with no spikes
+    // assert(sz2 <= sz1);
     
     free(ev);
     free(ind);

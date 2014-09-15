@@ -22,7 +22,8 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 		const unsigned int& window_width,
     		const unsigned int& window_height)
     : SDLControlInputProcessor(buf)
-    , SDLSingleWindowDisplay(window_name, window_width, window_height){ }
+    , SDLSingleWindowDisplay(window_name, window_width, window_height)
+	, LFPProcessor(buf){ }
 
 int transform(int smpl, int chan){
     return 100 + smpl/25 + 200 * chan;

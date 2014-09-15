@@ -11,7 +11,7 @@
 
 #include "PolygonCluster.h"
 
-class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor{
+class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
     
     ColorPalette palette_;
     // TODO: display for multiple tetrodes with ability to switch
@@ -68,6 +68,8 @@ public:
     
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
+
+	virtual ~SDLPCADisplayProcessor(){};
 };
 
 #endif

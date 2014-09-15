@@ -35,6 +35,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)
 : SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("pf", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
+, LFPProcessor(buf)
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbins_(nbins)

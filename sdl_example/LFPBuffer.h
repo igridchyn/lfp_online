@@ -156,6 +156,7 @@ public:
     //====================================================================================================
     
     LFPBuffer(Config* config);
+	~LFPBuffer();
     
     void Reset(Config* config);
 
@@ -212,6 +213,8 @@ public:
     		if(!boost::filesystem::exists(path_dir)){
     			boost::filesystem::create_directories(path_dir);
     		}
+
+			return true;
     	}
     };
 };

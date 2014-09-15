@@ -14,7 +14,7 @@
 
 //==========================================================================================
 
-class PlaceFieldProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay {
+class PlaceFieldProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
     const float SPEED_THOLD = 80.0f;
     const float EPS = 0.001f;
     

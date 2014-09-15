@@ -12,7 +12,7 @@
 #include <iostream>
 #include "LFPProcessor.h"
 
-class PositionDisplayProcessor : public SDLControlInputProcessor, public SDLSingleWindowDisplay{
+class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     unsigned int target_tetrode_;
     std::vector<bool> display_cluster_;
     

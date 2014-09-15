@@ -15,7 +15,7 @@
 
 #endif /* defined(__sdl_example__AutocorrelogramProcessor__) */
 
-class AutocorrelogramProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor{
+class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
     
     unsigned int display_tetrode_ = 0;
     bool wait_clustering_;

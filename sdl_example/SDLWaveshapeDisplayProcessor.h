@@ -9,7 +9,7 @@
 #ifndef sdl_example_SDLWaveshapeDisplayProcessor_h
 #define sdl_example_SDLWaveshapeDisplayProcessor_h
 
-class SDLWaveshapeDisplayProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor {
+class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor {
     unsigned int buf_pointer_;
     unsigned last_disp_pkg_id_ = 0;
     

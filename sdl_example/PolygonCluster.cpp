@@ -147,7 +147,7 @@ bool PolygonClusterProjection::Contains(float x, float y) {
 		}
 	}
 
-	return (ncross % 2 == 0) xor left;
+	return (ncross % 2 == 0) ^ left;
 }
 
 void PolygonClusterProjection::Serialize(std::ofstream& file) {

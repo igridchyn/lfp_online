@@ -34,6 +34,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
 		const unsigned int& window_height, std::vector<unsigned int> displayed_channels)
     : SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
+	, LFPProcessor(buffer)
     , displayed_channels_(displayed_channels)
     , current_x(0)
     , last_disp_pos(0)

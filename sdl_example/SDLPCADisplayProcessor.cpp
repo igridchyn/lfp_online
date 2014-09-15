@@ -25,6 +25,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 		const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift_x, const int shift_y)
 : SDLControlInputProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
+, LFPProcessor(buffer)
 // paired qualitative brewer palette
 , palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928})
 , target_tetrode_(target_tetrode)

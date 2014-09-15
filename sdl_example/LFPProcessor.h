@@ -70,7 +70,7 @@ public:
     virtual void process() = 0;
     LFPProcessor(LFPBuffer *buf)
     :buffer(buf){}
-	virtual ~LFPProcessor(){};
+	virtual ~LFPProcessor(){ buffer->Log(std::string("Destructor of") + name()); }
 };
 
 //====================================================================================================
@@ -86,6 +86,8 @@ protected:
     
     ColorPalette palette_;
     
+	std::string name_;
+
     void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
     
 public:
@@ -100,7 +102,7 @@ public:
 
 // tetrodes switch: implement separate interface or provide [dummy] implementation of SetDisplayTetrode() if not supported
 
-class SDLControlInputProcessor : public LFPProcessor{
+class SDLControlInputProcessor : virtual public LFPProcessor{
 public:
     SDLControlInputProcessor(LFPBuffer *buf);
     
@@ -108,6 +110,7 @@ public:
     virtual void process() = 0;
     
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode) = 0;
+	virtual ~SDLControlInputProcessor() {};
 };
 
 //====================================================================================================
@@ -196,7 +199,7 @@ public:
 
 //==========================================================================================
 
-class FrequencyPowerBandProcessor : public SDLSingleWindowDisplay, public SDLControlInputProcessor{
+class FrequencyPowerBandProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
     const int FACTOR;
     const int BUF_LEN;
     const int ANAL_RATE;

@@ -201,6 +201,9 @@ void LFPBuffer::Reset(Config* config) {
 	}
 }
 
+LFPBuffer::~LFPBuffer(){
+	Log("Buffer destructor called");
+}
 
 LFPBuffer::LFPBuffer(Config* config)
 : POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
@@ -216,7 +219,11 @@ LFPBuffer::LFPBuffer(Config* config)
 
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
 
-	log_stream.open("lfponline_LOG.txt");
+	// TODO !!! creatre normal random name
+	
+	srand(time(NULL));
+	int i = rand() % 64;
+	log_stream.open(std::string("lfponline_LOG_") + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
 
     Reset(config);
 }
