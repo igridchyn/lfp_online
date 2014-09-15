@@ -70,6 +70,7 @@ public:
     virtual void process() = 0;
     LFPProcessor(LFPBuffer *buf)
     :buffer(buf){}
+	virtual ~LFPProcessor(){};
 };
 
 //====================================================================================================
@@ -91,6 +92,8 @@ public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
     virtual void ReinitScreen();
     virtual unsigned int GetWindowID();
+
+	virtual ~SDLSingleWindowDisplay();
 };
 
 //====================================================================================================
@@ -209,6 +212,8 @@ public:
     // SDLControlInputProcessor
     virtual void process_SDL_control_input(const SDL_Event& e);
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
+
+	virtual ~FrequencyPowerBandProcessor();
 };
 
 

@@ -19,6 +19,9 @@ void SDLSingleWindowDisplay::FillRect(const int x, const int y, const int cluste
     SDL_RenderFillRect(renderer_, &rect);
 }
 
+SDLSingleWindowDisplay::~SDLSingleWindowDisplay(){
+	SDL_DestroyWindow(window_);
+}
 
 SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
 : window_width_(window_width)
