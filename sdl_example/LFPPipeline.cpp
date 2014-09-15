@@ -30,7 +30,8 @@
 #include "WhlFileReaderProcessor.h"
 #include "LPTTriggerProcessor.h"
 
-LFPPipeline::LFPPipeline(LFPBuffer *buf){
+LFPPipeline::LFPPipeline(LFPBuffer *buf)
+	:buf_(buf){
 	const std::vector<std::string>& processor_names = buf->config_->processors_list_;
 
 	for (int i = 0; i < processor_names.size(); ++i) {
@@ -97,7 +98,10 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf){
 }
 
 LFPPipeline::~LFPPipeline(){
-	for (int i=0; i > processors.size(); ++i){
+	buf_->Log("Pipeline destructor called");
+
+	for (int i=0; i < processors.size(); ++i){
+		buf_->Log("Destroying processor #", i);
 		delete processors[i];
 	}
 }

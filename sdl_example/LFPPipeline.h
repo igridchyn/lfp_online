@@ -15,7 +15,8 @@
 
 class LFPONLINEAPI LFPPipeline{
     std::vector<LFPProcessor*> processors;
-    
+	LFPBuffer *buf_;
+
 public:
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
     void process(unsigned char *data);
