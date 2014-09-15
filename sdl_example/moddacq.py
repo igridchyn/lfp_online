@@ -142,9 +142,13 @@ DWORD attributes, HANDLE templ )
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
 				 //MessageBoxW(0, fileext, L"Creating BIN W!", 0);
-				 if (check_bin > 1 && !pipeline){
+				 if (check_bin > 1){
+					if(pipeline){
+						delete pipeline;
+						delete buf;
+					}
+				 
 					Config *config = new Config("c:/Users/data/igor/code/sdl_example/sdl_example/Res/signal_display_win.conf");
-					CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 					buf = new LFPBuffer(config);
 					pipeline = new LFPPipeline(buf);
 					
