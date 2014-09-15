@@ -47,6 +47,10 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     const int poly_load_;
     std::string poly_path_;
 
+    // beware: this using numbering from 0, while 0 means unknown cluster
+    int selected_cluster1_ = -1;
+    int selected_cluster2_ = -1;
+
     void save_polygon_clusters();
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }

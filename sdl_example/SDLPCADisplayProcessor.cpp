@@ -111,15 +111,16 @@ void SDLPCADisplayProcessor::process(){
         		// TODO use other dimensions if cluster has the other one
 
         		// TODO !!! incapsulate after linearizing PC
-        		int contains = true;
+        		int contains = false;
 
         		for (int p=0; p < polygon_clusters_[target_tetrode_][i].projections_.size(); ++p){
         			int dim1 = polygon_clusters_[target_tetrode_][i].projections_[p].dim1_;
         			int dim2 = polygon_clusters_[target_tetrode_][i].projections_[p].dim2_;
 
-        			if(!polygon_clusters_[target_tetrode_][i].projections_[p].Contains(spike->pc[dim1 % nchan_][dim1 / nchan_],
+        			// should fall into either of the clusters
+        			if(polygon_clusters_[target_tetrode_][i].projections_[p].Contains(spike->pc[dim1 % nchan_][dim1 / nchan_],
         					spike->pc[dim2 % nchan_][dim2 / nchan_])){
-        				contains = false;
+        				contains = true;
         				break;
         			}
         		}
@@ -180,6 +181,41 @@ void SDLPCADisplayProcessor::process(){
         		SDL_RenderDrawLine(renderer_, px, py, x, y);
         	}
         }
+
+        // TODO !!! don't redraw every time?
+        if (selected_cluster1_ >= 0){
+        	for(int p=0; p < polygon_clusters_[target_tetrode_][selected_cluster1_].projections_.size(); ++p){
+        		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][selected_cluster1_].projections_[p];
+        		// TODO Process inverted dim1/dim2 - everywhere
+        		if (proj.dim1_ == comp1_ && proj.dim2_ == comp2_){
+        			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
+        			for (int pt=1;pt < proj.coords1_.size(); ++pt){
+        				int x = scale_x(proj.coords1_[pt-1]);
+        				int y = scale_y(proj.coords2_[pt-1]);
+        				int x2 = scale_x(proj.coords1_[pt]);
+        				int y2 = scale_y(proj.coords2_[pt]);
+        				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
+        			}
+        		}
+        	}
+        }
+        if (selected_cluster2_ >= 0){
+                	for(int p=0; p < polygon_clusters_[target_tetrode_][selected_cluster2_].projections_.size(); ++p){
+                		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][selected_cluster2_].projections_[p];
+                		// TODO Process inverted dim1/dim2 - everywhere
+                		if (proj.dim1_ == comp1_ && proj.dim2_ == comp2_){
+                			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+                			for (int pt=1;pt < proj.coords1_.size(); ++pt){
+                				int x = scale_x(proj.coords1_[pt-1]);
+                				int y = scale_y(proj.coords2_[pt-1]);
+                				int x2 = scale_x(proj.coords1_[pt]);
+                				int y2 = scale_y(proj.coords2_[pt]);
+                				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
+                			}
+                		}
+                	}
+                }
+
         if (polygon_closed_){
         	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
@@ -210,16 +246,66 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 }
 
 void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
+	SDL_Keymod kmod = SDL_GetModState();
+
+	bool need_redraw = false;
+
 	if (e.type == SDL_MOUSEBUTTONDOWN){
 		if (e.button.button == SDL_BUTTON_LEFT){
-			std::cout << "Left button at " << e.button.x << ", " << e.button.y << "\n";
-			if (!polygon_closed_){
-				polygon_x_.push_back((e.button.x - shift_x_) * scale_);
-				polygon_y_.push_back((e.button.y - shift_y_) * scale_);
-			}else{
-				polygon_closed_ = false;
-				polygon_x_.clear();
-				polygon_y_.clear();
+			// select cluster
+			if (kmod & KMOD_LCTRL){
+				float rawx = (e.button.x - shift_x_) * scale_;
+				float rawy = (e.button.y - shift_y_) * scale_;
+
+				for(int c=0; c < polygon_clusters_[target_tetrode_].size(); ++c){
+					if (polygon_clusters_[target_tetrode_][c].Contains(rawx, rawy)){
+						if (selected_cluster1_ >= 0){
+							if (selected_cluster1_ == c){
+								selected_cluster1_ = -1;
+							}
+							else{
+								selected_cluster1_ = c;
+							}
+						}
+						else{
+							selected_cluster1_ = c;
+						}
+						need_redraw = true;
+						break;
+					}
+				}
+			}else if (kmod & KMOD_LSHIFT){
+				float rawx = (e.button.x - shift_x_) * scale_;
+				float rawy = (e.button.y - shift_y_) * scale_;
+
+				for(int c=0; c < polygon_clusters_[target_tetrode_].size(); ++c){
+					if (polygon_clusters_[target_tetrode_][c].Contains(rawx, rawy)){
+						if (selected_cluster2_ >= 0){
+							if (selected_cluster2_ == c){
+								selected_cluster2_ = -1;
+							}
+							else{
+								selected_cluster2_ = c;
+							}
+						}
+						else{
+							selected_cluster2_ = c;
+						}
+						need_redraw = true;
+						break;
+					}
+				}
+			}
+			else{
+				std::cout << "Left button at " << e.button.x << ", " << e.button.y << "\n";
+				if (!polygon_closed_){
+					polygon_x_.push_back((e.button.x - shift_x_) * scale_);
+					polygon_y_.push_back((e.button.y - shift_y_) * scale_);
+				}else{
+					polygon_closed_ = false;
+					polygon_x_.clear();
+					polygon_y_.clear();
+				}
 			}
 		}else if(e.button.button == SDL_BUTTON_MIDDLE){
 			polygon_closed_ = true;
@@ -229,7 +315,6 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 		}
 	}
 
-	bool need_redraw = false;
 
 	if (e.type == SDL_MOUSEWHEEL){
 //		std::cout << e.wheel.y << "\n";
@@ -240,7 +325,6 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     if( e.type == SDL_KEYDOWN )
     {
     	need_redraw = true;
-        SDL_Keymod kmod = SDL_GetModState();
         
         // select clusters from 10 to 29
         int shift = 0;
@@ -252,9 +336,43 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         	}
         }
 
+        PolygonClusterProjection tmpproj(polygon_x_, polygon_y_, comp1_, comp2_);
+
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
+        	// merge clusters
+        	case SDLK_m:
+        		if (selected_cluster1_ < 0 || selected_cluster2_ < 0)
+        			break;
+
+        		if (selected_cluster1_ > selected_cluster2_){
+        			int swap = selected_cluster1_;
+        			selected_cluster1_ = selected_cluster2_;
+        			selected_cluster2_ = swap;
+        		}
+
+        		polygon_clusters_[target_tetrode_][selected_cluster1_].projections_.insert(polygon_clusters_[target_tetrode_][selected_cluster1_].projections_.end(),
+        				polygon_clusters_[target_tetrode_][selected_cluster2_].projections_.begin(), polygon_clusters_[target_tetrode_][selected_cluster2_].projections_.end());
+
+        		// ??? change spike cluster from the beginning, redraw after
+        		for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+        			Spike *spike = buffer->spike_buffer_[sind];
+        			if (spike->tetrode_ != target_tetrode_)
+        				continue;
+
+        			if (spike->cluster_id_ == selected_cluster2_ + 1)
+        				spike->cluster_id_ = selected_cluster1_ + 1;
+        		}
+
+        		// remove cluster from list of tetrode poly clusters
+        		polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + selected_cluster2_);
+
+        		// unselect second cluster
+        		selected_cluster2_ = -1;
+
+        		break;
+
         	// polygon operations
         	case SDLK_a:
         		polygon_clusters_[target_tetrode_].push_back(PolygonCluster(PolygonClusterProjection(polygon_x_, polygon_y_, comp1_, comp2_)));
@@ -266,7 +384,25 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		polygon_y_.clear();
         		break;
 
-        	// D: delete all clusters
+        	// r: set cluster to unassigned in selected spikes
+        	case SDLK_r:
+        		for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+        			Spike *spike = buffer->spike_buffer_[sind];
+        			if (spike->tetrode_ != target_tetrode_)
+        				continue;
+
+        			if (spike -> cluster_id_ > -1){
+        				float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+        				float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+
+        				if (tmpproj.Contains(rawx, rawy)){
+        					spike->cluster_id_ = -1;
+        				}
+        			}
+        		}
+        		break;
+
+        	// D: delete all clusters, d: delete last polygon point
         	case SDLK_d:
         		if (kmod & KMOD_LSHIFT){
         			polygon_clusters_[target_tetrode_].clear();
@@ -281,7 +417,11 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			}
 
         		}else{
-        			need_redraw = false;
+        			if (polygon_x_.size() > 0){
+        				polygon_x_.erase(polygon_x_.end() - 1);
+        				polygon_y_.erase(polygon_y_.end() - 1);
+        			}
+        			// need_redraw = false;
         		}
         		break;
 
