@@ -31,14 +31,17 @@ void Config::read_processors(std::ifstream& fconf) {
 	std::string proc_name;
 	for (int p = 0; p < numproc; ++p) {
 		fconf >> proc_name;
-		if (std::find(known_processors_.begin(), known_processors_.end(), proc_name) == known_processors_.end()){
+		if (std::find(known_processors_.begin(), known_processors_.end(), proc_name) == known_processors_.end() &&
+				(proc_name[0]!='/' || proc_name[1]!='/' ||
+						std::find(known_processors_.begin(), known_processors_.end(), proc_name.substr(2, proc_name.length() - 2)) == known_processors_.end())){
 			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			log_ << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			log_.close();
 			exit(1);
 		}
 
-		processors_list_.push_back(proc_name);
+		if (!(proc_name[0]=='/' && proc_name[1] == '/'))
+			processors_list_.push_back(proc_name);
 	}
 }
 
