@@ -66,8 +66,10 @@ PolygonClusterProjection::PolygonClusterProjection(
 	// inverse points if they go counter-clock-wise
 
 	// duplicate first point for processing simplicity
-	coords1_.push_back(coords1_[0]);
-	coords2_.push_back(coords2_[0]);
+	if (coords1_.size() > 0) {
+		coords1_.push_back(coords1_[0]);
+		coords2_.push_back(coords2_[0]);
+	}
 
 	// TODO !!! fix for non-convex
 //	if (!IsFromRight(coords1[0], coords2[0], coords1[1], coords2[1], coords1[2], coords2[2])){
