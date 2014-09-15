@@ -6,6 +6,7 @@
  */
 
 #include "Config.h"
+#include "LFPBuffer.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -190,6 +191,35 @@ std::string Config::getString(std::string name, std::string def_val) {
 	else{
 		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
 		return def_val;
+	}
+}
+
+std::string Config::getOutPath(std::string outname) {
+	std::string outval = getString(outname);
+	bool append = getBool("out.path.append");
+
+	if (append){
+		outval = getString("out.path.base") + outval;
+	}
+
+	Utils::FS::CreateDirectories(outval);
+	return outval;
+}
+
+std::string Config::getOutPath(std::string outname,
+		std::string default_append) {
+	bool append = getBool("out.path.append");
+	if (!check_parameter(outname, false)){
+		if (append){
+			return getString("out.path.base") + default_append;
+		}
+		else{
+			log_ << "ERROR: default out path is allowed only if append is enabled, not path for " << outname << "\n";
+			exit(1);
+		}
+	}
+	else{
+		return getOutPath(outname);
 	}
 }
 

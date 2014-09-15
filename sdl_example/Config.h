@@ -50,6 +50,9 @@ public:
 	std::string getString(std::string name);
 	std::string getString(std::string name, std::string def_val);
 
+	std::string getOutPath(std::string outname);
+	std::string getOutPath(std::string outname, std::string default_append);
+
 	void checkUnused();
 
 	virtual ~Config();
