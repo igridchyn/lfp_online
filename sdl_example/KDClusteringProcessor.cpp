@@ -48,7 +48,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf)
 	: KDClusteringProcessor(buf,
 			buf->config_->getInt("kd.min.spikes"),
-			buf->config_->getString("kd.path.base"),
+			buf->config_->getOutPath("kd.path.base"),
 			buf->config_->getInt("kd.sampling.delay"),
 			buf->config_->getBool("kd.save"),
 			!buf->config_->getBool("kd.save"),

@@ -36,7 +36,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , rend_freq_(buffer->config_->getInt("pcadisp.rend.rate", 5))
 , poly_save_(buffer->config_->getBool("pcadisp.poly.save", false))
 , poly_load_(buffer->config_->getBool("pcadisp.poly.load", false))
-, poly_path_(buffer->config_->getString("pcadisp.poly.path", ""))
+, poly_path_(buffer->config_->getOutPath("pcadisp.poly.path", "poly.dat"))
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 

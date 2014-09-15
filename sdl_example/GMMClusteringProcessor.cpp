@@ -65,7 +65,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer* buf)
 			buf->config_->getInt("gmm.max.clusters"),
 			buf->config_->getBool("gmm.load"),
 			buf->config_->getBool("gmm.save", ! buf->config_->getBool("gmm.load")),
-			buf->config_->getString("gmm.path.base")
+			buf->config_->getOutPath("gmm.path.base")
 			)
 	{
 }

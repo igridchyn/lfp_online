@@ -23,7 +23,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)
 			buf->config_->getInt("pf.spread"),
 			!buf->config_->getBool("pf.save"),
 			buf->config_->getBool("pf.save"),
-			buf->config_->getString("pf.base.path"),
+			buf->config_->getOutPath("pf.base.path"),
 			buf->config_->getFloat("pf.prediction.firing.rate.threshold"),
 			buf->config_->getInt("pf.min.pkg.id"),
 			buf->config_->getBool("pf.use.prior"))

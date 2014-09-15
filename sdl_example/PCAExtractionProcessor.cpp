@@ -266,7 +266,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer* buffer)
 		buffer->config_->getInt("pca.min.samples"),
 		buffer->config_->getBool("pca.load"),
 		buffer->config_->getBool("pca.save", !buffer->config_->getBool("pca.load")),
-		buffer->config_->getString("pca.path.base")
+		buffer->config_->getOutPath("pca.path.base")
 		){
 }
 

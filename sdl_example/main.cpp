@@ -43,7 +43,8 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2_npc2_step2.conf");
 //	Config *config = new Config("../Res/jc117_power.conf");
-	Config *config = new Config("../Res/spike_detection_jc117_0911_screen2.conf");
+//	Config *config = new Config("../Res/spike_detection_jc117_0911_screen2.conf");
+	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
