@@ -98,15 +98,18 @@ void SDLPCADisplayProcessor::process(){
         int x;
         int y;
 
-        x = spike->pc[comp1_ % nchan_][comp1_ / nchan_]/scale_ + shift_x_;
-        y = spike->pc[comp2_ % nchan_][comp2_ / nchan_]/scale_ + shift_y_;
+        float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+        float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+
+        x = rawx / scale_ + shift_x_;
+        y = rawy / scale_ + shift_y_;
 
         // polygon cluster
         // TODO use scaled coordinates
         if (spike->cluster_id_ == -1){
         	for (int i=0; i < polygon_clusters_[target_tetrode_].size(); ++i){
         		// TODO use other dimensions if cluster has the other one
-        		if (polygon_clusters_[target_tetrode_][i].Contains(x, y)){
+        		if (polygon_clusters_[target_tetrode_][i].Contains(rawx, rawy)){
         			spike->cluster_id_ = i + 1;
         		}
         	}
@@ -145,22 +148,23 @@ void SDLPCADisplayProcessor::process(){
         SDL_RenderDrawLine(renderer_, shift_x_, 0, shift_x_, window_height_);
 
         // polygon vertices
+        // TODO don't redraw every time ???
         for(int i=0; i < polygon_x_.size(); ++i){
         	SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
-        	int x = polygon_x_[i];
-        	int y = polygon_y_[i];
+        	int x = polygon_x_[i] / scale_ + shift_x_;
+        	int y = polygon_y_[i] / scale_ + shift_y_;
         	int w = 3;
         	SDL_RenderDrawLine(renderer_, x-w, y, x+w, y);
         	SDL_RenderDrawLine(renderer_, x, y-w, x, y+w);
 
         	if (i > 0){
-        		int px = polygon_x_[i-1];
-        		int py = polygon_y_[i-1];
+        		int px = polygon_x_[i-1] / scale_ + shift_x_;
+        		int py = polygon_y_[i-1] / scale_ + shift_y_;
         		SDL_RenderDrawLine(renderer_, px, py, x, y);
         	}
         }
         if (polygon_closed_){
-        	SDL_RenderDrawLine(renderer_, polygon_x_[0], polygon_y_[0], polygon_x_[polygon_x_.size() - 1], polygon_y_[polygon_y_.size() - 1]);
+        	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
 
         SDL_RenderPresent(renderer_);
@@ -193,8 +197,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 		if (e.button.button == SDL_BUTTON_LEFT){
 			std::cout << "Left button at " << e.button.x << ", " << e.button.y << "\n";
 			if (!polygon_closed_){
-				polygon_x_.push_back(e.button.x);
-				polygon_y_.push_back(e.button.y);
+				polygon_x_.push_back((e.button.x - shift_x_) * scale_);
+				polygon_y_.push_back((e.button.y - shift_y_) * scale_);
 			}else{
 				polygon_closed_ = false;
 				polygon_x_.clear();

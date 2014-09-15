@@ -48,6 +48,8 @@ class SDLPCADisplayProcessor : public SDLSingleWindowDisplay, public SDLControlI
     std::string poly_path_;
 
     void save_polygon_clusters();
+    inline float scale_x(float x) { return x / scale_ + shift_x_; }
+    inline float scale_y(float y) { return y / scale_ + shift_y_; }
 
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
