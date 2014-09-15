@@ -51,7 +51,8 @@ void SDLControlInputMetaProcessor::process(){
             // check for control switch
             if( e.type == SDL_KEYDOWN ){
                 SDL_Keymod kmod = SDL_GetModState();
-                if (kmod & KMOD_LCTRL){
+                // can switch just by changing window focus
+                if (kmod & KMOD_RCTRL){
                     // switch to corresponding processor
                     const unsigned int& cp_num = (unsigned int)control_processors_.size();
 
