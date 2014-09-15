@@ -21,6 +21,7 @@
 #include "Config.h"
 
 #include <armadillo>
+#include <boost/filesystem.hpp>
 
 #ifdef _WIN32
 #define _USE_MATH_DEFINES
@@ -202,6 +203,15 @@ public:
     	        return true;
     	    }
     	    return false;
+    	}
+
+    	// create directories at all levels up to the file specified in the argument
+    	static bool CreateDirectories(const std::string file_path){
+    		std::string  path_dir = file_path.substr(0, file_path.find_last_of('/'));
+    		std::cout << "Create directory " << path_dir << "\n";
+    		if(!boost::filesystem::exists(path_dir)){
+    			boost::filesystem::create_directories(path_dir);
+    		}
     	}
     };
 };
