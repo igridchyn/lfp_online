@@ -109,9 +109,26 @@ void SDLPCADisplayProcessor::process(){
         if (spike->cluster_id_ == -1){
         	for (int i=0; i < polygon_clusters_[target_tetrode_].size(); ++i){
         		// TODO use other dimensions if cluster has the other one
-        		if (polygon_clusters_[target_tetrode_][i].Contains(rawx, rawy)){
+
+        		// TODO !!! incapsulate after linearizing PC
+        		int contains = true;
+
+        		for (int p=0; p < polygon_clusters_[target_tetrode_][i].projections_.size(); ++p){
+        			int dim1 = polygon_clusters_[target_tetrode_][i].projections_[p].dim1_;
+        			int dim2 = polygon_clusters_[target_tetrode_][i].projections_[p].dim2_;
+
+        			if(!polygon_clusters_[target_tetrode_][i].projections_[p].Contains(spike->pc[dim1 % nchan_][dim1 / nchan_],
+        					spike->pc[dim2 % nchan_][dim2 / nchan_])){
+        				contains = false;
+        				break;
+        			}
+        		}
+
+//        		if (polygon_clusters_[target_tetrode_][i].Contains(rawx, rawy)){
+        		if (contains){
         			spike->cluster_id_ = i + 1;
         		}
+
         	}
         }
 
