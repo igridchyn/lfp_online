@@ -251,7 +251,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
 	bool need_redraw = false;
 
-	if (e.type == SDL_MOUSEBUTTONDOWN){
+	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
 		if (e.button.button == SDL_BUTTON_LEFT){
 			// select cluster
 			if (kmod & KMOD_LCTRL){
@@ -372,6 +372,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		// unselect second cluster
         		selected_cluster2_ = -1;
 
+        		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+    			buffer->ac_reset_ = true;
+    			buffer->ac_reset_tetrode_ = target_tetrode_;
+
         		break;
 
         	// polygon operations
@@ -380,27 +384,65 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		buffer->Log("Created new polygon cluster, total clusters = ", polygon_clusters_[target_tetrode_].size());
         		save_polygon_clusters();
 
+        		// TODO ClearPolygon()
         		polygon_closed_ = false;
         		polygon_x_.clear();
         		polygon_y_.clear();
+
+        		// TODO !!! buffer->resetAC()
+        		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+    			buffer->ac_reset_ = true;
+    			buffer->ac_reset_tetrode_ = target_tetrode_;
+
         		break;
 
         	// r: set cluster to unassigned in selected spikes
         	case SDLK_r:
-        		for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
-        			Spike *spike = buffer->spike_buffer_[sind];
-        			if (spike->tetrode_ != target_tetrode_)
-        				continue;
+        		if (kmod & KMOD_LSHIFT){
+        			// DELETE  CLUSTER
+        			if (selected_cluster2_ >= 0){
+        				polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + selected_cluster2_);
 
-        			if (spike -> cluster_id_ > -1){
-        				float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-        				float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+        				// update spikes
+        				for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+        					Spike *spike = buffer->spike_buffer_[sind];
+        					if (spike->tetrode_ != target_tetrode_)
+        						continue;
 
-        				if (tmpproj.Contains(rawx, rawy)){
-        					spike->cluster_id_ = -1;
+        					if (spike -> cluster_id_ == selected_cluster2_ + 1){
+        						spike->cluster_id_ = -1;
+        					}
         				}
+
+        				selected_cluster2_ = -1;
+
+                		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+            			buffer->ac_reset_ = true;
+            			buffer->ac_reset_tetrode_ = target_tetrode_;
         			}
         		}
+        		else{
+        			// TODO either implement polygon intersection or projections logical operations
+        			for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+        				Spike *spike = buffer->spike_buffer_[sind];
+        				if (spike->tetrode_ != target_tetrode_)
+        					continue;
+
+        				if (spike -> cluster_id_ > -1){
+        					float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+        					float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+
+        					if (tmpproj.Contains(rawx, rawy)){
+        						spike->cluster_id_ = -1;
+        					}
+        				}
+        			}
+
+        			polygon_closed_ = false;
+        			polygon_x_.clear();
+        			polygon_y_.clear();
+        		}
+
         		break;
 
         	// D: delete all clusters, d: delete last polygon point
@@ -416,6 +458,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         					spike->cluster_id_ = -1;
         				}
         			}
+
+        			buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+        			buffer->ac_reset_ = true;
+        			buffer->ac_reset_tetrode_ = target_tetrode_;
+
+        			// TODO make separate control for saving (SHIFT+S)
+        			save_polygon_clusters();
 
         		}else{
         			if (polygon_x_.size() > 0){
