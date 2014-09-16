@@ -142,7 +142,7 @@ DWORD attributes, HANDLE templ )
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
 				 //MessageBoxW(0, fileext, L"Creating BIN W!", 0);
-				 if (check_bin > 1){
+				 if (check_bin > 2){
 					if(pipeline){
 						delete pipeline;
 						delete buf;
@@ -151,8 +151,6 @@ DWORD attributes, HANDLE templ )
 					Config *config = new Config("c:/Users/data/igor/code/sdl_example/sdl_example/Res/signal_display_win.conf");
 					buf = new LFPBuffer(config);
 					pipeline = new LFPPipeline(buf);
-					
-					MessageBoxW(0, filename, L"Pipeline created !", 0);
 				 }
 				 
 				openbin = TRUE;
