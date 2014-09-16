@@ -23,9 +23,10 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
     		const unsigned int& window_height)
     : SDLControlInputProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
-	, LFPProcessor(buf){ }
+	, LFPProcessor(buf)
+	, scale_(buf->config_->getInt("waveshapedisp.scale", 25)){ }
 
-int transform(int smpl, int chan){
+float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
     return 100 + smpl/25 + 200 * chan;
 }
 
@@ -37,7 +38,7 @@ void SDLWaveshapeDisplayProcessor::process() {
     // TODO: implement idea above; workaround: rewind if target pointer less than
     
     if (buf_pointer_ > buffer->spike_buf_no_rec){
-        buf_pointer_ = LFPBuffer::BUF_HEAD_LEN;
+        buf_pointer_ = buffer->BUF_HEAD_LEN;
     }
     
     int last_pkg_id = 0;
@@ -49,6 +50,12 @@ void SDLWaveshapeDisplayProcessor::process() {
     while(buf_pointer_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
+        // TODO warn ?
+        if (spike->waveshape == NULL){
+        	buf_pointer_++;
+			continue;
+        }
+
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
         if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(tetrode_total_spikes_ % 50)){

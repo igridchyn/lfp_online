@@ -20,6 +20,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
     
     static const unsigned int DISPLAY_RATE = 10;
     
+    const float scale_;
+
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,
@@ -31,6 +33,8 @@ public:
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
+
+    float transform(float smpl, int chan);
 };
 
 #endif
