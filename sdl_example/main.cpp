@@ -44,7 +44,9 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2_npc2_step2.conf");
 //	Config *config = new Config("../Res/jc117_power.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0911_screen2.conf");
-	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
+//	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
+//	Config *config = new Config("../Res/nocon.conf");
+	Config *config = new Config("../Res/spike_detection_jc117_0916_screen0.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
@@ -63,6 +65,12 @@ void draw_bin() {
 
 	LFPBuffer *buf = new LFPBuffer(config);
 	LFPPipeline *pipeline = new LFPPipeline(buf);
+
+	// TEST
+//	delete pipeline;
+//	delete buf;
+//	buf = new LFPBuffer(config);
+//	pipeline = new LFPPipeline(buf);
 
 	// check for unused parameters in the config
 //	config->checkUnused();
