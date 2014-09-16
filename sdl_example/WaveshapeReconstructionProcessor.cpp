@@ -128,7 +128,8 @@ WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer *bu
 
 WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul)
 :LFPProcessor(buffer)
-, mul(mul){
+, mul(mul)
+, cleanup_ws_(buffer->config_->getBool("waveshape.cleanup", false)){
     // create lookup tables
     construct_lookup_table();
 }
@@ -171,6 +172,16 @@ void WaveShapeReconstructionProcessor::process(){
             }
         }
         
+        // TODO separate cleanup of final and intermediate extended
+        if (cleanup_ws_){
+        	for(int i=0;i<spike->num_channels_;i++) {
+        		delete spike->waveshape[i];
+        		spike->waveshape[i] = NULL;
+        	}
+        	delete spike->waveshape;
+        	spike->waveshape = NULL;
+        }
+
         // DEBUG
 //        for (int i=0; i < spike->num_channels_; ++i){
 //            printf("Final WS, channel #%d :", i);
