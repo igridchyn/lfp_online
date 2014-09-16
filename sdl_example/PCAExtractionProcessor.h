@@ -60,6 +60,9 @@ class PCAExtractionProcessor : public LFPProcessor{
     bool load_transform_ = true;
     const std::string pc_path_;
     
+    // for memory performance: cleanup waveshapes after getting the PCs
+    bool cleanup_ws_ = false;
+
 public:
     PCAExtractionProcessor(LFPBuffer *buffer);
     PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform, const std::string& pc_path);

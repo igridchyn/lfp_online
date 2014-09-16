@@ -282,6 +282,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
 , load_transform_(load_transform)
 , save_transform_(save_transform)
 , pc_path_(pc_path)
+, cleanup_ws_(buffer->config_->getBool("waveshape.cleanup", false))
 {
     num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number];
     pca_done_ = new bool[buffer->tetr_info_->tetrodes_number];
@@ -366,18 +367,26 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
         for (int ci=0; ci < numchan; ++ci) {
             spike->pc[ci] = new float[num_pc_];
         }
-    }
-    
-    for (int c=0; c < numchan; ++c) {
-        int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][c];
-        for (int pc=0; pc < num_pc_; ++pc) {
-            spike->pc[c][pc] = 0;
-            for (int w=0; w < waveshape_samples_; ++w) {
-                // STANDARDIZED OR NOT
-                // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
-                spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w];
+
+        for (int c=0; c < numchan; ++c) {
+                int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][c];
+                for (int pc=0; pc < num_pc_; ++pc) {
+                    spike->pc[c][pc] = 0;
+                    for (int w=0; w < waveshape_samples_; ++w) {
+                        // STANDARDIZED OR NOT
+                        // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
+                        spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w];
+                    }
+                }
+                if (cleanup_ws_){
+                	delete spike->waveshape_final[c];
+                	spike->waveshape_final[c] = NULL;
+                }
             }
-        }
+            if (cleanup_ws_){
+            	delete spike->waveshape_final;
+            	spike->waveshape_final = NULL;
+            }
     }
     
     // DEBUG
