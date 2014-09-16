@@ -180,6 +180,9 @@ class WaveShapeReconstructionProcessor : public LFPProcessor{
     
     int rec_tmp_[64][128];
     
+    // cleanup waveshape after reconstruction
+    bool cleanup_ws_;
+
 public:
     WaveShapeReconstructionProcessor(LFPBuffer* buffer);
     WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul);

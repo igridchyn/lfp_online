@@ -35,10 +35,12 @@ public:
 	Config *config_ = NULL;
 
     static const int CHANNEL_NUM = 64;
-    static const int LFP_BUF_LEN = 1 << 20; // 11
+    //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
+    const int LFP_BUF_LEN;
     // TODO: large buffer now needed only for delayed spike registration
     //      STORE WAVESHAPE with prev_spike
-    static const int BUF_HEAD_LEN = 1 << 15;
+//    static const int BUF_HEAD_LEN = 1 << 8; // 11
+    const int BUF_HEAD_LEN;
     
     const int SPIKE_BUF_LEN;
     const int SPIKE_BUF_HEAD_LEN;
@@ -82,6 +84,12 @@ public:
     unsigned int spike_buf_pos_pop_vec_;
     // place field processor
     unsigned int spike_buf_pos_pf_;
+    // autocorrelogram
+    unsigned int spike_buf_pos_auto_;
+
+    // TODO ? messaging between processors
+    bool ac_reset_ = false;
+    int ac_reset_tetrode_ = -1;
     
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]
@@ -119,9 +127,9 @@ private:
     bool is_valid_channel_[CHANNEL_NUM];
     
 public:
-    short signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
-    int filtered_signal_buf[CHANNEL_NUM][LFP_BUF_LEN];
-    int power_buf[CHANNEL_NUM][LFP_BUF_LEN];
+    short *signal_buf[CHANNEL_NUM];
+    int *filtered_signal_buf[CHANNEL_NUM];
+    int *power_buf[CHANNEL_NUM];
     
     // ??? for all arrays ?
     int buf_pos = BUF_HEAD_LEN;

@@ -154,7 +154,7 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "INFO: set memory...";
 
 	for(int c=0; c < CHANNEL_NUM; ++c){
-	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(short));
 	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
 	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
 	        if (powerEstimatorsMap_[c] != NULL){
@@ -210,7 +210,10 @@ LFPBuffer::LFPBuffer(Config* config)
 , SAMPLING_RATE(config->getInt("sampling.rate"))
 , pos_unknown_(config->getInt("pos.unknown", 1023))
 , SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
-, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18)){
+, SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18))
+, LFP_BUF_LEN(config->getInt("buf.len", 1 << 11))
+, BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
+{
   
 	for (size_t i = 0; i < CHANNEL_NUM; i++)
 	{
@@ -224,6 +227,12 @@ LFPBuffer::LFPBuffer(Config* config)
 	srand(time(NULL));
 	int i = rand() % 64;
 	log_stream.open(std::string("lfponline_LOG_") + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
+
+    for (int c = 0; c < CHANNEL_NUM; ++c){
+    	signal_buf[c] = new short[LFP_BUF_LEN];
+    	filtered_signal_buf[c] = new int[LFP_BUF_LEN];
+    	power_buf[c] = new int[LFP_BUF_LEN];
+    }
 
     Reset(config);
 }
@@ -296,6 +305,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_pop_vec_ -= std::min(shift_new_start, (int)spike_buf_pos_pop_vec_);
 		spike_buf_pos_clust_ -= std::min(shift_new_start, (int)spike_buf_pos_clust_);
 		spike_buf_pos_pf_ -= std::min(shift_new_start, (int)spike_buf_pos_pf_);
+		spike_buf_pos_auto_ -= std::min(shift_new_start, (int)spike_buf_pos_auto_);
 
 		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 
