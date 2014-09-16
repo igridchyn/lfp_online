@@ -449,7 +449,10 @@ void PCAExtractionProcessor::process(){
     for (int tetr=0; tetr < buffer->tetr_info_->tetrodes_number; ++tetr) {
         if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
 
-            std::cout << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
+//            std::cout << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
+			std::stringstream ss;
+			ss << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
+			buffer->Log(ss.str());
 
             for (int ci=0; ci < buffer->tetr_info_->channels_numbers[tetr]; ++ci) {
                 int channel = buffer->tetr_info_->tetrode_channels[tetr][ci];

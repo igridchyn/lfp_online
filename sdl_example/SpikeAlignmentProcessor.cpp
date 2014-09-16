@@ -138,4 +138,6 @@ SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
     memset(prev_max_val_, 0, sizeof(int)*tetr_num);
     prev_spike_ = new Spike*[tetr_num];
     memset(prev_spike_, 0, sizeof(Spike*)*tetr_num);
+
+	buffer->Log("SpikeAlignmentProcessor created");
 }
