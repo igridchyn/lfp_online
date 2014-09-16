@@ -22,7 +22,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true)){
-	 spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+	buf->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
 
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
     
@@ -47,11 +47,33 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 }
 
 void AutocorrelogramProcessor::process(){
-    while(spike_buf_pos_auto_ < buffer->spike_buf_pos_clust_){
-        Spike *spike = buffer->spike_buffer_[spike_buf_pos_auto_];
+	// IF the ACs on one tetrode have to be recalculated
+	if (buffer->ac_reset_){
+		int tetr_reset = buffer->ac_reset_tetrode_;
+
+		for(int c=0; c < MAX_CLUST; ++c){
+			for(int b=0; b < NBINS; ++b){
+				autocorrs_[buffer->ac_reset_tetrode_][c][b] = 0;
+				total_counts_[buffer->ac_reset_tetrode_][c] = 0;
+			}
+			reported_[buffer->ac_reset_tetrode_][c] = true;
+		}
+		buffer->ac_reset_ = false;
+
+		// reset last spike times so that AC will be recalculated
+		for(int c=0; c < MAX_CLUST; ++c){
+			spike_times_buf_pos_[tetr_reset][c] = 0;
+			for (unsigned int bpos = 0; bpos < ST_BUF_SIZE; ++bpos) {
+				spike_times_buf_[tetr_reset][c][bpos] = 0;
+			}
+		}
+	}
+
+    while(buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
+        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
         
         if (spike->discarded_){
-            spike_buf_pos_auto_++;
+        	buffer->spike_buf_pos_auto_++;
             continue;
         }
         
@@ -59,7 +81,7 @@ void AutocorrelogramProcessor::process(){
         	if (wait_clustering_)
         		break;
         	else{
-        		spike_buf_pos_auto_++;
+        		buffer->spike_buf_pos_auto_++;
         		continue;
         	}
         }
@@ -78,14 +100,13 @@ void AutocorrelogramProcessor::process(){
             // 2 ms bins
             // TODO: configurable bitrate
             unsigned int bin = (stime - prev_spikes[bpos]) / (BIN_SIZE );
-            if (bin >= NBINS){
+            if (bin >= NBINS || bin < 0){
                 continue;
             }
             
             autocorrs_[tetrode][cluster_id][bin]++;
             total_counts_[tetrode][cluster_id]++;
         }
-        
         
         // replace new spike with last in the buf and advance pointer
         prev_spikes[spike_times_buf_pos_[tetrode][cluster_id]] = stime;
@@ -96,7 +117,7 @@ void AutocorrelogramProcessor::process(){
             spike_times_buf_pos_[tetrode][cluster_id]++;
         }
         
-        spike_buf_pos_auto_++;
+        buffer->spike_buf_pos_auto_++;
         
         // report
         // TODO: plot
@@ -143,6 +164,13 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 	if (e.type == SDL_WINDOWEVENT) {
 		if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
 			SetDisplayTetrode(display_tetrode_);
+
+			// redraw those that have been reported already
+			for (int c=0; c < MAX_CLUST; ++c){
+				if (reported_[display_tetrode_][c]){
+					plotAC(display_tetrode_, c);
+				}
+			}
 		}
 	}
 }

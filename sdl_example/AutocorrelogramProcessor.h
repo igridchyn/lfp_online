@@ -22,9 +22,6 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     
     const int BWIDTH = 2;
     const int XCLUST = 7;
-
-    // TODO: rewind implementation or put along with other pointers
-    unsigned int spike_buf_pos_auto_;
     
     // tetrode / cluster / bin values
     std::vector<std::vector<std::vector<float> > > autocorrs_;
