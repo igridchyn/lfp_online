@@ -82,8 +82,14 @@ void SpikeAlignmentProcessor::process(){
                 // printf("Aligned spike pos: %d\n", prev_spike_pos_);
                 // printf("%d ", prev_spike_pos_);
                 
+            	int buf_start_shift = buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode])
+                            		- Spike::WS_LENGTH_ALIGNED/ 2 - 1;
+
                 for(int ch=0; ch < num_of_ch; ++ch){
-                    memcpy(prev_spike_[tetrode]->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[prev_spike_[tetrode]->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode]) - Spike::WS_LENGTH_ALIGNED/ 2 - 1, Spike::WS_LENGTH_ALIGNED * sizeof(int));
+                    memcpy(prev_spike_[tetrode]->waveshape[ch],
+                    		buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[prev_spike_[tetrode]->tetrode_][ch]]
+                    		+ buf_start_shift,
+                    		Spike::WS_LENGTH_ALIGNED * sizeof(int));
                     
                     // DEBUG
                     //                    printf("Waveshape, %d, ch. %d: ", spike->pkg_id_, ch);
@@ -91,6 +97,13 @@ void SpikeAlignmentProcessor::process(){
                     //                        printf("%d ", spike->waveshape[ch][i]);
                     //                    }
                     //                    printf("\n");
+
+                    // if (buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode]) - Spike::WS_LENGTH_ALIGNED/ 2 - 1 < 0 ||
+                    int diff = buffer->buf_pos -
+                    		(buffer->last_pkg_id - prev_spike_pos_[tetrode]) +
+                    		Spike::WS_LENGTH_ALIGNED/2 - 1;
+                    if( diff > buffer->LFP_BUF_LEN + 100 || buf_start_shift < 0)//- buffer->BUF_HEAD_LEN)
+                    	std::cout << "WTF ??? " << buffer->spike_buf_nows_pos << "\n";
                 }
                 prev_spike_[tetrode]->aligned_ = true;
             }
