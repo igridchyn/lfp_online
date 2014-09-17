@@ -229,9 +229,11 @@ LFPBuffer::LFPBuffer(Config* config)
 	log_stream.open(std::string("lfponline_LOG_") + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
 
     for (int c = 0; c < CHANNEL_NUM; ++c){
-    	signal_buf[c] = new short[LFP_BUF_LEN];
-    	filtered_signal_buf[c] = new int[LFP_BUF_LEN];
-    	power_buf[c] = new int[LFP_BUF_LEN];
+    	unsigned int WS_SHIFT = 100;
+    	signal_buf[c] = new short[LFP_BUF_LEN + WS_SHIFT];
+    	// + waveshape length
+    	filtered_signal_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
+    	power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
     }
 
     Reset(config);
