@@ -27,7 +27,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, scale_(buf->config_->getInt("waveshapedisp.scale", 25)){ }
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
-    return 100 + smpl/25 + 200 * chan;
+    return 100 + -smpl/scale_ + 200 * chan;
 }
 
 void SDLWaveshapeDisplayProcessor::process() {
@@ -64,13 +64,15 @@ void SDLWaveshapeDisplayProcessor::process() {
             continue;
         }
         
+        int x_scale = 8 * 4;
         for (int chan=0; chan < 4; ++chan) {
             int prev_smpl = transform(spike->waveshape[chan][0], chan);
             
-            for (int smpl=1; smpl < 128; ++smpl) {
-                int tsmpl = transform(spike->waveshape[chan][smpl], chan);
-                
-                SDL_RenderDrawLine(renderer_, smpl*4 - 3, prev_smpl, smpl * 4 + 1, tsmpl);
+//            for (int smpl=1; smpl < 128; ++smpl) {
+//                int tsmpl = transform(spike->waveshape[chan][smpl], chan);
+            for (int smpl=1; smpl < 16; ++smpl) {
+                int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
+                SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale-1), prev_smpl, smpl * x_scale + 1, tsmpl);
                 prev_smpl = tsmpl;
             }
         }
