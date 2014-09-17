@@ -23,8 +23,6 @@ std::set<std::string> requested_params_;
 
 std::ofstream log_;
 
-static const char *known_processors_ar[];
-
 bool check_parameter(std::string name, bool exit_on_fail = true);
 void read_processors(std::ifstream& fconf);
 

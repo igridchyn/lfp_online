@@ -12,15 +12,6 @@
 #include <sstream>
 #include <algorithm>
 
-const unsigned int NPROC = 25;
-
-const char *Config::known_processors_ar[] = {"Autocorrelogram", "CluReaderClustering", "FetFileReader",
-		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
-		"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
-		"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
-		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
-		"WhlFileReader", "LPTTrigger"};
-
 void Config::read_processors(std::ifstream& fconf) {
 	log_.open("lfponline_config_log.txt");
 
@@ -52,11 +43,18 @@ Config::Config(std::string path) {
 	// with commend lines starting with '//'
 	std::string line;
 
-	for (size_t i = 0; i < NPROC; i++)
-	{
-		std::string proc(known_processors_ar[i]);
-		known_processors_.push_back(proc);
-	}
+	known_processors_ = { "Autocorrelogram", "CluReaderClustering", "FetFileReader",
+		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
+		"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
+		"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
+		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
+		"WhlFileReader", "LPTTrigger" };
+
+	//for (size_t i = 0; i < NPROC; i++)
+	//{
+	//	std::string proc(known_processors_ar[i]);
+	//	known_processors_.push_back(proc);
+	//}
 
 	std::cout << "Read config file: " << path << "\n";
 
