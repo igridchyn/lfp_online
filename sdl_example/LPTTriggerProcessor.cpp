@@ -41,8 +41,8 @@ LPTTriggerProcessor::~LPTTriggerProcessor() {
 
 void LPTTriggerProcessor::process() {
 	while(buffer->buf_pos_trig_ < buffer->buf_pos){
-		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] > 10000 &&
-				buffer->signal_buf[channel_][buffer->buf_pos_trig_] < 10000)
+		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] > 0 &&
+				buffer->signal_buf[channel_][buffer->buf_pos_trig_] < 0)
 		{
 			// set to low
 			std::cout << "set low at " << buffer->buf_pos_trig_ << "\n";
@@ -57,8 +57,8 @@ void LPTTriggerProcessor::process() {
 #endif
 		}
 
-		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] < -10000 &&
-				buffer->signal_buf[channel_][buffer->buf_pos_trig_] > -10000)
+		if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] < -2400 &&
+				buffer->signal_buf[channel_][buffer->buf_pos_trig_] > -2400)
 		{
 			// set to high
 			std::cout << "set high at " << buffer->buf_pos_trig_ << "\n";
