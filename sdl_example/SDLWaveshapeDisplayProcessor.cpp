@@ -64,14 +64,14 @@ void SDLWaveshapeDisplayProcessor::process() {
             continue;
         }
         
-        int x_scale = 8 * 4;
+        int x_scale = 4; // 8 * 4 for final wave shapes
         for (int chan=0; chan < 4; ++chan) {
             int prev_smpl = transform(spike->waveshape[chan][0], chan);
             
-//            for (int smpl=1; smpl < 128; ++smpl) {
-//                int tsmpl = transform(spike->waveshape[chan][smpl], chan);
-            for (int smpl=1; smpl < 16; ++smpl) {
-                int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
+            for (int smpl=1; smpl < 128; ++smpl) {
+                int tsmpl = transform(spike->waveshape[chan][smpl], chan);
+            //for (int smpl=1; smpl < 16; ++smpl) {
+            //    int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
                 SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale-1), prev_smpl, smpl * x_scale + 1, tsmpl);
                 prev_smpl = tsmpl;
             }
