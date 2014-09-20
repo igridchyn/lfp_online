@@ -21,6 +21,7 @@ void PackageExractorProcessor::process(){
 
     // IDLE processing, waiting for user input
     if (buffer->chunk_ptr == NULL){
+		buffer->Log("PEXTR: zero pointer, return");
         return;
     }
     
@@ -35,7 +36,7 @@ void PackageExractorProcessor::process(){
         buffer->buf_pos = buffer->BUF_HEAD_LEN;
 		buffer->buf_pos_trig_ = buffer->BUF_HEAD_LEN;
         
-        std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
+        // std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
     }
     else{
         buffer->zero_level = 0;
@@ -46,8 +47,9 @@ void PackageExractorProcessor::process(){
     
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
     
+	// TODO !!!!!!!!! check pos in all packages
     char pos_flag = *((char*)buffer->chunk_ptr + 3);
-    if (pos_flag == '2'){
+    if (pos_flag != '1'){
         // extract position
         unsigned short bx = *((unsigned short*)(buffer->chunk_ptr + 16));
         unsigned short by = *((unsigned short*)(buffer->chunk_ptr + 18));
@@ -81,6 +83,8 @@ void PackageExractorProcessor::process(){
                 
                 // !!!??? +1 to make similar to *.dat
                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *(sbin_ptr) + 1;
+				// MAPPING TEST
+				//buffer->signal_buf[c][buffer->buf_pos + chunk * 3 + block] = *(sbin_ptr)+1;
                 
                 // DEBUG
                 //if (c == 0)
@@ -97,7 +101,7 @@ void PackageExractorProcessor::process(){
 	// DEBUG
 	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){
 		buffer->log_stream << "INFO: PackExtr pkg id = " << buffer->last_pkg_id << "\n";
-		buffer->log_stream << "INFO: PackExtr pkg value = " << buffer->signal_buf[0][buffer->buf_pos - 1]<< "\n";
+		buffer->log_stream << "INFO: PackExtr pkg value (chan 4) = " << buffer->signal_buf[4][buffer->buf_pos - 1]<< "\n";
 		buffer->log_stream.flush();
 	}
     

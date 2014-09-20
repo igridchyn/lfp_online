@@ -13,7 +13,7 @@
 
 class PCAExtractionProcessor : public LFPProcessor{
     // projection matrix
-    float ***prm;
+    float ***prm = NULL;
     const unsigned int min_samples_;
     
     void tred(float **a,int n,float d[],float e[]);
@@ -28,19 +28,19 @@ class PCAExtractionProcessor : public LFPProcessor{
     
     // TODO: use online estimators
     // [channel][ws1][ws2]
-    int ***cor_;
+    int ***cor_ = NULL;
     // [channel][ws1]
-    int **mean_;
-    int ** sumsq_;
+	int **mean_ = NULL;
+	int ** sumsq_ = NULL;
     
     // for PCA computation
-    float **corf_;
-    float *meanf_;
+	float **corf_ = NULL;
+	float *meanf_ = NULL;
     
-    float **stdf_;
+	float **stdf_ = NULL;
     
     // number of objects accumulated in means / cors for each tetrode
-    unsigned int *num_spikes;
+	unsigned int *num_spikes = NULL;
     
     // number of components per channel
     unsigned int num_pc_;
@@ -54,7 +54,7 @@ class PCAExtractionProcessor : public LFPProcessor{
     
     // WORKAROUND
     // TODO: recalc PCA periodically using online estimators
-    bool *pca_done_;
+	bool *pca_done_ = NULL;
     
     bool save_transform_ = false;
     bool load_transform_ = true;
