@@ -23,9 +23,10 @@ class SDLSignalDisplayProcessor : virtual public SDLControlInputProcessor, virtu
     
     //
     std::vector<unsigned int> displayed_channels_;
+	int display_tetrode_;
     
     // previous displayed coordinate (y)
-    int *prev_vals_;
+    int *prev_vals_ = NULL;
     
     int transform_to_y_coord(int voltage);
     void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);

@@ -12,7 +12,7 @@
 void SDLSignalDisplayProcessor::SetDisplayTetrode(const unsigned  int& display_tetrode){
     // TODO: configurableize
 
-    for (int c=0; c < displayed_channels_.size(); ++c) {
+	for (int c = 0; c < buffer->tetr_info_->channels_numbers[display_tetrode]; ++c) {
         displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode][c]);
     }
 }
@@ -48,7 +48,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
 
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
-    prev_vals_ = new int[displayed_channels_.size()];
+    prev_vals_ = new int[64];
 
     // check if lfp display channels is a subset of read channels
     if (!buffer->tetr_info_->ContainsChannels(displayed_channels_)){
@@ -167,6 +167,13 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
     //User requests quit
     if( e.type == SDL_KEYDOWN )
     {
+		int shift = 0;
+		SDL_Keymod kmod = SDL_GetModState();
+
+		if (kmod & KMOD_LSHIFT){
+			shift = 10;
+		}
+
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
@@ -188,36 +195,47 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
                 exit(0);
                 break;
                 // TODO: check whether channels are available in the TetrodeInfo
+
+            case SDLK_0:
+				display_tetrode_ = 0 + shift;
+                break;
             case SDLK_1:
-                displayed_channels_ = std::vector<unsigned int>{0,1,2,3};
+				display_tetrode_ = 1 + shift;
                 break;
             case SDLK_2:
-                displayed_channels_ = std::vector<unsigned int>{4,5,6,7};
+				display_tetrode_ = 2 + shift;
                 break;
             case SDLK_3:
-                displayed_channels_ = std::vector<unsigned int>{8,9,10,11};
+				display_tetrode_ = 3 + shift;
                 break;
             case SDLK_4:
-                displayed_channels_ = std::vector<unsigned int>{12,13,14,15};
+				display_tetrode_ = 4 + shift;
                 break;
             case SDLK_5:
-                displayed_channels_ = std::vector<unsigned int>{16,17,18,19};
+				display_tetrode_ = 5 + shift;
                 break;
             case SDLK_6:
-                displayed_channels_ = std::vector<unsigned int>{20,21,22,23};
+				display_tetrode_ = 6;
                 break;
             case SDLK_7:
-                displayed_channels_ = std::vector<unsigned int>{24,25,26,27};
+				display_tetrode_ = 7;
                 break;
             case SDLK_8:
-                displayed_channels_ = std::vector<unsigned int>{28,29,30,31};
+				display_tetrode_ = 8;
                 break;
-            case SDLK_9:
-                displayed_channels_ = std::vector<unsigned int>{32,33,34,35};
-                break;
-            case SDLK_0:
-                displayed_channels_ = std::vector<unsigned int>{36,37,38,39};
-                break;
+			case SDLK_9:
+				display_tetrode_ = 9;
+				break;
         }
+
+		if (display_tetrode_ < buffer->tetr_info_->tetrodes_number){
+			displayed_channels_.clear();
+
+			for (int c = 0; c < buffer->tetr_info_->channels_numbers[display_tetrode_]; ++c){
+				displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode_][c]);
+			}
+
+			buffer->Log("Switch (LFP) to tetrode ", display_tetrode_);
+		}
     }
 }
