@@ -43,23 +43,52 @@ Config::Config(std::string path) {
 	// with commend lines starting with '//'
 	std::string line;
 
-	known_processors_ = { "Autocorrelogram", "CluReaderClustering", "FetFileReader",
-		"FrequencyPowerBand", "GMMClustering", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
-		"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
-		"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
-		"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
-		"WhlFileReader", "LPTTrigger" };
+	//char *known_processors_a [] = { "Autocorrelogram", "CluReaderClustering", "FetFileReader",
+	//	"FrequencyPowerBand", "", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
+	//	"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
+	//	"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
+	//	"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
+	//	"WhlFileReader", "LPTTrigger" };
+
+	//known_processors_ = std::vector<std::string>(known_processors_a, known_processors_a + 25);
+
+	known_processors_.push_back("PackageExtractor");
+	known_processors_.push_back("SpikeDetector");
+	known_processors_.push_back("Autocorrelogram");
+	known_processors_.push_back("CluReaderClustering");
+	known_processors_.push_back("FetFileReader");
+	known_processors_.push_back("FrequencyPowerBand");
+	known_processors_.push_back("GMMClustering");
+	known_processors_.push_back("KDClustering");
+	known_processors_.push_back("PlaceField");
+	known_processors_.push_back("PCAExtraction");
+	known_processors_.push_back("PositionDisplay");
+	known_processors_.push_back("PositionReconstruction");
+	known_processors_.push_back("SDLControlInputMeta");
+	known_processors_.push_back("SDLPCADisplay");
+	known_processors_.push_back("SDLSignalDisplay");
+	known_processors_.push_back("SDLWaveshapeDisplay");
+	known_processors_.push_back("SlowDown");
+	known_processors_.push_back("SpeedEstimation");
+	known_processors_.push_back("SpikeAlignment");
+	known_processors_.push_back("SwReader");
+	known_processors_.push_back("TransProbEstimation");
+	known_processors_.push_back("UnitTesting");
+	known_processors_.push_back("WaveshapeReconstruction");
+	known_processors_.push_back("WhlFileReader");
+	known_processors_.push_back("LPTTrigger");
+
 
 	//for (size_t i = 0; i < NPROC; i++)
 	//{
 	//	std::string proc(known_processors_ar[i]);
-	//	known_processors_.push_back(proc);
+	//	known_processors_.push_back(proc);	
 	//}
 
 	std::cout << "Read config file: " << path << "\n";
 
 	while(std::getline(fconf, line)){
-		if (line[0] == '/' || line.length() == 0)
+		if (line.length() == 0 || line[0] == '/')
 			continue;
 
 		if (line == std::string("pipeline")){
@@ -125,37 +154,37 @@ bool Config::check_parameter(std::string name, bool exit_on_fail){
 
 int Config::getInt(std::string name) {
 	check_parameter(name);
-	requested_params_.insert(name);
+	//requested_params_.insert(name);
 
 	return atoi(params_[name].c_str());
 }
 
 float Config::getFloat(std::string name) {
 	check_parameter(name);
-	requested_params_.insert(name);
+	//requested_params_.insert(name);
 
 	return atof(params_[name].c_str());
 }
 
 bool Config::getBool(std::string name) {
 	check_parameter(name);
-	requested_params_.insert(name);
+	//requested_params_.insert(name);
 
 	return (bool)atoi(params_[name].c_str());
 }
 
 std::string Config::getString(std::string name) {
 	check_parameter(name);
-	requested_params_.insert(name);
+	//requested_params_.insert(name);
 
 	return params_[name];
 }
 
 void Config::checkUnused() {
 	for(std::map<std::string, std::string>::iterator iter = params_.begin(); iter != params_.end(); ++iter){
-		if (requested_params_.find(iter->first) == requested_params_.end()){
+		//if (requested_params_.find(iter->first) == requested_params_.end()){
 			std::cout << "WARNING: param " << iter->first << " read but not requested\n";
-		}
+		//}
 	}
 }
 

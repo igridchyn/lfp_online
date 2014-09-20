@@ -19,7 +19,7 @@ class LFPONLINEAPI Config {
 
 std::map<std::string, std::string> params_;
 // to check whether params from config file that were intended to be used have ever been requested
-std::set<std::string> requested_params_;
+// std::set<std::string> requested_params_;
 
 std::ofstream log_;
 
