@@ -15,13 +15,12 @@ typedef short t_bin;
 
 void draw_bin() {
 #ifdef _WIN32
-	std::string conf_path = "../Res/spike_detection_jc103_win.conf";
-	//Config *config = new Config(conf_path);
-	Config *config = new Config("../Res/signal_display_win2.conf");
-	//FILE *f = fopen("D:/data/igor/jc103-2705_02l.bin", "rb");
-	//FILE *f = fopen("D:/data/igor/test1.bin", "rb");
-	FILE *f = fopen("D:/igor/data/square.bin", "rb");
-	//FILE *f = fopen("d:/Igor/data/jc117_0914_screen3.bin", "rb");
+	//std::string cpath("../Res/signal_display_win_bin.conf");
+	std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_1l_win.conf)");
+	Config *config = NULL;
+	config = new Config(cpath);
+	//config->Init();
+	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #elif defined(__APPLE__)
     // square wave signal - for delay and stability testing
 //    Config *config = new Config("../Res/signal_display_mac.conf");
@@ -37,7 +36,7 @@ void draw_bin() {
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
 //	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
-//	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");
+//	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");/
 //	Config *config = new Config("../Res/spike_detection_jc103.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_load_pc_gmm.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2.conf");
@@ -67,10 +66,10 @@ void draw_bin() {
 	LFPPipeline *pipeline = new LFPPipeline(buf);
 
 	// TEST
-//	delete pipeline;
-//	delete buf;
-//	buf = new LFPBuffer(config);
-//	pipeline = new LFPPipeline(buf);
+	//delete pipeline;
+	//delete buf;
+	//buf = new LFPBuffer(config);
+	//pipeline = new LFPPipeline(buf);
 
 	// check for unused parameters in the config
 //	config->checkUnused();

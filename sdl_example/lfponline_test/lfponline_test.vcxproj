@@ -51,6 +51,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>lfponlinevs.lib;SDL2.lib;libxml2.lib;libxml2_a.lib;cbia.lib.blas.dyn.rel.x86.12.lib;cbia.lib.lapack.dyn.rel.x86.12.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../third\cbia.lib.lapack.dyn.rel.x86.12\;../../third\libxml2-2.7.8.win32\lib\;c:\local\boost_1_56_0_32\lib32-msvc-12.0\;../../sdl_lpt_vs\lib\x86\;d:\Igor\soft\lfp_online\sdl_example\lfponlinevs\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/LARGEADDRESSAWARE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
