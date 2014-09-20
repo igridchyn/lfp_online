@@ -150,8 +150,10 @@ void SpikeDetectorProcessor::process()
                 
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
                 // TODO: reinit
-                if (buffer->spike_buffer_[buffer->spike_buf_pos] != NULL)
-                    delete buffer->spike_buffer_[buffer->spike_buf_pos];
+				if (buffer->spike_buffer_[buffer->spike_buf_pos] != NULL){
+					delete buffer->spike_buffer_[buffer->spike_buf_pos];
+					buffer->spike_buffer_[buffer->spike_buf_pos] = NULL;
+				}
                 
                 // TODO: delete oold spikes or reuse the structure
                 Spike *spike = new Spike(spike_pos + 1, tetrode);
