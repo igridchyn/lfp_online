@@ -40,7 +40,7 @@
 
 class ColorPalette{
     int num_colors_;
-    int *color_values_;
+    int *color_values_ = NULL;
 public:
     ColorPalette(int num_colors, int *color_values);
     int getR(int order) const;
@@ -62,7 +62,7 @@ public:
 class LFPProcessor{
     
 protected:
-    LFPBuffer* buffer;
+    LFPBuffer* buffer = NULL;
     virtual void Log(std::string message);
 
 public:
@@ -77,9 +77,9 @@ public:
 
 class SDLSingleWindowDisplay{
 protected:
-    SDL_Window *window_;
-    SDL_Renderer *renderer_;
-    SDL_Texture *texture_;
+    SDL_Window *window_ = NULL;
+	SDL_Renderer *renderer_ = NULL;
+	SDL_Texture *texture_ = NULL;
     
     const unsigned int window_width_;
     const unsigned int window_height_;
@@ -115,7 +115,7 @@ public:
 
 //====================================================================================================
 class SDLControlInputMetaProcessor : public LFPProcessor{
-    SDLControlInputProcessor* control_processor_;
+    SDLControlInputProcessor* control_processor_ = NULL;
     std::vector<SDLControlInputProcessor*> control_processors_;
     
     std::map<unsigned int, SDLControlInputProcessor*> cp_by_win_id_;
@@ -126,8 +126,8 @@ class SDLControlInputMetaProcessor : public LFPProcessor{
     
     unsigned int calls_since_scan = 0;
     
-    static const int input_scan_rate_ = 1000;
-    static const int INPUT_SCAN_RATE_CALLS = 1000;
+    static const int input_scan_rate_ = 100;
+    static const int INPUT_SCAN_RATE_CALLS = 100;
     
     void SwitchDisplayTetrode(const unsigned int& display_tetrode);
     
@@ -154,8 +154,8 @@ public:
 
 class SpikeAlignmentProcessor : public LFPProcessor{
     // for each tetrode
-    unsigned int *prev_spike_pos_ = 0;
-    int *prev_max_val_ = 0;
+    unsigned int *prev_spike_pos_ = NULL;
+    int *prev_max_val_ = NULL;
     Spike **prev_spike_ = NULL;
     
 public:
@@ -168,10 +168,10 @@ public:
 class WaveShapeReconstructionProcessor : public LFPProcessor{
     unsigned int mul;
     
-    double *sin_table;
-    double *t_table;
-    int *it_table;
-    double **sztable;
+    double *sin_table = NULL;
+    double *t_table = NULL;
+    int *it_table = NULL;
+    double **sztable = NULL;
     
     void construct_lookup_table();
     int optimized_value(int num_sampl,int *sampl,int h);

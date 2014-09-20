@@ -9,6 +9,10 @@
 #ifndef sdl_example_LFPBuffer_h
 #define sdl_example_LFPBuffer_h
 
+// TODO !!! dynamic
+#define _POS_BUF_SIZE 1<<20
+#define _CHANNEL_NUM 64
+
 #include <vector>
 #include <stack>
 #include <queue>
@@ -34,7 +38,7 @@ class LFPONLINEAPI LFPBuffer{
 public:
 	Config *config_ = NULL;
 
-    static const int CHANNEL_NUM = 64;
+    const int CHANNEL_NUM = 64;
     //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
     const int LFP_BUF_LEN;
     // TODO: large buffer now needed only for delayed spike registration
@@ -53,10 +57,10 @@ public:
     
     const unsigned int SAMPLING_RATE;
 
-    static const int CH_MAP[];
+	int *CH_MAP; // = { 8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55 };
     
     // which channel is at i-th position in the BIN chunk
-    static const int CH_MAP_INV[];
+	int *CH_MAP_INV;
     
     TetrodesInfo *tetr_info_ = NULL;
     
@@ -93,9 +97,9 @@ public:
     
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]
-    static const int POS_BUF_SIZE = 1 << 20;
+    //const int POS_BUF_SIZE = 1 << 20;
     // 4 coords, pkg_id and speed magnitude
-    unsigned int positions_buf_[POS_BUF_SIZE][6];
+    unsigned int positions_buf_[_POS_BUF_SIZE][6];
     // main poiter - where the next position will be put
     unsigned int pos_buf_pos_ = 0;
     // the last displayed position
@@ -124,12 +128,12 @@ public:
     std::queue<std::vector<int>> swrs_;
 
 private:
-    bool is_valid_channel_[CHANNEL_NUM];
+    bool is_valid_channel_[_CHANNEL_NUM];
     
 public:
-    short *signal_buf[CHANNEL_NUM];
-    int *filtered_signal_buf[CHANNEL_NUM];
-    int *power_buf[CHANNEL_NUM];
+    short *signal_buf[_CHANNEL_NUM];
+    int *filtered_signal_buf[_CHANNEL_NUM];
+    int *power_buf[_CHANNEL_NUM];
     
     // ??? for all arrays ?
     int buf_pos = BUF_HEAD_LEN;
@@ -146,7 +150,7 @@ public:
     int num_chunks;
     
     OnlineEstimator<float>* powerEstimators_;
-    OnlineEstimator<float>* powerEstimatorsMap_[CHANNEL_NUM];
+    OnlineEstimator<float>* powerEstimatorsMap_[_CHANNEL_NUM];
     
     OnlineEstimator<float>* speedEstimator_;
     

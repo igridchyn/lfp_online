@@ -43,9 +43,9 @@ void usleep(__int64 usec)
 }
 #endif // _WIN32
 
-const int LFPBuffer::CH_MAP_INV[] = {8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63,0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23,32,33,34,35,36,37,38,39,48,49,50,51,52,53,54,55};
+//const int LFPBuffer::CH_MAP_INV[] = 
 
-const int LFPBuffer::CH_MAP[] = {32, 33, 34, 35, 36, 37, 38, 39,0, 1, 2, 3, 4, 5, 6, 7,40, 41, 42, 43, 44, 45, 46, 47,8, 9, 10, 11, 12, 13, 14, 15,48, 49, 50, 51, 52, 53, 54, 55,16, 17, 18, 19, 20, 21, 22, 23,56, 57, 58, 59, 60, 61, 62, 63,24, 25, 26, 27, 28, 29, 30, 31};
+//const int LFPBuffer::CH_MAP[] 
 
 // ============================================================================================================
 
@@ -195,7 +195,7 @@ void LFPBuffer::Reset(Config* config) {
 
 	memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
 
-	for (int pos_buf = 0; pos_buf < POS_BUF_SIZE; ++pos_buf) {
+	for (int pos_buf = 0; pos_buf < _POS_BUF_SIZE; ++pos_buf) {
 		// TODO fix
 		memset(positions_buf_[pos_buf], 0, 6 * sizeof(unsigned int));
 	}
@@ -214,7 +214,13 @@ LFPBuffer::LFPBuffer(Config* config)
 , LFP_BUF_LEN(config->getInt("buf.len", 1 << 11))
 , BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
 {
-  
+	CH_MAP = new int[64]{8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55};
+
+	// OLD
+	//CH_MAP_INV = new int[64]{ 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
+	//CH_MAP_INV = new int[64]{48,49,50,51,52,53,54,55,32,33,34,35,36,37,38,39,16,17,18,19,20,21,22,23,0,1,2,3,4,5,6,7,56,57,58,59,60,61,62,63,40,41,42,43,44,45,46,47,24,25,26,27,28,29,30,31,8,9,10,11,12,13,14,15};
+	CH_MAP_INV = new int[64]{8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63,0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23,32,33,34,35,36,37,38,39,48,49,50,51,52,53,54,55};
+
 	for (size_t i = 0; i < CHANNEL_NUM; i++)
 	{
 		powerEstimatorsMap_[i] = NULL;
@@ -226,7 +232,8 @@ LFPBuffer::LFPBuffer(Config* config)
 	
 	srand(time(NULL));
 	int i = rand() % 64;
-	log_stream.open(std::string("lfponline_LOG_") + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
+	log_stream.open(std::string("D:/Igor/lfponline_LOG_") + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
+	std::cout << "Created LOG\n";
 
     for (int c = 0; c < CHANNEL_NUM; ++c){
     	unsigned int WS_SHIFT = 100;
@@ -301,7 +308,6 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
 		spike_buf_no_disp_pca -= std::min(shift_new_start, (int)spike_buf_no_disp_pca );
 		spike_buf_pos_out -= std::min(shift_new_start, (int)spike_buf_pos_out );
-		spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
 		spike_buf_pos_draw_xy -= std::min(shift_new_start, (int)spike_buf_pos_draw_xy );
 		spike_buf_pos_speed_ -= std::min(shift_new_start, (int)spike_buf_pos_speed_);
 		spike_buf_pos_pop_vec_ -= std::min(shift_new_start, (int)spike_buf_pos_pop_vec_);
