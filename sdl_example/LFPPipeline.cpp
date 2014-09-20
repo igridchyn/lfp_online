@@ -26,7 +26,7 @@
 #include "SpikeDetectorProcessor.h"
 #include "SwReaderProcessor.h"
 #include "TransProbEstimationProcessor.h"
-#include "UnitTestingProcessor.h"
+//#include "UnitTestingProcessor.h"
 #include "WhlFileReaderProcessor.h"
 #include "LPTTriggerProcessor.h"
 
@@ -81,8 +81,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new SwReaderProcessor(buf));
 		} else if (proc_name == "TransProbEstimation"){
 			processors.push_back(new TransProbEstimationProcessor(buf));
-		} else if (proc_name == "UnitTesting"){
-			processors.push_back(new UnitTestingProcessor(buf));
+		//} else if (proc_name == "UnitTesting"){
+		//	processors.push_back(new UnitTestingProcessor(buf));
 		} else if (proc_name == "WaveshapeReconstruction"){
 			processors.push_back(new WaveShapeReconstructionProcessor(buf));
 		} else if (proc_name == "WhlFileReader"){
