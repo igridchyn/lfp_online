@@ -246,6 +246,13 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 	fpoly.close();
 }
 
+void SDLPCADisplayProcessor::reset_spike_pointer(){
+	if (buffer->spike_buffer_[10] == NULL)
+		buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
+	else
+		buffer->spike_buf_no_disp_pca = 1;
+}
+
 void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	SDL_Keymod kmod = SDL_GetModState();
 
@@ -310,9 +317,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 		}else if(e.button.button == SDL_BUTTON_MIDDLE){
 			polygon_closed_ = true;
-			buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
-
-
+			reset_spike_pointer();
 		}
 	}
 
@@ -404,9 +409,9 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         				polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + selected_cluster2_);
 
         				// update spikes
-        				for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+        				for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
         					Spike *spike = buffer->spike_buffer_[sind];
-        					if (spike->tetrode_ != target_tetrode_)
+        					if (spike == NULL || spike->tetrode_ != target_tetrode_)
         						continue;
 
         					if (spike -> cluster_id_ == selected_cluster2_ + 1){
@@ -423,9 +428,9 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		}
         		else{
         			// TODO either implement polygon intersection or projections logical operations
-        			for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+        			for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
         				Spike *spike = buffer->spike_buffer_[sind];
-        				if (spike->tetrode_ != target_tetrode_)
+        				if (spike == NULL || spike->tetrode_ != target_tetrode_)
         					continue;
 
         				if (spike -> cluster_id_ > -1){
@@ -564,7 +569,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
     if (need_redraw){
                 // TODO: case-wise
-                buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
+                //buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
 
                 time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
                 if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != NULL)
@@ -582,7 +587,11 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 	target_tetrode_ = display_tetrode;
 	ReinitScreen();
 
-	buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
+	comp1_ = 0;
+	comp2_ = 1;
+
+	// WORKAROUND UNTIL CIRC. BUFFER	
+	reset_spike_pointer();
 
 	polygon_x_.clear();
 	polygon_y_.clear();

@@ -55,6 +55,8 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }
 
+	void reset_spike_pointer();
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
