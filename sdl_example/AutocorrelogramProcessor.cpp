@@ -198,7 +198,7 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
         rect.x = xsh + b * (BWIDTH + 1);
         rect.y = ysh - height;
         
-        SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster), palette_.getG(cluster), palette_.getB(cluster), 255);
+		SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster % palette_.NumColors()), palette_.getG(cluster % palette_.NumColors()), palette_.getB(cluster % palette_.NumColors()), 255);
         SDL_RenderFillRect(renderer_, &rect);
     }
 }
