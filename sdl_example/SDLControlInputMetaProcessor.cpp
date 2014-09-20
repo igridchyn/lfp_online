@@ -15,7 +15,7 @@ void SDLControlInputMetaProcessor::process(){
     }
     
     last_pkg_id = buffer->last_pkg_id;
-    
+
     // for effectiveness: perform analysis every input_scan_rate_ packages
     // TODO: select reasonable rate / TIME DELAY ?
     if (buffer->last_pkg_id - last_input_pkg_id_ < input_scan_rate_ && calls_since_scan < INPUT_SCAN_RATE_CALLS){
@@ -29,7 +29,7 @@ void SDLControlInputMetaProcessor::process(){
     
     SDL_Event e;
     bool quit = false;
-    
+
     // SDL_PollEvent took 2/3 of runtime without limitations
     while( SDL_PollEvent( &e ) != 0 )
     {

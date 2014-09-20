@@ -26,6 +26,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, TAIL_LENGTH(tail_length)
 	, WAIT_PREDICTION(buf->config_->getBool("posdisp.wait.prediction"))
 	, DISPLAY_PREDICTION(buf->config_->getBool("posdisp.display.prediction"))
+	, wait_clust_(buf->config_->getBool("posdisp.wait.clust", false))
 {
     
 //    SDL_SetRenderTarget(renderer_, NULL);
@@ -90,7 +91,7 @@ void PositionDisplayProcessor::process(){
         
         if (spike->pc == NULL || (spike->cluster_id_ == -1) || !display_cluster_[spike->cluster_id_]) // && !display_unclassified_))
         {
-            if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_])){
+			if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_]) || !wait_clust_ && (spike->cluster_id_ == -1)){
                 buffer->spike_buf_pos_draw_xy++;
                 continue;
             }

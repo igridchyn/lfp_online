@@ -15,6 +15,8 @@
 class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     unsigned int target_tetrode_;
     std::vector<bool> display_cluster_;
+
+	bool wait_clust_;
     
     enum PosDisplayMode{
     	POS_DISPLAY_ALL,
