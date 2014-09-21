@@ -80,7 +80,8 @@ void SDLPCADisplayProcessor::process(){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
         
-        if (spike->tetrode_ != target_tetrode_){
+		// TODO !!! no NULL spikes, report and prevent by architecure (e.g. rewind to start level)
+        if (spike == NULL || spike->tetrode_ != target_tetrode_){
             buffer->spike_buf_no_disp_pca++;
             continue;
         }
@@ -217,7 +218,7 @@ void SDLPCADisplayProcessor::process(){
                 	}
                 }
 
-        if (polygon_closed_){
+		if (polygon_closed_ && polygon_x_.size() > 0){
         	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
 
@@ -315,7 +316,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					polygon_y_.clear();
 				}
 			}
-		}else if(e.button.button == SDL_BUTTON_MIDDLE){
+		}
+		else if (e.button.button == SDL_BUTTON_MIDDLE && polygon_y_.size() > 0){
 			polygon_closed_ = true;
 			reset_spike_pointer();
 		}
@@ -569,7 +571,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
     if (need_redraw){
                 // TODO: case-wise
-                //buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
+                buffer->spike_buf_no_disp_pca = 0;
 
                 time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
                 if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != NULL)
