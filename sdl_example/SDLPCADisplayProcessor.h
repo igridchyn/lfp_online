@@ -19,8 +19,10 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     
     // displayed components, can be changed by the control keys
     unsigned int comp1_ = 0; // 0 - 1st channel, PC1;
-    unsigned int comp2_ = 1; // 1 - 1st channel, PC2;
+    unsigned int comp2_ = 1; // 1 - 2nd channel, PC1;
     unsigned int nchan_;
+    // considered to be the same for all tetrodes
+    unsigned int num_pc_;
     
     // diplay non-assigned spikes
     bool display_unclassified_;

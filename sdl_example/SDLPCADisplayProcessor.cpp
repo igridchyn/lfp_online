@@ -38,6 +38,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , poly_save_(buffer->config_->getBool("pcadisp.poly.save", false))
 , poly_load_(buffer->config_->getBool("pcadisp.poly.load", false))
 , poly_path_(buffer->config_->getOutPath("pcadisp.poly.path", "poly.dat"))
+, num_pc_(buffer->config_->getInt("pca.num.pc"))
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 
@@ -346,6 +347,9 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         PolygonClusterProjection tmpproj(polygon_x_, polygon_y_, comp1_, comp2_);
 
+        unsigned int old_comp1 = comp1_;
+        unsigned int old_comp2 = comp2_;
+
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
@@ -567,6 +571,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 need_redraw = false;
                 
         }
+
+        // control for requesting unavailable channels
+        if (old_comp1 != comp1_ && (comp1_ % nchan_ >= nchan_)){
+        	comp1_ = old_comp1;
+        }
+
+        if (old_comp2 != comp2_ && (comp2_ % nchan_ >= nchan_)){
+        	comp2_ = old_comp2;
+        }
     }
 
     if (need_redraw){
@@ -597,4 +610,6 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 
 	polygon_x_.clear();
 	polygon_y_.clear();
+
+	nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode_];
 }
