@@ -94,6 +94,7 @@ public:
     // TODO ? messaging between processors
     bool ac_reset_ = false;
     int ac_reset_tetrode_ = -1;
+	int ac_reset_cluster_ = -1;
     
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]

@@ -51,16 +51,31 @@ void AutocorrelogramProcessor::process(){
 	if (buffer->ac_reset_){
 		int tetr_reset = buffer->ac_reset_tetrode_;
 
-		for(int c=0; c < MAX_CLUST; ++c){
-			for(int b=0; b < NBINS; ++b){
-				autocorrs_[buffer->ac_reset_tetrode_][c][b] = 0;
-				total_counts_[buffer->ac_reset_tetrode_][c] = 0;
+		// reset all
+		if (buffer->ac_reset_cluster_ == -1){
+			for (int c = 0; c < MAX_CLUST; ++c){
+				for (int b = 0; b < NBINS; ++b){
+					autocorrs_[buffer->ac_reset_tetrode_][c][b] = 0;
+					total_counts_[buffer->ac_reset_tetrode_][c] = 0;
+				}
+				reported_[buffer->ac_reset_tetrode_][c] = true;
 			}
-			reported_[buffer->ac_reset_tetrode_][c] = true;
 		}
+		// reset 1 cluster
+		else{
+			for (int b = 0; b < NBINS; ++b){
+				autocorrs_[buffer->ac_reset_tetrode_][buffer->ac_reset_cluster_][b] = 0;
+				total_counts_[buffer->ac_reset_tetrode_][buffer->ac_reset_cluster_] = 0;
+			}
+			reported_[buffer->ac_reset_tetrode_][buffer->ac_reset_cluster_] = true;
+		}
+
 		buffer->ac_reset_ = false;
+		buffer->ac_reset_cluster_ = -1;
+		buffer->ac_reset_tetrode_ = -1;
 
 		// reset last spike times so that AC will be recalculated
+		// TODO !!! adjust for buffer->ac_reset_cluster_
 		for(int c=0; c < MAX_CLUST; ++c){
 			spike_times_buf_pos_[tetr_reset][c] = 0;
 			for (unsigned int bpos = 0; bpos < ST_BUF_SIZE; ++bpos) {

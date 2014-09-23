@@ -380,12 +380,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		// remove cluster from list of tetrode poly clusters
         		polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + selected_cluster2_);
 
-        		// unselect second cluster
-        		selected_cluster2_ = -1;
+
 
         		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
     			buffer->ac_reset_ = true;
     			buffer->ac_reset_tetrode_ = target_tetrode_;
+				buffer->ac_reset_cluster_ = selected_cluster2_;
+
+				// unselect second cluster
+				selected_cluster2_ = -1;
 
         		break;
 
@@ -404,6 +407,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
     			buffer->ac_reset_ = true;
     			buffer->ac_reset_tetrode_ = target_tetrode_;
+				// because of 1+ shift in cluster numbering
+				buffer->ac_reset_cluster_ = polygon_clusters_.size();
 
         		break;
 
@@ -425,11 +430,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         					}
         				}
 
-        				selected_cluster2_ = -1;
-
                 		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
             			buffer->ac_reset_ = true;
             			buffer->ac_reset_tetrode_ = target_tetrode_;
+						buffer->ac_reset_cluster_ = selected_cluster2_;
+
+						selected_cluster2_ = -1;
         			}
         		}
         		else{
@@ -473,6 +479,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
         			buffer->ac_reset_ = true;
         			buffer->ac_reset_tetrode_ = target_tetrode_;
+					buffer->ac_reset_cluster_ = -1;
 
         			// TODO make separate control for saving (SHIFT+S)
         			save_polygon_clusters();
