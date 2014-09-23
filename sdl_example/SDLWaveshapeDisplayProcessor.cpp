@@ -24,7 +24,8 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
     : SDLControlInputProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
 	, LFPProcessor(buf)
-	, scale_(buf->config_->getInt("waveshapedisp.scale", 25)){ }
+	, scale_(buf->config_->getInt("waveshapedisp.scale", 25))
+	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10)){ }
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
     return 100 + -smpl/scale_ + 200 * chan;
@@ -58,7 +59,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
-        if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(tetrode_total_spikes_ % 50)){
+		if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(tetrode_total_spikes_ % spike_plot_rate_)){
             buf_pointer_++;
             tetrode_total_spikes_ ++;
             continue;

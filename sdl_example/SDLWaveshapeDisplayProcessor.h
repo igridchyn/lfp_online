@@ -20,6 +20,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
     
     static const unsigned int DISPLAY_RATE = 10;
     
+	unsigned int spike_plot_rate_;
+
     const float scale_;
 
 public:
