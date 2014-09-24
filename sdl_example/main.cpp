@@ -45,7 +45,7 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0911_screen2.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
 //	Config *config = new Config("../Res/nocon.conf");
-	Config *config = new Config("../Res/spike_detection_jc117_0916_screen0.conf");
+	Config *config = new Config("../Res/spike_detection_jc117_0921_6l.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
