@@ -13,9 +13,9 @@ PolygonCluster::PolygonCluster() {
 }
 
 void PolygonCluster::Serialize(std::ofstream& file) {
-	file << projections_.size() << "\n";
-	for (int i=0; i < projections_.size(); ++i){
-		projections_[i].Serialize(file);
+	file << projections_inclusive_.size() << "\n";
+	for (int i=0; i < projections_inclusive_.size(); ++i){
+		projections_inclusive_[i].Serialize(file);
 	}
 }
 
@@ -23,14 +23,56 @@ PolygonCluster::PolygonCluster(std::ifstream& file) {
 	int sz = 0;
 	file >> sz;
 	for (int i=0; i < sz; ++i){
-		projections_.push_back(PolygonClusterProjection(file));
+		projections_inclusive_.push_back(PolygonClusterProjection(file));
 	}
 }
 
 bool PolygonCluster::Contains(float x, float y) {
-	for (int p = 0; p < projections_.size(); ++p) {
-		if (!projections_[p].Contains(x, y))
+	bool inclusive = false;
+
+	for (int p = 0; p < projections_inclusive_.size(); ++p) {
+		if (projections_inclusive_[p].Contains(x, y))
+			inclusive = true;
+			break;
+	}
+
+	if (!inclusive)
+		return false;
+
+	for (int p = 0; p < projections_exclusive_.size(); ++p) {
+			if (projections_exclusive_[p].Contains(x, y))
+				return false;
+		}
+
+	return true;
+}
+
+bool PolygonCluster::Contains(Spike* spike, const unsigned int& nchan) {
+	bool inclusive = false;
+
+	for (int p=0; p < projections_inclusive_.size(); ++p){
+		int dim1 = projections_inclusive_[p].dim1_;
+		int dim2 = projections_inclusive_[p].dim2_;
+
+		// should fall into either of the clusters
+		if(projections_inclusive_[p].Contains(spike->pc[dim1 % nchan][dim1 / nchan],
+				spike->pc[dim2 % nchan][dim2 / nchan])){
+			inclusive = true;
+			break;
+		}
+	}
+
+	if (!inclusive)
+		return false;
+
+	for (int p=0; p < projections_exclusive_.size(); ++p){
+		int dim1 = projections_exclusive_[p].dim1_;
+		int dim2 = projections_exclusive_[p].dim2_;
+
+		if(projections_exclusive_[p].Contains(spike->pc[dim1 % nchan][dim1 / nchan],
+						spike->pc[dim2 % nchan][dim2 / nchan])){
 			return false;
+		}
 	}
 
 	return true;
@@ -69,25 +111,24 @@ PolygonClusterProjection::PolygonClusterProjection(
 	if (coords1_.size() > 0) {
 		coords1_.push_back(coords1_[0]);
 		coords2_.push_back(coords2_[0]);
-	}
 
-	// TODO !!! fix for non-convex
-//	if (!IsFromRight(coords1[0], coords2[0], coords1[1], coords2[1], coords1[2], coords2[2])){
-//		// inverse points order
-//		std::reverse(coords1_.begin(), coords1_.end());
-//		std::reverse(coords2_.begin(), coords2_.end());
-//	}
+		if (!IsCW()){
+			// inverse points order
+			std::reverse(coords1_.begin(), coords1_.end());
+			std::reverse(coords2_.begin(), coords2_.end());
+		}
+	}
 }
 
 PolygonCluster::PolygonCluster(const PolygonClusterProjection& proj) {
-	projections_.push_back(proj);
+	projections_inclusive_.push_back(proj);
 }
 
 bool PolygonCluster::ContainsConvex(float x, float y) {
 	// TODO cash edge vectors
 	// TODO all projections
 
-	PolygonClusterProjection& pcp = projections_[0];
+	PolygonClusterProjection& pcp = projections_inclusive_[0];
 	int last = pcp.Size() - 1;
 
 	for(int v=1; v < pcp.Size(); ++v){
@@ -156,4 +197,21 @@ void PolygonClusterProjection::Serialize(std::ofstream& file) {
 		file << coords1_[i] << " " << coords2_[i] << " ";
 	}
 	file << "\n";
+}
+
+void PolygonClusterProjection::Invert() {
+	std::reverse(coords1_.begin(), coords1_.end());
+	std::reverse(coords2_.begin(), coords2_.end());
+}
+
+bool PolygonClusterProjection::IsCW() {
+	int nright = 0;
+
+	for (int c=0; c < coords1_.size()-2; ++c){
+		if (IsFromRight(coords1_[c], coords2_[c], coords1_[c + 1], coords2_[c + 1], coords1_[c + 2], coords2_[c + 2])){
+			nright ++;
+		}
+	}
+
+	return nright > coords1_.size() / 2;
 }

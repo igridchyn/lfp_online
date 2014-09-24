@@ -8,13 +8,21 @@
 #ifndef POLYGONCLUSTER_H_
 #define POLYGONCLUSTER_H_
 
+
 #include <vector>
 #include <fstream>
+
+#include "Spike.h"
+
+enum PolygonClusterProjectionType{
+	ExclusivePolygonClusterProjection,
+	InclusivePolygonClusterProjection
+};
 
 class PolygonClusterProjection{
 public:
 	int dim1_, dim2_;
-	std::vector<float> coords1_, coords2_;;
+	std::vector<float> coords1_, coords2_;
 
 	inline int Size() {return coords1_.size(); }
 	PolygonClusterProjection(const std::vector<float> coords1, const std::vector<float> coords2, int dim1, int dim2);
@@ -23,15 +31,30 @@ public:
 	bool Contains(float x, float y);
 
 	void Serialize(std::ofstream& file);
+
+	// inverse order CW <-> CCW
+	void Invert();
+
+	// whether is CW polygon (meaning that points from the right of the edges belong to the polygon)
+	// heuristic based on number of angles < 180 degrees in clock-wise direction
+	bool IsCW();
 };
 
 class PolygonCluster {
 public:
-	std::vector<PolygonClusterProjection> projections_;
 
-	inline int NProj() { return projections_.size(); };
+	// 2 types of projections: inclusive and exclusive
+	// 	to belong to a polygon cluster, a point must be:
+	// 		* at least in ONE of it's inclusive projections
+	// 		* outside of it's ALL exclusive projections
+
+	std::vector<PolygonClusterProjection> projections_inclusive_;
+	std::vector<PolygonClusterProjection> projections_exclusive_;
+
+	inline int NProj() { return projections_inclusive_.size() + projections_exclusive_.size(); };
 	bool ContainsConvex(float x, float y);
 	bool Contains(float x, float y);
+	bool Contains(Spike *s, const unsigned int& nchan);
 	void Serialize(std::ofstream& file);
 
 	PolygonCluster();
