@@ -114,21 +114,7 @@ void SDLPCADisplayProcessor::process(){
         		// TODO use other dimensions if cluster has the other one
 
         		// TODO !!! incapsulate after linearizing PC
-        		int contains = false;
-
-        		for (int p=0; p < polygon_clusters_[target_tetrode_][i].projections_.size(); ++p){
-        			int dim1 = polygon_clusters_[target_tetrode_][i].projections_[p].dim1_;
-        			int dim2 = polygon_clusters_[target_tetrode_][i].projections_[p].dim2_;
-
-        			// should fall into either of the clusters
-        			if(polygon_clusters_[target_tetrode_][i].projections_[p].Contains(spike->pc[dim1 % nchan_][dim1 / nchan_],
-        					spike->pc[dim2 % nchan_][dim2 / nchan_])){
-        				contains = true;
-        				break;
-        			}
-        		}
-
-//        		if (polygon_clusters_[target_tetrode_][i].Contains(rawx, rawy)){
+        		int contains = polygon_clusters_[target_tetrode_][i].Contains(spike, nchan_);
         		if (contains){
         			spike->cluster_id_ = i + 1;
         		}
@@ -187,8 +173,8 @@ void SDLPCADisplayProcessor::process(){
 
         // TODO !!! don't redraw every time?
         if (selected_cluster1_ >= 0){
-        	for(int p=0; p < polygon_clusters_[target_tetrode_][selected_cluster1_].projections_.size(); ++p){
-        		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][selected_cluster1_].projections_[p];
+        	for(int p=0; p < polygon_clusters_[target_tetrode_][selected_cluster1_].projections_inclusive_.size(); ++p){
+        		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][selected_cluster1_].projections_inclusive_[p];
         		// TODO Process inverted dim1/dim2 - everywhere
         		if (proj.dim1_ == comp1_ && proj.dim2_ == comp2_){
         			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
@@ -203,8 +189,8 @@ void SDLPCADisplayProcessor::process(){
         	}
         }
         if (selected_cluster2_ >= 0){
-                	for(int p=0; p < polygon_clusters_[target_tetrode_][selected_cluster2_].projections_.size(); ++p){
-                		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][selected_cluster2_].projections_[p];
+                	for(int p=0; p < polygon_clusters_[target_tetrode_][selected_cluster2_].projections_inclusive_.size(); ++p){
+                		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][selected_cluster2_].projections_inclusive_[p];
                 		// TODO Process inverted dim1/dim2 - everywhere
                 		if (proj.dim1_ == comp1_ && proj.dim2_ == comp2_){
                 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
@@ -364,8 +350,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			selected_cluster2_ = swap;
         		}
 
-        		polygon_clusters_[target_tetrode_][selected_cluster1_].projections_.insert(polygon_clusters_[target_tetrode_][selected_cluster1_].projections_.end(),
-        				polygon_clusters_[target_tetrode_][selected_cluster2_].projections_.begin(), polygon_clusters_[target_tetrode_][selected_cluster2_].projections_.end());
+        		polygon_clusters_[target_tetrode_][selected_cluster1_].projections_inclusive_.insert(polygon_clusters_[target_tetrode_][selected_cluster1_].projections_inclusive_.end(),
+        				polygon_clusters_[target_tetrode_][selected_cluster2_].projections_inclusive_.begin(), polygon_clusters_[target_tetrode_][selected_cluster2_].projections_inclusive_.end());
 
         		// ??? change spike cluster from the beginning, redraw after
         		for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
@@ -438,14 +424,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 						selected_cluster2_ = -1;
         			}
         		}
-        		else{
+        		// add exclusive projection to current cluster (red)
+        		else if (selected_cluster2_ > -1){
         			// TODO either implement polygon intersection or projections logical operations
         			for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
         				Spike *spike = buffer->spike_buffer_[sind];
         				if (spike == NULL || spike->tetrode_ != target_tetrode_)
         					continue;
 
-        				if (spike -> cluster_id_ > -1){
+        				if (spike -> cluster_id_ == selected_cluster2_ + 1){
         					float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
         					float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
 
@@ -458,6 +445,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			polygon_closed_ = false;
         			polygon_x_.clear();
         			polygon_y_.clear();
+
+        			polygon_clusters_[target_tetrode_][selected_cluster2_].projections_exclusive_.push_back(tmpproj);
         		}
 
         		break;
