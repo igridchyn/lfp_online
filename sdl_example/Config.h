@@ -37,6 +37,8 @@ public:
 	// channels to be displayed in the SDLSignalDisplay
 	std::vector<unsigned int> lfp_disp_channels_;
 
+	std::vector<unsigned int> synchrony_tetrodes_;
+
 	Config(std::string path);
 
 	int getInt(std::string name);

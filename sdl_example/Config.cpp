@@ -106,6 +106,18 @@ Config::Config(std::string path) {
 			continue;
 		}
 
+		// TODO : function for reading int list
+		// numbers in the list found in tetrodes config
+		if (line == std::string("synchrony")){
+			int ntetr, tetr;
+			fconf >> ntetr;
+			for (int t = 0; t < ntetr; ++t) {
+				fconf >> tetr;
+				synchrony_tetrodes_.push_back(tetr);
+			}
+			continue;
+		}
+
 		std::istringstream ssline(line);
 
 		std::string key;
