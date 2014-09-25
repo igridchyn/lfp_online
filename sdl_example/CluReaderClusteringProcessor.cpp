@@ -31,7 +31,7 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 			// read number of clusters given in the beginning of the file
 			*(clu_streams_[t]) >> max_clust_[t];
 
-			buffer->population_vector_window_[t].resize(max_clust_[t] - 1);
+			buffer->population_vector_window_[t].resize(max_clust_[t]);
 		}
 }
 

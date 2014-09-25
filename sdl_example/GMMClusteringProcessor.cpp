@@ -109,7 +109,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
             buffer->Log(std::string("Loaded GMM with ") + Utils::NUMBERS[gmm_[tetr].Gaussians()] + " clusters for tetrode " + Utils::NUMBERS[tetr] + "\n\n");
 
             // resize population vector in window buffer
-            buf->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians());
+            buf->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians() + 1);
         }
     }
 
@@ -163,7 +163,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
 
     gmm_fitted_[tetr] = true;
     gmm_[tetr] = gmm_best;
-    buffer->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians());
+    buffer->population_vector_window_[tetr].resize(gmm_[tetr].Gaussians() + 1);
 
     if (save_clustering_){
         saveGMM(gmm_[tetr], tetr);
@@ -295,7 +295,8 @@ void GMMClusteringProcessor::process(){
                 for (int i=0; i < labels_.size(); ++i){
                     const size_t label = labels_[i];
                     obs_spikes_[tetr][i]->cluster_id_ = (int)label;
-                    buffer->UpdateWindowVector(obs_spikes_[tetr][i]);
+                    // done in Spike alignment (cheap operation anyway)
+                    // buffer->UpdateWindowVector(obs_spikes_[tetr][i]);
                     buffer->cluster_spike_counts_(tetr, label) += 1;
                 }
                 

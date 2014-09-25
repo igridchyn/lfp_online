@@ -77,8 +77,12 @@ void SpikeAlignmentProcessor::process(){
         
 		if (peak_pos - prev_spike_pos_[tetrode] > 16 || prev_spike_[tetrode] == NULL)
     	{
+			// !!!  This is the EARLIEST point when the spike is accepted for further analysis
             if (prev_spike_[tetrode] != NULL){
                 prev_spike_[tetrode]->aligned_ = true;
+
+                // ADD spike to buffer's population window and use for ISI estimation
+                buffer->UpdateWindowVector(prev_spike_[tetrode]);
             }
             
             prev_spike_pos_[tetrode] = peak_pos;
