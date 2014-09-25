@@ -608,4 +608,7 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 	polygon_y_.clear();
 
 	nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode_];
+
+	selected_cluster1_ = -1;
+	selected_cluster2_ = -1;
 }
