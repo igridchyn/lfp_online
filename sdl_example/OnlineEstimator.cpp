@@ -16,7 +16,7 @@ OnlineEstimator<T>::OnlineEstimator(unsigned int buf_size)
 
 template<class T>
 T OnlineEstimator<T>::get_mean_estimate(){
-    return sumsq / num_samples;
+    return sum / num_samples;
 }
 
 template<class T>
