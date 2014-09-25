@@ -143,6 +143,8 @@ void LFPBuffer::Reset(Config* config) {
 	spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_pf_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_auto_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_lpt_ = SPIKE_BUF_HEAD_LEN;
 
 	if (tetr_info_)
 		delete tetr_info_;
@@ -190,6 +192,11 @@ void LFPBuffer::Reset(Config* config) {
 
     population_vector_window_.clear();
     population_vector_window_.resize(tetr_info_->tetrodes_number);
+    // initialize for counting unclusterred spikes
+    // clustering processors should resize this to use for clustered spikes clusters
+    for (int t=0; t < tetr_info_->tetrodes_number; ++t){
+    	population_vector_window_[t].push_back(0);
+    }
 
 	log_stream << "INFO: BUFFER CREATED\n";
 
@@ -199,6 +206,29 @@ void LFPBuffer::Reset(Config* config) {
 		// TODO fix
 		memset(positions_buf_[pos_buf], 0, 6 * sizeof(unsigned int));
 	}
+
+	ISIEstimators_ = new OnlineEstimator<float>*[tetr_info_->tetrodes_number];
+	for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
+		ISIEstimators_[t] = new OnlineEstimator<float>();
+	}
+
+	previous_spikes_pkg_ids_ = new unsigned int[tetr_info_->tetrodes_number];
+	// fill with fake spikes to avoid unnnecessery checks because of the first time
+	// (memory for 1 spike per tetrode will be lost)
+	// TODO fix for package IDs starting not with null
+	// TODO warn packages strating not with 0
+	for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
+		previous_spikes_pkg_ids_[t] = 0;
+	}
+
+	is_high_synchrony_tetrode_ = new bool[tetr_info_->tetrodes_number];
+	memset(is_high_synchrony_tetrode_, 0, sizeof(bool) * tetr_info_->tetrodes_number);
+	for (int t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+		is_high_synchrony_tetrode_[config_->synchrony_tetrodes_[t]] =  true;
+	}
+
+	// TODO check if all members are properly being reset
+	high_synchrony_tetrode_spikes_ = 0;
 }
 
 LFPBuffer::~LFPBuffer(){
@@ -213,6 +243,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , SPIKE_BUF_HEAD_LEN(config->getInt("spike.buf.head", 1 << 18))
 , LFP_BUF_LEN(config->getInt("buf.len", 1 << 11))
 , BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
+, high_synchrony_factor_(config->getFloat("high.synchrony.factor", 2.0f))
 {
 	CH_MAP = new int[64]{8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55};
 
@@ -232,7 +263,8 @@ LFPBuffer::LFPBuffer(Config* config)
 	
 	srand(time(NULL));
 	int i = rand() % 64;
-	log_stream.open(std::string("D:/Igor/lfponline_LOG_") + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
+	std::string log_path_prefix = config->getString("log.path.prefix", "lfponline_LOG_");
+	log_stream.open(log_path_prefix + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
 	std::cout << "Created LOG\n";
 
     for (int c = 0; c < CHANNEL_NUM; ++c){
@@ -246,6 +278,7 @@ LFPBuffer::LFPBuffer(Config* config)
     Reset(config);
 }
 
+// pop spikes from the top of the queue who fall outside of population window of given length ending in last known PKG_ID
 void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
     if (population_vector_stack_.empty()){
         return;
@@ -253,9 +286,13 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
     
     Spike *stop = population_vector_stack_.front();
     while (stop->pkg_id_ < right_border - POP_VEC_WIN_LEN * SAMPLING_RATE / 1000.f) {
+    	// this duplicates population_vector_window_ + config->synchrony tetrodes, but is needed for efficiency ...
+    	if (is_high_synchrony_tetrode_[stop->tetrode_])
+    		high_synchrony_tetrode_spikes_ --;
+
         population_vector_stack_.pop();
         
-        population_vector_window_[stop->tetrode_][stop->cluster_id_] --;
+        population_vector_window_[stop->tetrode_][stop->cluster_id_ + 1] --;
         population_vector_total_spikes_ --;
         
         if (population_vector_stack_.empty()){
@@ -270,11 +307,22 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
     // TODO: make right border of the window more precise: as close as possible to lst_pkg_id but not containing unclassified spikes
     // (left border = right border - POP_VEC_WIN_LEN)
     
-    population_vector_window_[spike->tetrode_][spike->cluster_id_] ++;
+    population_vector_window_[spike->tetrode_][spike->cluster_id_ + 1] ++;
     population_vector_total_spikes_ ++;
     
     population_vector_stack_.push(spike);
-    
+
+    // TODO separate processors for ISI estimation
+    if (ISIEstimators_ != NULL){
+    	ISIEstimators_[spike->tetrode_]->push((spike->pkg_id_ - previous_spikes_pkg_ids_[spike->tetrode_]) / (float)SAMPLING_RATE);
+
+    	// ??? do outside if prev_spikes used anywhere else
+    	previous_spikes_pkg_ids_[spike->tetrode_] = spike->pkg_id_;
+    }
+
+    if (is_high_synchrony_tetrode_[spike->tetrode_])
+    	high_synchrony_tetrode_spikes_ ++;
+
     // DEBUG - print pop vector occasionally
 //    if (!(spike->pkg_id_ % 3000)){
 //        std::cout << "Pop. vector: \n";
@@ -314,6 +362,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_clust_ -= std::min(shift_new_start, (int)spike_buf_pos_clust_);
 		spike_buf_pos_pf_ -= std::min(shift_new_start, (int)spike_buf_pos_pf_);
 		spike_buf_pos_auto_ -= std::min(shift_new_start, (int)spike_buf_pos_auto_);
+		spike_buf_pos_lpt_ -= std::min(shift_new_start, (int)spike_buf_pos_lpt_);
 
 		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 
@@ -501,7 +550,23 @@ void LFPProcessor::Log(std::string message) {
 }
 
 std::string LFPProcessor::name() {
-	return "<processor name not specidied>";
+	return "<processor name not specified>";
+}
+
+// whether current population window represents high synchrony activity
+bool LFPBuffer::IsHighSynchrony() {
+	RemoveSpikesOutsideWindow(last_pkg_id);
+
+	// whether have at least synchrony.factor X average spikes at all tetrodes
+	float average_spikes_window = .0f;
+	unsigned int spikes_pop_synchrony= 0;
+
+	for (int t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+		average_spikes_window += 1.0 / ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate();
+	}
+	average_spikes_window *= POP_VEC_WIN_LEN / 1000.0f;
+
+	return (high_synchrony_tetrode_spikes_ >= average_spikes_window * high_synchrony_factor_);
 }
 
 void LFPBuffer::Log(std::string message, int num) {
@@ -509,4 +574,8 @@ void LFPBuffer::Log(std::string message, int num) {
 	log_stream << message << num << "\n";
 	// TODO remove in release
 	log_stream.flush();
+}
+
+void LFPProcessor::Log(std::string message, int num) {
+	buffer->Log(name() + ": " + message, num);
 }

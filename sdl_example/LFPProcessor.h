@@ -64,6 +64,7 @@ class LFPProcessor{
 protected:
     LFPBuffer* buffer = NULL;
     virtual void Log(std::string message);
+    virtual void Log(std::string message, int num);
 
 public:
     virtual std::string name();

@@ -90,6 +90,8 @@ public:
     unsigned int spike_buf_pos_pf_;
     // autocorrelogram
     unsigned int spike_buf_pos_auto_;
+    // LPT triggger
+    unsigned int spike_buf_pos_lpt_;
 
     // TODO ? messaging between processors
     bool ac_reset_ = false;
@@ -118,14 +120,20 @@ public:
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
     
-    // length of a population vector
+    // length of a population vector, in number of samples (length in seconds = POP_VEC_WIN_LEN / SAMPLING_RATE)
     const unsigned int POP_VEC_WIN_LEN;
     // pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
     // initialized by GMM clustering processor
+    // !!! the cluster number is shifted by one
     std::vector< std::vector<unsigned int> > population_vector_window_;
     unsigned int population_vector_total_spikes_ = 0;
     std::queue<Spike*> population_vector_stack_;
     
+    // map of whether tetrode is used for high synchrony detection
+    bool *is_high_synchrony_tetrode_;
+    unsigned int high_synchrony_tetrode_spikes_ = 0;
+    float high_synchrony_factor_;
+
     std::queue<std::vector<int>> swrs_;
 
 private:
@@ -155,6 +163,12 @@ public:
     
     OnlineEstimator<float>* speedEstimator_;
     
+    // for ISI estimation - previous spike
+    // ??? initialize with fake spike to avoid checks
+    unsigned int *previous_spikes_pkg_ids_;
+
+    OnlineEstimator<float>** ISIEstimators_;
+
     arma::mat cluster_spike_counts_;
 
     // TODO !WORKAOURD! implement exchange through interface between processors
@@ -177,6 +191,7 @@ public:
     
     void RemoveSpikesOutsideWindow(const unsigned int& right_border);
     void UpdateWindowVector(Spike *spike);
+    bool IsHighSynchrony();
 
     void AddSpike(Spike *spike);
 
