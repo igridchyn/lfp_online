@@ -13,6 +13,7 @@
 LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	: LFPProcessor(buffer)
 	, channel_(buffer->config_->getInt("lpt.trigger.channel"))
+	, trigger_cooldown_(buffer->config_->getInt("lpt.trigger.cooldown"))
 {
 	Log("Constructor start");
 
@@ -41,6 +42,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 }
 
 LPTTriggerProcessor::~LPTTriggerProcessor() {
+	setLow();
 	timestamp_log_.close();
 }
 
@@ -70,6 +72,12 @@ void LPTTriggerProcessor::setHigh() {
 }
 
 void LPTTriggerProcessor::process() {
+	// check if need to turn off first
+	if (LPT_is_high_ && buffer->last_pkg_id - last_trigger_time_ > pulse_length_){
+		setLow();
+		LPT_is_high_ = false;
+	}
+
 	switch(trigger_target_){
 	case LPTTriggerTarget::LPTTargetLFP:
 		while(buffer->buf_pos_trig_ < buffer->buf_pos){
@@ -106,6 +114,9 @@ void LPTTriggerProcessor::process() {
 					last_trigger_time_ = buffer->last_pkg_id;
 					timestamp_log_ << last_trigger_time_ << "\n";
 					timestamp_log_.flush();
+
+					setHigh();
+					LPT_is_high_ = true;
 				}
 				break;
 			default:

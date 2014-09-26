@@ -37,8 +37,8 @@ class LPTTriggerProcessor: public LFPProcessor {
 	void setLow();
 
 	unsigned int last_trigger_time_ = 0;
-	unsigned int pulse_length_ = 400;
-	unsigned int trigger_cooldown_ = 800;
+	unsigned int pulse_length_ = 2400;
+	unsigned int trigger_cooldown_;
 
 	std::ofstream timestamp_log_;
 
