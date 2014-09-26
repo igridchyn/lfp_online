@@ -14,6 +14,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	: LFPProcessor(buffer)
 	, channel_(buffer->config_->getInt("lpt.trigger.channel"))
 	, trigger_cooldown_(buffer->config_->getInt("lpt.trigger.cooldown"))
+	, trigger_start_delay_(buffer->config_->getInt("lpt.trigger.start.delay") * buffer->SAMPLING_RATE)
 {
 	Log("Constructor start");
 
@@ -38,6 +39,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	}
 #endif
 
+	setLow();
 	Log("Constructor done");
 }
 
@@ -78,6 +80,18 @@ void LPTTriggerProcessor::process() {
 		LPT_is_high_ = false;
 	}
 
+	// TODO detect start not since 0 but since first package id
+	if (buffer->last_pkg_id < trigger_start_delay_){
+		return;
+	}
+	else if (average_spikes_in_synchrony_tetrodes_ < 0){
+		average_spikes_in_synchrony_tetrodes_ = buffer->AverageSynchronySpikesWindow();
+
+		std::stringstream ss;
+		ss << "Start inhibition, average number of spikes on synchrony tetrodes in population window of length " << buffer->POP_VEC_WIN_LEN << " = " << average_spikes_in_synchrony_tetrodes_;
+		Log(ss.str());
+	}
+
 	switch(trigger_target_){
 	case LPTTriggerTarget::LPTTargetLFP:
 		while(buffer->buf_pos_trig_ < buffer->buf_pos){
@@ -110,7 +124,7 @@ void LPTTriggerProcessor::process() {
 
 			switch(trigger_type_){
 			case LPTTriggerType::HighSynchronyTrigger:
-				if (buffer->IsHighSynchrony() && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
+				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
 					last_trigger_time_ = buffer->last_pkg_id;
 					timestamp_log_ << last_trigger_time_ << "\n";
 					timestamp_log_.flush();
