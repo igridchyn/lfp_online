@@ -553,19 +553,25 @@ std::string LFPProcessor::name() {
 	return "<processor name not specified>";
 }
 
-// whether current population window represents high synchrony activity
-bool LFPBuffer::IsHighSynchrony() {
-	RemoveSpikesOutsideWindow(last_pkg_id);
-
-	// whether have at least synchrony.factor X average spikes at all tetrodes
-	float average_spikes_window = .0f;
-	unsigned int spikes_pop_synchrony= 0;
+double LFPBuffer::AverageSynchronySpikesWindow(){
+	double average_spikes_window = .0f;
 
 	for (int t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
 		average_spikes_window += 1.0 / ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate();
 	}
 	average_spikes_window *= POP_VEC_WIN_LEN / 1000.0f;
 
+	return average_spikes_window;
+}
+
+// whether current population window represents high synchrony activity
+bool LFPBuffer::IsHighSynchrony() {
+	return IsHighSynchrony(AverageSynchronySpikesWindow());
+}
+
+bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
+	RemoveSpikesOutsideWindow(last_pkg_id);
+	// whether have at least synchrony.factor X average spikes at all tetrodes
 	return (high_synchrony_tetrode_spikes_ >= average_spikes_window * high_synchrony_factor_);
 }
 

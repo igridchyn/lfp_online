@@ -192,6 +192,8 @@ public:
     void RemoveSpikesOutsideWindow(const unsigned int& right_border);
     void UpdateWindowVector(Spike *spike);
     bool IsHighSynchrony();
+	bool IsHighSynchrony(double average_spikes_window);
+	double AverageSynchronySpikesWindow();
 
     void AddSpike(Spike *spike);
 
