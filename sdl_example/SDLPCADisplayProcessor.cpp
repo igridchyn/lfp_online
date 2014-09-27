@@ -390,7 +390,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		polygon_y_.clear();
 
         		// TODO !!! buffer->resetAC()
-        		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+        		// set to where it was reset...
+        		buffer->spike_buf_pos_auto_ = 0;
     			buffer->ac_reset_ = true;
     			buffer->ac_reset_tetrode_ = target_tetrode_;
 				// because of 1+ shift in cluster numbering
