@@ -13,6 +13,7 @@
 #define _POS_BUF_SIZE 1<<20
 #define _CHANNEL_NUM 64
 
+#include <iostream>
 #include <vector>
 #include <stack>
 #include <queue>

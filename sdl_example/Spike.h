@@ -21,9 +21,9 @@ public:
     static const int WS_LENGTH_ALIGNED = 32;
     
     int pkg_id_;
-    int **waveshape = NULL;
-    int **waveshape_final = NULL;
-    float **pc = NULL;
+    int **waveshape = nullptr;
+    int **waveshape_final = nullptr;
+    float **pc = nullptr;
     
     int cluster_id_ = -1;
     

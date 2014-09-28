@@ -11,6 +11,11 @@
 
 #include "Spike.h"
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <cstddef>
+#include <assert.h>
+#include <string.h>
 
 class TetrodesInfo{
 
