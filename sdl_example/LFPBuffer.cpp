@@ -115,6 +115,40 @@ void LFPBuffer::Reset(Config* config) {
 
 LFPBuffer::~LFPBuffer(){
 	Log("Buffer destructor called");
+
+	for (int s = 0; s < SPIKE_BUF_LEN; ++s) {
+		if (spike_buffer_[s] != nullptr)
+			delete spike_buffer_[s];
+	}
+	delete[] spike_buffer_;
+
+	delete[] CH_MAP;
+	delete[] CH_MAP_INV;
+
+	for (int c = 0; c < CHANNEL_NUM; ++c){
+		delete[] signal_buf[c];
+		delete[] filtered_signal_buf[c];
+		delete[] power_buf[c];
+	}
+
+	if (tetr_info_)
+			delete tetr_info_;
+
+	delete speedEstimator_;
+
+	 if (last_spike_pos_)
+	    	delete[] last_spike_pos_;
+
+	 for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
+		 delete ISIEstimators_[t];
+	 }
+	 delete[] ISIEstimators_;
+
+	 delete[] previous_spikes_pkg_ids_;
+
+	 delete[] is_high_synchrony_tetrode_;
+
+	Log("Buffer destructor finished");
 }
 
 LFPBuffer::LFPBuffer(Config* config)
