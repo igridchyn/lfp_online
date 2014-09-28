@@ -100,7 +100,7 @@ void SpikeDetectorProcessor::process()
             buffer->power_buf[channel][fpos] = sqrt(pw);
             
             // std estimation
-            if (buffer->powerEstimatorsMap_[channel] != NULL)
+            if (buffer->powerEstimatorsMap_[channel] != nullptr)
                 buffer->powerEstimatorsMap_[channel]->push((float)sqrt(pw));
             
             // DEBUG
@@ -150,9 +150,9 @@ void SpikeDetectorProcessor::process()
                 
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
                 // TODO: reinit
-				if (buffer->spike_buffer_[buffer->spike_buf_pos] != NULL){
+				if (buffer->spike_buffer_[buffer->spike_buf_pos] != nullptr){
 					delete buffer->spike_buffer_[buffer->spike_buf_pos];
-					buffer->spike_buffer_[buffer->spike_buf_pos] = NULL;
+					buffer->spike_buffer_[buffer->spike_buf_pos] = nullptr;
 				}
                 
                 // TODO: delete oold spikes or reuse the structure

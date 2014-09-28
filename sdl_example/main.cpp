@@ -17,7 +17,7 @@ void draw_bin() {
 #ifdef _WIN32
 	//std::string cpath("../Res/signal_display_win_bin.conf");
 	std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_1l_win.conf)");
-	Config *config = NULL;
+	Config *config = nullptr;
 	config = new Config(cpath);
 	//config->Init();
 	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
@@ -81,14 +81,14 @@ void draw_bin() {
 
 		buf->chunk_ptr = block;
 		buf->num_chunks = nblock;
-		pipeline->process(NULL);
+		pipeline->process(nullptr);
 	}
 
 	std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
 
-	buf->chunk_ptr = NULL;
+	buf->chunk_ptr = nullptr;
 	while (true) {
-		pipeline->process(NULL);
+		pipeline->process(nullptr);
 	}
 
 	std::cout << "EOF, waiting for processors jobs to join...\n";

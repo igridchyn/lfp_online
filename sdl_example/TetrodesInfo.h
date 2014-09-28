@@ -24,13 +24,13 @@ public:
     int tetrodes_number;
     
     // number of channels in each group
-    int *channels_numbers = NULL;
+    int *channels_numbers = nullptr;
     
     // of size tetrodes_number, indices of channels in each group
-	int **tetrode_channels = NULL;
+	int **tetrode_channels = nullptr;
     
     // group by electrode
-	int *tetrode_by_channel = NULL;
+	int *tetrode_by_channel = nullptr;
     
     int number_of_channels(Spike* spike);
 

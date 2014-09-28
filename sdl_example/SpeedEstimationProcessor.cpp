@@ -39,7 +39,7 @@ void SpeedEstimationProcessor::process(){
 			int known_speed_pkg_id =  buffer->positions_buf_[buffer->pos_buf_pos_speed_est - 8][4];
 			while (true){
 				Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
-				if (spike == NULL || spike->pkg_id_ > known_speed_pkg_id){
+				if (spike == nullptr || spike->pkg_id_ > known_speed_pkg_id){
 					break;
 				}
 

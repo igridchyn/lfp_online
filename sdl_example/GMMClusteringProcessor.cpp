@@ -206,7 +206,7 @@ void GMMClusteringProcessor::process(){
         const unsigned int nchan = buffer->tetr_info_->channels_numbers[tetr];
         
         // if PCA has not been computed yet
-        if (spike->pc == NULL){
+        if (spike->pc == nullptr){
             break;
         }
         

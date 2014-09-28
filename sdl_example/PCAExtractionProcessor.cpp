@@ -362,7 +362,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
 
 void PCAExtractionProcessor::compute_pcs(Spike *spike){
     int numchan = buffer->tetr_info_->number_of_channels(spike);
-    if (spike->pc == NULL){
+    if (spike->pc == nullptr){
         spike->pc = new float*[numchan];
         for (int ci=0; ci < numchan; ++ci) {
             spike->pc[ci] = new float[num_pc_];
@@ -380,12 +380,12 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
                 }
                 if (cleanup_ws_){
                 	delete spike->waveshape_final[c];
-                	spike->waveshape_final[c] = NULL;
+                	spike->waveshape_final[c] = nullptr;
                 }
             }
             if (cleanup_ws_){
             	delete spike->waveshape_final;
-            	spike->waveshape_final = NULL;
+            	spike->waveshape_final = nullptr;
             }
     }
     
@@ -514,7 +514,7 @@ void PCAExtractionProcessor::process(){
             // get PCs for all past spikes
             for (int s=0; s < buffer->spike_buf_pos_unproc_; ++s) {
                 Spike *spike = buffer->spike_buffer_[s];
-                if (spike == NULL || spike->discarded_ || spike->tetrode_ != tetr){
+                if (spike == nullptr || spike->discarded_ || spike->tetrode_ != tetr){
                     continue;
                 }
                 

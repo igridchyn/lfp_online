@@ -18,11 +18,11 @@ void __declspec(dllexport) ReportError(){
 		FORMAT_MESSAGE_ALLOCATE_BUFFER |
 		FORMAT_MESSAGE_FROM_SYSTEM |
 		FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
+		nullptr,
 		error,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)&lpMsgBuf,
-		0, NULL);
+		0, nullptr);
 
 	printf("Write error %ld :", error);
 	wprintf(L"%s", lpMsgBuf);
@@ -37,7 +37,7 @@ int inst(LPCSTR pszDriver)
 	strcat_s(szDriverSys, MAX_PATH, ".sys\0");
 
 	SC_HANDLE  Mgr;
-	SC_HANDLE  Ser = NULL;
+	SC_HANDLE  Ser = nullptr;
 	GetSystemDirectoryA(path, sizeof(path));
 	HRSRC hResource = FindResource(hmodule, MAKEINTRESOURCE(IDR_BIN1), "bin");
 	if (hResource)
@@ -57,17 +57,17 @@ int inst(LPCSTR pszDriver)
 				file = CreateFileA(path,
 					GENERIC_WRITE,
 					0,
-					NULL,
+					nullptr,
 					CREATE_ALWAYS,
 					0,
-					NULL);
+					nullptr);
 
 				if (file)
 				{
 					DWORD size, written;
 
 					size = SizeofResource(hmodule, hResource);
-					WriteFile(file, binData, size, &written, NULL);
+					WriteFile(file, binData, size, &written, nullptr);
 					CloseHandle(file);
 
 				}
@@ -75,8 +75,8 @@ int inst(LPCSTR pszDriver)
 		}
 	}
 
-	Mgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	if (Mgr == NULL)
+	Mgr = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
+	if (Mgr == nullptr)
 	{							//No permission to create service
 		if (GetLastError() == ERROR_ACCESS_DENIED)
 		{
@@ -95,11 +95,11 @@ int inst(LPCSTR pszDriver)
 			SERVICE_SYSTEM_START,
 			SERVICE_ERROR_NORMAL,
 			szFullPath,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL
+			nullptr,
+			nullptr,
+			nullptr,
+			nullptr,
+			nullptr
 			);
 
 		if (!Ser)
@@ -111,7 +111,7 @@ int inst(LPCSTR pszDriver)
 	return 0;
 }
 
-HANDLE hdriver = NULL;
+HANDLE hdriver = nullptr;
 /// !!! was LPCTSTR
 // start driver service
 int start(LPCSTR pszDriver)
@@ -119,17 +119,17 @@ int start(LPCSTR pszDriver)
 	SC_HANDLE  Mgr;
 	SC_HANDLE  Ser;
 
-	Mgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	Mgr = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
 
-	if (Mgr == NULL)
+	if (Mgr == nullptr)
 	{							//No permission to create service
 		if (GetLastError() == ERROR_ACCESS_DENIED)
 		{
-			Mgr = OpenSCManager(NULL, NULL, GENERIC_READ);
+			Mgr = OpenSCManager(nullptr, nullptr, GENERIC_READ);
 			Ser = OpenServiceA(Mgr, pszDriver, GENERIC_EXECUTE);
 			if (Ser)
 			{    // we have permission to start the service
-				if (!StartService(Ser, 0, NULL))
+				if (!StartService(Ser, 0, nullptr))
 				{
 					CloseServiceHandle(Ser);
 					return 4; // we could open the service but unable to start
@@ -145,8 +145,8 @@ int start(LPCSTR pszDriver)
 		Ser = OpenService(Mgr, "hwinterfacex64", GENERIC_EXECUTE);
 		if (Ser)
 		{
-			//if (!StartServiceA(Ser, 0, NULL))
-			if (!StartService(Ser, 0, NULL))
+			//if (!StartServiceA(Ser, 0, nullptr))
+			if (!StartService(Ser, 0, nullptr))
 			{
 				CloseServiceHandle(Ser);
 				ReportError();
@@ -169,7 +169,7 @@ int __declspec(dllexport) Opendriver()
 
 	OutputDebugStringW(L"Attempting to open InpOut driver...\n");
 
-	char szFileName[MAX_PATH] = { NULL };
+	char szFileName[MAX_PATH] = { nullptr };
 	if (bX64)
 		strcpy_s(szFileName, MAX_PATH, "\\\\.\\hwinterfacex64");	//We are 64bit...
 	else
@@ -178,10 +178,10 @@ int __declspec(dllexport) Opendriver()
 	hdriver = CreateFileA(szFileName,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
-		NULL,
+		nullptr,
 		OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL,
-		NULL);
+		nullptr);
 
 	if (hdriver == INVALID_HANDLE_VALUE)
 	{
@@ -195,10 +195,10 @@ int __declspec(dllexport) Opendriver()
 			hdriver = CreateFileA(szFileName,
 				GENERIC_READ | GENERIC_WRITE,
 				0,
-				NULL,
+				nullptr,
 				OPEN_EXISTING,
 				FILE_ATTRIBUTE_NORMAL,
-				NULL);
+				nullptr);
 
 			if (hdriver != INVALID_HANDLE_VALUE)
 			{
@@ -232,10 +232,10 @@ void __declspec(dllexport) Out32(short PortAddress, short data)
 			IOCTL_WRITE_PORT_UCHAR,
 			&Buffer,
 			3,
-			NULL,
+			nullptr,
 			0,
 			&BytesReturned,
-			NULL);
+			nullptr);
 
 		//Sleep(5);
 	//}
@@ -244,10 +244,10 @@ void __declspec(dllexport) Out32(short PortAddress, short data)
 		IOCTL_WRITE_PORT_UCHAR,
 		&Buffer,
 		3,
-		NULL,
+		nullptr,
 		0,
 		&BytesReturned,
-		NULL)){
+		nullptr)){
 
 		error = GetLastError();
 
@@ -257,11 +257,11 @@ void __declspec(dllexport) Out32(short PortAddress, short data)
 			FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			FORMAT_MESSAGE_FROM_SYSTEM |
 			FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
+			nullptr,
 			error,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			(LPTSTR)&lpMsgBuf,
-			0, NULL);
+			0, nullptr);
 
 		printf("Write error %ld :", error);
 		wprintf(L"%s", lpMsgBuf);

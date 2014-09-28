@@ -81,13 +81,13 @@ void SDLPCADisplayProcessor::process(){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
         
-		// TODO !!! no NULL spikes, report and prevent by architecure (e.g. rewind to start level)
-        if (spike == NULL || spike->tetrode_ != target_tetrode_){
+		// TODO !!! no nullptr spikes, report and prevent by architecure (e.g. rewind to start level)
+        if (spike == nullptr || spike->tetrode_ != target_tetrode_){
             buffer->spike_buf_no_disp_pca++;
             continue;
         }
         
-        if (spike->pc == NULL || (spike->cluster_id_ == -1 && !display_unclassified_))
+        if (spike->pc == nullptr || (spike->cluster_id_ == -1 && !display_unclassified_))
         {
             if (spike->discarded_){
                 buffer->spike_buf_no_disp_pca++;
@@ -147,8 +147,8 @@ void SDLPCADisplayProcessor::process(){
     }
     
     if (render){
-        SDL_SetRenderTarget(renderer_, NULL);
-        SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 
         SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
         SDL_RenderDrawLine(renderer_, 0, shift_y_, window_width_, shift_y_);
@@ -235,7 +235,7 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 }
 
 void SDLPCADisplayProcessor::reset_spike_pointer(){
-	if (buffer->spike_buffer_[10] == NULL)
+	if (buffer->spike_buffer_[10] == nullptr)
 		buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
 	else
 		buffer->spike_buf_no_disp_pca = 1;
@@ -409,7 +409,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         				// update spikes
         				for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
         					Spike *spike = buffer->spike_buffer_[sind];
-        					if (spike == NULL || spike->tetrode_ != target_tetrode_)
+        					if (spike == nullptr || spike->tetrode_ != target_tetrode_)
         						continue;
 
         					if (spike -> cluster_id_ == selected_cluster2_ + 1){
@@ -430,7 +430,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			// TODO either implement polygon intersection or projections logical operations
         			for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
         				Spike *spike = buffer->spike_buffer_[sind];
-        				if (spike == NULL || spike->tetrode_ != target_tetrode_)
+        				if (spike == nullptr || spike->tetrode_ != target_tetrode_)
         					continue;
 
         				if (spike -> cluster_id_ == selected_cluster2_ + 1){
@@ -584,7 +584,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 buffer->spike_buf_no_disp_pca = 0;
 
                 time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
-                if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != NULL)
+                if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != nullptr)
                 time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 
                 // TODO: EXTRACT

@@ -124,7 +124,7 @@ std::vector<SDLControlInputProcessor *> LFPPipeline::GetSDLControlInputProcessor
     
     for (int p=0; p<processors.size(); ++p) {
         SDLControlInputProcessor *ciproc = dynamic_cast<SDLControlInputProcessor*>(processors[p]);
-        if (ciproc != NULL){
+        if (ciproc != nullptr){
             control_processors.push_back(ciproc);
         }
     }

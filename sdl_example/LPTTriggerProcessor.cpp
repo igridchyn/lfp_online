@@ -27,7 +27,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 
 	// way 2
 	hInpOutDll = LoadLibrary("InpOut32.DLL");
-	if (hInpOutDll != NULL)
+	if (hInpOutDll != nullptr)
 	{
 		gfpOut32 = (lpOut32)GetProcAddress(hInpOutDll, "Out32");
 		gfpInp32 = (lpInp32)GetProcAddress(hInpOutDll, "Inp32");

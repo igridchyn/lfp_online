@@ -75,10 +75,10 @@ void SpikeAlignmentProcessor::process(){
         
         // if not within refractory period from previous spike
         
-		if (peak_pos - prev_spike_pos_[tetrode] > 16 || prev_spike_[tetrode] == NULL)
+		if (peak_pos - prev_spike_pos_[tetrode] > 16 || prev_spike_[tetrode] == nullptr)
     	{
 			// !!!  This is the EARLIEST point when the spike is accepted for further analysis
-            if (prev_spike_[tetrode] != NULL){
+            if (prev_spike_[tetrode] != nullptr){
                 prev_spike_[tetrode]->aligned_ = true;
 
                 // ADD spike to buffer's population window and use for ISI estimation
@@ -89,7 +89,7 @@ void SpikeAlignmentProcessor::process(){
             prev_max_val_[tetrode] = max_val;
             prev_spike_[tetrode] = spike;
             // copy waveshape right away
-            if (prev_spike_[tetrode] != NULL){
+            if (prev_spike_[tetrode] != nullptr){
             	int buf_start_shift = buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode])
                                         				- Spike::WS_LENGTH_ALIGNED/ 2 - 1;
 
@@ -124,7 +124,7 @@ void SpikeAlignmentProcessor::process(){
         
         // make sure the temporal order of spikes didn't change (assuming it is correct for all previous spikes) by pushing current spikes donw in buffer until more recent spike is found
         int spike_sort_pos = buffer-> spike_buf_nows_pos;
-        while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != NULL && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
+        while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
             // swap
             buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
             buffer->spike_buffer_[spike_sort_pos - 1] = spike;

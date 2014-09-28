@@ -87,7 +87,7 @@ void AutocorrelogramProcessor::process(){
     while(buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
         
-        if (spike == NULL || spike->discarded_){
+        if (spike == nullptr || spike->discarded_){
         	buffer->spike_buf_pos_auto_++;
             continue;
         }
@@ -168,8 +168,8 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
         }
     }
     
-    SDL_SetRenderTarget(renderer_, NULL);
-    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+    SDL_SetRenderTarget(renderer_, nullptr);
+    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
     SDL_RenderPresent(renderer_);
 }
 

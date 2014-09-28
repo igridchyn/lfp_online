@@ -119,7 +119,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 
 	kdtrees_coords_.resize(tetrn);
 
-	fitting_jobs_.resize(tetrn, NULL);
+	fitting_jobs_.resize(tetrn, nullptr);
 	fitting_jobs_running_.resize(tetrn, false);
 
 	laxs_.resize(tetrn);

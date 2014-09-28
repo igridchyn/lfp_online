@@ -52,7 +52,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
         // TODO warn ?
-        if (spike->waveshape == NULL){
+        if (spike->waveshape == nullptr){
         	buf_pointer_++;
 			continue;
         }
@@ -85,8 +85,8 @@ void SDLWaveshapeDisplayProcessor::process() {
     if (last_pkg_id - last_disp_pkg_id_ > DISPLAY_RATE){
         last_disp_pkg_id_ = last_pkg_id;
         
-        SDL_SetRenderTarget(renderer_, NULL);
-        SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
         SDL_RenderPresent(renderer_);
     }
 }

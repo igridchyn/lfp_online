@@ -110,8 +110,8 @@ void SDLSignalDisplayProcessor::process(){
     
     // whether to render
     if (unrendered > DISP_FREQ * plot_hor_scale){
-        SDL_SetRenderTarget(renderer_, NULL);
-        SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
         SDL_RenderPresent(renderer_);
         
         unrendered = 0;
@@ -126,8 +126,8 @@ void SDLSignalDisplayProcessor::process(){
         
         // whether to render
         if (!(buffer->buf_pos % DISP_FREQ * plot_hor_scale)){
-            SDL_SetRenderTarget(renderer_, NULL);
-            SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+            SDL_SetRenderTarget(renderer_, nullptr);
+            SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
             SDL_RenderPresent(renderer_);
         }
         

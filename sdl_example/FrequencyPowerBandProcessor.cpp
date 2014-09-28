@@ -78,8 +78,8 @@ void FrequencyPowerBandProcessor::process(){
     }
 
     // RENDER
-    SDL_SetRenderTarget(renderer_, NULL);
-    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+    SDL_SetRenderTarget(renderer_, nullptr);
+    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
     SDL_RenderPresent(renderer_);
 }
 

@@ -176,10 +176,10 @@ void WaveShapeReconstructionProcessor::process(){
         if (cleanup_ws_){
         	for(int i=0;i<spike->num_channels_;i++) {
         		delete spike->waveshape[i];
-        		spike->waveshape[i] = NULL;
+        		spike->waveshape[i] = nullptr;
         	}
         	delete spike->waveshape;
-        	spike->waveshape = NULL;
+        	spike->waveshape = nullptr;
         }
 
         // DEBUG

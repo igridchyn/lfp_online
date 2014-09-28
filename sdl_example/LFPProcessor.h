@@ -40,7 +40,7 @@
 
 class ColorPalette{
     int num_colors_;
-    int *color_values_ = NULL;
+    int *color_values_ = nullptr;
 public:
     ColorPalette(int num_colors, int *color_values);
     int getR(int order) const;
@@ -62,7 +62,7 @@ public:
 class LFPProcessor{
     
 protected:
-    LFPBuffer* buffer = NULL;
+    LFPBuffer* buffer = nullptr;
     virtual void Log(std::string message);
     virtual void Log(std::string message, int num);
 
@@ -78,9 +78,9 @@ public:
 
 class SDLSingleWindowDisplay{
 protected:
-    SDL_Window *window_ = NULL;
-	SDL_Renderer *renderer_ = NULL;
-	SDL_Texture *texture_ = NULL;
+    SDL_Window *window_ = nullptr;
+	SDL_Renderer *renderer_ = nullptr;
+	SDL_Texture *texture_ = nullptr;
     
     const unsigned int window_width_;
     const unsigned int window_height_;
@@ -116,7 +116,7 @@ public:
 
 //====================================================================================================
 class SDLControlInputMetaProcessor : public LFPProcessor{
-    SDLControlInputProcessor* control_processor_ = NULL;
+    SDLControlInputProcessor* control_processor_ = nullptr;
     std::vector<SDLControlInputProcessor*> control_processors_;
     
     std::map<unsigned int, SDLControlInputProcessor*> cp_by_win_id_;
@@ -155,9 +155,9 @@ public:
 
 class SpikeAlignmentProcessor : public LFPProcessor{
     // for each tetrode
-    unsigned int *prev_spike_pos_ = NULL;
-    int *prev_max_val_ = NULL;
-    Spike **prev_spike_ = NULL;
+    unsigned int *prev_spike_pos_ = nullptr;
+    int *prev_max_val_ = nullptr;
+    Spike **prev_spike_ = nullptr;
     
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer);
@@ -169,10 +169,10 @@ public:
 class WaveShapeReconstructionProcessor : public LFPProcessor{
     unsigned int mul;
     
-    double *sin_table = NULL;
-    double *t_table = NULL;
-    int *it_table = NULL;
-    double **sztable = NULL;
+    double *sin_table = nullptr;
+    double *t_table = nullptr;
+    int *it_table = nullptr;
+    double **sztable = nullptr;
     
     void construct_lookup_table();
     int optimized_value(int num_sampl,int *sampl,int h);
@@ -193,7 +193,7 @@ public:
 //==========================================================================================
 
 class FileOutputProcessor : public LFPProcessor{
-    FILE *f_ = NULL;
+    FILE *f_ = nullptr;
     
 public:
     FileOutputProcessor(LFPBuffer* buf);

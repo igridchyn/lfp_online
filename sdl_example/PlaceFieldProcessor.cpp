@@ -210,8 +210,8 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     	FillRect(buffer->positions_buf_[pos][0] * binw / bin_size_, buffer->positions_buf_[pos][1] * binh / bin_size_, 0, 2, 2);
     }
 
-    SDL_SetRenderTarget(renderer_, NULL);
-    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+    SDL_SetRenderTarget(renderer_, nullptr);
+    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
     SDL_RenderPresent(renderer_);
 }
 

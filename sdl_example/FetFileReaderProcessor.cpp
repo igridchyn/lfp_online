@@ -30,7 +30,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 		// read number of records per spike in the beginning of the file
 		*(fet_streams_[t]) >> dum_ncomp;
 		Spike *tspike = readSpikeFromFile(t);
-		while(tspike == NULL && !file_over_[t]){
+		while(tspike == nullptr && !file_over_[t]){
 			tspike = readSpikeFromFile(t);
 		}
 		last_spikies_.push_back(tspike);
@@ -43,7 +43,7 @@ FetFileReaderProcessor::~FetFileReaderProcessor() {
 	}
 }
 
-// returns NULL if spike time < 0
+// returns nullptr if spike time < 0
 Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	Spike *spike = new Spike(0, 0);
 
@@ -76,7 +76,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 	// ??? what is the threshold
 	if (stime < 400)
-		return NULL;
+		return nullptr;
 
 	spike->pkg_id_ = stime >= 0 ? stime : 0;
 	spike->aligned_ = true;

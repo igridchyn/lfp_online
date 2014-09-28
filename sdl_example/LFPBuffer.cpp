@@ -41,9 +41,9 @@ void LFPBuffer::Reset(Config* config) {
 	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(short));
 	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
 	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
-	        if (powerEstimatorsMap_[c] != NULL){
+	        if (powerEstimatorsMap_[c] != nullptr){
 	        	delete powerEstimatorsMap_[c];
-	        	powerEstimatorsMap_[c] = NULL;
+	        	powerEstimatorsMap_[c] = nullptr;
 	        }
 	}
 
@@ -97,7 +97,7 @@ void LFPBuffer::Reset(Config* config) {
 	previous_spikes_pkg_ids_ = new unsigned int[tetr_info_->tetrodes_number];
 	// fill with fake spikes to avoid unnnecessery checks because of the first time
 	// (memory for 1 spike per tetrode will be lost)
-	// TODO fix for package IDs starting not with null
+	// TODO fix for package IDs starting not with nullptr
 	// TODO warn packages strating not with 0
 	for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
 		previous_spikes_pkg_ids_[t] = 0;
@@ -136,14 +136,14 @@ LFPBuffer::LFPBuffer(Config* config)
 
 	for (size_t i = 0; i < CHANNEL_NUM; i++)
 	{
-		powerEstimatorsMap_[i] = NULL;
+		powerEstimatorsMap_[i] = nullptr;
 	}
 
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
 
 	// TODO !!! creatre normal random name
 
-	srand(time(NULL));
+	srand(time(nullptr));
 	int i = rand() % 64;
 	std::string log_path_prefix = config->getString("log.path.prefix", "lfponline_LOG_");
 	log_stream.open(log_path_prefix + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
@@ -195,7 +195,7 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
     population_vector_stack_.push(spike);
 
     // TODO separate processors for ISI estimation
-    if (ISIEstimators_ != NULL){
+    if (ISIEstimators_ != nullptr){
     	ISIEstimators_[spike->tetrode_]->push((spike->pkg_id_ - previous_spikes_pkg_ids_[spike->tetrode_]) / (float)SAMPLING_RATE);
 
     	// ??? do outside if prev_spikes used anywhere else
@@ -228,7 +228,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		memcpy(spike_buffer_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
 		//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
 		//                    	delete spike_buffer_[del_spike];
-		//                    	spike_buffer_[del_spike] = NULL;
+		//                    	spike_buffer_[del_spike] = nullptr;
 		//					}
 
 		const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;

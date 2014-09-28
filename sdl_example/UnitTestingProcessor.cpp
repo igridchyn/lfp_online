@@ -115,7 +115,7 @@ SpikeValidator<T>::SpikeValidator(std::string spike_path, std::string name, Spik
 
 template <class T>
 bool SpikeValidator<T>::validate(){
-    while(targ_buf_[targ_buf_pos_ + BUF_HEAD_SIZE] != NULL && targ_buf_pos_ < *(buf_pos_ptr_) && gt_pos_ < gt_data_len_){
+    while(targ_buf_[targ_buf_pos_ + BUF_HEAD_SIZE] != nullptr && targ_buf_pos_ < *(buf_pos_ptr_) && gt_pos_ < gt_data_len_){
         Spike *spike = targ_buf_[targ_buf_pos_ + BUF_HEAD_SIZE];
         if (spike->tetrode_ !=0){
             targ_buf_pos_++;

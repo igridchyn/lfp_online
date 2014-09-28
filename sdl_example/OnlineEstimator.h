@@ -15,7 +15,7 @@ template<class T>
 class OnlineEstimator{
     const int BUF_SIZE;
     
-    T *buf = NULL;
+    T *buf = nullptr;
     unsigned int buf_pos = 0;
     unsigned int num_samples = 0;
     

@@ -20,7 +20,7 @@ void PackageExractorProcessor::process(){
 	//Log("Extract package...");
 
     // IDLE processing, waiting for user input
-    if (buffer->chunk_ptr == NULL){
+    if (buffer->chunk_ptr == nullptr){
 		buffer->Log("PEXTR: zero pointer, return");
         return;
     }

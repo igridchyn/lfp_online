@@ -37,7 +37,7 @@
 class LFPONLINEAPI LFPBuffer{
     
 public:
-	Config *config_ = NULL;
+	Config *config_ = nullptr;
 
     const int CHANNEL_NUM = 64;
     //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
@@ -63,10 +63,10 @@ public:
     // which channel is at i-th position in the BIN chunk
 	int *CH_MAP_INV;
     
-    TetrodesInfo *tetr_info_ = NULL;
+    TetrodesInfo *tetr_info_ = nullptr;
     
     // spikes buffer and POINTERS [all have to be reset at buffer rewind]
-    Spike* *spike_buffer_ = NULL;
+    Spike* *spike_buffer_ = nullptr;
     // position, at which next spike will be put
     unsigned int spike_buf_pos;
     // position of first spike, not populated with original waveshape data (due to signal lag)
@@ -151,12 +151,12 @@ public:
 
     unsigned int last_pkg_id = 0;
     // for each tetrode
-    int *last_spike_pos_ = NULL;
+    int *last_spike_pos_ = nullptr;
     
     // if shift has happened, what was the previous zero level;
     int zero_level;
     
-    unsigned char *chunk_ptr = NULL;
+    unsigned char *chunk_ptr = nullptr;
     int num_chunks;
     
     OnlineEstimator<float>* powerEstimators_;

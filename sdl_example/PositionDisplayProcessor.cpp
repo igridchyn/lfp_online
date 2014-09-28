@@ -29,8 +29,8 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, wait_clust_(buf->config_->getBool("posdisp.wait.clust", false))
 {
     
-//    SDL_SetRenderTarget(renderer_, NULL);
-//    SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+//    SDL_SetRenderTarget(renderer_, nullptr);
+//    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 //    SDL_RenderPresent(renderer_);
     display_cluster_.resize(200, false);
     
@@ -89,7 +89,7 @@ void PositionDisplayProcessor::process(){
             continue;
         }
         
-        if (spike->pc == NULL || (spike->cluster_id_ == -1) || !display_cluster_[spike->cluster_id_]) // && !display_unclassified_))
+        if (spike->pc == nullptr || (spike->cluster_id_ == -1) || !display_cluster_[spike->cluster_id_]) // && !display_unclassified_))
         {
 			if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_]) || !wait_clust_ && (spike->cluster_id_ == -1)){
                 buffer->spike_buf_pos_draw_xy++;
@@ -106,8 +106,8 @@ void PositionDisplayProcessor::process(){
     }
     
     if (render){
-        SDL_SetRenderTarget(renderer_, NULL);
-        SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+        SDL_SetRenderTarget(renderer_, nullptr);
+        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
         SDL_RenderPresent(renderer_);
     }
 }
