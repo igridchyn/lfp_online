@@ -206,6 +206,7 @@ void SDLPCADisplayProcessor::process(){
                 }
 
 		if (polygon_closed_ && polygon_x_.size() > 0){
+			SDL_SetRenderDrawColor(renderer_, 0, 255, 0,255);
         	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
 
@@ -366,9 +367,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		// remove cluster from list of tetrode poly clusters
         		polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + selected_cluster2_);
 
-
-
-        		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+        		buffer->spike_buf_pos_auto_ = 0;
     			buffer->ac_reset_ = true;
     			buffer->ac_reset_tetrode_ = target_tetrode_;
 				buffer->ac_reset_cluster_ = selected_cluster2_;
@@ -417,7 +416,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         					}
         				}
 
-                		buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+                		buffer->spike_buf_pos_auto_ = 0;
             			buffer->ac_reset_ = true;
             			buffer->ac_reset_tetrode_ = target_tetrode_;
 						buffer->ac_reset_cluster_ = selected_cluster2_;
@@ -466,7 +465,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         				}
         			}
 
-        			buffer->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
+        			buffer->spike_buf_pos_auto_ = 0;
         			buffer->ac_reset_ = true;
         			buffer->ac_reset_tetrode_ = target_tetrode_;
 					buffer->ac_reset_cluster_ = -1;
