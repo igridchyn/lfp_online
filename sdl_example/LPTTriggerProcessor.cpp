@@ -57,6 +57,7 @@ void LPTTriggerProcessor::setLow() {
 	gfpOut32(iPort, 0x00);
 #endif
 
+	LPT_is_high_ = false;
 
 	Log("INFO: LPT Trigger: detect DROP at ", buffer->buf_pos_trig_);
 }
@@ -69,6 +70,9 @@ void LPTTriggerProcessor::setHigh() {
 #ifdef _WIN32
 	gfpOut32(iPort, 0xFF);
 #endif
+
+	LPT_is_high_ = true;
+	last_trigger_time_ = buffer->last_pkg_id;
 
 	Log("INFO: LPT Trigger: detect CLIMB at ", buffer->buf_pos_trig_);
 }
@@ -109,6 +113,16 @@ void LPTTriggerProcessor::process() {
 					setHigh();
 				}
 				break;
+			case RegularFalshes:
+				if (LPT_is_high_){
+					if (buffer->last_pkg_id - last_trigger_time_ > pulse_length_){
+						setLow();
+					}
+				}
+				else if (buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_ && buffer->last_pkg_id > trigger_start_delay_){
+					setHigh();
+				}
+				break;
 			default:
 				Log("Chosen trigger type is not possible to use with LFP as a target");
 				break;
@@ -125,12 +139,10 @@ void LPTTriggerProcessor::process() {
 			switch(trigger_type_){
 			case LPTTriggerType::HighSynchronyTrigger:
 				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
-					last_trigger_time_ = buffer->last_pkg_id;
 					timestamp_log_ << last_trigger_time_ << "\n";
 					timestamp_log_.flush();
 
 					setHigh();
-					LPT_is_high_ = true;
 				}
 				break;
 			default:

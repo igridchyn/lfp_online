@@ -17,7 +17,8 @@
 
 enum LPTTriggerType{
 	HighSynchronyTrigger,
-	DoubleThresholdCrossing
+	DoubleThresholdCrossing,
+	RegularFalshes
 };
 
 enum LPTTriggerTarget{
