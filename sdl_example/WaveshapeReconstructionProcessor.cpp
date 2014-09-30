@@ -3,7 +3,7 @@
 //  sdl_example
 //
 //  Created by Igor Gridchyn on 15/04/14.
-//  Copyright (c) 2014 Igor Gridchyn. All rights reserved.
+//  Copyright (c) 2014 Jozsef Csicsvari, Igor Gridchyn. All rights reserved.
 //
 
 #include "LFPProcessor.h"
