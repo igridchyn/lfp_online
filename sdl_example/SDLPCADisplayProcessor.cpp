@@ -122,7 +122,6 @@ void SDLPCADisplayProcessor::process(){
         	}
         }
 
-
         // time
         // TODO: check numeration
         if (comp1_ == 15){
@@ -140,6 +139,18 @@ void SDLPCADisplayProcessor::process(){
         SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
         SDL_RenderDrawPoint(renderer_, x, y);
         
+        // display refractory spike
+        if (spike->cluster_id_ == refractory_display_cluster_ + 1){
+        	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
+				SDL_SetRenderDrawColor(renderer_, 255, 0, 0,255);
+				int cw = 2;
+				SDL_RenderDrawLine(renderer_, x-cw, y-cw, x+cw, y+cw);
+				SDL_RenderDrawLine(renderer_, x-cw, y+cw, x+cw, y-cw);
+        	}
+
+        	refractory_last_time_ = spike->pkg_id_;
+        }
+
         buffer->spike_buf_no_disp_pca++;
         
         if (!(buffer->spike_buf_no_disp_pca % rend_freq_))
@@ -355,6 +366,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         				polygon_clusters_[target_tetrode_][selected_cluster2_].projections_inclusive_.begin(), polygon_clusters_[target_tetrode_][selected_cluster2_].projections_inclusive_.end());
 
         		// ??? change spike cluster from the beginning, redraw after
+        		// TODO: just set to -1 ?
         		for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
         			Spike *spike = buffer->spike_buffer_[sind];
         			if (spike->tetrode_ != target_tetrode_)
@@ -447,6 +459,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			polygon_y_.clear();
 
         			polygon_clusters_[target_tetrode_][selected_cluster2_].projections_exclusive_.push_back(tmpproj);
+
+        			// reset AC
+        			// TODO extract
+        			buffer->spike_buf_pos_auto_ = 0;
+        			buffer->ac_reset_ = true;
+        			buffer->ac_reset_tetrode_ = target_tetrode_;
+        			buffer->ac_reset_cluster_ = selected_cluster2_;
         		}
 
         		break;
@@ -480,6 +499,22 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			}
         			// need_redraw = false;
         		}
+        		break;
+
+        	// c: clear cluster -> show spikes in the refractory period
+        	case SDLK_c:
+        		// caancel  refractory spikes display
+        		if (refractory_display_cluster_ >= 0){
+        			refractory_display_cluster_ = -1;
+        			break;
+        		}
+
+        		if (selected_cluster2_ == -1){
+        			break;
+        		}
+
+        		refractory_display_cluster_ = selected_cluster2_;
+
         		break;
 
             case SDLK_ESCAPE:

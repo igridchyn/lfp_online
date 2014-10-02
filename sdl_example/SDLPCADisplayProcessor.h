@@ -53,6 +53,13 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     int selected_cluster1_ = -1;
     int selected_cluster2_ = -1;
 
+    // cluster, for which spikes within refractory period are displayed
+    //	 = -1 if none
+    int refractory_display_cluster_ = -1;
+    // time of last spike in the given cluster
+    unsigned int refractory_last_time_ = 0;
+    unsigned int refractory_period_ = 48;
+
     void save_polygon_clusters();
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }
