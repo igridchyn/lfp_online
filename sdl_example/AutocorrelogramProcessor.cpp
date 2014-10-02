@@ -21,7 +21,8 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , LFPProcessor(buf)
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins)
-, wait_clustering_(buffer->config_->getBool("ac.wait.clust", true)){
+, wait_clustering_(buffer->config_->getBool("ac.wait.clust", true))
+, MIN_EVENTS(buffer->config_->getInt("ac.min.events", 50)){
 	buf->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
 
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -136,7 +137,7 @@ void AutocorrelogramProcessor::process(){
         
         // report
         // TODO: plot
-        if (total_counts_[tetrode][cluster_id] >= NBINS * AVG_PER_BIN && !reported_[tetrode][cluster_id]){
+        if (total_counts_[tetrode][cluster_id] >= MIN_EVENTS && !reported_[tetrode][cluster_id]){
         	// DEBUG
 //            std::cout << "Autocorr for cluster " << cluster_id << " at tetrode " << tetrode << "\n";
 //            for (int b=0; b < NBINS; ++b) {
