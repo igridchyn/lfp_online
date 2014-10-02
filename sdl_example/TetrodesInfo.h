@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <assert.h>
 #include <string.h>
+#include <string>
 
 class TetrodesInfo{
 
