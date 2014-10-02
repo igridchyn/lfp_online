@@ -34,10 +34,17 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+class UserContext{
+public:
+	int selected_cluster1_ = -1;
+	int selected_cluster2_ = -1;
+};
+
 class LFPONLINEAPI LFPBuffer{
     
 public:
 	Config *config_ = nullptr;
+	UserContext user_context_;
 
     const int CHANNEL_NUM = 64;
     //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
