@@ -80,6 +80,32 @@ void Spike::init(int pkg_id, int tetrode) {
 	tetrode_ = tetrode;
 }
 
+float Spike::getWidth(float level, int chan) {
+	if (waveshape == nullptr)
+		return 0;
+
+	// find first crossing
+	// TODO ??? limit ???
+
+	bool reached_val = false;
+	double level_x = 0.0;
+
+	// compute width
+	// TODO optimize for multiple levels
+	for (int w = 1; w < 128 - 1; ++w) {
+		if (waveshape[chan][w] > level){
+			reached_val = true;
+			// TODO no interpolation for speed ?
+			level_x = level / (waveshape[chan][w] - waveshape[chan][w - 1]);
+		}
+	}
+
+	if (!reached_val)
+		return 0;
+
+	return 0;
+}
+
 Spike::~Spike() {
 	for (int c = 0; c < num_channels_; ++c) {
 		if (waveshape && waveshape[c])

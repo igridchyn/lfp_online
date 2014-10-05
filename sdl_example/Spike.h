@@ -49,6 +49,8 @@ public:
     // to optimize for speed spike objects in buffer are reinitialized instead of deleting and creating new
     void init(int pkg_id, int tetrode);
 
+    float getWidth(float level, int chan);
+
     ~Spike();
 };
 
