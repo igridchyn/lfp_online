@@ -27,8 +27,13 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, WAIT_PREDICTION(buf->config_->getBool("posdisp.wait.prediction"))
 	, DISPLAY_PREDICTION(buf->config_->getBool("posdisp.display.prediction"))
 	, wait_clust_(buf->config_->getBool("posdisp.wait.clust", false))
+	, pos_buf_pointer_limit_(buf->GetPosBufPointer(buf->config_->getString("posdisp.pointer.limit", "pos")))
 {
-    
+	std::string pos_buf_name = buf->config_->getString("posdisp.pointer.limit", "pos");
+	if (pos_buf_name == buf->pos_buf_pointer_names_.POS_BUF_SPEED_EST){
+		estimate_speed_ = true;
+	}
+
 //    SDL_SetRenderTarget(renderer_, nullptr);
 //    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 //    SDL_RenderPresent(renderer_);
@@ -42,7 +47,7 @@ void PositionDisplayProcessor::process(){
     
     // TODO: small lag due to speed computation delay
 //    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
-    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_spike_speed_) {
+    while (buffer->pos_buf_disp_pos_ < pos_buf_pointer_limit_) {
 
     	// if exceeded clustering prediction - exit
     	if (WAIT_PREDICTION && (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_end_)){
@@ -52,9 +57,10 @@ void PositionDisplayProcessor::process(){
         int x = buffer->positions_buf_[buffer->pos_buf_disp_pos_][0];
         int y = buffer->positions_buf_[buffer->pos_buf_disp_pos_][1];
         
-        const unsigned int imm_level = 80;
+        const unsigned int imm_level = estimate_speed_ ? 150 : 80;
         unsigned int grey_level = imm_level;
-        if (buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] > 30.0f){
+
+        if (estimate_speed_ && buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] > 30.0f){
             grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] + 50);
         }
         

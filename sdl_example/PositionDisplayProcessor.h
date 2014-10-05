@@ -29,6 +29,10 @@ class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtua
     const bool WAIT_PREDICTION;
     const bool DISPLAY_PREDICTION;
 
+    // whether speed estimattion should be used for display (e.g. colour of the track)
+    bool estimate_speed_ = false;
+    const unsigned int& pos_buf_pointer_limit_;
+
 public:
     PositionDisplayProcessor(LFPBuffer *buf);
     PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width,
