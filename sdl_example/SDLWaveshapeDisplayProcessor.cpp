@@ -52,7 +52,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
         // TODO warn ?
-        if (spike->waveshape == nullptr){
+        if (spike == nullptr || spike->waveshape == nullptr){
         	buf_pointer_++;
 			continue;
         }
@@ -107,6 +107,16 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
                 exit(0);
                 break;
                 
+            // change scale
+            case SDLK_KP_PLUS:
+            	scale_ /= 1.1;
+            	buf_pointer_ = 0;
+            	break;
+            case SDLK_KP_MINUS:
+            	scale_ *= 1.1;
+            	buf_pointer_ = 0;
+            	break;
+
             // select cluster
             case SDLK_KP_0:
                 disp_cluster_ = 0 + shift;

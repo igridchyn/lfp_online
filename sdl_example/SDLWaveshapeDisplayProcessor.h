@@ -22,7 +22,7 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
     
 	unsigned int spike_plot_rate_;
 
-    const float scale_;
+    float scale_;
 
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
