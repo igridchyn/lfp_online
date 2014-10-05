@@ -125,20 +125,26 @@ LFPBuffer::~LFPBuffer(){
 	delete[] CH_MAP;
 	delete[] CH_MAP_INV;
 
+	Log("Buffer destructor: delete signal / filtered signal / power buffers");
+
 	for (int c = 0; c < CHANNEL_NUM; ++c){
 		delete[] signal_buf[c];
 		delete[] filtered_signal_buf[c];
 		delete[] power_buf[c];
 	}
 
+	Log("Buffer destructor: delete tetrode info");
 	if (tetr_info_)
 			delete tetr_info_;
 
+	Log("Buffer destructor: delete speed estimator");
 	delete speedEstimator_;
 
+	Log("Buffer destructor: delete last spike positions");
 	 if (last_spike_pos_)
 	    	delete[] last_spike_pos_;
 
+	 Log("Buffer destructor: delete ISI estimators");
 	 for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
 		 delete ISIEstimators_[t];
 	 }
@@ -146,6 +152,7 @@ LFPBuffer::~LFPBuffer(){
 
 	 delete[] previous_spikes_pkg_ids_;
 
+	 Log("Buffer destructor: delete high synchrony tetrodes info");
 	 delete[] is_high_synchrony_tetrode_;
 
 	Log("Buffer destructor finished");
@@ -320,4 +327,26 @@ void LFPBuffer::Log(std::string message) {
 	log_stream << message << "\n";
 	// TODO remove in release
 	log_stream.flush();
+}
+
+const unsigned int& LFPBuffer::GetPosBufPointer(std::string name) {
+	if (name == "pos"){
+		return pos_buf_pos_;
+	}
+	else if (name == "disp"){
+		return pos_buf_disp_pos_;
+	}
+	else if (name == "spike.pos"){
+		return pos_buf_spike_pos_;
+	}
+	else if (name == "spike.speed"){
+		return pos_buf_pos_spike_speed_;
+	}
+	else if (name == "speed.est"){
+		return pos_buf_pos_speed_est;
+	}
+	else{
+		Log("ERROR: Wrong name for position buffer pointer. Allowed names are: pos, disp, spike.pos, spike.speed, speed.est");
+		exit(10);
+	}
 }

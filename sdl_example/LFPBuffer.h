@@ -41,8 +41,19 @@ public:
 };
 
 class LFPONLINEAPI LFPBuffer{
-    
+
 public:
+
+	// TODO use instead of string literals
+	class POS_BUF_POINTER_NAMES{
+	public:
+		const std::string POS_BUF_POS = "pos";
+		const std::string POS_BUF_SPEED_EST = "speed.est";
+		const std::string POS_BUF_SPIKE_SPEED = "spike.speed";
+		const std::string POS_BUF_SPIKE_POS = "spike.pos";
+	};
+	POS_BUF_POINTER_NAMES pos_buf_pointer_names_;
+
 	Config *config_ = nullptr;
 	UserContext user_context_;
 
@@ -207,6 +218,8 @@ public:
 
     void Log(std::string message);
     void Log(std::string message, int num);
+
+    const unsigned int& GetPosBufPointer(std::string name);
 };
 
 //==========================================================================================
