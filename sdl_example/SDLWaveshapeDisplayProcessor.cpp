@@ -25,7 +25,9 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
 	, LFPProcessor(buf)
 	, scale_(buf->config_->getInt("waveshapedisp.scale", 25))
-	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10)){ }
+	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
+	, DISPLAY_RATE(buf->config_->getInt("waveshape.display.rate", 3))
+{ }
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
     return 100 + -smpl/scale_ + 200 * chan;

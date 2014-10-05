@@ -18,7 +18,7 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
     
     unsigned int tetrode_total_spikes_ = 0;
     
-    static const unsigned int DISPLAY_RATE = 10;
+    const unsigned int DISPLAY_RATE;
     
 	unsigned int spike_plot_rate_;
 
