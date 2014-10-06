@@ -387,6 +387,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				// unselect second cluster
 				selected_cluster2_ = -1;
 
+				buffer->ResetPopulationWindow();
+
         		break;
 
         	// polygon operations
@@ -407,6 +409,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     			buffer->ac_reset_tetrode_ = target_tetrode_;
 				// because of 1+ shift in cluster numbering
 				buffer->ac_reset_cluster_ = polygon_clusters_.size();
+
+				buffer->ResetPopulationWindow();
 
         		break;
 
@@ -434,6 +438,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 						buffer->ac_reset_cluster_ = selected_cluster2_;
 
 						selected_cluster2_ = -1;
+
+						buffer->ResetPopulationWindow();
         			}
         		}
         		// add exclusive projection to current cluster (red)
@@ -466,6 +472,9 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			buffer->ac_reset_ = true;
         			buffer->ac_reset_tetrode_ = target_tetrode_;
         			buffer->ac_reset_cluster_ = selected_cluster2_;
+
+					// needed here?
+					buffer->ResetPopulationWindow();
         		}
 
         		break;
@@ -492,6 +501,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			// TODO make separate control for saving (SHIFT+S)
         			save_polygon_clusters();
 
+					buffer->ResetPopulationWindow();
         		}else{
         			if (polygon_x_.size() > 0){
         				polygon_x_.erase(polygon_x_.end() - 1);
