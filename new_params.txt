@@ -1,0 +1,12 @@
+waveshapedisp.final=1
+posdisp.pointer.limit=speed.est
+waveshapedisp.display.rate=2
+waveshape.cleanup=1
+log.path.prefix=../lfp_log_
+gmm.num.princomp=3
+pcadisp.poly.save=1
+pcadisp.poly.load=1
+fet.file.reader.window=2000
+
+!!!!!!
+check config reader warnings !
