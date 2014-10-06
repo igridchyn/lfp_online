@@ -24,6 +24,7 @@
 #include "Spike.h"
 #include "OnlineEstimator.h"
 #include "Config.h"
+#include "UserContext.h"
 
 #include <armadillo>
 #include <boost/filesystem.hpp>
@@ -33,12 +34,6 @@
 #include <cmath>
 #define M_PI 3.14159265358979323846
 #endif
-
-class UserContext{
-public:
-	int selected_cluster1_ = -1;
-	int selected_cluster2_ = -1;
-};
 
 class LFPONLINEAPI LFPBuffer{
 
