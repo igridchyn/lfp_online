@@ -17,6 +17,7 @@
 
 class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
     
+	// TODO synchronize init accross all processors
     unsigned int display_tetrode_ = 0;
     bool wait_clustering_;
     
