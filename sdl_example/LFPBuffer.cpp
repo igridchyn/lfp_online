@@ -201,6 +201,18 @@ LFPBuffer::LFPBuffer(Config* config)
     Reset(config);
 }
 
+void LFPBuffer::ResetPopulationWindow(){
+	while (!population_vector_stack_.empty())
+		population_vector_stack_.pop();
+
+	for (int t = 0; t < tetr_info_->tetrodes_number; ++t){
+		for (int c = 0; c < population_vector_window_[t].size(); ++c){
+			population_vector_window_[t][c] = 0;
+		}
+	}
+	population_vector_total_spikes_ = 0;
+}
+
 // pop spikes from the top of the queue who fall outside of population window of given length ending in last known PKG_ID
 void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
     if (population_vector_stack_.empty()){
@@ -215,8 +227,12 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
 
         population_vector_stack_.pop();
 
-        population_vector_window_[stop->tetrode_][stop->cluster_id_ + 1] --;
-        population_vector_total_spikes_ --;
+		// TODO implemet smarter reset so that this check is not needed / warn if not true
+		if (population_vector_window_[stop->tetrode_].size() > stop->cluster_id_ + 1 && population_vector_window_[stop->tetrode_][stop->cluster_id_ + 1] > 0)
+		{
+			population_vector_window_[stop->tetrode_][stop->cluster_id_ + 1] --;
+			population_vector_total_spikes_--;
+		}
 
         if (population_vector_stack_.empty()){
             break;
@@ -229,6 +245,11 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
 void LFPBuffer::UpdateWindowVector(Spike *spike){
     // TODO: make right border of the window more precise: as close as possible to lst_pkg_id but not containing unclassified spikes
     // (left border = right border - POP_VEC_WIN_LEN)
+
+	// is this check efficient ?
+	if (population_vector_window_[spike->tetrode_].size() < spike->cluster_id_ + 2){
+		population_vector_window_[spike->tetrode_].resize(spike->cluster_id_ + 2);
+	}
 
     population_vector_window_[spike->tetrode_][spike->cluster_id_ + 1] ++;
     population_vector_total_spikes_ ++;

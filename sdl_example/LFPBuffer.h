@@ -208,8 +208,12 @@ public:
 
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
     
+	// Population window operations
     void RemoveSpikesOutsideWindow(const unsigned int& right_border);
     void UpdateWindowVector(Spike *spike);
+	// required after cluster operations, for example
+	void ResetPopulationWindow();
+
     bool IsHighSynchrony();
 	bool IsHighSynchrony(double average_spikes_window);
 	double AverageSynchronySpikesWindow();
