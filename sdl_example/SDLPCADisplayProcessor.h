@@ -60,6 +60,8 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     unsigned int refractory_last_time_ = 0;
     unsigned int refractory_period_ = 48;
 
+    UserContext& user_context_;
+
     void save_polygon_clusters();
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }
