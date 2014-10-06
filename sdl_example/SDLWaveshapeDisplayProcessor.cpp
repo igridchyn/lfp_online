@@ -26,7 +26,8 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, LFPProcessor(buf)
 	, scale_(buf->config_->getInt("waveshapedisp.scale", 25))
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
-	, DISPLAY_RATE(buf->config_->getInt("waveshape.display.rate", 3))
+	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 3))
+	, display_final_(buffer->config_->getBool("waveshapedisp.final", false))
 { }
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
@@ -67,17 +68,24 @@ void SDLWaveshapeDisplayProcessor::process() {
             continue;
         }
         
-        int x_scale = 4; // 8 * 4 for final wave shapes
+		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
         for (int chan=0; chan < 4; ++chan) {
             int prev_smpl = transform(spike->waveshape[chan][0], chan);
-            
-            for (int smpl=1; smpl < 128; ++smpl) {
-                int tsmpl = transform(spike->waveshape[chan][smpl], chan);
-            //for (int smpl=1; smpl < 16; ++smpl) {
-            //    int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
-                SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale-1), prev_smpl, smpl * x_scale + 1, tsmpl);
-                prev_smpl = tsmpl;
-            }
+
+			if (display_final_){
+				for (int smpl = 1; smpl < 16; ++smpl) {
+					int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
+					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
+					prev_smpl = tsmpl;
+				}
+			}
+			else{
+				for (int smpl = 1; smpl < 128; ++smpl) {
+					int tsmpl = transform(spike->waveshape[chan][smpl], chan);
+					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
+					prev_smpl = tsmpl;
+				}
+			}
         }
         
         last_pkg_id = spike->pkg_id_;

@@ -24,6 +24,10 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
 
     float scale_;
 
+	// if true, final waveshape (32 points) used for PCA is displayed
+	// otherwise - reconstructed 4x upsampled ws
+	bool display_final_ = false;
+
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,
