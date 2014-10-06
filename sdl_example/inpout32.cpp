@@ -169,7 +169,7 @@ int __declspec(dllexport) Opendriver()
 
 	OutputDebugStringW(L"Attempting to open InpOut driver...\n");
 
-	char szFileName[MAX_PATH] = { nullptr };
+	char szFileName[MAX_PATH] = { NULL };
 	if (bX64)
 		strcpy_s(szFileName, MAX_PATH, "\\\\.\\hwinterfacex64");	//We are 64bit...
 	else
