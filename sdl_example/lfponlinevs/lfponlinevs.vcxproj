@@ -161,6 +161,7 @@
     <ClCompile Include="..\GMMClusteringProcessor.cpp" />
     <ClCompile Include="..\inpout32.cpp" />
     <ClCompile Include="..\KDClusteringProcessor.cpp" />
+    <ClCompile Include="..\LFPBuffer.cpp" />
     <ClCompile Include="..\LFPPipeline.cpp" />
     <ClCompile Include="..\LFPProcessor.cpp" />
     <ClCompile Include="..\LPTTriggerProcessor.cpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="..\SpikeAlignmentProcessor.cpp" />
     <ClCompile Include="..\SpikeDetectorProcessor.cpp" />
     <ClCompile Include="..\SwReaderProcessor.cpp" />
+    <ClCompile Include="..\TetrodesInfo.cpp" />
     <ClCompile Include="..\TransProbEstimationProcessor.cpp" />
     <ClCompile Include="..\WaveshapeReconstructionProcessor.cpp" />
     <ClCompile Include="..\WhlFileReaderProcessor.cpp" />
