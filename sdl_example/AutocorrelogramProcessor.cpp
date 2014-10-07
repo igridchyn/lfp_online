@@ -187,6 +187,13 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 	SDL_RenderDrawRect(renderer_, &rect);
 }
 
+int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
+		const unsigned int& y) {
+	int cx = (x - 30) / ((BWIDTH + 1) * NBINS + 15);
+	int cy = y / (ypix_ * 2);
+	return cy * XCLUST + cx - 1;
+}
+
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
 	if (display_tetrode_ >= reported_.size())
 		return;
@@ -211,6 +218,8 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
     	drawClusterRect(user_context_.selected_cluster1_ + 1);
     }
 
+
+
     if (user_context_.selected_cluster2_ >= 0){
     	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     	drawClusterRect(user_context_.selected_cluster2_ + 1);
@@ -223,6 +232,25 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 
 void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
     // TODO: implement
+
+	SDL_Keymod kmod = SDL_GetModState();
+
+	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
+		if (e.button.button == SDL_BUTTON_LEFT){
+			// select cluster 1
+			if (kmod & KMOD_LCTRL){
+				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
+				user_context_.SelectCluster1(clun);
+				SetDisplayTetrode(display_tetrode_);
+			}
+
+			if (kmod & KMOD_LSHIFT){
+				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
+				user_context_.SelectCluster2(clun);
+				SetDisplayTetrode(display_tetrode_);
+			}
+		}
+	}
 
 	if (e.type == SDL_WINDOWEVENT) {
 		if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
