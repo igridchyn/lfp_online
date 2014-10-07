@@ -22,7 +22,8 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true))
-, MIN_EVENTS(buffer->config_->getInt("ac.min.events", 50)){
+, MIN_EVENTS(buffer->config_->getInt("ac.min.events", 50))
+, user_context_(buffer->user_context_){
 	buf->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
 
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
@@ -81,6 +82,19 @@ void AutocorrelogramProcessor::process(){
 			spike_times_buf_pos_[tetr_reset][c] = 0;
 			for (unsigned int bpos = 0; bpos < ST_BUF_SIZE; ++bpos) {
 				spike_times_buf_[tetr_reset][c][bpos] = 0;
+			}
+		}
+	}
+
+	// TODO process user actions (no need in reset above then)
+	if (buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
+		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
+		if (spike != nullptr && user_context_.HasNewAction(spike->pkg_id_)){
+			// process new user action
+
+			switch(user_context_.last_user_action_){
+				case UA_SELECT_CLUSTER1:
+					break;
 			}
 		}
 	}
@@ -152,9 +166,32 @@ void AutocorrelogramProcessor::process(){
     }
 }
 
+unsigned int AutocorrelogramProcessor::getXShift(int clust) {
+	return ((BWIDTH + 1) * NBINS + 15) * (clust % XCLUST) + 30;
+}
+
+unsigned int AutocorrelogramProcessor::getYShift(int clust) {
+	return (clust / XCLUST) * ypix_ + 100;
+}
+
+void AutocorrelogramProcessor::drawClusterRect(int clust) {
+	int xsh = getXShift(clust);
+	int ysh = getYShift(clust);
+
+	SDL_Rect rect;
+	int height = ypix_ * 2;
+	rect.h = height;
+	rect.w = (BWIDTH + 1) * NBINS;
+	rect.x = xsh;
+	rect.y = ysh - height;
+	SDL_RenderDrawRect(renderer_, &rect);
+}
+
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
 	if (display_tetrode_ >= reported_.size())
 		return;
+
+	// TODO extract redraw
 
     display_tetrode_ = display_tetrode;
     
@@ -169,6 +206,16 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
         }
     }
     
+    if (user_context_.selected_cluster1_ >= 0){
+    	SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
+    	drawClusterRect(user_context_.selected_cluster1_ + 1);
+    }
+
+    if (user_context_.selected_cluster2_ >= 0){
+    	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+    	drawClusterRect(user_context_.selected_cluster2_ + 1);
+    }
+
     SDL_SetRenderTarget(renderer_, nullptr);
     SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
     SDL_RenderPresent(renderer_);
@@ -197,9 +244,9 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
         return;
     
     // shift for the plot
-	const unsigned int ypix = 50;
-    const int xsh = ((BWIDTH + 1) * NBINS + 15) * (cluster % XCLUST) + 30;
-    const int ysh = (cluster / XCLUST) * ypix + 100;
+
+    const int xsh = getXShift(cluster);
+    const int ysh = getYShift(cluster);
     
     ColorPalette palette_ = ColorPalette::BrewerPalette12;
     
@@ -214,7 +261,7 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 	}
 
     for (int b=0; b < NBINS; ++b) {
-        int height = (autocorrs_[tetr][cluster][b] * NBINS / total_counts_[tetr][cluster] * Y_SCALE) * ypix * 2 / maxh;
+        int height = (autocorrs_[tetr][cluster][b] * NBINS / total_counts_[tetr][cluster] * Y_SCALE) * ypix_ * 2 / maxh;
         
         SDL_Rect rect;
         rect.h = height;

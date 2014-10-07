@@ -42,6 +42,14 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     const int BIN_SIZE;
     const unsigned int NBINS;
 
+    UserContext& user_context_;
+
+    const unsigned int ypix_ = 50;
+
+    unsigned int getXShift(int clust);
+    unsigned int getYShift(int clust);
+    void drawClusterRect(int clust);
+
 public:
     AutocorrelogramProcessor(LFPBuffer *buf);
     AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins);
