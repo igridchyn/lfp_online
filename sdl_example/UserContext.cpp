@@ -12,41 +12,40 @@ UserContext::UserContext() {
 
 }
 
-void UserContext::SelectCluster1(const int& clu, const unsigned int& pkg_id) {
+void UserContext::SelectCluster1(const int& clu) {
 	selected_cluster1_ = clu;
-	last_user_action_time_ = pkg_id;
 	last_user_action_ = UA_SELECT_CLUSTER1;
+	last_user_action_id_ ++;
 }
 
-void UserContext::SelectCluster2(const int& clu, const unsigned int& pkg_id) {
+void UserContext::SelectCluster2(const int& clu) {
 	selected_cluster2_ = clu;
-	last_user_action_time_ = pkg_id;
 	last_user_action_ = UA_SELECT_CLUSTER2;
+	last_user_action_id_ ++;
 }
 
-void UserContext::MergeClusters(const int& clu1, const int& clu2,
-		const unsigned int& pkg_id) {
-	last_user_action_time_ = pkg_id;
+void UserContext::MergeClusters(const int& clu1, const int& clu2) {
 	last_user_action_ = UA_MERGE_CLUSTERS;
+	last_user_action_id_ ++;
 }
 
-void UserContext::CutSpikes(const int& clu, const unsigned int& pkg_id) {
-	last_user_action_time_ = pkg_id;
+void UserContext::CutSpikes(const int& clu) {
 	last_user_action_ = UA_CUT_SPIKES;
+	last_user_action_id_ ++;
 }
 
-void UserContext::CreateClsuter(const int& clu, const unsigned int& pkg_id) {
-	last_user_action_time_ = pkg_id;
+void UserContext::CreateClsuter(const int& clu) {
 	last_user_action_ = UA_CREATE_CLUSTER;
+	last_user_action_id_ ++;
 }
 
-void UserContext::DelleteCluster(const int& clu, const unsigned int& pkg_id) {
-	last_user_action_time_ = pkg_id;
+void UserContext::DelleteCluster(const int& clu) {
 	last_user_action_ = UA_DELETE_CLUSTER;
+	last_user_action_id_ ++;
 }
 
-bool UserContext::HasNewAction(const unsigned int& ref_pkg_id) {
-	return last_user_action_time_ > ref_pkg_id;
+bool UserContext::HasNewAction(const unsigned int& ref_ua_id) {
+	return last_user_action_id_ > ref_ua_id;
 }
 
 UserContext::~UserContext() {

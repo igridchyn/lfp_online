@@ -270,14 +270,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					if (polygon_clusters_[target_tetrode_][c].Contains(rawx, rawy)){
 						if (user_context_.selected_cluster1_ >= 0){
 							if (user_context_.selected_cluster1_ == c){
-								user_context_.SelectCluster1(-1, buffer->last_pkg_id);
+								user_context_.SelectCluster1(-1);
 							}
 							else{
-								user_context_.SelectCluster1(c, buffer->last_pkg_id);
+								user_context_.SelectCluster1(c);
 							}
 						}
 						else{
-							user_context_.SelectCluster1(c, buffer->last_pkg_id);
+							user_context_.SelectCluster1(c);
 						}
 						need_redraw = true;
 						break;
@@ -291,14 +291,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					if (polygon_clusters_[target_tetrode_][c].Contains(rawx, rawy)){
 						if (user_context_.selected_cluster2_ >= 0){
 							if (user_context_.selected_cluster2_ == c){
-								user_context_.SelectCluster2(-1, buffer->last_pkg_id);
+								user_context_.SelectCluster2(-1);
 							}
 							else{
-								user_context_.SelectCluster2(c, buffer->last_pkg_id);
+								user_context_.SelectCluster2(c);
 							}
 						}
 						else{
-							user_context_.SelectCluster2(c, buffer->last_pkg_id);
+							user_context_.SelectCluster2(c);
 						}
 						need_redraw = true;
 						break;
@@ -322,7 +322,6 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			reset_spike_pointer();
 		}
 	}
-
 
 	if (e.type == SDL_MOUSEWHEEL){
 //		std::cout << e.wheel.y << "\n";

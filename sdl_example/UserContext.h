@@ -30,14 +30,14 @@ public:
 	// it is also assumed that operations are performed over selected clusters and if selection changes, UA a is reset to NULL
 	UserAction last_user_action_;
 	// in packages (1 / <sampling rate> s)
-	unsigned int last_user_action_time_;
+	unsigned int last_user_action_id_;
 
-	void SelectCluster1(const int& clu,const unsigned int& pkg_id);
-	void SelectCluster2(const int& clu,const unsigned int& pkg_id);
-	void MergeClusters(const int& clu1, const int& clu2, const unsigned int& pkg_id);
-	void CutSpikes(const int& clu,const unsigned int& pkg_id);
-	void CreateClsuter(const int& clu, const unsigned int& pkg_id);
-	void DelleteCluster(const int& clu,const unsigned int& pkg_id);
+	void SelectCluster1(const int& clu);
+	void SelectCluster2(const int& clu);
+	void MergeClusters(const int& clu1, const int& clu2);
+	void CutSpikes(const int& clu);
+	void CreateClsuter(const int& clu);
+	void DelleteCluster(const int& clu);
 
 	bool HasNewAction(const unsigned int& ref_pkg_id);
 
