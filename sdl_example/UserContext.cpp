@@ -45,6 +45,10 @@ void UserContext::DelleteCluster(const int& clu, const unsigned int& pkg_id) {
 	last_user_action_ = UA_DELETE_CLUSTER;
 }
 
+bool UserContext::HasNewAction(const unsigned int& ref_pkg_id) {
+	return last_user_action_time_ > ref_pkg_id;
+}
+
 UserContext::~UserContext() {
 	// TODO Auto-generated destructor stub
 }

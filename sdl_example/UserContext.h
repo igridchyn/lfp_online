@@ -21,7 +21,8 @@ enum UserAction{
 
 class UserContext {
 public:
-public:
+
+	// TODO make private
 	int selected_cluster1_ = -1;
 	int selected_cluster2_ = -1;
 
@@ -37,6 +38,8 @@ public:
 	void CutSpikes(const int& clu,const unsigned int& pkg_id);
 	void CreateClsuter(const int& clu, const unsigned int& pkg_id);
 	void DelleteCluster(const int& clu,const unsigned int& pkg_id);
+
+	bool HasNewAction(const unsigned int& ref_pkg_id);
 
 	UserContext();
 	virtual ~UserContext();
