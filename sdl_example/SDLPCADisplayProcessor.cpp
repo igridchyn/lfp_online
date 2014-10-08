@@ -227,7 +227,8 @@ void SDLPCADisplayProcessor::process(){
         	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
 
-        SDL_RenderPresent(renderer_);
+		TextOut(std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_], 0, 0);
+		SDL_RenderPresent(renderer_);
     }
 }
 
