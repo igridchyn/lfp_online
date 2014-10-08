@@ -49,7 +49,9 @@ void SDLWaveshapeDisplayProcessor::process() {
     
     SDL_SetRenderTarget(renderer_, texture_);
     const ColorPalette& colpal = ColorPalette::BrewerPalette12;
-    SDL_SetRenderDrawColor(renderer_, colpal.getR(disp_cluster_) ,colpal.getG(disp_cluster_), colpal.getB(disp_cluster_),255);
+
+    unsigned int disp_cluster_1_ = user_context_.selected_cluster1_;
+    unsigned int disp_cluster_2_ = user_context_.selected_cluster2_;
     
     while(buf_pointer_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
@@ -62,7 +64,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
-		if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_ != disp_cluster_ || spike->discarded_ || !(tetrode_total_spikes_ % spike_plot_rate_)){
+		if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 || (spike->cluster_id_ != disp_cluster_1_ && spike->cluster_id_ != disp_cluster_2_) || spike->discarded_ || !(tetrode_total_spikes_ % spike_plot_rate_)){
             buf_pointer_++;
             tetrode_total_spikes_ ++;
             continue;
@@ -75,6 +77,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 			if (display_final_){
 				for (int smpl = 1; smpl < 16; ++smpl) {
 					int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
+					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
 					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
 					prev_smpl = tsmpl;
 				}
@@ -82,6 +85,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 			else{
 				for (int smpl = 1; smpl < 128; ++smpl) {
 					int tsmpl = transform(spike->waveshape[chan][smpl], chan);
+					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
 					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
 					prev_smpl = tsmpl;
 				}
@@ -111,6 +115,10 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         if (kmod && KMOD_LSHIFT){
             shift = 10;
         }
+
+        int& disp_cluster_1 = user_context_.selected_cluster1_;
+        int& disp_cluster_2 = user_context_.selected_cluster2_;
+
         switch( e.key.keysym.sym )
         {
             case SDLK_ESCAPE:
@@ -127,37 +135,69 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             	buf_pointer_ = 0;
             	break;
 
-            // select cluster
+            // select cluster 1
             case SDLK_KP_0:
-                disp_cluster_ = 0 + shift;
+                disp_cluster_1 = 0 + shift;
                 break;
             case SDLK_KP_1:
-                disp_cluster_ = 1 + shift;
+                disp_cluster_1 = 1 + shift;
                 break;
             case SDLK_KP_2:
-                disp_cluster_ = 2 + shift;
+                disp_cluster_1 = 2 + shift;
                 break;
             case SDLK_KP_3:
-                disp_cluster_ = 3 + shift;
+                disp_cluster_1 = 3 + shift;
                 break;
             case SDLK_KP_4:
-                disp_cluster_ = 4 + shift;
+                disp_cluster_1 = 4 + shift;
                 break;
             case SDLK_KP_5:
-                disp_cluster_ = 5 + shift;
+                disp_cluster_1 = 5 + shift;
                 break;
             case SDLK_KP_6:
-                disp_cluster_ = 6 + shift;
+                disp_cluster_1 = 6 + shift;
                 break;
             case SDLK_KP_7:
-                disp_cluster_ = 7 + shift;
+                disp_cluster_1 = 7 + shift;
                 break;
             case SDLK_KP_8:
-                disp_cluster_ = 8 + shift;
+                disp_cluster_1 = 8 + shift;
                 break;
             case SDLK_KP_9:
-                disp_cluster_ = 9 + shift;
+                disp_cluster_1 = 9 + shift;
                 break;
+
+                // select cluster 2
+            case SDLK_0:
+            	disp_cluster_2 = 0 + shift;
+            	break;
+            case SDLK_1:
+            	disp_cluster_2 = 1 + shift;
+            	break;
+            case SDLK_2:
+            	disp_cluster_2 = 2 + shift;
+            	break;
+            case SDLK_3:
+            	disp_cluster_2 = 3 + shift;
+            	break;
+            case SDLK_4:
+            	disp_cluster_2 = 4 + shift;
+            	break;
+            case SDLK_5:
+            	disp_cluster_2 = 5 + shift;
+            	break;
+            case SDLK_6:
+            	disp_cluster_2 = 6 + shift;
+            	break;
+            case SDLK_7:
+            	disp_cluster_2 = 7 + shift;
+            	break;
+            case SDLK_8:
+            	disp_cluster_2 = 8 + shift;
+            	break;
+            case SDLK_9:
+            	disp_cluster_2 = 9 + shift;
+            	break;
 
             default:
                 need_redraw = false;

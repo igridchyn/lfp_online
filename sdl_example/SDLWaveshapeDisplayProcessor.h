@@ -14,8 +14,7 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
     unsigned last_disp_pkg_id_ = 0;
     
     unsigned int targ_tetrode_ = 0;
-    int disp_cluster_ = 0;
-    
+
     unsigned int tetrode_total_spikes_ = 0;
     
     const unsigned int DISPLAY_RATE;
