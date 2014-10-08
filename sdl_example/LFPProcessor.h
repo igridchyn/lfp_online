@@ -30,6 +30,7 @@
 #include <fstream>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "OnlineEstimator.h"
 #include "LFPBuffer.h"
@@ -89,7 +90,8 @@ protected:
     
 	std::string name_;
 
-    void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
+    virtual void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
+    virtual void TextOut(std::string text, int x, int y);
     
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

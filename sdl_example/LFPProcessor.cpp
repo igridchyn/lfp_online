@@ -212,3 +212,4 @@ std::string LFPProcessor::name() {
 void LFPProcessor::Log(std::string message, int num) {
 	buffer->Log(name() + ": " + message, num);
 }
+
