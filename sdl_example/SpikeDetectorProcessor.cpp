@@ -28,6 +28,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 , nstd_(nstd)
 , refractory_(refractory)
 , REFR_LEN(buffer->SAMPLING_RATE/1000)
+, min_power_samples_(buffer->config_->getInt("spike.detection.min.power.samples", 20000))
 {
     // load spike filter
     std::ifstream filter_stream;
@@ -118,7 +119,7 @@ void SpikeDetectorProcessor::process()
     
     // DETECT only after enough samples for power estimation
     // TODO parametrize
-    if (buffer->powerEstimators_[0].n_samples() < 20000)
+    if (buffer->powerEstimators_[0].n_samples() < min_power_samples_)
         return;
     
     // TODO: do not estiamte every time

@@ -40,6 +40,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     std::vector<Spike*> spikes;
     
     int coord_unknown = 0;
+    const unsigned int min_power_samples_;
 
 public:
     SpikeDetectorProcessor(LFPBuffer* buffer);

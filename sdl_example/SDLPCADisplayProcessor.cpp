@@ -39,6 +39,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , poly_load_(buffer->config_->getBool("pcadisp.poly.load", false))
 , poly_path_(buffer->config_->getOutPath("pcadisp.poly.path", "poly.dat"))
 , num_pc_(buffer->config_->getInt("pca.num.pc"))
+, power_thold_nstd_(buffer->config_->getInt("spike.detection.nstd"))
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 
@@ -83,8 +84,9 @@ void SDLPCADisplayProcessor::process(){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
         
-		// TODO !!! no nullptr spikes, report and prevent by architecure (e.g. rewind to start level)
-        if (spike == nullptr || spike->tetrode_ != target_tetrode_){
+		// TODO !!! no nullptr spikes, report and prevent by architecture (e.g. rewind to start level)
+        // TODO add filtering by power threshold capability
+        if (spike == nullptr || spike->tetrode_ != target_tetrode_ ){
             buffer->spike_buf_no_disp_pca++;
             continue;
         }
