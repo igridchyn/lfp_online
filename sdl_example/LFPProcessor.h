@@ -90,8 +90,14 @@ protected:
     
 	std::string name_;
 
+	unsigned int text_stack_height_ = 0;
+
     virtual void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
+
+    // TEXT
+    virtual void ResetTextStack();
     virtual void TextOut(std::string text, int x, int y);
+    virtual void TextOut(std::string text);
     
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

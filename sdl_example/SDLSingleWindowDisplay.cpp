@@ -19,6 +19,10 @@ void SDLSingleWindowDisplay::FillRect(const int x, const int y, const int cluste
     SDL_RenderFillRect(renderer_, &rect);
 }
 
+void SDLSingleWindowDisplay::ResetTextStack() {
+	text_stack_height_ = 0;
+}
+
 SDLSingleWindowDisplay::~SDLSingleWindowDisplay(){
 	SDL_DestroyWindow(window_);
 }
@@ -62,7 +66,7 @@ unsigned int SDLSingleWindowDisplay::GetWindowID() {
 
 void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y) {
 	TTF_Init();
-	TTF_Font *font = TTF_OpenFont("FreeSerif.ttf", 25);
+	TTF_Font *font = TTF_OpenFont("FreeSerif.ttf", 15);
 	SDL_Color color = { 255, 255, 255 };
 	SDL_Surface * surface = TTF_RenderText_Solid(font, text.c_str(), color);
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer_,  surface);
@@ -73,4 +77,10 @@ void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y) {
 	SDL_RenderCopy(renderer_, texture, nullptr, &dstrect);
 	TTF_CloseFont(font);
 	TTF_Quit();
+
+	text_stack_height_ += texH;
+}
+
+void SDLSingleWindowDisplay::TextOut(std::string text) {
+	TextOut(text, 0, text_stack_height_);
 }
