@@ -80,6 +80,7 @@ void SpikeAlignmentProcessor::process(){
 			// !!!  This is the EARLIEST point when the spike is accepted for further analysis
             if (prev_spike_[tetrode] != nullptr){
                 prev_spike_[tetrode]->aligned_ = true;
+                prev_spike_[tetrode]->power_ = prev_max_val_[tetrode];
 
                 // ADD spike to buffer's population window and use for ISI estimation
                 buffer->UpdateWindowVector(prev_spike_[tetrode]);

@@ -155,7 +155,7 @@ void SpikeDetectorProcessor::process()
 					buffer->spike_buffer_[buffer->spike_buf_pos] = nullptr;
 				}
                 
-                // TODO: delete oold spikes or reuse the structure
+                // TODO: delete old spikes or reuse the structure
                 Spike *spike = new Spike(spike_pos + 1, tetrode);
                 buffer->AddSpike(spike);
                 

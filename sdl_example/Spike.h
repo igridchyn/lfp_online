@@ -42,8 +42,7 @@ public:
     float speed;
     
     // power of a filter at the peak
-    // TODO: fill
-    unsigned int power_;
+    int power_;
 
     Spike(int pkg_id, int tetrode);
     // to optimize for speed spike objects in buffer are reinitialized instead of deleting and creating new
