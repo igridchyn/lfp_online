@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c++0x -g
-LDFLAGS = -lSDL2 -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
+LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
 	
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h
 	${CC} ${CFLAGS} -c ../AutocorrelogramProcessor.cpp
