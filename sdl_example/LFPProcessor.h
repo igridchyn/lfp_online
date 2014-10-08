@@ -107,6 +107,9 @@ class SDLControlInputProcessor : virtual public LFPProcessor{
 public:
     SDLControlInputProcessor(LFPBuffer *buf);
     
+    UserContext& user_context_;
+    unsigned int last_proc_ua_id_;
+
     virtual void process_SDL_control_input(const SDL_Event& e) = 0;
     virtual void process() = 0;
     

@@ -170,7 +170,8 @@ void SDLControlInputMetaProcessor::SwitchDisplayTetrode(const unsigned int& disp
 }
 
 SDLControlInputProcessor::SDLControlInputProcessor(LFPBuffer *buf)
-: LFPProcessor(buf) { }
+: LFPProcessor(buf)
+, user_context_(buf->user_context_){ }
 
 FileOutputProcessor::FileOutputProcessor(LFPBuffer* buf)
 : LFPProcessor(buf){

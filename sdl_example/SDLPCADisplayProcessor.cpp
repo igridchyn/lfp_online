@@ -39,12 +39,13 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , poly_load_(buffer->config_->getBool("pcadisp.poly.load", false))
 , poly_path_(buffer->config_->getOutPath("pcadisp.poly.path", "poly.dat"))
 , num_pc_(buffer->config_->getInt("pca.num.pc"))
-, user_context_(buffer->user_context_)
 {
     nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
 
     for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
     	polygon_clusters_.push_back(std::vector<PolygonCluster>());
+    	// insert fake 0 cluster (interpreted as artifact cluster)
+    	polygon_clusters_[t].push_back(PolygonCluster());
     }
 
     if(poly_load_){
@@ -117,7 +118,7 @@ void SDLPCADisplayProcessor::process(){
         		// TODO !!! incapsulate after linearizing PC
         		int contains = polygon_clusters_[target_tetrode_][i].Contains(spike, nchan_);
         		if (contains){
-        			spike->cluster_id_ = i + 1;
+        			spike->cluster_id_ = i;
         		}
 
         	}
@@ -132,6 +133,7 @@ void SDLPCADisplayProcessor::process(){
         	y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
         }
 
+        // TODO ??? don't display artifacts and unknown with the same color
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
         
         SDL_SetRenderTarget(renderer_, texture_);
@@ -141,7 +143,7 @@ void SDLPCADisplayProcessor::process(){
         SDL_RenderDrawPoint(renderer_, x, y);
         
         // display refractory spike
-        if (spike->cluster_id_ == refractory_display_cluster_ + 1){
+        if (refractory_display_cluster_ >= 0 && spike->cluster_id_ == refractory_display_cluster_){
         	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
 				SDL_SetRenderDrawColor(renderer_, 255, 0, 0,255);
 				int cw = 2;
@@ -184,7 +186,8 @@ void SDLPCADisplayProcessor::process(){
         }
 
         // TODO !!! don't redraw every time?
-        if (user_context_.selected_cluster1_ >= 0){
+        // TODO ??? select unknown cluster
+        if (user_context_.selected_cluster1_ > 0){
         	for(int p=0; p < polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_].projections_inclusive_.size(); ++p){
         		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_].projections_inclusive_[p];
         		// TODO Process inverted dim1/dim2 - everywhere
@@ -427,7 +430,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         					if (spike == nullptr || spike->tetrode_ != target_tetrode_)
         						continue;
 
-        					if (spike -> cluster_id_ == user_context_.selected_cluster2_ + 1){
+        					if (spike -> cluster_id_ == user_context_.selected_cluster2_){
         						spike->cluster_id_ = -1;
         					}
         				}
@@ -450,7 +453,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         				if (spike == nullptr || spike->tetrode_ != target_tetrode_)
         					continue;
 
-        				if (spike -> cluster_id_ == user_context_.selected_cluster2_ + 1){
+        				if (spike -> cluster_id_ == user_context_.selected_cluster2_){
         					float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
         					float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
 
