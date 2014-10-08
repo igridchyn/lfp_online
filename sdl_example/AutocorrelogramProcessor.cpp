@@ -191,7 +191,7 @@ int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
 		const unsigned int& y) {
 	int cx = (x - 30) / ((BWIDTH + 1) * NBINS + 15);
 	int cy = y / (ypix_ * 2);
-	return cy * XCLUST + cx - 1;
+	return cy * XCLUST + cx;
 }
 
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
@@ -215,14 +215,14 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
     
     if (user_context_.selected_cluster1_ >= 0){
     	SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
-    	drawClusterRect(user_context_.selected_cluster1_ + 1);
+    	drawClusterRect(user_context_.selected_cluster1_);
     }
 
 
 
     if (user_context_.selected_cluster2_ >= 0){
     	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-    	drawClusterRect(user_context_.selected_cluster2_ + 1);
+    	drawClusterRect(user_context_.selected_cluster2_);
     }
 
     SDL_SetRenderTarget(renderer_, nullptr);
@@ -240,14 +240,28 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			// select cluster 1
 			if (kmod & KMOD_LCTRL){
 				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
-				user_context_.SelectCluster1(clun);
-				SetDisplayTetrode(display_tetrode_);
+				if (clun >= 0 && reported_[display_tetrode_][clun]){
+					if (clun == user_context_.selected_cluster1_){
+						user_context_.SelectCluster1(-1);
+					}
+					else{
+						user_context_.SelectCluster1(clun);
+					}
+					SetDisplayTetrode(display_tetrode_);
+				}
 			}
 
 			if (kmod & KMOD_LSHIFT){
 				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
-				user_context_.SelectCluster2(clun);
-				SetDisplayTetrode(display_tetrode_);
+				if (clun >= 0 && reported_[display_tetrode_][clun]){
+					if (clun == user_context_.selected_cluster2_){
+						user_context_.SelectCluster2(-1);
+					}
+					else{
+						user_context_.SelectCluster2(clun);
+					}
+					SetDisplayTetrode(display_tetrode_);
+				}
 			}
 		}
 	}
@@ -264,6 +278,19 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 		}
 	}
+
+	if( e.type == SDL_KEYDOWN )
+	    {
+		switch(e.key.keysym.sym){
+		// refresh
+		case SDLK_r:
+			SetDisplayTetrode(display_tetrode_);
+			break;
+		default:
+			break;
+		}
+
+	    }
 }
 
 // plot the autocorrelogramms function
