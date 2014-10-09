@@ -48,6 +48,10 @@ bool UserContext::HasNewAction(const unsigned int& ref_ua_id) {
 	return last_user_action_id_ > ref_ua_id;
 }
 
+bool UserContext::IsSelected(Spike* spike) {
+	return spike->cluster_id_ > 0 && (spike->cluster_id_ == selected_cluster1_ || spike->cluster_id_ == selected_cluster2_);
+}
+
 UserContext::~UserContext() {
 	// TODO Auto-generated destructor stub
 }

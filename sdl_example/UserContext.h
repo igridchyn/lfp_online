@@ -8,6 +8,8 @@
 #ifndef USERCONTEXT_H_
 #define USERCONTEXT_H_
 
+#include "Spike.h"
+
 enum UserAction{
 	UA_NONE,
 	UA_SELECT_CLUSTER1,
@@ -40,6 +42,8 @@ public:
 	void DelleteCluster(const int& clu);
 
 	bool HasNewAction(const unsigned int& ref_pkg_id);
+
+	bool IsSelected(Spike *spike);
 
 	UserContext();
 	virtual ~UserContext();
