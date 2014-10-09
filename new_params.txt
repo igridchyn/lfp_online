@@ -1,3 +1,8 @@
+waveshapedisp.spike.plot.rate=1
+waveshapedisp.display.rate=1
+
+spike.detection.min.power.samples=20000
+
 waveshapedisp.final=1
 posdisp.pointer.limit=speed.est
 waveshapedisp.display.rate=2
