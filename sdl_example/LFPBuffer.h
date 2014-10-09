@@ -219,6 +219,10 @@ public:
     void Log(std::string message, int num);
 
     const unsigned int& GetPosBufPointer(std::string name);
+
+    // cause recalculation of autocorrelograms due to change in cluster(s) - from buffer start
+    void ResetAC(const unsigned int& reset_tetrode, const int& reset_cluster);
+    void ResetAC(const unsigned int& reset_tetrode);
 };
 
 //==========================================================================================

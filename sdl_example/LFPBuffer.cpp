@@ -371,3 +371,16 @@ const unsigned int& LFPBuffer::GetPosBufPointer(std::string name) {
 		exit(10);
 	}
 }
+
+void LFPBuffer::ResetAC(const unsigned int& reset_tetrode,
+		const int& reset_cluster) {
+
+	spike_buf_pos_auto_ = 0;
+	ac_reset_ = true;
+	ac_reset_tetrode_ = reset_tetrode;
+	ac_reset_cluster_ = reset_cluster;
+}
+
+void LFPBuffer::ResetAC(const unsigned int& reset_tetrode) {
+	ResetAC(reset_tetrode, -1);
+}
