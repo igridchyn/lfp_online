@@ -12,7 +12,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer* buf)
 :AutocorrelogramProcessor(buf,
 		buf->config_->getFloat("ac.bin.size.ms"),
 		buf->config_->getInt("ac.n.bins")
-		){
+){
 }
 
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins)
@@ -22,26 +22,30 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true))
-, MIN_EVENTS(buffer->config_->getInt("ac.min.events", 50))
 , user_context_(buffer->user_context_){
 	buf->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
 
-    const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
-    
-    autocorrs_.resize(tetrn);
-    spike_times_buf_.resize(tetrn);
-    spike_times_buf_pos_.resize(tetrn);
-    
-    for (int i=0; i < tetrn; ++i) {
-        autocorrs_[i].resize(MAX_CLUST);
-        spike_times_buf_[i].resize(MAX_CLUST);
-        spike_times_buf_pos_[i].resize(MAX_CLUST);
-        
-        for (int c=0; c < MAX_CLUST; ++c) {
-            autocorrs_[i][c].resize(NBINS);
-            spike_times_buf_[i][c].resize(ST_BUF_SIZE);
-        }
-    }
+	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
+
+	autocorrs_.resize(tetrn);
+	cross_corrs_.resize(tetrn);
+	spike_times_lists_.resize(tetrn);
+
+	for (int i=0; i < tetrn; ++i) {
+		autocorrs_[i].resize(MAX_CLUST);
+		cross_corrs_[i].resize(MAX_CLUST);
+		for (int c = 0; c < MAX_CLUST; ++c) {
+			cross_corrs_[i][c].resize(MAX_CLUST);
+			for (int c2 = 0; c2 < MAX_CLUST; ++c2) {
+				cross_corrs_[i][c][c2].resize(NBINS);
+			}
+		}
+		spike_times_lists_[i].resize(MAX_CLUST);
+
+		for (int c=0; c < MAX_CLUST; ++c) {
+			autocorrs_[i][c].resize(NBINS);
+		}
+	}
 }
 
 void AutocorrelogramProcessor::process(){
@@ -67,15 +71,6 @@ void AutocorrelogramProcessor::process(){
 		buffer->ac_reset_ = false;
 		buffer->ac_reset_cluster_ = -1;
 		buffer->ac_reset_tetrode_ = -1;
-
-		// reset last spike times so that AC will be recalculated
-		// TODO !!! adjust for buffer->ac_reset_cluster_
-		for(int c=0; c < MAX_CLUST; ++c){
-			spike_times_buf_pos_[tetr_reset][c] = 0;
-			for (unsigned int bpos = 0; bpos < ST_BUF_SIZE; ++bpos) {
-				spike_times_buf_[tetr_reset][c][bpos] = 0;
-			}
-		}
 	}
 
 	// TODO process user actions (no need in reset above then)
@@ -85,63 +80,84 @@ void AutocorrelogramProcessor::process(){
 			// process new user action
 
 			switch(user_context_.last_user_action_){
-				case UA_SELECT_CLUSTER1:
-					break;
+			case UA_SELECT_CLUSTER1:
+				break;
 			}
 		}
 	}
 
-    while(buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
-        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
-        
-        if (spike == nullptr || spike->discarded_){
-        	buffer->spike_buf_pos_auto_++;
-            continue;
-        }
-        
-        if (spike->cluster_id_ == -1){
-        	if (wait_clustering_)
-        		break;
-        	else{
-        		buffer->spike_buf_pos_auto_++;
-        		continue;
-        	}
-        }
-        
-        unsigned int tetrode = spike->tetrode_;
-        unsigned int cluster_id = spike->cluster_id_;
-        unsigned int stime = spike->pkg_id_;
-        
-        // update autocorrelation bins
-        std::vector<unsigned int>& prev_spikes = spike_times_buf_[tetrode][cluster_id];
-        for (unsigned int bpos = 0; bpos < ST_BUF_SIZE; ++bpos) {
-            
-            if(prev_spikes[bpos] == 0)
-                continue;
-            
-            // 2 ms bins
-            // TODO: configurable bitrate
-            unsigned int bin = (stime - prev_spikes[bpos]) / (BIN_SIZE );
-            if (bin >= NBINS || bin < 0){
-                continue;
-            }
-            
-            autocorrs_[tetrode][cluster_id][bin]++;
-        }
-        
-        // replace new spike with last in the buf and advance pointer
-        prev_spikes[spike_times_buf_pos_[tetrode][cluster_id]] = stime;
-        if(spike_times_buf_pos_[tetrode][cluster_id] == ST_BUF_SIZE - 1){
-            spike_times_buf_pos_[tetrode][cluster_id] = 0;
-        }
-        else{
-            spike_times_buf_pos_[tetrode][cluster_id]++;
-        }
-        
-        buffer->spike_buf_pos_auto_++;
-        
-        plotAC(tetrode, cluster_id);
-    }
+	while(buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
+		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
+
+		if (spike == nullptr || spike->discarded_){
+			buffer->spike_buf_pos_auto_++;
+			continue;
+		}
+
+		if (spike->cluster_id_ == -1){
+			if (wait_clustering_)
+				break;
+			else{
+				buffer->spike_buf_pos_auto_++;
+				continue;
+			}
+		}
+
+		unsigned int tetrode = spike->tetrode_;
+		unsigned int cluster_id = spike->cluster_id_;
+		unsigned int stime = spike->pkg_id_;
+
+		// update autocorrelation bins
+		std::list<unsigned int>& prev_spikes_queue = spike_times_lists_[tetrode][cluster_id];
+
+		int max_diff = BIN_SIZE * NBINS;
+
+		for (std::list<unsigned int>::iterator si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
+			if (stime - *si > max_diff){
+				continue;
+			}
+
+			// 2 ms bins
+			// TODO: configurable bitrate
+			unsigned int bin = (stime - *si) / (BIN_SIZE );
+			if (bin >= NBINS || bin < 0){
+				continue;
+			}
+
+			autocorrs_[tetrode][cluster_id][bin]++;
+		}
+
+		// fill cross-correlograms - no need to delete here, start from end until
+		// TODO number of clusters ?
+		for (int c = 0; c < MAX_CLUST; ++c) {
+			if (c == spike->cluster_id_)
+				continue;
+
+			std::list<unsigned int>& prev_spikes_ = spike_times_lists_[tetrode][c];
+			for (std::list<unsigned int>::iterator si = prev_spikes_.begin(); si != prev_spikes_.end(); ++si) {
+				if (stime - *si > max_diff){
+					continue;
+				}
+
+				unsigned int bin = (stime - *si) / (BIN_SIZE );
+				if (bin >= NBINS || bin < 0){
+					continue;
+				}
+
+				cross_corrs_[tetrode][cluster_id][c][bin]++;
+			}
+		}
+
+		while(!prev_spikes_queue.empty() && stime - prev_spikes_queue.front() > max_diff)
+			prev_spikes_queue.pop_front();
+
+		// replace new spike with last in the buf and advance pointer
+		prev_spikes_queue.push_back(stime);
+
+		buffer->spike_buf_pos_auto_++;
+
+		plotAC(tetrode, cluster_id);
+	}
 }
 
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
@@ -178,36 +194,36 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 
 	// TODO extract redraw
 
-    display_tetrode_ = display_tetrode;
-    
-    SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-    SDL_RenderClear(renderer_);
-    SDL_RenderPresent(renderer_);
-    
-    for (int c=0; c < MAX_CLUST; ++c) {
-        plotAC(display_tetrode_, c);
-    }
-    
-    if (user_context_.selected_cluster1_ >= 0){
-    	SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
-    	drawClusterRect(user_context_.selected_cluster1_);
-    }
+	display_tetrode_ = display_tetrode;
+
+	SDL_SetRenderTarget(renderer_, texture_);
+	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+	SDL_RenderClear(renderer_);
+	SDL_RenderPresent(renderer_);
+
+	for (int c=0; c < MAX_CLUST; ++c) {
+		plotAC(display_tetrode_, c);
+	}
+
+	if (user_context_.selected_cluster1_ >= 0){
+		SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
+		drawClusterRect(user_context_.selected_cluster1_);
+	}
 
 
 
-    if (user_context_.selected_cluster2_ >= 0){
-    	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-    	drawClusterRect(user_context_.selected_cluster2_);
-    }
+	if (user_context_.selected_cluster2_ >= 0){
+		SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+		drawClusterRect(user_context_.selected_cluster2_);
+	}
 
-    SDL_SetRenderTarget(renderer_, nullptr);
-    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-    SDL_RenderPresent(renderer_);
+	SDL_SetRenderTarget(renderer_, nullptr);
+	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SDL_RenderPresent(renderer_);
 }
 
 void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
-    // TODO: implement
+	// TODO: implement
 
 	SDL_Keymod kmod = SDL_GetModState();
 
@@ -254,7 +270,7 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 	}
 
 	if( e.type == SDL_KEYDOWN )
-	    {
+	{
 		switch(e.key.keysym.sym){
 		// refresh
 		case SDLK_r:
@@ -264,43 +280,43 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			break;
 		}
 
-	    }
+	}
 }
 
 // plot the autocorrelogramms function
 void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned int cluster){
-    if (tetr != display_tetrode_)
-        return;
-    
-    // shift for the plot
+	if (tetr != display_tetrode_)
+		return;
 
-    const int xsh = getXShift(cluster);
-    const int ysh = getYShift(cluster);
-    
-    ColorPalette palette_ = ColorPalette::BrewerPalette12;
-    
-    SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
-    SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
+	// shift for the plot
+
+	const int xsh = getXShift(cluster);
+	const int ysh = getYShift(cluster);
+
+	ColorPalette palette_ = ColorPalette::BrewerPalette12;
+
+	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+	SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
 
 	int maxh = 0;
 	for (int b = 0; b < NBINS; ++b) {
-		int height = autocorrs_[tetr][cluster][b] * NBINS * Y_SCALE;
+		int height = autocorrs_[tetr][cluster][b];
 		if (height > maxh)
 			maxh = height;
 	}
 
-    for (int b=0; b < NBINS; ++b) {
-        int height = (autocorrs_[tetr][cluster][b] * NBINS * Y_SCALE) * ypix_/ maxh;
-        
-        SDL_Rect rect;
-        rect.h = height;
-        rect.w = BWIDTH;
-        rect.x = xsh + b * (BWIDTH + 1);
-        rect.y = ysh - height;
-        
+	for (int b=0; b < NBINS; ++b) {
+		int height = (autocorrs_[tetr][cluster][b]) * ypix_/ maxh;
+
+		SDL_Rect rect;
+		rect.h = height;
+		rect.w = BWIDTH;
+		rect.x = xsh + b * (BWIDTH + 1);
+		rect.y = ysh - height;
+
 		SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster % palette_.NumColors()), palette_.getG(cluster % palette_.NumColors()), palette_.getB(cluster % palette_.NumColors()), 255);
-        SDL_RenderFillRect(renderer_, &rect);
-    }
+		SDL_RenderFillRect(renderer_, &rect);
+	}
 }
 
 

@@ -16,34 +16,43 @@
 
 #endif /* defined(__sdl_example__AutocorrelogramProcessor__) */
 
+enum AC_DISPLAY_MODE{
+	AC_DISPLAY_MODE_AC,
+	AC_DISPALY_MODE_CC
+};
+
 class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
 
 	// TODO synchronize init accross all processors
     unsigned int display_tetrode_ = 0;
+
+    // whether to break on -1 cluster or just skip it
     bool wait_clustering_;
 
+    // pixel width of one AC bin
     const int BWIDTH = 2;
+    // number of clusters in one row
+    // TODO define from window width
     const int XCLUST = 7;
+    // height of the plot in pixels
+    const unsigned int ypix_ = 100;
 
     // tetrode / cluster / bin values
     std::vector<std::vector<std::vector<float> > > autocorrs_;
+    // [tetrode] [ cluster 1] [cluster 2] [ bin ]
+    std::vector<std::vector<std::vector<std::vector<float> > > > cross_corrs_;
 
-    std::vector<std::vector<std::vector<unsigned int> > > spike_times_buf_;
-    std::vector<std::vector<unsigned int> > spike_times_buf_pos_;
+    AC_DISPLAY_MODE dispaly_mode_ = AC_DISPLAY_MODE_AC;
 
-    static const unsigned int ST_BUF_SIZE = 30;
+    std::vector<std::vector<std::list<unsigned int> > > spike_times_lists_;
+
     static const unsigned int MAX_CLUST = 30;
-    // total of AVG_PER_BIN * NBINS should be collected before displaying the autocorrelation
-    const unsigned int MIN_EVENTS;
-    static const unsigned int Y_SCALE = 20;
 
     const int BIN_SIZE;
     const unsigned int NBINS;
 
     UserContext& user_context_;
     unsigned int last_processed_user_action_id_;
-
-    const unsigned int ypix_ = 100;
 
     unsigned int getXShift(int clust);
     unsigned int getYShift(int clust);
