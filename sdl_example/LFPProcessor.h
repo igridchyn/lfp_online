@@ -77,35 +77,6 @@ public:
 
 //====================================================================================================
 
-class SDLSingleWindowDisplay{
-protected:
-    SDL_Window *window_ = nullptr;
-	SDL_Renderer *renderer_ = nullptr;
-	SDL_Texture *texture_ = nullptr;
-    
-    const unsigned int window_width_;
-    const unsigned int window_height_;
-    
-    ColorPalette palette_;
-    
-	std::string name_;
-
-	unsigned int text_stack_height_ = 0;
-
-    virtual void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
-
-    // TEXT
-    virtual void ResetTextStack();
-    virtual void TextOut(std::string text, int x, int y);
-    virtual void TextOut(std::string text);
-    
-public:
-    SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
-    virtual void ReinitScreen();
-    virtual unsigned int GetWindowID();
-
-	virtual ~SDLSingleWindowDisplay();
-};
 
 //====================================================================================================
 
@@ -116,7 +87,7 @@ public:
     SDLControlInputProcessor(LFPBuffer *buf);
     
     UserContext& user_context_;
-    unsigned int last_proc_ua_id_;
+    unsigned int last_proc_ua_id_ = 0;
 
     virtual void process_SDL_control_input(const SDL_Event& e) = 0;
     virtual void process() = 0;
@@ -214,25 +185,7 @@ public:
 
 //==========================================================================================
 
-class FrequencyPowerBandProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
-    const int FACTOR;
-    const int BUF_LEN;
-    const int ANAL_RATE;
-    
-    unsigned int last_performed_an = 0;
-    unsigned int channel_ = 0;
-    
-public:
-    FrequencyPowerBandProcessor(LFPBuffer *buf);
-    FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height);
-    virtual void process();
 
-    // SDLControlInputProcessor
-    virtual void process_SDL_control_input(const SDL_Event& e);
-    virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
-
-	virtual ~FrequencyPowerBandProcessor();
-};
 
 
 
