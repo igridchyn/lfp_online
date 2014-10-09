@@ -157,7 +157,7 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 	int ysh = getYShift(clust);
 
 	SDL_Rect rect;
-	int height = ypix_ * 2;
+	int height = ypix_;
 	rect.h = height;
 	rect.w = (BWIDTH + 1) * NBINS;
 	rect.x = xsh;
@@ -168,7 +168,7 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
 		const unsigned int& y) {
 	int cx = (x - 30) / ((BWIDTH + 1) * NBINS + 15);
-	int cy = y / (ypix_ * 2);
+	int cy = y / ypix_;
 	return cy * XCLUST + cx;
 }
 
@@ -290,7 +290,7 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 	}
 
     for (int b=0; b < NBINS; ++b) {
-        int height = (autocorrs_[tetr][cluster][b] * NBINS * Y_SCALE) * ypix_ * 2 / maxh;
+        int height = (autocorrs_[tetr][cluster][b] * NBINS * Y_SCALE) * ypix_/ maxh;
         
         SDL_Rect rect;
         rect.h = height;

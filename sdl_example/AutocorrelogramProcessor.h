@@ -43,7 +43,7 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     UserContext& user_context_;
     unsigned int last_processed_user_action_id_;
 
-    const unsigned int ypix_ = 50;
+    const unsigned int ypix_ = 100;
 
     unsigned int getXShift(int clust);
     unsigned int getYShift(int clust);
