@@ -7,6 +7,7 @@
 //
 
 #include "LFPProcessor.h"
+#include "SDLSingleWindowDisplay.h"
 
 void SDLSingleWindowDisplay::FillRect(const int x, const int y, const int cluster, const unsigned int w, const unsigned int h){
     SDL_Rect rect;
@@ -83,4 +84,19 @@ void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y) {
 
 void SDLSingleWindowDisplay::TextOut(std::string text) {
 	TextOut(text, 0, text_stack_height_);
+}
+
+void SDLSingleWindowDisplay::DrawCross(int w, int x, int y) {
+	int cw = w;
+	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 0);
+	SDL_RenderDrawLine(renderer_, x-cw, y-cw, x+cw, y+cw);
+	SDL_RenderDrawLine(renderer_, x-cw, y+cw, x+cw, y-cw);
+}
+
+void SDLSingleWindowDisplay::DrawCross(int w, int x, int y, int coli) {
+	int cw = w;
+//	SDL_SetRenderDrawColor(renderer_, 255 - palette_.getR(coli), 255 - palette_.getG(coli), 255 - palette_.getB(coli), 0);
+	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
+	SDL_RenderDrawLine(renderer_, x-cw, y-cw, x+cw, y+cw);
+	SDL_RenderDrawLine(renderer_, x-cw, y+cw, x+cw, y-cw);
 }

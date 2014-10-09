@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "LFPProcessor.h"
+#include "SDLSingleWindowDisplay.h"
 
 class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     unsigned int target_tetrode_;

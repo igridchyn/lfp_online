@@ -7,7 +7,7 @@
 //
 
 #include "armadillo"
-#include "LFPProcessor.h"
+#include "FrequencyPowerBandProcessor.h"
 
 FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf)
 :FrequencyPowerBandProcessor(buf,

@@ -29,6 +29,7 @@
 //#include "UnitTestingProcessor.h"
 #include "WhlFileReaderProcessor.h"
 #include "LPTTriggerProcessor.h"
+#include "FrequencyPowerBandProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){

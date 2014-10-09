@@ -12,7 +12,6 @@
 #include "LFPProcessor.h"
 #include "PlaceFieldProcessor.h"
 
-
 // ============================================================================================================================================
 
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)

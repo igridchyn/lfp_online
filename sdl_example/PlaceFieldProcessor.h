@@ -11,6 +11,7 @@
 
 #include <armadillo>
 #include "PlaceField.h"
+#include "SDLSingleWindowDisplay.h"
 
 //==========================================================================================
 
