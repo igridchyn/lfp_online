@@ -156,7 +156,7 @@ void AutocorrelogramProcessor::process(){
 
 		buffer->spike_buf_pos_auto_++;
 
-		plotAC(tetrode, cluster_id);
+		plotACorCCs(tetrode, spike->cluster_id_);
 	}
 }
 
@@ -167,6 +167,18 @@ unsigned int AutocorrelogramProcessor::getXShift(int clust) {
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {
 	return (clust / XCLUST) * ypix_ + 100;
 }
+
+
+unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1,
+		const unsigned int& clust2) {
+	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * ((clust1 - 1) % XCLUST) + (CC_BWIDTH + 1) * NBINS;
+}
+
+unsigned int AutocorrelogramProcessor::getCCYShift(const unsigned int& clust1,
+		const unsigned int& clust2) {
+	return (clust2 - 1) * ypix_ + 100;
+}
+
 
 void AutocorrelogramProcessor::drawClusterRect(int clust) {
 	int xsh = getXShift(clust);
@@ -188,6 +200,17 @@ int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
 	return cy * XCLUST + cx;
 }
 
+void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
+	if (display_mode_ == AC_DISPLAY_MODE_AC){
+		plotAC(tetrode, cluster);
+	}
+	else{
+		for (int c = 0; c < MAX_CLUST; ++c){
+			plotCC(tetrode, cluster, c);
+		}
+	}
+}
+
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
 	if (display_tetrode_ >= buffer->tetr_info_->tetrodes_number)
 		return;
@@ -202,15 +225,13 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	SDL_RenderPresent(renderer_);
 
 	for (int c=0; c < MAX_CLUST; ++c) {
-		plotAC(display_tetrode_, c);
+		plotACorCCs(display_tetrode_, c);
 	}
 
 	if (user_context_.selected_cluster1_ >= 0){
 		SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
 		drawClusterRect(user_context_.selected_cluster1_);
 	}
-
-
 
 	if (user_context_.selected_cluster2_ >= 0){
 		SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
@@ -264,7 +285,7 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 
 			// redraw those that have been reported already
 			for (int c=0; c < MAX_CLUST; ++c){
-				plotAC(display_tetrode_, c);
+				plotACorCCs(display_tetrode_, c);
 			}
 		}
 	}
@@ -281,6 +302,54 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 		}
 
 	}
+}
+
+void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
+		const unsigned int& cluster1, const unsigned int& cluster2) {
+	if (tetr != display_tetrode_)
+			return;
+
+		// shift for the plot
+
+		const int xsh = getCCXShift(cluster1, cluster2);
+		const int ysh = getCCYShift(cluster1, cluster2);
+
+		ColorPalette palette_ = ColorPalette::BrewerPalette12;
+
+		SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+		SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
+
+		int maxh = 0;
+		for (int b = 0; b < NBINS; ++b) {
+			int height = cross_corrs_[tetr][cluster1][cluster2][b];
+			if (height > maxh)
+				maxh = height;
+			height = cross_corrs_[tetr][cluster2][cluster1][b];
+			if (height > maxh)
+				maxh = height;
+		}
+
+		for (int b=0; b < NBINS; ++b) {
+			int height = (cross_corrs_[tetr][cluster1][cluster2][b]) * ypix_/ maxh;
+
+			SDL_Rect rect;
+			rect.h = height;
+			rect.w = CC_BWIDTH;
+			rect.x = xsh + b * (CC_BWIDTH + 1);
+			rect.y = ysh - height;
+
+			SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster1 % palette_.NumColors()), palette_.getG(cluster1 % palette_.NumColors()), palette_.getB(cluster1 % palette_.NumColors()), 255);
+			SDL_RenderFillRect(renderer_, &rect);
+
+			// other side
+			height = (cross_corrs_[tetr][cluster2][cluster1][b]) * ypix_/ maxh;
+			rect.h = height;
+			rect.x = xsh - b * (CC_BWIDTH + 1);
+			rect.y = ysh - height;
+
+			SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster2 % palette_.NumColors()), palette_.getG(cluster2 % palette_.NumColors()), palette_.getB(cluster2 % palette_.NumColors()), 255);
+			SDL_RenderFillRect(renderer_, &rect);
+		}
 }
 
 // plot the autocorrelogramms function

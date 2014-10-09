@@ -18,7 +18,7 @@
 
 enum AC_DISPLAY_MODE{
 	AC_DISPLAY_MODE_AC,
-	AC_DISPALY_MODE_CC
+	AC_DISPLAY_MODE_CC
 };
 
 class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
@@ -31,6 +31,8 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
 
     // pixel width of one AC bin
     const int BWIDTH = 2;
+    const int CC_BWIDTH = 1;
+
     // number of clusters in one row
     // TODO define from window width
     const int XCLUST = 7;
@@ -42,7 +44,7 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     // [tetrode] [ cluster 1] [cluster 2] [ bin ]
     std::vector<std::vector<std::vector<std::vector<float> > > > cross_corrs_;
 
-    AC_DISPLAY_MODE dispaly_mode_ = AC_DISPLAY_MODE_AC;
+    AC_DISPLAY_MODE display_mode_ = AC_DISPLAY_MODE_CC;
 
     std::vector<std::vector<std::list<unsigned int> > > spike_times_lists_;
 
@@ -54,12 +56,17 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     UserContext& user_context_;
     unsigned int last_processed_user_action_id_;
 
+    unsigned int getCCXShift(const unsigned int& clust1, const unsigned int& clust2);
+    unsigned int getCCYShift(const unsigned int& clust1, const unsigned int& clust2);
+
     unsigned int getXShift(int clust);
     unsigned int getYShift(int clust);
     void drawClusterRect(int clust);
 
     //
     int getClusterNumberByCoords(const unsigned int& x, const unsigned int& y);
+
+    void plotACorCCs(int tetrode, int cluster);
 
 public:
     AutocorrelogramProcessor(LFPBuffer *buf);
@@ -69,6 +76,7 @@ public:
     virtual ~AutocorrelogramProcessor() {};
 
     void plotAC(const unsigned int tetr, const unsigned int cluster);
+    void plotCC(const unsigned int& tetr, const unsigned int& cluster1, const unsigned int& cluster2);
 
     // SDLControlInputProcessor
 
