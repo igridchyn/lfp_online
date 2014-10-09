@@ -91,6 +91,15 @@ void SDLPCADisplayProcessor::process(){
             continue;
         }
         
+        // TODO don't update at every spike
+        // TODO take channel with the spike peak (save if not available)
+        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+        if (abs(spike->power_) < power_thold){
+        	buffer->spike_buf_no_disp_pca++;
+        	spike->cluster_id_ = -1;
+        	continue;
+        }
+
         if (spike->pc == nullptr || (spike->cluster_id_ == -1 && !display_unclassified_))
         {
             if (spike->discarded_){
@@ -148,9 +157,7 @@ void SDLPCADisplayProcessor::process(){
         if (refractory_display_cluster_ >= 0 && spike->cluster_id_ == refractory_display_cluster_){
         	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
 				SDL_SetRenderDrawColor(renderer_, 255, 0, 0,255);
-				int cw = 2;
-				SDL_RenderDrawLine(renderer_, x-cw, y-cw, x+cw, y+cw);
-				SDL_RenderDrawLine(renderer_, x-cw, y+cw, x+cw, y-cw);
+				DrawCross(3, x, y, refractory_display_cluster_);
         	}
 
         	refractory_last_time_ = spike->pkg_id_;
@@ -189,7 +196,7 @@ void SDLPCADisplayProcessor::process(){
 
         // TODO !!! don't redraw every time?
         // TODO ??? select unknown cluster
-        if (user_context_.selected_cluster1_ > 0){
+        if (user_context_.selected_cluster1_ > 0 && polygon_clusters_[target_tetrode_].size() > user_context_.selected_cluster1_){
         	for(int p=0; p < polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_].projections_inclusive_.size(); ++p){
         		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_].projections_inclusive_[p];
         		// TODO Process inverted dim1/dim2 - everywhere
@@ -205,7 +212,7 @@ void SDLPCADisplayProcessor::process(){
         		}
         	}
         }
-        if (user_context_.selected_cluster2_ >= 0){
+        if (user_context_.selected_cluster2_ >= 0 && polygon_clusters_[target_tetrode_].size() > user_context_.selected_cluster2_){
                 	for(int p=0; p < polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].projections_inclusive_.size(); ++p){
                 		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].projections_inclusive_[p];
                 		// TODO Process inverted dim1/dim2 - everywhere
@@ -363,6 +370,17 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
+        	// change power threshold + udpate ACs
+        	case SDLK_EQUALS:
+        		power_threshold_factor_ *= power_threshold_factor_step_;
+        		buffer->ResetAC(target_tetrode_);
+        		break;
+
+        	case SDLK_MINUS:
+        	    power_threshold_factor_ /= power_threshold_factor_step_;
+        	    buffer->ResetAC(target_tetrode_);
+        	    break;
+
         	// merge clusters
         	case SDLK_m:
         		if (user_context_.selected_cluster1_ < 0 || user_context_.selected_cluster2_ < 0)
@@ -391,10 +409,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		// remove cluster from list of tetrode poly clusters
         		polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + user_context_.selected_cluster2_);
 
-        		buffer->spike_buf_pos_auto_ = 0;
-    			buffer->ac_reset_ = true;
-    			buffer->ac_reset_tetrode_ = target_tetrode_;
-				buffer->ac_reset_cluster_ = user_context_.selected_cluster2_;
+        		buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
 				// unselect second cluster
 				user_context_.selected_cluster2_ = -1;
@@ -416,11 +431,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         		// TODO !!! buffer->resetAC()
         		// set to where it was reset...
-        		buffer->spike_buf_pos_auto_ = 0;
-    			buffer->ac_reset_ = true;
-    			buffer->ac_reset_tetrode_ = target_tetrode_;
-				// because of 1+ shift in cluster numbering
-				buffer->ac_reset_cluster_ = polygon_clusters_.size();
+        		// TODO check whether correct cluster number is given
+        		buffer->ResetAC(target_tetrode_, polygon_clusters_.size() - 1);
 
 				buffer->ResetPopulationWindow();
 
@@ -444,10 +456,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         					}
         				}
 
-                		buffer->spike_buf_pos_auto_ = 0;
-            			buffer->ac_reset_ = true;
-            			buffer->ac_reset_tetrode_ = target_tetrode_;
-						buffer->ac_reset_cluster_ = user_context_.selected_cluster2_;
+                		buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
 						user_context_.selected_cluster2_ = -1;
 
@@ -480,10 +489,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         			// reset AC
         			// TODO extract
-        			buffer->spike_buf_pos_auto_ = 0;
-        			buffer->ac_reset_ = true;
-        			buffer->ac_reset_tetrode_ = target_tetrode_;
-        			buffer->ac_reset_cluster_ = user_context_.selected_cluster2_;
+        			buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
 					// needed here?
 					buffer->ResetPopulationWindow();
@@ -505,10 +511,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         				}
         			}
 
-        			buffer->spike_buf_pos_auto_ = 0;
-        			buffer->ac_reset_ = true;
-        			buffer->ac_reset_tetrode_ = target_tetrode_;
-					buffer->ac_reset_cluster_ = -1;
+        			buffer->ResetAC(target_tetrode_);
 
         			// TODO make separate control for saving (SHIFT+S)
         			save_polygon_clusters();

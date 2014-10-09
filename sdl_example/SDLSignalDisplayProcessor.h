@@ -9,6 +9,9 @@
 #ifndef sdl_example_SDLSignalDisplayProcessor_h
 #define sdl_example_SDLSignalDisplayProcessor_h
 
+#include "LFPProcessor.h"
+#include "SDLSingleWindowDisplay.h"
+
 class SDLSignalDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     const int SCREEN_HEIGHT;
     const int SCREEN_WIDTH;
