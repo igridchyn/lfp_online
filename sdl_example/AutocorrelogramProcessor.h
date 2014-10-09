@@ -27,12 +27,9 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
 
     // tetrode / cluster / bin values
     std::vector<std::vector<std::vector<float> > > autocorrs_;
-    std::vector<std::vector<unsigned int> > total_counts_;
 
     std::vector<std::vector<std::vector<unsigned int> > > spike_times_buf_;
     std::vector<std::vector<unsigned int> > spike_times_buf_pos_;
-
-    std::vector<std::vector<bool> > reported_;
 
     static const unsigned int ST_BUF_SIZE = 30;
     static const unsigned int MAX_CLUST = 30;
