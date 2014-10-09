@@ -26,12 +26,31 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, LFPProcessor(buf)
 	, scale_(buf->config_->getInt("waveshapedisp.scale", 25))
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
-	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 3))
+	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 1))
 	, display_final_(buffer->config_->getBool("waveshapedisp.final", false))
-{ }
+{
+	for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+		cluster_cuts_.push_back(std::vector<std::vector<WaveshapeCut> >());
+		cluster_cuts_[t].resize(MAX_CLUST);
+	}
+}
+
+float SDLWaveshapeDisplayProcessor::XToWaveshapeSampleNumber(int x) {
+	if (display_final_){
+		return x / (float)x_mult_final_;
+	}
+	else
+	{
+		return x / (float)x_mult_reconstructed_;
+	}
+}
+
+float SDLWaveshapeDisplayProcessor::YToPower(int chan, int y) {
+	return -(y - 100 - (float)y_mult_ * chan) * scale_;
+}
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
-    return 100 + -smpl/scale_ + 200 * chan;
+    return 100 + -smpl/scale_ + y_mult_ * chan;
 }
 
 void SDLWaveshapeDisplayProcessor::process() {
@@ -50,8 +69,8 @@ void SDLWaveshapeDisplayProcessor::process() {
     SDL_SetRenderTarget(renderer_, texture_);
     const ColorPalette& colpal = ColorPalette::BrewerPalette12;
 
-    unsigned int disp_cluster_1_ = user_context_.selected_cluster1_;
-    unsigned int disp_cluster_2_ = user_context_.selected_cluster2_;
+    const unsigned int& disp_cluster_1_ = user_context_.selected_cluster1_;
+    const unsigned int& disp_cluster_2_ = user_context_.selected_cluster2_;
     
     while(buf_pointer_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
@@ -64,12 +83,51 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
-		if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 || (spike->cluster_id_ != disp_cluster_1_ && spike->cluster_id_ != disp_cluster_2_) || spike->discarded_ || !(tetrode_total_spikes_ % spike_plot_rate_)){
+		if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 || (spike->cluster_id_ != disp_cluster_1_ && spike->cluster_id_ != disp_cluster_2_) || spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
             buf_pointer_++;
             tetrode_total_spikes_ ++;
             continue;
         }
         
+			// check if falls under any cluster cuts
+		// TODO make cuts checks optional
+		bool is_cut = false;
+		for(int c= 0; c < cluster_cuts_[targ_tetrode_][spike->cluster_id_].size(); ++c){
+			// TODO save cut with channel and transform
+
+			WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][spike->cluster_id_][c];
+
+			for (int chan = 0; chan < buffer->tetr_info_->channels_numbers[targ_tetrode_]; ++chan) {
+				float xw1 = XToWaveshapeSampleNumber(cut.x1_);
+				float yw1 = YToPower(chan, cut.y1_);
+				float xw2 = XToWaveshapeSampleNumber(cut.x2_);
+				float yw2 = YToPower(chan, cut.y2_);
+
+				if (display_final_){
+					if (spike->crossesWaveShapeFinal(chan, xw1, yw1, xw2, yw2)){
+						spike->cluster_id_ = 0;
+			            is_cut = true;
+			            break;
+					}
+				}
+				else{
+					if (spike->crossesWaveShapeReconstructed(chan, xw1, yw1, xw2, yw2)){
+						spike->cluster_id_ = 0;
+						is_cut = true;
+						break;
+					}
+				}
+			}
+
+			if (is_cut)
+				break;
+		}
+		if (is_cut){
+			 buf_pointer_++;
+			 tetrode_total_spikes_ ++;
+			 continue;
+		}
+
 		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
         for (int chan=0; chan < 4; ++chan) {
             int prev_smpl = transform(spike->waveshape[chan][0], chan);
@@ -99,6 +157,15 @@ void SDLWaveshapeDisplayProcessor::process() {
     if (last_pkg_id - last_disp_pkg_id_ > DISPLAY_RATE){
         last_disp_pkg_id_ = last_pkg_id;
         
+        if (x1_ > 0){
+        	DrawCross(3, x1_, y1_);
+        }
+
+        if (x2_ > 0){
+        	DrawCross(3, x2_, y2_);
+        	SDL_RenderDrawLine(renderer_, x1_, y1_, x2_, y2_);
+        }
+
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
         SDL_RenderPresent(renderer_);
@@ -106,7 +173,25 @@ void SDLWaveshapeDisplayProcessor::process() {
 }
 
 void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
-    if( e.type == SDL_KEYDOWN )
+	SDL_Keymod kmod = SDL_GetModState();
+
+	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
+			if (e.button.button == SDL_BUTTON_LEFT){
+				// select cluster
+				if (kmod & KMOD_LCTRL){
+					if (x1_ == -1){
+						x1_ = e.button.x;
+						y1_ = e.button.y;
+					}
+					else{
+						x2_ = e.button.x;
+						y2_ = e.button.y;
+					}
+				}
+			}
+	}
+
+	if( e.type == SDL_KEYDOWN )
     {
         bool need_redraw = true;
         SDL_Keymod kmod = SDL_GetModState();
@@ -121,6 +206,60 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
         switch( e.key.keysym.sym )
         {
+        	// delete points
+        	case SDLK_d:
+        		x1_ = -1;
+        		y1_ = -1;
+        		x2_ = -1;
+        		y2_ = -1;
+        		break;
+
+        	// clear cluster - remove spikes whose waveshape crosses line (x1,y1) -> (x2, y2)
+        	case SDLK_c:
+        		if (x2_ > 0)
+        		{
+        			// iterate through all spikes in buffer and assign 0 (artefact) clusters
+        			for (int channel = 0; channel < buffer->tetr_info_->channels_numbers[targ_tetrode_]; ++channel) {
+        				float xw1 = XToWaveshapeSampleNumber(x1_);
+        				float yw1 = YToPower(channel, y1_);
+        				float xw2 = XToWaveshapeSampleNumber(x2_);
+        				float yw2 = YToPower(channel, y2_);
+
+        				// add to cuts list to cut coming spikes
+        				// TODO display cuts
+        				if (user_context_.selected_cluster1_ > 0)
+        					cluster_cuts_[targ_tetrode_][user_context_.selected_cluster1_].push_back(WaveshapeCut(x1_, y1_, x2_, y2_));
+        				if (user_context_.selected_cluster2_ > 0)
+        					cluster_cuts_[targ_tetrode_][user_context_.selected_cluster2_].push_back(WaveshapeCut(x1_, y1_, x2_, y2_));
+
+        				for (int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
+        					Spike *spike = buffer->spike_buffer_[s];
+
+        					if (spike == nullptr)
+        						continue;
+
+        					if (spike->tetrode_ == targ_tetrode_ && user_context_.IsSelected(spike)){
+        						if (display_final_){
+        							if (spike->crossesWaveShapeFinal(channel, xw1, yw1, xw2, yw2)){
+        								spike->cluster_id_ = 0;
+        							}
+        						}
+        						else{
+        							if (spike->crossesWaveShapeReconstructed(channel, xw1, yw1, xw2, yw2)){
+        								spike->cluster_id_ = 0;
+        							}
+        						}
+        					}
+        				}
+        			}
+
+        			buf_pointer_ = 0;
+
+        			x1_ = x2_ = y1_ = y2_ = -1;
+        		}
+
+        		break;
+
             case SDLK_ESCAPE:
                 exit(0);
                 break;

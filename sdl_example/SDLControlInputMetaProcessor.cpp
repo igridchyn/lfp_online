@@ -7,6 +7,7 @@
 //
 
 #include "LFPProcessor.h"
+#include "SDLSingleWindowDisplay.h"
 
 void SDLControlInputMetaProcessor::process(){
     // check meta-events, control change, pass control to current processor
