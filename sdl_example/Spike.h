@@ -49,6 +49,8 @@ public:
     void init(int pkg_id, int tetrode);
 
     float getWidth(float level, int chan);
+    bool crossesWaveShapeFinal(unsigned int channel, int x1, int y1, int x2, int y2);
+    bool crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1, int x2, int y2);
 
     ~Spike();
 };

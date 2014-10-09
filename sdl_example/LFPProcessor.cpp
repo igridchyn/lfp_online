@@ -213,3 +213,62 @@ void LFPProcessor::Log(std::string message, int num) {
 	buffer->Log(name() + ": " + message, num);
 }
 
+// if point (x3, y3) is to the right from vector (x1, y2)->(x2, y2)
+// TODO reuse from Polygon cluster
+bool IsFromRightWave(float x1, float y1, float x2, float y2, float x3, float y3){
+
+	// edge vector rotated 90 clock-wise
+	float ex90 = y2 - y1;
+	float ey90 = - (x2 - x1);
+
+	float px = x3 - x1;
+	float py = y3 - y1;
+
+	// cos of angle between edge vector and vector from first vertex to test point
+	float cossig = px * ex90 + py * ey90;
+
+	return cossig < 0;
+}
+
+bool Spike::crossesWaveShapeFinal(unsigned int channel, int x1, int y1, int x2, int y2) {
+	// TODO pre-select channel ?
+	// TODO oob check ? (unlikely)
+
+	int w1 = floor(x1);
+	int w2 = floor(x2);
+
+	// TODO parametrize
+	if (w1 > 16 || w2 > 16)
+		return false;
+
+	for (int c = 0; c < num_channels_; ++c) {
+		bool down1 = IsFromRightWave(w1, waveshape_final[c][w1], w1 + 1, waveshape_final[c][w1 + 1], x1, y1);
+		bool down2 = IsFromRightWave(w2, waveshape_final[c][w2], w2 + 1, waveshape_final[c][w2 + 1], x2, y2);
+
+		if (down1 ^ down2)
+			return true;
+	}
+
+	return false;
+}
+
+bool Spike::crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1,
+		int x2, int y2) {
+	int w1 = floor(x1);
+	int w2 = floor(x2);
+
+	// TODO parametrize
+	if (w1 > 128 || w2 > 128)
+		return false;
+
+	for (int c = 0; c < num_channels_; ++c) {
+		bool down1 = IsFromRightWave(w1, waveshape[c][w1], w1 + 1, waveshape[c][w1 + 1], x1, y1);
+		bool down2 = IsFromRightWave(w2, waveshape[c][w2], w2 + 1, waveshape[c][w2 + 1], x2, y2);
+
+		if (down1 ^ down2)
+			return true;
+	}
+
+	return false;
+}
+
