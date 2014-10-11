@@ -56,6 +56,8 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     UserContext& user_context_;
     unsigned int last_processed_user_action_id_;
 
+    double refractory_fraction_threshold_ = 0.01;
+
     unsigned int getCCXShift(const unsigned int& clust1, const unsigned int& clust2);
     unsigned int getCCYShift(const unsigned int& clust1, const unsigned int& clust2);
 
