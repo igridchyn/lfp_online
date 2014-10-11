@@ -18,6 +18,7 @@
 #include <stack>
 #include <queue>
 #include <sys/stat.h>
+#include <string>
 
 #include "LFPOnline.h"
 #include "TetrodesInfo.h"
@@ -27,7 +28,10 @@
 #include "UserContext.h"
 
 #include <armadillo>
-#include <boost/filesystem.hpp>
+
+#ifndef __APPLE__
+    #include <boost/filesystem.hpp>
+#endif
 
 #ifdef _WIN32
 #define _USE_MATH_DEFINES
@@ -264,10 +268,13 @@ public:
     	static bool CreateDirectories(const std::string file_path){
     		std::string  path_dir = file_path.substr(0, file_path.find_last_of('/'));
     		std::cout << "Create directory " << path_dir << "\n";
+#ifndef __APPLE__
     		if(!boost::filesystem::exists(path_dir)){
+                // TODO fix for Apple
+
     			boost::filesystem::create_directories(path_dir);
     		}
-
+#endif
 			return true;
     	}
     };
