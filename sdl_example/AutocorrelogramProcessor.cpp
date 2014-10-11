@@ -171,7 +171,7 @@ unsigned int AutocorrelogramProcessor::getYShift(int clust) {
 
 unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1,
 		const unsigned int& clust2) {
-	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * ((clust1 - 1) % XCLUST) + (CC_BWIDTH + 1) * NBINS;
+	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * ((clust1 - 2) % XCLUST) + (CC_BWIDTH + 1) * NBINS;
 }
 
 unsigned int AutocorrelogramProcessor::getCCYShift(const unsigned int& clust1,
@@ -205,7 +205,7 @@ void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
 		plotAC(tetrode, cluster);
 	}
 	else{
-		for (int c = 0; c < MAX_CLUST; ++c){
+		for (int c = 0; c < cluster; ++c){
 			plotCC(tetrode, cluster, c);
 		}
 	}
@@ -297,6 +297,19 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 		case SDLK_r:
 			SetDisplayTetrode(display_tetrode_);
 			break;
+
+		// switch between modes
+		case SDLK_TAB:
+			if (display_mode_ == AC_DISPLAY_MODE_AC){
+				display_mode_ = AC_DISPLAY_MODE_CC;
+			}
+			else{
+				display_mode_ = AC_DISPLAY_MODE_AC;
+			}
+			SetDisplayTetrode(display_tetrode_);
+
+			break;
+
 		default:
 			break;
 		}
@@ -309,47 +322,68 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 	if (tetr != display_tetrode_)
 			return;
 
-		// shift for the plot
+	// shift for the plot
 
-		const int xsh = getCCXShift(cluster1, cluster2);
-		const int ysh = getCCYShift(cluster1, cluster2);
+	const int xsh = getCCXShift(cluster1, cluster2);
+	const int ysh = getCCYShift(cluster1, cluster2);
 
-		ColorPalette palette_ = ColorPalette::BrewerPalette12;
+	ColorPalette palette_ = ColorPalette::BrewerPalette12;
 
-		SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
-		SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
+	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+	SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
 
-		int maxh = 0;
-		for (int b = 0; b < NBINS; ++b) {
-			int height = cross_corrs_[tetr][cluster1][cluster2][b];
-			if (height > maxh)
-				maxh = height;
-			height = cross_corrs_[tetr][cluster2][cluster1][b];
-			if (height > maxh)
-				maxh = height;
-		}
+	int maxh = 0;
+	for (int b = 0; b < NBINS; ++b) {
+		int height = cross_corrs_[tetr][cluster1][cluster2][b];
+		if (height > maxh)
+			maxh = height;
+		height = cross_corrs_[tetr][cluster2][cluster1][b];
+		if (height > maxh)
+			maxh = height;
+	}
 
-		for (int b=0; b < NBINS; ++b) {
-			int height = (cross_corrs_[tetr][cluster1][cluster2][b]) * ypix_/ maxh;
+	for (int b=0; b < NBINS; ++b) {
+		int height = (cross_corrs_[tetr][cluster1][cluster2][b]) * ypix_/ maxh;
 
-			SDL_Rect rect;
-			rect.h = height;
-			rect.w = CC_BWIDTH;
-			rect.x = xsh + b * (CC_BWIDTH + 1);
-			rect.y = ysh - height;
+		SDL_Rect rect;
+		rect.h = height;
+		rect.w = CC_BWIDTH;
+		rect.x = xsh + b * (CC_BWIDTH + 1);
+		rect.y = ysh - height;
 
-			SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster1 % palette_.NumColors()), palette_.getG(cluster1 % palette_.NumColors()), palette_.getB(cluster1 % palette_.NumColors()), 255);
-			SDL_RenderFillRect(renderer_, &rect);
+		SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster1 % palette_.NumColors()), palette_.getG(cluster1 % palette_.NumColors()), palette_.getB(cluster1 % palette_.NumColors()), 255);
+		SDL_RenderFillRect(renderer_, &rect);
 
-			// other side
-			height = (cross_corrs_[tetr][cluster2][cluster1][b]) * ypix_/ maxh;
-			rect.h = height;
-			rect.x = xsh - b * (CC_BWIDTH + 1);
-			rect.y = ysh - height;
+		// other side
+		height = (cross_corrs_[tetr][cluster2][cluster1][b]) * ypix_/ maxh;
+		rect.h = height;
+		rect.x = xsh - b * (CC_BWIDTH + 1);
+		rect.y = ysh - height;
 
-			SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster2 % palette_.NumColors()), palette_.getG(cluster2 % palette_.NumColors()), palette_.getB(cluster2 % palette_.NumColors()), 255);
-			SDL_RenderFillRect(renderer_, &rect);
-		}
+		SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster2 % palette_.NumColors()), palette_.getG(cluster2 % palette_.NumColors()), palette_.getB(cluster2 % palette_.NumColors()), 255);
+		SDL_RenderFillRect(renderer_, &rect);
+	}
+
+	// if refractoriness is good, mark couple with a frame
+	// TODO parametrize which bins are accounted for as refractory ac.refractory.bins=2 ...
+	int sum_total = 0;
+	int sum_refractory = cross_corrs_[tetr][cluster1][cluster2][0] + cross_corrs_[tetr][cluster1][cluster2][1] + cross_corrs_[tetr][cluster2][cluster1][0] + cross_corrs_[tetr][cluster2][cluster1][1];;
+	for (int b=0; b < NBINS; ++b){
+		sum_total += cross_corrs_[tetr][cluster1][cluster2][b];
+		sum_total += cross_corrs_[tetr][cluster2][cluster1][b];
+	}
+
+	if (sum_refractory / (double)sum_total < refractory_fraction_threshold_){
+		// draw frame
+		SDL_Rect rect;
+		rect.h = ypix_;
+		rect.w = (CC_BWIDTH + 1) * 2 * NBINS;
+		rect.x = xsh - (CC_BWIDTH + 1) * NBINS;
+		rect.y = ysh - ypix_;
+
+		SDL_SetRenderDrawColor(renderer_, 255, 255, 0, 255);
+		SDL_RenderDrawRect(renderer_, &rect);
+	}
 }
 
 // plot the autocorrelogramms function
