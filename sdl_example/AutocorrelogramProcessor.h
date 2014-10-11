@@ -10,6 +10,7 @@
 #define __sdl_example__AutocorrelogramProcessor__
 
 #include <iostream>
+#include <list>
 
 #include "LFPProcessor.h"
 #include "SDLSingleWindowDisplay.h"
