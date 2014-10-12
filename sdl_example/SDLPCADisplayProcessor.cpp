@@ -79,18 +79,18 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 void SDLPCADisplayProcessor::process(){
     // TODO: parametrize displayed channels and pc numbers
     bool render = false;
-    
+
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
-        
+
 		// TODO !!! no nullptr spikes, report and prevent by architecture (e.g. rewind to start level)
         // TODO add filtering by power threshold capability
         if (spike == nullptr || spike->tetrode_ != target_tetrode_ ){
             buffer->spike_buf_no_disp_pca++;
             continue;
         }
-        
+
         // TODO don't update at every spike
         // TODO take channel with the spike peak (save if not available)
         double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
@@ -146,13 +146,13 @@ void SDLPCADisplayProcessor::process(){
 
         // TODO ??? don't display artifacts and unknown with the same color
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
-        
+
         SDL_SetRenderTarget(renderer_, texture_);
 		std::string sdlerror(SDL_GetError());
         //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
         SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
         SDL_RenderDrawPoint(renderer_, x, y);
-        
+
         // display refractory spike
         if (refractory_display_cluster_ >= 0 && spike->cluster_id_ == refractory_display_cluster_){
         	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
@@ -164,11 +164,11 @@ void SDLPCADisplayProcessor::process(){
         }
 
         buffer->spike_buf_no_disp_pca++;
-        
+
         if (!(buffer->spike_buf_no_disp_pca % rend_freq_))
             render = true;
     }
-    
+
     if (render){
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
@@ -351,7 +351,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     if( e.type == SDL_KEYDOWN )
     {
     	need_redraw = true;
-        
+
         // select clusters from 10 to 29
         int shift = 0;
         if (kmod & KMOD_LSHIFT){
@@ -386,6 +386,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		if (user_context_.selected_cluster1_ < 0 || user_context_.selected_cluster2_ < 0)
         			break;
 
+        		// keep the cluster with the lowers number
         		if (user_context_.selected_cluster1_ > user_context_.selected_cluster2_){
         			int swap = user_context_.selected_cluster1_;
         			user_context_.selected_cluster1_ = user_context_.selected_cluster2_;
@@ -402,25 +403,38 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			if (spike->tetrode_ != target_tetrode_)
         				continue;
 
-        			if (spike->cluster_id_ == user_context_.selected_cluster2_ + 1)
-        				spike->cluster_id_ = user_context_.selected_cluster1_ + 1;
+        			if (spike->cluster_id_ == user_context_.selected_cluster2_)
+        				spike->cluster_id_ = user_context_.selected_cluster1_;
         		}
 
         		// remove cluster from list of tetrode poly clusters
-        		polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + user_context_.selected_cluster2_);
+        		//polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + user_context_.selected_cluster2_);
+        		polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].Invalidate();
+
+        		user_context_.MergeClusters(polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_], polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_]);
 
         		buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
 				// unselect second cluster
-				user_context_.selected_cluster2_ = -1;
+				//user_context_.selected_cluster2_ = -1;
 
 				buffer->ResetPopulationWindow();
 
         		break;
 
         	// polygon operations
-        	case SDLK_a:
-        		polygon_clusters_[target_tetrode_].push_back(PolygonCluster(PolygonClusterProjection(polygon_x_, polygon_y_, comp1_, comp2_)));
+        	case SDLK_a:{
+        		PolygonCluster new_clust_ = PolygonCluster(PolygonClusterProjection(polygon_x_, polygon_y_, comp1_, comp2_));
+        		int clun = user_context_.CreateClsuter(polygon_clusters_[target_tetrode_].size(), new_clust_.projections_inclusive_[0]);
+
+        		// push back new or replace cluster invalidated before
+        		if (clun == polygon_clusters_[target_tetrode_].size()){
+        			polygon_clusters_[target_tetrode_].push_back(new_clust_);
+        		}
+        		else{
+        			polygon_clusters_[target_tetrode_][clun] = new_clust_;
+        		}
+
         		buffer->Log("Created new polygon cluster, total clusters = ", polygon_clusters_[target_tetrode_].size());
         		save_polygon_clusters();
 
@@ -437,14 +451,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				buffer->ResetPopulationWindow();
 
         		break;
+        	}
 
         	// r: set cluster to unassigned in selected spikes
         	case SDLK_r:
         		if (kmod & KMOD_LSHIFT){
-        			// DELETE  CLUSTER
+        			// DELETE  CLUSTER (selected cluster 2)
         			if (user_context_.selected_cluster2_ >= 0){
-        				polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + user_context_.selected_cluster2_);
-
         				// update spikes
         				for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
         					Spike *spike = buffer->spike_buffer_[sind];
@@ -456,9 +469,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         					}
         				}
 
+        				// TODO : use acions list for synchronization
                 		buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
-						user_context_.selected_cluster2_ = -1;
+						user_context_.DelleteCluster(polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_]);
 
 						buffer->ResetPopulationWindow();
         			}
@@ -486,6 +500,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			polygon_y_.clear();
 
         			polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].projections_exclusive_.push_back(tmpproj);
+
+        			user_context_.AddExclusiveProjection(tmpproj);
 
         			// reset AC
         			// TODO extract
@@ -625,7 +641,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             	break;
             default:
                 need_redraw = false;
-                
+
         }
 
         // control for requesting unavailable channels
