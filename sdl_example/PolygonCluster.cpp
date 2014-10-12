@@ -78,6 +78,10 @@ bool PolygonCluster::Contains(Spike* spike, const unsigned int& nchan) {
 	return true;
 }
 
+bool PolygonCluster::Empty() {
+	return projections_inclusive_.size() == 0;
+}
+
 PolygonCluster::~PolygonCluster() {
 
 }
@@ -204,6 +208,12 @@ void PolygonClusterProjection::Invert() {
 	std::reverse(coords2_.begin(), coords2_.end());
 }
 
+PolygonClusterProjection::~PolygonClusterProjection() {
+	// DEBUG
+	coords1_.clear();
+	coords2_.clear();
+}
+
 bool PolygonClusterProjection::IsCW() {
 	int nright = 0;
 
@@ -214,4 +224,12 @@ bool PolygonClusterProjection::IsCW() {
 	}
 
 	return nright > coords1_.size() / 2;
+}
+
+PolygonClusterProjection::PolygonClusterProjection()
+{}
+
+void PolygonCluster::Invalidate() {
+	projections_exclusive_.clear();
+	projections_inclusive_.clear();
 }

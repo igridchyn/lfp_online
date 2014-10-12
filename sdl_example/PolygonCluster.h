@@ -21,12 +21,14 @@ enum PolygonClusterProjectionType{
 
 class PolygonClusterProjection{
 public:
-	int dim1_, dim2_;
+	int dim1_ = -1, dim2_ = -1;
 	std::vector<float> coords1_, coords2_;
 
 	inline int Size() {return coords1_.size(); }
 	PolygonClusterProjection(const std::vector<float> coords1, const std::vector<float> coords2, int dim1, int dim2);
 	PolygonClusterProjection(std::ifstream& file);
+	PolygonClusterProjection();
+	~PolygonClusterProjection();
 
 	bool Contains(float x, float y);
 
@@ -56,6 +58,8 @@ public:
 	bool Contains(float x, float y);
 	bool Contains(Spike *s, const unsigned int& nchan);
 	void Serialize(std::ofstream& file);
+	bool Empty();
+	void Invalidate();
 
 	PolygonCluster();
 	PolygonCluster(const PolygonClusterProjection& proj);
