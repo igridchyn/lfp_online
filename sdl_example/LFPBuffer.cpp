@@ -199,6 +199,7 @@ LFPBuffer::LFPBuffer(Config* config)
     }
 
     Reset(config);
+    user_context_.Init(tetr_info_->tetrodes_number);
 }
 
 void LFPBuffer::ResetPopulationWindow(){
