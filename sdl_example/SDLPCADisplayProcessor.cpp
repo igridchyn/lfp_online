@@ -623,7 +623,7 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 
 		// reset AC
 		// TODO extract
-		buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
+		//buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
 		// needed here?
 		buffer->ResetPopulationWindow();

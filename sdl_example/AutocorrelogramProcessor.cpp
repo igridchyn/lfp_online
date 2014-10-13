@@ -117,6 +117,8 @@ void AutocorrelogramProcessor::process(){
 					reset_mode_ = true;
 					reset_mode_end_ = buffer->spike_buf_pos_auto_;
 					reset_cluster_ = ua->cluster_number_1_;
+					buffer->spike_buf_pos_auto_ = 0;
+					clearACandCCs(ua->cluster_number_1_);
 
 					break;
 				}
