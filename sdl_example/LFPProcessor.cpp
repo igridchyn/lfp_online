@@ -261,13 +261,15 @@ bool Spike::crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1,
 	if (w1 > 128 || w2 > 128)
 		return false;
 
-	for (int c = 0; c < num_channels_; ++c) {
-		bool down1 = IsFromRightWave(w1, waveshape[c][w1], w1 + 1, waveshape[c][w1 + 1], x1, y1);
-		bool down2 = IsFromRightWave(w2, waveshape[c][w2], w2 + 1, waveshape[c][w2 + 1], x2, y2);
+	bool down1 = IsFromRightWave(w1, waveshape[channel][w1], w1 + 1, waveshape[channel][w1 + 1], x1, y1);
 
-		if (down1 ^ down2)
+	for (int w = w1 + 1; w <= w2; ++w){
+		int xw = w;
+		//if (down1 ^ IsFromRightWave(w2, waveshape[channel][w], w + 1, waveshape[channel][w + 1], x2, y2))
+		if (down1 ^ !IsFromRightWave(x1, y1, x2, y2, w, waveshape[channel][w]))
 			return true;
 	}
+
 
 	return false;
 }
