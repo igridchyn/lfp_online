@@ -56,7 +56,7 @@ void UserContext::DelleteCluster(PolygonCluster& cluster) {
 }
 
 bool UserContext::HasNewAction(const unsigned int& ref_ua_id) {
-	return ref_ua_id < action_list_.front().id_;
+	return ! action_list_.empty() && ref_ua_id < action_list_.back().id_;
 }
 
 bool UserContext::IsSelected(Spike* spike) {
@@ -80,7 +80,7 @@ UserAction::UserAction(UserActionType action_type, int cluster_number,
 : action_type_(action_type)
 , cluster_number_1_(cluster_number)
 , poly_clust_1_(poly_clust)
-, id_(last_id_ ++)
+, id_(++ last_id_)
 {
 }
 
@@ -92,14 +92,14 @@ UserAction::UserAction(UserActionType action_type, int cluster_number_1,
 , poly_clust_1_(poly_clust_1)
 , cluster_number_2_(cluster_number2)
 , poly_clust_2_(poly_clust_2)
-, id_(last_id_ ++)
+, id_(++ last_id_)
 {
 }
 
 UserAction::UserAction(UserActionType action_type, int cluster_number)
 : cluster_number_1_(cluster_number)
 , action_type_(action_type)
-, id_(last_id_ ++)
+, id_(++ last_id_ )
 {
 }
 
@@ -108,19 +108,25 @@ UserAction::UserAction(UserActionType action_type, int cluster_number,
 : action_type_(action_type)
 , cluster_number_1_(cluster_number)
 , projection_(projection)
-, id_(last_id_ ++)
+, id_(++ last_id_)
 {
 }
 
 const UserAction* UserContext::GetNextAction(
 		const unsigned int& ref_action_id) {
 	for (std::list<UserAction>::const_reverse_iterator ua_iter = action_list_.rbegin();  ua_iter != action_list_.rend(); ++ua_iter){
-		if (ua_iter->id_ < ref_action_id && ua_iter != action_list_.rbegin()){
-			return &(*ua_iter );
+		if (ua_iter->id_ <= ref_action_id && ua_iter != action_list_.rbegin()){
+			return &(*(--ua_iter ));
 		}
 	}
 
-	return nullptr;
+	// if first action is new
+	if (action_list_.back().id_ > ref_action_id){
+		return &(action_list_.back());
+	}
+	else{
+		return nullptr;
+	}
 }
 
 void UserContext::Init(int tetrodes_number) {

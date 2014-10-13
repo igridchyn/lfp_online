@@ -10,7 +10,6 @@
 #define __sdl_example__AutocorrelogramProcessor__
 
 #include <iostream>
-#include <list>
 
 #include "LFPProcessor.h"
 #include "SDLSingleWindowDisplay.h"
@@ -55,7 +54,8 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     const unsigned int NBINS;
 
     UserContext& user_context_;
-    unsigned int last_processed_user_action_id_;
+    //unsigned int last_processed_user_action_id_;
+    UserAction const *last_user_action_;
 
     double refractory_fraction_threshold_ = 0.01;
 
@@ -70,6 +70,8 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     int getClusterNumberByCoords(const unsigned int& x, const unsigned int& y);
 
     void plotACorCCs(int tetrode, int cluster);
+
+    void clearACandCCs(const unsigned int& clu);
 
 public:
     AutocorrelogramProcessor(LFPBuffer *buf);

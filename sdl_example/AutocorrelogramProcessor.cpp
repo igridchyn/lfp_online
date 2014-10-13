@@ -74,14 +74,21 @@ void AutocorrelogramProcessor::process(){
 	}
 
 	// TODO process user actions (no need in reset above then)
+	// TODO don't process at every call
 	if (buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
-		if (spike != nullptr && user_context_.HasNewAction(spike->pkg_id_)){
-			// process new user action
+		if (spike != nullptr){
+			while(user_context_.HasNewAction(spike->pkg_id_)){
+				// process new user action
 
-			switch(user_context_.last_user_action_){
-			case UA_SELECT_CLUSTER1:
-				break;
+				const UserAction *ua = user_context_.GetNextAction(last_proc_ua_id_);
+				last_proc_ua_id_ = ua->id_;
+
+				switch(ua->action_type_){
+				case UA_DELETE_CLUSTER:
+
+					break;
+				}
 			}
 		}
 	}
@@ -207,6 +214,19 @@ void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
 	else{
 		for (int c = 0; c < cluster; ++c){
 			plotCC(tetrode, cluster, c);
+		}
+	}
+}
+
+void AutocorrelogramProcessor::clearACandCCs(const unsigned int& clu) {
+	for (int i=0; i < NBINS; ++i){
+		autocorrs_[display_tetrode_][clu][i] = 0;
+	}
+
+	for (int c=0; c < MAX_CLUST; ++c){
+		for (int i=0; i < NBINS; ++i){
+			cross_corrs_[display_tetrode_][clu][c][i] = 0;
+			cross_corrs_[display_tetrode_][c][clu][i] = 0;
 		}
 	}
 }
