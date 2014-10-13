@@ -72,6 +72,13 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
 
 	void reset_spike_pointer();
 
+	// cluster operations
+	void addCluster();
+	void mergeClusters();
+	void deleteAllClusters();
+	void deleteCluster();
+	void addExclusiveProjection();
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
