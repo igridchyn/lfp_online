@@ -61,6 +61,14 @@ void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int cluster_id) {
 	}
 }
 
+void SDLWaveshapeDisplayProcessor::reinit() {
+	SDL_SetRenderTarget(renderer_, texture_);
+	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+	SDL_RenderClear(renderer_);
+	SDL_RenderPresent(renderer_);
+	buf_pointer_ = 0;
+}
+
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
     return 100 + -smpl/scale_ + y_mult_ * chan;
 }
@@ -84,6 +92,21 @@ void SDLWaveshapeDisplayProcessor::process() {
     const unsigned int& disp_cluster_1_ = user_context_.selected_cluster1_;
     const unsigned int& disp_cluster_2_ = user_context_.selected_cluster2_;
     
+    while(user_context_.HasNewAction(last_ua_id_)){
+    	const UserAction *ua = user_context_.GetNextAction(last_ua_id_);
+    	last_ua_id_ ++;
+
+    	switch(ua->action_type_){
+    		case UA_SELECT_CLUSTER1:
+    			reinit();
+    			break;
+
+    		case UA_SELECT_CLUSTER2:
+    			reinit();
+    			break;
+    	}
+    }
+
     while(buf_pointer_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
@@ -241,6 +264,12 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         		{
         			// iterate through all spikes in buffer and assign 0 (artefact) clusters
 
+        				if (x2_ < x2_){
+        					int swap = x1_;
+        					x1_ = x2_;
+        					x2_ = swap;
+        				}
+
         				float xw1 = XToWaveshapeSampleNumber(x1_);
         				float yw1 = YToPower(selected_channel_, y1_);
         				float xw2 = XToWaveshapeSampleNumber(x2_);
@@ -377,11 +406,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
     }
 
     if (need_redraw){
-        SDL_SetRenderTarget(renderer_, texture_);
-        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-        SDL_RenderClear(renderer_);
-        SDL_RenderPresent(renderer_);
-        buf_pointer_ = 0;
+        reinit();
     }
 }
 

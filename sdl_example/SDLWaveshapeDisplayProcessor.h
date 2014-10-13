@@ -67,6 +67,9 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
 	float YToPower(int chan, int y);
 
 	void displayClusterCuts(const int cluster_id);
+	void reinit();
+
+	unsigned int last_ua_id_ = 0;
 
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);

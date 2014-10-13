@@ -707,11 +707,5 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	// remove cluster from list of tetrode poly clusters
 	user_context_.MergeClusters(polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_], polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_]);
-
-	// buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
-
-	// unselect second cluster
-	//user_context_.selected_cluster2_ = -1;
-
 	buffer->ResetPopulationWindow();
 }
