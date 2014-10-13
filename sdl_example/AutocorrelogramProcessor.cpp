@@ -89,10 +89,35 @@ void AutocorrelogramProcessor::process(){
 					clearACandCCs(ua->cluster_number_1_);
 					SetDisplayTetrode(display_tetrode_);
 					break;
-				case UA_MERGE_CLUSTERS:
+				case UA_MERGE_CLUSTERS:{
 					// cluster 1 was deleted and cluster 2 has to be updated
-					clearACandCCs(ua->cluster_number_1_);
+					int clun = ua->cluster_number_1_;
 					SetDisplayTetrode(display_tetrode_);
+
+					// merge CCs and ACs
+					for(int i = 0; i < NBINS; ++i){
+						autocorrs_[display_tetrode_][clun][i] += autocorrs_[display_tetrode_][ua->cluster_number_2_][i];
+						autocorrs_[display_tetrode_][clun][i] += cross_corrs_[display_tetrode_][ua->cluster_number_2_][clun][i];
+						autocorrs_[display_tetrode_][clun][i] += cross_corrs_[display_tetrode_][clun][ua->cluster_number_2_][i];
+					}
+
+					for (int c = 0; c < MAX_CLUST; ++c) {
+						for (int b = 0; b < NBINS; ++b) {
+							cross_corrs_[display_tetrode_][clun][c][b] += cross_corrs_[display_tetrode_][ua->cluster_number_2_][c][b];
+							cross_corrs_[display_tetrode_][c][clun][b] += cross_corrs_[display_tetrode_][c][ua->cluster_number_2_][b];
+						}
+					}
+
+					clearACandCCs(ua->cluster_number_2_);
+
+					break;
+				}
+
+				case UA_ADD_EXCLUSIVE_PROJECTION:
+					reset_mode_ = true;
+					reset_mode_end_ = buffer->spike_buf_pos_auto_;
+					reset_cluster_ = ua->cluster_number_1_;
+
 					break;
 				}
 			}
@@ -119,6 +144,17 @@ void AutocorrelogramProcessor::process(){
 		unsigned int tetrode = spike->tetrode_;
 		unsigned int cluster_id = spike->cluster_id_;
 		unsigned int stime = spike->pkg_id_;
+
+		// RESET
+		if (reset_mode_){
+			if (buffer->spike_buf_pos_auto_ == reset_mode_end_){
+				reset_mode_ = false;
+			}
+			else if(spike->tetrode_ != display_tetrode_){
+				buffer->spike_buf_pos_auto_++;
+				continue;
+			}
+		}
 
 		// update autocorrelation bins
 		std::list<unsigned int>& prev_spikes_queue = spike_times_lists_[tetrode][cluster_id];
@@ -161,6 +197,7 @@ void AutocorrelogramProcessor::process(){
 			}
 		}
 
+		// remove spikes from queue beyond AC / CC windows
 		while(!prev_spikes_queue.empty() && stime - prev_spikes_queue.front() > max_diff)
 			prev_spikes_queue.pop_front();
 
@@ -237,6 +274,9 @@ void AutocorrelogramProcessor::clearACandCCs(const unsigned int& clu) {
 	}
 }
 
+void AutocorrelogramProcessor::resetACandCCs(const unsigned int& clu) {
+}
+
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
 	if (display_tetrode_ >= buffer->tetr_info_->tetrodes_number)
 		return;
@@ -254,14 +294,16 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 		plotACorCCs(display_tetrode_, c);
 	}
 
-	if (user_context_.selected_cluster1_ >= 0){
-		SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
-		drawClusterRect(user_context_.selected_cluster1_);
-	}
+	if (display_mode_ == AC_DISPLAY_MODE_AC){
+		if (user_context_.selected_cluster1_ >= 0){
+			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
+			drawClusterRect(user_context_.selected_cluster1_);
+		}
 
-	if (user_context_.selected_cluster2_ >= 0){
-		SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-		drawClusterRect(user_context_.selected_cluster2_);
+		if (user_context_.selected_cluster2_ >= 0){
+			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+			drawClusterRect(user_context_.selected_cluster2_);
+		}
 	}
 
 	SDL_SetRenderTarget(renderer_, nullptr);

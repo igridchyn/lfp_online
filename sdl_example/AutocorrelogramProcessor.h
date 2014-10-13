@@ -59,6 +59,11 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
 
     double refractory_fraction_threshold_ = 0.01;
 
+    // reset mode - process only given tetrode and cluster until reset_mode_end_
+    bool reset_mode_ = false;
+    unsigned int reset_mode_end_ = 0;
+    unsigned int reset_cluster_ = -1;
+
     unsigned int getCCXShift(const unsigned int& clust1, const unsigned int& clust2);
     unsigned int getCCYShift(const unsigned int& clust1, const unsigned int& clust2);
 
@@ -72,6 +77,7 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     void plotACorCCs(int tetrode, int cluster);
 
     void clearACandCCs(const unsigned int& clu);
+    void resetACandCCs(const unsigned int& clu);
 
 public:
     AutocorrelogramProcessor(LFPBuffer *buf);
