@@ -23,9 +23,10 @@ void UserContext::SelectCluster2(const int& clu) {
 	selected_cluster2_ = clu;
 }
 
-void UserContext::MergeClusters(PolygonCluster clu1, PolygonCluster clu2) {
+void UserContext::MergeClusters(PolygonCluster& clu1, PolygonCluster& clu2) {
 	action_list_.push_back(UserAction(UA_MERGE_CLUSTERS, selected_cluster1_, selected_cluster2_, clu1, clu2));
 	invalid_cluster_numbers_[active_tetrode_].push_back(selected_cluster2_);
+	clu2.Invalidate();
 
 	selected_cluster2_ = -1;
 }

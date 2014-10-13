@@ -689,6 +689,8 @@ void SDLPCADisplayProcessor::mergeClusters() {
 		user_context_.selected_cluster2_ = swap;
 	}
 
+	// copy projections
+	// TODO: exclusive as well ? (can affect other clusters)
 	polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_].projections_inclusive_.insert(polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_].projections_inclusive_.end(),
 			polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].projections_inclusive_.begin(), polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].projections_inclusive_.end());
 
@@ -704,12 +706,9 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	}
 
 	// remove cluster from list of tetrode poly clusters
-	//polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + user_context_.selected_cluster2_);
-	polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_].Invalidate();
-
 	user_context_.MergeClusters(polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_], polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_]);
 
-	buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
+	// buffer->ResetAC(target_tetrode_, user_context_.selected_cluster2_);
 
 	// unselect second cluster
 	//user_context_.selected_cluster2_ = -1;
