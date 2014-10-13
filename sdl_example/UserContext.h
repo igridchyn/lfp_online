@@ -31,8 +31,16 @@ enum UserActionType{
 
 // class with big overhead, but number of stored actions is not large
 class UserAction{
-	UserActionType action_type_;
 
+	friend class UserContext;
+
+protected:
+
+
+	static unsigned int last_id_;
+
+public:
+	UserActionType action_type_;
 	PolygonCluster poly_clust_1_;
 	PolygonCluster poly_clust_2_;
 	// for projection actions
@@ -41,7 +49,11 @@ class UserAction{
 	int cluster_number_1_ = -1;
 	int cluster_number_2_ = -1;
 
-public:
+	const unsigned int id_;
+
+	// select / cut
+	UserAction(UserActionType action_type, int cluster_number);
+
 	// delete, add
 	UserAction(UserActionType action_type, int cluster_number, PolygonCluster poly_clust);
 	// merge
@@ -65,12 +77,6 @@ public:
 	int selected_cluster1_ = -1;
 	int selected_cluster2_ = -1;
 
-	// !!! it is assumed that all processors have enough time to process user action before it is updated
-	// it is also assumed that operations are performed over selected clusters and if selection changes, UA a is reset to NULL
-	UserActionType last_user_action_;
-	// in packages (1 / <sampling rate> s)
-	unsigned int last_user_action_id_;
-
 	void SelectCluster1(const int& clu);
 	void SelectCluster2(const int& clu);
 	void MergeClusters(PolygonCluster clu1, PolygonCluster clu2);
@@ -80,7 +86,8 @@ public:
 	void AddExclusiveProjection(PolygonClusterProjection proj);
 	void AddInclusiveProjection(PolygonClusterProjection proj);
 
-	bool HasNewAction(const unsigned int& ref_pkg_id);
+	bool HasNewAction(const unsigned int& ref_action_id);
+	const UserAction* GetNextAction(const unsigned int& ref_action_id);
 
 	bool IsSelected(Spike *spike);
 
