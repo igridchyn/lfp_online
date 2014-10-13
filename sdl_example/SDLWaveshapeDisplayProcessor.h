@@ -18,11 +18,14 @@ public:
 	int x2_;
 	int y2_;
 
-	WaveshapeCut(int x1, int y1, int x2, int y2)
+	unsigned int channel_;
+
+	WaveshapeCut(int x1, int y1, int x2, int y2, const unsigned int& channel)
 		: x1_(x1)
 		, y1_(y1)
 		, x2_(x2)
 		, y2_(y2)
+		, channel_(channel)
 	{}
 };
 
@@ -57,6 +60,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
 	// if true, final waveshape (16 points) used for PCA is displayed
 	// otherwise - reconstructed 4x upsampled ws
 	bool display_final_ = false;
+
+	unsigned int selected_channel_ = 0;
 
 	float XToWaveshapeSampleNumber(int x);
 	float YToPower(int chan, int y);
