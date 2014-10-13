@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -std=c++0x -g
 LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
 	
-AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h
+AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o
 	${CC} ${CFLAGS} -c ../AutocorrelogramProcessor.cpp
 	
 CluReaderClusteringProcessor.o: ../CluReaderClusteringProcessor.cpp ../CluReaderClusteringProcessor.h
@@ -56,7 +56,7 @@ PositionDisplayProcessor.o: ../PositionDisplayProcessor.cpp ../PositionDisplayPr
 SDLControlInputMetaProcessor.o: ../SDLControlInputMetaProcessor.cpp
 	${CC} ${CFLAGS} -c ../SDLControlInputMetaProcessor.cpp
 	
-SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h
+SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h UserContext.o
 	${CC} ${CFLAGS} -c ../SDLPCADisplayProcessor.cpp
 	
 SDLSignalDisplayProcessor.o: ../SDLSignalDisplayProcessor.cpp ../SDLSignalDisplayProcessor.h
@@ -95,7 +95,7 @@ UnitTestingProcessor.o: ../UnitTestingProcessor.cpp ../UnitTestingProcessor.h
 UserContext.o: ../UserContext.cpp ../UserContext.h
 	${CC} ${CFLAGS} -c ../UserContext.cpp
 		
-WaveshapeReconstructionProcessor.o: ../WaveshapeReconstructionProcessor.cpp
+WaveshapeReconstructionProcessor.o: ../WaveshapeReconstructionProcessor.cpp UserContext.o
 	${CC} ${CFLAGS} -c ../WaveshapeReconstructionProcessor.cpp
 		
 WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcessor.h
