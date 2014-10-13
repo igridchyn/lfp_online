@@ -370,11 +370,15 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 		case SDLK_TAB:
 			if (display_mode_ == AC_DISPLAY_MODE_AC){
 				display_mode_ = AC_DISPLAY_MODE_CC;
+				SDL_SetWindowTitle(window_, "Cross-correlograms");
 			}
 			else{
 				display_mode_ = AC_DISPLAY_MODE_AC;
+				SDL_SetWindowTitle(window_, "Auto-correlograms");
 			}
 			SetDisplayTetrode(display_tetrode_);
+
+
 
 			break;
 

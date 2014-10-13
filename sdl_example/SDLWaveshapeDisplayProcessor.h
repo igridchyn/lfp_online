@@ -66,6 +66,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
 	float XToWaveshapeSampleNumber(int x);
 	float YToPower(int chan, int y);
 
+	void displayClusterCuts(const int cluster_id);
+
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,

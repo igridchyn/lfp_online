@@ -49,6 +49,18 @@ float SDLWaveshapeDisplayProcessor::YToPower(int chan, int y) {
 	return -(y - 100 - (float)y_mult_ * chan) * scale_;
 }
 
+void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int cluster_id) {
+	if (cluster_id < 1)
+		return;
+
+	for (int cu = 0; cu < cluster_cuts_[targ_tetrode_][cluster_id].size(); ++cu) {
+		WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][cluster_id][cu];
+		DrawCross(2, cut.x1_, cut.y1_);
+		DrawCross(2, cut.x2_, cut.y2_);
+		SDL_RenderDrawLine(renderer_, cut.x1_, cut.y1_, cut.x2_, cut.y2_);
+	}
+}
+
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
     return 100 + -smpl/scale_ + y_mult_ * chan;
 }
@@ -118,7 +130,6 @@ void SDLWaveshapeDisplayProcessor::process() {
 				}
 			}
 
-
 			if (is_cut)
 				break;
 		}
@@ -168,6 +179,11 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         DrawRect(0, window_height_ / buffer->tetr_info_->channels_numbers[targ_tetrode_] * selected_channel_, window_width_, window_height_ / buffer->tetr_info_->channels_numbers[targ_tetrode_], 5);
 
+        // draw cuts
+        // TODO 2 colors cuts for 2 clusters
+        displayClusterCuts(disp_cluster_1_);
+        displayClusterCuts(disp_cluster_2_);
+
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
         SDL_RenderPresent(renderer_);
@@ -176,6 +192,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 
 void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	SDL_Keymod kmod = SDL_GetModState();
+	 bool need_redraw = false;
 
 	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
 			if (e.button.button == SDL_BUTTON_LEFT){
@@ -189,13 +206,15 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 						x2_ = e.button.x;
 						y2_ = e.button.y;
 					}
+
+					need_redraw = true;
 				}
 			}
 	}
 
 	if( e.type == SDL_KEYDOWN )
     {
-        bool need_redraw = true;
+		need_redraw = true;
         SDL_Keymod kmod = SDL_GetModState();
         
         int shift = 0;
@@ -355,13 +374,14 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             default:
                 need_redraw = false;
         }
+    }
 
-        if (need_redraw){
-            SDL_SetRenderTarget(renderer_, texture_);
-            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-            SDL_RenderClear(renderer_);
-            SDL_RenderPresent(renderer_);
-        }
+    if (need_redraw){
+        SDL_SetRenderTarget(renderer_, texture_);
+        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+        SDL_RenderClear(renderer_);
+        SDL_RenderPresent(renderer_);
+        buf_pointer_ = 0;
     }
 }
 
