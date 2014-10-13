@@ -78,7 +78,7 @@ void AutocorrelogramProcessor::process(){
 	if (buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
 		if (spike != nullptr){
-			while(user_context_.HasNewAction(spike->pkg_id_)){
+			while(user_context_.HasNewAction(last_proc_ua_id_)){
 				// process new user action
 
 				const UserAction *ua = user_context_.GetNextAction(last_proc_ua_id_);
@@ -86,7 +86,13 @@ void AutocorrelogramProcessor::process(){
 
 				switch(ua->action_type_){
 				case UA_DELETE_CLUSTER:
-
+					clearACandCCs(ua->cluster_number_1_);
+					SetDisplayTetrode(display_tetrode_);
+					break;
+				case UA_MERGE_CLUSTERS:
+					// cluster 1 was deleted and cluster 2 has to be updated
+					clearACandCCs(ua->cluster_number_1_);
+					SetDisplayTetrode(display_tetrode_);
 					break;
 				}
 			}
