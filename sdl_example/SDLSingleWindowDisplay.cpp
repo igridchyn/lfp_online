@@ -100,3 +100,15 @@ void SDLSingleWindowDisplay::DrawCross(int w, int x, int y, int coli) {
 	SDL_RenderDrawLine(renderer_, x-cw, y-cw, x+cw, y+cw);
 	SDL_RenderDrawLine(renderer_, x-cw, y+cw, x+cw, y-cw);
 }
+
+void SDLSingleWindowDisplay::DrawRect(const int& x, const int& y, const int& w,
+		const int& h, const int& col_id) {
+	 SDL_Rect rect;
+	 rect.h = h;
+	 rect.w = w;
+	 rect.x = x;
+	 rect.y = y;
+
+	 SDL_SetRenderDrawColor(renderer_, palette_.getR(col_id), palette_.getG(col_id), palette_.getB(col_id), 255);
+	 SDL_RenderDrawRect(renderer_, &rect);
+}

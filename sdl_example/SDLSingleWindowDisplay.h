@@ -22,6 +22,7 @@ protected:
 	unsigned int text_stack_height_ = 0;
 
     virtual void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
+    virtual void DrawRect(const int& x, const int& y, const int& w, const int& h, const int& col_id);
 
     // TEXT
     virtual void ResetTextStack();
