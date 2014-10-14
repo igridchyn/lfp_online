@@ -39,6 +39,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define CHAR_SIGNAL
+typedef char signal_type;
+
 class LFPONLINEAPI LFPBuffer{
 
 public:
@@ -158,7 +161,7 @@ private:
     bool is_valid_channel_[_CHANNEL_NUM];
     
 public:
-    short *signal_buf[_CHANNEL_NUM];
+    signal_type *signal_buf[_CHANNEL_NUM];
     int *filtered_signal_buf[_CHANNEL_NUM];
     int *power_buf[_CHANNEL_NUM];
     

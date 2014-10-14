@@ -38,7 +38,7 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "INFO: set memory...";
 
 	for(int c=0; c < CHANNEL_NUM; ++c){
-	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(short));
+	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(signal_type));
 	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
 	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
 	        if (powerEstimatorsMap_[c] != nullptr){
@@ -192,7 +192,7 @@ LFPBuffer::LFPBuffer(Config* config)
 
     for (int c = 0; c < CHANNEL_NUM; ++c){
     	unsigned int WS_SHIFT = 100;
-    	signal_buf[c] = new short[LFP_BUF_LEN + WS_SHIFT];
+    	signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];
     	// + waveshape length
     	filtered_signal_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
     	power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];

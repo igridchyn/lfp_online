@@ -36,7 +36,7 @@ void FrequencyPowerBandProcessor::process(){
     
     arma::Mat<double> X(BUF_LEN, 1);
     int i=0;
-    short *buf_fft = buffer->signal_buf[channel_] + buffer->buf_pos-BUF_LEN;
+    signal_type *buf_fft = buffer->signal_buf[channel_] + buffer->buf_pos-BUF_LEN;
     for (; buf_fft != buffer->signal_buf[channel_] + buffer->buf_pos; ++buf_fft, ++i  ) {
         X(i, 0) = *buf_fft;
     }

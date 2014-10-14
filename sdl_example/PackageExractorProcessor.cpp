@@ -28,7 +28,8 @@ void PackageExractorProcessor::process(){
     // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (int c=0; c < buffer->CHANNEL_NUM; ++c){
-            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(int));
+        	// TODO WAS INT ?
+            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(signal_type));
             memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(int));
         }
         
@@ -82,7 +83,14 @@ void PackageExractorProcessor::process(){
                 // ??? filter directly the data in bin buffer? [for better performance]
                 
                 // !!!??? +1 to make similar to *.dat
-                buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *(sbin_ptr) + 1;
+            	// TODO cut to char after PCA computation only ???
+            	// TODO validate OOB ?
+            	// TODO find efficient solution without using define
+#ifdef CHAR_SIGNAL
+                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = ((*(sbin_ptr) + 1) / 256);
+#else
+                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = (*(sbin_ptr) + 1);
+#endif
 				// MAPPING TEST
 				//buffer->signal_buf[c][buffer->buf_pos + chunk * 3 + block] = *(sbin_ptr)+1;
                 

@@ -10,6 +10,13 @@
 #include "OnlineEstimator.cpp"
 #include "SpikeDetectorProcessor.h"
 
+//#define SSE2
+//
+//#ifdef SSE2
+//#include <pmmintrin.h>
+//#include <xmmintrin.h>
+//#endif
+
 SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer)
 :SpikeDetectorProcessor(buffer,
 		buffer->config_->getString("spike.detection.filter.path").c_str(),
@@ -66,30 +73,28 @@ void SpikeDetectorProcessor::process()
     // to start detection by threshold from this position after filtering + power computation
     // int det_pos = filt_pos;
     
-    
-    
     for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
         
         if (!buffer->is_valid_channel(channel))
             continue;
         
         for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
-
-            // SPEEDUP ? filter every 2nd sample ?
-//            if (fpos % 2 && fpos > filt_pos){
-//                buffer->filtered_signal_buf[channel][fpos] = buffer->filtered_signal_buf[channel][fpos - 1];
-//                continue;
-//            }
-            
             // filter with high-pass spike filter
             float filtered = 0;
-            short *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
+            signal_type *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
             
+            // SSE implementation with 8-bit filter and signal
+
             long long filtered_long = 0;
             for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered_long += *(chan_sig_buf) * filter_int_[j];
             }
+
+#ifdef CHAR_SIGNAL
+            filtered = filtered_long / 100000000.0f * 256.0;
+#else
             filtered = filtered_long / 100000000.0f;
+#endif
             
             buffer->filtered_signal_buf[channel][fpos] = filtered;
             
