@@ -94,6 +94,7 @@ void SDLPCADisplayProcessor::process(){
         // TODO don't update at every spike
         // TODO take channel with the spike peak (save if not available)
         double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+
         if (abs(spike->power_) < power_thold){
         	buffer->spike_buf_no_disp_pca++;
         	spike->cluster_id_ = -1;
@@ -539,7 +540,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 // TODO: case-wise
                 buffer->spike_buf_no_disp_pca = 0;
 
-                time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
+                time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN] == nullptr ? 0 : buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
                 if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != nullptr)
                 time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 

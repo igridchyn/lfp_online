@@ -63,7 +63,7 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
 
     // to filter spikes by threshold in the clustering
     const unsigned int power_thold_nstd_;
-    double power_threshold_factor_ = 1.0;
+    double power_threshold_factor_ = 0.1;
     const double power_threshold_factor_step_ = 1.05;
 
     void save_polygon_clusters();
