@@ -29,6 +29,10 @@ template<class T>
 void OnlineEstimator<T>::push(T value){
     // printf("push %f\n", value);
     
+	// TODO LOG ERROR
+	if (isnan(value))
+		return;
+
     // TODO: ignore to optimize ?
     if (num_samples < BUF_SIZE){
         num_samples ++;
