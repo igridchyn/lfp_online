@@ -104,7 +104,7 @@ void SpikeAlignmentProcessor::process(){
             		int buf_start_shift = buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode])
             		                            				- Spike::WS_LENGTH_ALIGNED/ 2 - 1;
             		if(buf_start_shift < 0)
-            			std::cout << "WTF? Reading waveshape outside of filtered signal buffer...This is why I spend 8 hours of hateful debugging in Windows" << buffer->spike_buf_nows_pos << "\n";
+            			std::cout << "WTF? Reading waveshape outside of filtered signal buffer..." << buffer->spike_buf_nows_pos << "\n";
             	}
             }
     	}
