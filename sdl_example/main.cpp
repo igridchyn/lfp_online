@@ -16,7 +16,7 @@ typedef short t_bin;
 void draw_bin() {
 #ifdef _WIN32
 	//std::string cpath("../Res/signal_display_win_bin.conf");
-	std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_1l_win.conf)");
+	std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
 	Config *config = nullptr;
 	config = new Config(cpath);
 	//config->Init();
@@ -46,7 +46,7 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
 //	Config *config = new Config("../Res/nocon.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0921_6l.conf");
-	Config *config = new Config("../Res/spike_detection_jc117_0926_11s.conf");
+	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
