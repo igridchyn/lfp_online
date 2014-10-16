@@ -115,11 +115,23 @@ void SDLPCADisplayProcessor::process(){
         int x;
         int y;
 
-        float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-        float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+        // time
+        // TODO: check numeration
+        if (comp1_ == 16){
+        	x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+        }
+        else{
+        	float rawx = spike->getFeature(comp1_, num_pc_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+        	x = rawx / scale_ + shift_x_;
 
-        x = rawx / scale_ + shift_x_;
-        y = rawy / scale_ + shift_y_;
+        }
+        if (comp2_ == 16){
+        	y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+        }
+        else{
+        	float rawy = spike->getFeature(comp2_, num_pc_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+        	y = rawy / scale_ + shift_y_;
+        }
 
         // polygon cluster
         // TODO use scaled coordinates
@@ -134,15 +146,6 @@ void SDLPCADisplayProcessor::process(){
         		}
 
         	}
-        }
-
-        // time
-        // TODO: check numeration
-        if (comp1_ == 15){
-        	x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
-        }
-        if (comp2_ == 15){
-        	y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
         }
 
         // TODO ??? don't display artifacts and unknown with the same color
@@ -459,7 +462,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 comp1_ = 5 + shift;
                 break;
             case SDLK_6:
-                comp1_ = 6;
+                comp1_ = 6 + shift;
                 break;
             case SDLK_7:
                 comp1_ = 7;
@@ -489,7 +492,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 comp2_ = 5 + shift;
                 break;
             case SDLK_KP_6:
-                comp2_ = 6;
+                comp2_ = 6 + shift;
                 break;
             case SDLK_KP_7:
                 comp2_ = 7;
@@ -527,13 +530,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         }
 
         // control for requesting unavailable channels
-        if (old_comp1 != comp1_ && (comp1_ % nchan_ >= nchan_)){
-        	comp1_ = old_comp1;
-        }
-
-        if (old_comp2 != comp2_ && (comp2_ % nchan_ >= nchan_)){
-        	comp2_ = old_comp2;
-        }
+//        if (old_comp1 != comp1_ && (comp1_ % nchan_ >= nchan_)){
+//        	comp1_ = old_comp1;
+//        }
+//
+//        if (old_comp2 != comp2_ && (comp2_ % nchan_ >= nchan_)){
+//        	comp2_ = old_comp2;
+//        }
     }
 
     if (need_redraw){
@@ -605,8 +608,8 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 				continue;
 
 			if (spike -> cluster_id_ == user_context_.selected_cluster2_){
-				float rawx = spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-				float rawy = spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+				float rawx = spike->getFeature(comp1_, num_pc_); //spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+				float rawy = spike->getFeature(comp2_, num_pc_);; //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
 
 				if (tmpproj.Contains(rawx, rawy)){
 					spike->cluster_id_ = -1;
