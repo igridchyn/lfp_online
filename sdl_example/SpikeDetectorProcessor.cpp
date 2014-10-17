@@ -45,7 +45,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     while(!filter_stream.eof()){
         filter_stream >> filter[fpos++];
         
-        filter_int_[fpos - 1] = 100000000 * filter[fpos - 1];
+        filter_int_[fpos - 1] = 8192 * filter[fpos - 1];
         
         // DEBUG
         // printf("filt: %f\n", filter[fpos-1]);
@@ -80,18 +80,19 @@ void SpikeDetectorProcessor::process()
         
         for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
             // filter with high-pass spike filter
-            float filtered = 0;
+            int filtered = 0;
             signal_type *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
             
             // SSE implementation with 8-bit filter and signal
 
-            long long filtered_long = 0;
+            int filtered_long = 0;
             for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered_long += *(chan_sig_buf) * filter_int_[j];
             }
 
 #ifdef CHAR_SIGNAL
-            filtered = filtered_long / 100000000.0f * 256.0;
+            // * 256 / 8192
+            filtered = filtered_long >> 5;
 #else
             filtered = filtered_long / 100000000.0f;
 #endif
@@ -99,15 +100,15 @@ void SpikeDetectorProcessor::process()
             buffer->filtered_signal_buf[channel][fpos] = filtered;
             
             // power in window of 4
-            float pw = 0;
-            for(int i=0;i<4;++i){
+            long long pw = 0;
+            for(int i=0; i<4 ;++i){
                 pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
             }
             buffer->power_buf[channel][fpos] = sqrt(pw);
             
             // std estimation
             if (buffer->powerEstimatorsMap_[channel] != nullptr)
-                buffer->powerEstimatorsMap_[channel]->push((float)sqrt(pw));
+                buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
             
             // DEBUG
 //            if (channel == 8){
