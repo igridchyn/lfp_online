@@ -67,7 +67,7 @@ class ArrayValidator{
     std::string name_;
     
     void report_mismatch();
-    
+
 public:
     // have a pointer to the buf pos, target array and internal pointer in this array
     ArrayValidator(std::string array_path, std::string name, T* buf, int const *buf_pos_ptr, const int& gt_data_shift);
@@ -82,11 +82,15 @@ class UnitTestingProcessor : public LFPProcessor{
     std::vector<ArrayValidator<int>*> int_array_validators_;
     std::vector<SpikeValidator<int>*> int_spike_validators_;
     std::vector<SpikeValidator<float>*> float_spike_validators_;
+
+    time_t t_start_;
+    const unsigned int STOP_PKG = 500000;
     
 public:
     UnitTestingProcessor(LFPBuffer *buf);
     UnitTestingProcessor(LFPBuffer *buf, const std::string test_dir);
     virtual void process();
+    virtual std::string name();
 };
 
 #endif

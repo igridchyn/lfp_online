@@ -73,9 +73,12 @@ UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string tes
     const int CHANNEL = 8;
         
     // filtered signal
-        int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "filtered.txt", "filtered", buf->filtered_signal_buf[CHANNEL], &buffer->buf_pos, 1));
-        int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "pow.txt", "pow", buf->power_buf[CHANNEL], &buffer->buf_pos, 1));
-        int_spike_validators_.push_back(new SpikeDetectionValidator(test_dir_ + "detect.txt", "detected", buf->spike_buffer_, &buffer->spike_buf_pos, 1, buf->SPIKE_BUF_HEAD_LEN));
+    // TODO configure inclusion
+//    int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "filtered.txt", "filtered", buf->filtered_signal_buf[CHANNEL], &buffer->buf_pos, 1));
+//    int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "pow.txt", "pow", buf->power_buf[CHANNEL], &buffer->buf_pos, 1));
+//    int_spike_validators_.push_back(new SpikeDetectionValidator(test_dir_ + "detect.txt", "detected", buf->spike_buffer_, &buffer->spike_buf_pos, 1, buf->SPIKE_BUF_HEAD_LEN));
+
+    t_start_ = clock();
 }
 
 void UnitTestingProcessor::process(){
@@ -90,6 +93,17 @@ void UnitTestingProcessor::process(){
         if (!int_spike_validators_[i]->validate()){
             exit(1);
         }
+    }
+
+    // report running time
+    if (buffer->last_pkg_id >= STOP_PKG){
+    	long run_time = clock();
+    	Log("==================================================================================");
+    	Log("Stop execution at pkg: ", (int)STOP_PKG);
+    	Log("Running time (sec.): ", (double)run_time / CLOCKS_PER_SEC);
+    	Log("==================================================================================");
+    	// TODO stop signalling mechanism, no rude exit
+    	exit(10);
     }
 }
 
@@ -140,4 +154,8 @@ bool SpikeValidator<T>::validate(){
 
 int SpikeDetectionValidator::get_feature(Spike *spike){
     return spike->pkg_id_;
+}
+
+std::string UnitTestingProcessor::name() {
+	return "UnitTesting";
 }
