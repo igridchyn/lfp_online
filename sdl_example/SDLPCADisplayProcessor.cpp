@@ -668,7 +668,7 @@ void SDLPCADisplayProcessor::addCluster() {
 		polygon_clusters_[target_tetrode_][clun] = new_clust_;
 	}
 
-	buffer->Log("Created new polygon cluster, total clusters = ", polygon_clusters_[target_tetrode_].size());
+	buffer->Log("Created new polygon cluster, total clusters = ", (int)polygon_clusters_[target_tetrode_].size());
 	save_polygon_clusters();
 
 	// TODO ClearPolygon()

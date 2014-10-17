@@ -337,7 +337,15 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 	return (high_synchrony_tetrode_spikes_ >= average_spikes_window * high_synchrony_factor_);
 }
 
+// TODO template
 void LFPBuffer::Log(std::string message, int num) {
+	std::cout << message << num << "\n";
+	log_stream << message << num << "\n";
+	// TODO remove in release
+	log_stream.flush();
+}
+
+void LFPBuffer::Log(std::string message, double num) {
 	std::cout << message << num << "\n";
 	log_stream << message << num << "\n";
 	// TODO remove in release

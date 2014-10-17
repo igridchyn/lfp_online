@@ -70,6 +70,7 @@ protected:
     LFPBuffer* buffer = nullptr;
     virtual void Log(std::string message);
     virtual void Log(std::string message, int num);
+    virtual void Log(std::string message, double num);
 
 public:
     virtual std::string name();

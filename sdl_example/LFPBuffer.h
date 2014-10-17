@@ -224,6 +224,7 @@ public:
 
     void Log(std::string message);
     void Log(std::string message, int num);
+    void Log(std::string message, double num);
 
     const unsigned int& GetPosBufPointer(std::string name);
 
