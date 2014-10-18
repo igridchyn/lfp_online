@@ -179,16 +179,16 @@ public:
     unsigned char *chunk_ptr = nullptr;
     int num_chunks;
     
-    OnlineEstimator<float>* powerEstimators_;
-    OnlineEstimator<float>* powerEstimatorsMap_[_CHANNEL_NUM];
+    OnlineEstimator<float, float>* powerEstimators_;
+    OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];
     
-    OnlineEstimator<float>* speedEstimator_;
+    OnlineEstimator<float, float>* speedEstimator_;
     
     // for ISI estimation - previous spike
     // ??? initialize with fake spike to avoid checks
     unsigned int *previous_spikes_pkg_ids_;
 
-    OnlineEstimator<float>** ISIEstimators_;
+    OnlineEstimator<float, float>** ISIEstimators_;
 
     arma::mat cluster_spike_counts_;
 

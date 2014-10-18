@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-template<class T>
+template<class T, class S>
 class OnlineEstimator{
     const int BUF_SIZE;
     
@@ -19,8 +19,8 @@ class OnlineEstimator{
     unsigned int buf_pos = 0;
     unsigned int num_samples = 0;
     
-    T sum = 0;
-    T sumsq = 0;
+    S sum = 0;
+    S sumsq = 0;
     
 public:
     OnlineEstimator(unsigned int buf_size = (1 << 20));

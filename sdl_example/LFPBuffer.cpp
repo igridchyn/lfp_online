@@ -50,9 +50,9 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "done\n";
 
 	log_stream << "INFO: Create online estimators...";
-    powerEstimators_ = new OnlineEstimator<float>[tetr_info_->tetrodes_number];
+    powerEstimators_ = new OnlineEstimator<float, float>[tetr_info_->tetrodes_number];
     // TODO: configurableize
-    speedEstimator_ = new OnlineEstimator<float>(16);
+    speedEstimator_ = new OnlineEstimator<float, float>(16);
 	log_stream << "done\n";
 
     memset(is_valid_channel_, 0, CHANNEL_NUM);
@@ -89,9 +89,9 @@ void LFPBuffer::Reset(Config* config) {
 		memset(positions_buf_[pos_buf], 0, 6 * sizeof(unsigned int));
 	}
 
-	ISIEstimators_ = new OnlineEstimator<float>*[tetr_info_->tetrodes_number];
+	ISIEstimators_ = new OnlineEstimator<float, float>*[tetr_info_->tetrodes_number];
 	for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
-		ISIEstimators_[t] = new OnlineEstimator<float>();
+		ISIEstimators_[t] = new OnlineEstimator<float, float>();
 	}
 
 	previous_spikes_pkg_ids_ = new unsigned int[tetr_info_->tetrodes_number];

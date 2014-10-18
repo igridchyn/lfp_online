@@ -8,25 +8,25 @@
 
 #include "OnlineEstimator.h"
 
-template<class T>
-OnlineEstimator<T>::OnlineEstimator(unsigned int buf_size)
+template<class T, class S>
+OnlineEstimator<T, S>::OnlineEstimator(unsigned int buf_size)
 : BUF_SIZE(buf_size) {
     buf = new T[BUF_SIZE];
 }
 
-template<class T>
-T OnlineEstimator<T>::get_mean_estimate(){
+template<class T, class S>
+T OnlineEstimator<T, S>::get_mean_estimate(){
     return sum / num_samples;
 }
 
-template<class T>
-T OnlineEstimator<T>::get_std_estimate(){
+template<class T, class S>
+T OnlineEstimator<T, S>::get_std_estimate(){
     // printf("sumsq: %f, num samp: %d\n", sumsq, num_samples);
     return (T)sqrt(sumsq / num_samples - (sum / num_samples) * (sum / num_samples));
 }
 
-template<class T>
-void OnlineEstimator<T>::push(T value){
+template<class T, class S>
+void OnlineEstimator<T, S>::push(T value){
     // printf("push %f\n", value);
     
 	// TODO LOG ERROR
@@ -50,7 +50,7 @@ void OnlineEstimator<T>::push(T value){
     buf_pos = (buf_pos + 1) % BUF_SIZE;
 }
 
-template<class T>
-unsigned int OnlineEstimator<T>::n_samples(){
+template<class T, class S>
+unsigned int OnlineEstimator<T, S>::n_samples(){
     return num_samples;
 }
