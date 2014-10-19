@@ -113,6 +113,8 @@ public:
     unsigned int spike_buf_pos_auto_;
     // LPT triggger
     unsigned int spike_buf_pos_lpt_;
+    // fet writer
+    unsigned int spike_buf_pos_fet_writer_;
 
     // TODO ? messaging between processors
     bool ac_reset_ = false;

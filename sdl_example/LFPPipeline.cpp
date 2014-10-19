@@ -30,6 +30,7 @@
 #include "WhlFileReaderProcessor.h"
 #include "LPTTriggerProcessor.h"
 #include "FrequencyPowerBandProcessor.h"
+#include "FetFileWriterProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
@@ -90,7 +91,10 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new WhlFileReaderProcessor(buf));
 		} else if (proc_name == "LPTTrigger"){
 			processors.push_back(new LPTTriggerProcessor(buf));
-		} else{
+		} else if (proc_name == "FetFileWriter"){
+			processors.push_back(new FetFileWriterProcessor(buf));
+		}
+		else{
 			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			buf->log_stream << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			exit(1);

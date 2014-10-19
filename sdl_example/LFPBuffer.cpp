@@ -27,6 +27,7 @@ void LFPBuffer::Reset(Config* config) {
 	spike_buf_pos_pf_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_auto_ = SPIKE_BUF_HEAD_LEN;
 	spike_buf_pos_lpt_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos_fet_writer_ = SPIKE_BUF_HEAD_LEN;
 
 	if (tetr_info_)
 		delete tetr_info_;
@@ -308,6 +309,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_pf_ -= std::min(shift_new_start, (int)spike_buf_pos_pf_);
 		spike_buf_pos_auto_ -= std::min(shift_new_start, (int)spike_buf_pos_auto_);
 		spike_buf_pos_lpt_ -= std::min(shift_new_start, (int)spike_buf_pos_lpt_);
+		spike_buf_pos_fet_writer_ -= std::min(shift_new_start, (int)spike_buf_pos_fet_writer_);
 
 		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 

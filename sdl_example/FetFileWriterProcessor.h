@@ -1,0 +1,26 @@
+/*
+ * FetFileWriterProcessor.h
+ *
+ *  Created on: Oct 18, 2014
+ *      Author: igor
+ */
+
+#ifndef FETFILEWRITERPROCESSOR_H_
+#define FETFILEWRITERPROCESSOR_H_
+
+#include "LFPProcessor.h"
+
+class FetFileWriterProcessor : public virtual LFPProcessor {
+	// per tetrode
+	std::vector<std::ofstream*> fet_files_;
+	std::vector< std::ofstream *> spk_files_;
+
+	bool write_spk_;
+
+public:
+	FetFileWriterProcessor(LFPBuffer *buf);
+	virtual ~FetFileWriterProcessor();
+	virtual void process();
+};
+
+#endif /* FETFILEWRITERPROCESSOR_H_ */
