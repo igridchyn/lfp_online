@@ -49,30 +49,43 @@ void PackageExractorProcessor::process(){
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
     
 	// TODO !!!!!!!!! check pos in all packages
-    char pos_flag = *((char*)buffer->chunk_ptr + 3);
-    if (pos_flag != '1'){
-        // extract position
-        unsigned short bx = *((unsigned short*)(buffer->chunk_ptr + 16));
-        unsigned short by = *((unsigned short*)(buffer->chunk_ptr + 18));
-        unsigned short sx = *((unsigned short*)(buffer->chunk_ptr + 20));
-        unsigned short sy = *((unsigned short*)(buffer->chunk_ptr + 22));
-        
-        // EVERY 240 !!! = 100 Hz
-//        std::cout << "new pos at " << buffer->buf_pos << "\n";
+    for (int c=0; c < buffer->num_chunks; ++c){
+    	unsigned char *pos_chunk = buffer->chunk_ptr + c * buffer->CHUNK_SIZE;
 
-        // WORKAROUND
-        if (bx != buffer->pos_unknown_){
-        	buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE);
-        	buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE);
-        }else{
-        	buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
-        	buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
-        }
-        buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)sx;
-        buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)sy;
-        buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)buffer->last_pkg_id;
-        
-        buffer->pos_buf_pos_++;
+    	char pos_flag = *((char*)pos_chunk + 3);
+    	if (pos_flag != '1'){
+    		if (buffer->pos_first_pkg_ == -1){
+    			buffer->pos_first_pkg_ = buffer->last_pkg_id + c;
+    		}
+
+    		// extract position
+    		unsigned short bx = *((unsigned short*)(pos_chunk + 16));
+    		unsigned short by = *((unsigned short*)(pos_chunk + 18));
+    		unsigned short sx = *((unsigned short*)(pos_chunk + 20));
+    		unsigned short sy = *((unsigned short*)(pos_chunk + 22));
+
+    		// EVERY 240 !!! = 100 Hz
+    		//        std::cout << "new pos at " << buffer->buf_pos << "\n";
+
+    		// WORKAROUND
+    		if (bx != buffer->pos_unknown_){
+    			buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE);
+    			buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE);
+    		}else{
+    			buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
+    			buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
+    		}
+    		if (sx != buffer->pos_unknown_){
+    			buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)(sx * SCALE);
+    			buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)(sy * SCALE);
+    		}else{
+    			buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)buffer->pos_unknown_;
+    			buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)buffer->pos_unknown_;
+    		}
+    		buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)(buffer->last_pkg_id + c);
+
+    		buffer->pos_buf_pos_++;
+    	}
     }
     
     for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
