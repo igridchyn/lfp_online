@@ -28,6 +28,9 @@ class FetFileReaderProcessor: public LFPProcessor {
 	std::vector<bool> file_over_;
 	std::vector<Spike *> last_spikies_;
 
+	const bool read_spk_;
+	std::vector< std::ifstream * > spk_streams_;
+
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
 public:

@@ -9,7 +9,7 @@
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 :FetFileReaderProcessor(buffer,
-		buffer->config_->getString("dat.path.base") + "fet.",
+		buffer->config_->getString("fet.file.reader.path.base"),
 		buffer->config_->tetrodes,
 		buffer->config_->getInt("fet.file.reader.window", 2000)
 		){
@@ -19,14 +19,19 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers, const unsigned int window_size)
 : LFPProcessor(buffer)
 , fet_path_base_(fet_path_base)
-, WINDOW_SIZE(window_size){
+, WINDOW_SIZE(window_size)
+, read_spk_(buffer->config_->getBool("fet.file.reader.spk.read")){
 	// number of feature files that still have spike records
 	num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
 	file_over_.resize(num_files_with_spikes_);
 
 	int dum_ncomp;
 	for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-		fet_streams_.push_back(new std::ifstream(fet_path_base_ + Utils::NUMBERS[tetrode_numbers[t]]));
+		fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet." + Utils::NUMBERS[tetrode_numbers[t]]));
+		if (read_spk_){
+			spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk." + Utils::NUMBERS[tetrode_numbers[t]]));
+		}
+
 		// read number of records per spike in the beginning of the file
 		*(fet_streams_[t]) >> dum_ncomp;
 		Spike *tspike = readSpikeFromFile(t);
@@ -62,6 +67,19 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		for (int pc=0; pc < npc; ++pc) {
 			fet_stream >> spike->pc[t][pc];
 			spike->pc[t][pc] /= 5;
+		}
+	}
+
+	std::ifstream& spk_stream = *(spk_streams_[tetr]);
+	if (read_spk_){
+		int chno = buffer->tetr_info_->channels_numbers[tetr];
+		spike->waveshape = new int*[chno];
+
+		for (int c=0; c < chno; ++c){
+			spike->waveshape[c] = new int[128];
+			for (int w=0; w < 128; ++w){
+				spk_stream >> spike->waveshape[c][w];
+			}
 		}
 	}
 
