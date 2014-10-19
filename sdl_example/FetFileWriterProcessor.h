@@ -15,6 +15,9 @@ class FetFileWriterProcessor : public virtual LFPProcessor {
 	std::vector<std::ofstream*> fet_files_;
 	std::vector< std::ofstream *> spk_files_;
 
+	std::ofstream *whl_file_;
+	bool whl_start_written_ = false;
+
 	bool write_spk_;
 
 public:
