@@ -31,6 +31,10 @@ class FetFileReaderProcessor: public LFPProcessor {
 	const bool read_spk_;
 	std::vector< std::ifstream * > spk_streams_;
 
+	// pos
+	const bool read_whl_;
+	std::ifstream *whl_file_ = nullptr;
+
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
 public:

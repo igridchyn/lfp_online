@@ -136,6 +136,9 @@ public:
     unsigned int pos_buf_pos_spike_speed_ = 0;
     // last for speed estimatino
     unsigned int pos_buf_pos_speed_est = 0;
+    // whl writer (within SpikeWriter)
+    // TODO !!! rewind
+    unsigned int pos_buf_pos_whl_writer_ = 0;
 
     // value of pos., meaning that position is unknown
     const int pos_unknown_;
@@ -158,6 +161,9 @@ public:
     float high_synchrony_factor_;
 
     std::queue<std::vector<int>> swrs_;
+
+    // to be initialized when first pos package is detected
+    int pos_first_pkg_ = -1;
 
 private:
     bool is_valid_channel_[_CHANNEL_NUM];

@@ -20,7 +20,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 : LFPProcessor(buffer)
 , fet_path_base_(fet_path_base)
 , WINDOW_SIZE(window_size)
-, read_spk_(buffer->config_->getBool("fet.file.reader.spk.read")){
+, read_spk_(buffer->config_->getBool("fet.file.reader.spk.read"))
+, read_whl_(buffer->config_->getBool("fet.file.reader.whl.read")){
 	// number of feature files that still have spike records
 	num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
 	file_over_.resize(num_files_with_spikes_);
@@ -30,6 +31,13 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 		fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet." + Utils::NUMBERS[tetrode_numbers[t]]));
 		if (read_spk_){
 			spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk." + Utils::NUMBERS[tetrode_numbers[t]]));
+		}
+
+		if (read_whl_){
+			whl_file_ = new std::ifstream(fet_path_base_ + "whl");
+			int pos_first_pkg_id = -1;
+			(*whl_file_) >> pos_first_pkg_id;
+			buffer->pos_first_pkg_ = pos_first_pkg_id;
 		}
 
 		// read number of records per spike in the beginning of the file
@@ -55,6 +63,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	spike->tetrode_ = tetr;
 	spike->cluster_id_ = -1;
 
+	// TODO !!! read from config / tetrode info
 	const int ntetr = 4;
 	const int npc = 3;
 
@@ -70,9 +79,19 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		}
 	}
 
+	fet_stream >> spike->peak_to_valley_1_;
+	fet_stream >> spike->peak_to_valley_2_;
+	fet_stream >> spike->intervalley_;
+	fet_stream >> spike->power_;
+
+
+	// TODO !!! read other features
+
+	int chno = buffer->tetr_info_->channels_numbers[tetr];
+	spike->num_channels_ = chno;
+
 	std::ifstream& spk_stream = *(spk_streams_[tetr]);
 	if (read_spk_){
-		int chno = buffer->tetr_info_->channels_numbers[tetr];
 		spike->waveshape = new int*[chno];
 
 		for (int c=0; c < chno; ++c){
@@ -84,10 +103,10 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	}
 
 	// TODO: read position
-	int dummy;
-	for (int d=0; d < 4; ++d) {
-		fet_stream >> dummy;
-	}
+//	int dummy;
+//	for (int d=0; d < 4; ++d) {
+//		fet_stream >> dummy;
+//	}
 
 	int stime;
 	fet_stream >> stime;
@@ -117,6 +136,17 @@ void FetFileReaderProcessor::process() {
 //		exit(0);
 //	}
 
+	// read pos from whl
+	int last_pos_pkg_id = last_pkg_id_;
+	while(last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE){
+		unsigned int *pos_entry = buffer->positions_buf_[buffer->pos_buf_pos_];
+		(*whl_file_) >> pos_entry[0] >> pos_entry[1] >> pos_entry[2] >> pos_entry[3] >> pos_entry[4];
+
+		buffer->pos_buf_pos_ ++;
+		last_pos_pkg_id += 512;
+		// TODO !!! rewind
+	}
+
 	while(last_spike_pkg_id - last_pkg_id_ < WINDOW_SIZE && num_files_with_spikes_ > 0){
 		// find the earliest spike
 		int earliest_spike_tetrode_ = -1;
@@ -139,6 +169,9 @@ void FetFileReaderProcessor::process() {
 
 		// advance with the corresponding file reading and check for the end of file [change flag + cache = number of available files]
 		Spike *spike = readSpikeFromFile(earliest_spike_tetrode_);
+		if (spike == nullptr)
+			continue;
+
 		last_spikies_[earliest_spike_tetrode_] = spike;
 
 		// set coords
