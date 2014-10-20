@@ -12,13 +12,21 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 {
 	// TODO Auto-generated constructor stub
 	std::string path_base = buf->config_->getString("spike.writer.path.base");
-	std::string spk_path_base = path_base + "spk.";
 	write_spk_ = buf->config_->getBool("spike.writer.spk.write");
+	binary_ = buf->config_->getBool("spike.writer.binary", false);
+
+	std::string extapp = binary_ ? "b" : "";
+
+	std::string spk_path_base = path_base + "spk" + extapp + ".";
 
 	for (int t=0; t < buf->tetr_info_->tetrodes_number; ++t){
-		fet_files_.push_back(new std::ofstream(path_base + "fet." + Utils::NUMBERS[t]));
+		fet_files_.push_back(new std::ofstream(path_base + "fet" + extapp + "." + Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));
 		if (write_spk_){
-			spk_files_.push_back(new std::ofstream(spk_path_base+ Utils::NUMBERS[t]));
+			spk_files_.push_back(new std::ofstream(spk_path_base+ Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));
+		}
+		if (!binary_){
+			// TODO !!! parametrize - number of entries
+			*(fet_files_[t]) << "17\n";
 		}
 	}
 
@@ -34,6 +42,8 @@ FetFileWriterProcessor::~FetFileWriterProcessor() {
 			spk_files_[i]->close();
 		}
 	}
+
+	whl_file_->close();
 }
 
 void FetFileWriterProcessor::process() {
@@ -49,22 +59,35 @@ void FetFileWriterProcessor::process() {
 			continue;
 		}
 
+		// TODO !!!! write the same value
 		for(int f=0; f < 16; ++f){
-			fet_file << (int)round(spike->getFeature(f, 3)) << " ";
+			if (binary_)
+				fet_file.write((char*)spike->getFeatureAddr(f, 3), sizeof(float));
+			else
+				fet_file << (int)round(spike->getFeature(f, 3)) << " ";
 		}
-		fet_file << spike->pkg_id_ << "\n";
+
+		if (binary_)
+			fet_file.write((char*)&spike->pkg_id_, sizeof(int));
+		else
+			fet_file << spike->pkg_id_ << "\n";
 
 		if (write_spk_){
 			std::ofstream& spk_file = *(spk_files_[tetrode]);
 
 			// TODO parametrize
 			for (int c=0; c < spike->num_channels_; ++c){
-				for (int w=0; w < 128; ++w ){
-					spk_file << spike->waveshape[c][w] << " ";
+				if (binary_)
+					spk_file.write((char*)spike->waveshape[c], 128 * sizeof(int));
+				else{
+					for (int w=0; w < 128; ++w ){
+						spk_file << spike->waveshape[c][w] << " ";
+					}
 				}
 			}
 
-			spk_file << "\n";
+			if (!binary_)
+				spk_file << "\n";
 		}
 	}
 

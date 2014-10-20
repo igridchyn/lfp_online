@@ -19,6 +19,7 @@ class FetFileWriterProcessor : public virtual LFPProcessor {
 	bool whl_start_written_ = false;
 
 	bool write_spk_;
+	bool binary_ = false;
 
 public:
 	FetFileWriterProcessor(LFPBuffer *buf);

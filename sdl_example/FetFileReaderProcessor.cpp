@@ -9,9 +9,9 @@
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 :FetFileReaderProcessor(buffer,
-		buffer->config_->getString("fet.file.reader.path.base"),
+		buffer->config_->getString("spike.reader.path.base"),
 		buffer->config_->tetrodes,
-		buffer->config_->getInt("fet.file.reader.window", 2000)
+		buffer->config_->getInt("spike.reader.window", 2000)
 		){
 
 }
@@ -20,17 +20,20 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 : LFPProcessor(buffer)
 , fet_path_base_(fet_path_base)
 , WINDOW_SIZE(window_size)
-, read_spk_(buffer->config_->getBool("fet.file.reader.spk.read"))
-, read_whl_(buffer->config_->getBool("fet.file.reader.whl.read")){
+, read_spk_(buffer->config_->getBool("spike.reader.spk.read"))
+, read_whl_(buffer->config_->getBool("spike.reader.whl.read"))
+, binary_(buffer->config_->getBool("spike.reader.binary")){
 	// number of feature files that still have spike records
 	num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
 	file_over_.resize(num_files_with_spikes_);
 
+	std::string extapp = binary_ ? "b" : "";
+
 	int dum_ncomp;
 	for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-		fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet." + Utils::NUMBERS[tetrode_numbers[t]]));
+		fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
 		if (read_spk_){
-			spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk." + Utils::NUMBERS[tetrode_numbers[t]]));
+			spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
 		}
 
 		if (read_whl_){
@@ -41,7 +44,9 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 		}
 
 		// read number of records per spike in the beginning of the file
-		*(fet_streams_[t]) >> dum_ncomp;
+		if (!binary_){
+			*(fet_streams_[t]) >> dum_ncomp;
+		}
 		Spike *tspike = readSpikeFromFile(t);
 		while(tspike == nullptr && !file_over_[t]){
 			tspike = readSpikeFromFile(t);
@@ -73,16 +78,28 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 	for (int t=0; t < ntetr; ++t) {
 		spike->pc[t] = new float[npc];
-		for (int pc=0; pc < npc; ++pc) {
-			fet_stream >> spike->pc[t][pc];
-			spike->pc[t][pc] /= 5;
+		if (!binary_){
+			for (int pc=0; pc < npc; ++pc) {
+				fet_stream >> spike->pc[t][pc];
+			}
+		}
+		else{
+			fet_stream.read((char*)spike->pc[t], npc * sizeof(float));
 		}
 	}
 
-	fet_stream >> spike->peak_to_valley_1_;
-	fet_stream >> spike->peak_to_valley_2_;
-	fet_stream >> spike->intervalley_;
-	fet_stream >> spike->power_;
+	if (!binary_){
+		fet_stream >> spike->peak_to_valley_1_;
+		fet_stream >> spike->peak_to_valley_2_;
+		fet_stream >> spike->intervalley_;
+		fet_stream >> spike->power_;
+	}
+	else{
+		fet_stream.read((char*) &spike->peak_to_valley_1_, sizeof(float));
+		fet_stream.read((char*) &spike->peak_to_valley_2_, sizeof(float));
+		fet_stream.read((char*) &spike->intervalley_, sizeof(float));
+		fet_stream.read((char*) &spike->power_, sizeof(float));
+	}
 
 
 	// TODO !!! read other features
@@ -96,8 +113,14 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 		for (int c=0; c < chno; ++c){
 			spike->waveshape[c] = new int[128];
-			for (int w=0; w < 128; ++w){
-				spk_stream >> spike->waveshape[c][w];
+
+			if (!binary_){
+				for (int w=0; w < 128; ++w){
+					spk_stream >> spike->waveshape[c][w];
+				}
+			}
+			else{
+				spk_stream.read((char*)spike->waveshape[c], 128 * sizeof(float));
 			}
 		}
 	}
@@ -109,7 +132,12 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 //	}
 
 	int stime;
-	fet_stream >> stime;
+	if (!binary_){
+		fet_stream >> stime;
+	}
+	else{
+		fet_stream.read((char*)&stime, sizeof(int));
+	}
 
 	// ??? what is the threshold
 	if (stime < 400)
