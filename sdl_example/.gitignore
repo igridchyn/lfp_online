@@ -1,6 +1,7 @@
 Working/
 Res/*bu
-
+out/
+*.swp
 perf.*
 ss/
 ss*
