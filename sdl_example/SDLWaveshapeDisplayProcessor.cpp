@@ -76,7 +76,7 @@ float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
 
 void SDLWaveshapeDisplayProcessor::process() {
 	//quick and dirty: wait for nullptr in buffer->chunk
-	if (buffer->pipeline_status_ != PIPELINE_STATUS_INPUT_OVER){
+	if (buffer->pipeline_status_ == PIPELINE_STATUS_READ_FET){
 		return;
 	}
 

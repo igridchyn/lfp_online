@@ -48,9 +48,19 @@ FetFileWriterProcessor::~FetFileWriterProcessor() {
 
 void FetFileWriterProcessor::process() {
 	while(buffer->spike_buf_pos_fet_writer_ < buffer->spike_buf_pos_unproc_){
-		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_fet_writer_++];
-		if (spike == nullptr || spike->discarded_)
+
+		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_fet_writer_];
+
+		if (spike == nullptr || spike->discarded_){
+			buffer->spike_buf_pos_fet_writer_++;
 			continue;
+		}
+
+		if (spike->pc == NULL){
+			return;
+		}
+
+		buffer->spike_buf_pos_fet_writer_++;
 
 		const int& tetrode = spike->tetrode_;
 		std::ofstream& fet_file = *(fet_files_[tetrode]);
