@@ -53,6 +53,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 		}
 		last_spikies_.push_back(tspike);
 	}
+
+	report_rate_ = buffer->SAMPLING_RATE * 60 * 5;
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
@@ -229,4 +231,9 @@ void FetFileReaderProcessor::process() {
 	buffer->last_pkg_id = last_pkg_id_;
 
 	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
+
+	if (last_spike_pkg_id - last_reported_ > report_rate_){
+		std::cout << "Loaded spikes for the first " << last_reported_ / report_rate_ * 5 << " minutes of recording...\n";
+		last_reported_ = last_spike_pkg_id;
+	}
 }

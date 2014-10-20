@@ -14,6 +14,7 @@ PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
 	, SCALE(buffer->config_->getFloat("pack.extr.xyscale"))
 {
 	Log("Created");
+	report_rate_ = buffer->SAMPLING_RATE * 60 * 5;
 }
 
 void PackageExractorProcessor::process(){
@@ -130,6 +131,11 @@ void PackageExractorProcessor::process(){
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
 
 	//Log("Package extraction done");
+
+    if (buffer->last_pkg_id - last_reported_ > report_rate_){
+    	last_reported_ = buffer->last_pkg_id;
+    	std::cout << "Processed " << last_reported_ / report_rate_ * 5 << " minutes of data...\n";
+    }
 }
 
 std::string PackageExractorProcessor::name() {

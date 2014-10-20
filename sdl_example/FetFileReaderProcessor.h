@@ -37,6 +37,9 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 	bool binary_ = false;
 
+	unsigned int report_rate_;
+	unsigned int last_reported_;
+
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
 public:
