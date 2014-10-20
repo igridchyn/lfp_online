@@ -46,16 +46,22 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
 //	Config *config = new Config("../Res/nocon.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0921_6l.conf");
-	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
+//	Config *config = new Config("../Res/spike_detection_jc118_1000_l.conf");
+//	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
+	Config *config = new Config("../Res/spike_reader_jc118_1001_4l.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
-	std::string binpath = config->getString("bin.path");
-	if (!Utils::FS::FileExists(binpath)){
-		std::cout << "File doesn't exist: " << binpath << "\n";
-		exit(1);
+	std::string binpath = config->getString("bin.path", "");
+	FILE *f = nullptr;
+
+	if (binpath.length() > 0){
+		if (!Utils::FS::FileExists(binpath)){
+			std::cout << "File doesn't exist: " << binpath << "\n";
+			exit(1);
+		}
+		f = fopen(binpath.c_str(), "rb");
 	}
-	FILE *f = fopen(binpath.c_str(), "rb");
 #endif
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
@@ -76,15 +82,24 @@ void draw_bin() {
 //	config->checkUnused();
 
 	// TODO: parallel threads ?
-	while (!feof(f)) {
-		fread((void*)block, 1, CHUNK_SIZE*nblock, f);
 
-		buf->chunk_ptr = block;
-		buf->num_chunks = nblock;
-		pipeline->process(nullptr);
+	if (f != nullptr)
+	{
+		buf->pipeline_status_ == PIPELINE_STATUS_READ_BIN;
+		while (!feof(f)) {
+			fread((void*)block, 1, CHUNK_SIZE*nblock, f);
+
+			buf->chunk_ptr = block;
+			buf->num_chunks = nblock;
+			pipeline->process(nullptr);
+		}
+		buf->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER;
+		std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
 	}
-
-	std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
+	else
+	{
+		std::cout << "No bin file provided, starting endless loop...\n";
+	}
 
 	buf->chunk_ptr = nullptr;
 	while (true) {
