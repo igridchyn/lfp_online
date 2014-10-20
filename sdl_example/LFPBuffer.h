@@ -10,7 +10,7 @@
 #define sdl_example_LFPBuffer_h
 
 // TODO !!! dynamic
-#define _POS_BUF_SIZE 1<<20
+#define _POS_BUF_SIZE 1<<28
 #define _CHANNEL_NUM 64
 
 #include <iostream>
@@ -42,9 +42,16 @@
 #define CHAR_SIGNAL
 typedef char signal_type;
 
+enum LFPPipelineStatus{
+	PIPELINE_STATUS_READ_BIN,
+	PIPELINE_STATUS_READ_FET,
+	PIPELINE_STATUS_INPUT_OVER
+};
+
 class LFPONLINEAPI LFPBuffer{
 
 public:
+	LFPPipelineStatus pipeline_status_;
 
 	// TODO use instead of string literals
 	class POS_BUF_POINTER_NAMES{
@@ -115,6 +122,8 @@ public:
     unsigned int spike_buf_pos_lpt_;
     // fet writer
     unsigned int spike_buf_pos_fet_writer_;
+    // ws display
+    unsigned int spike_buf_pos_ws_disp_;
 
     // TODO ? messaging between processors
     bool ac_reset_ = false;

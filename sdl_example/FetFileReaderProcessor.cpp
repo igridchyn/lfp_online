@@ -158,6 +158,10 @@ void FetFileReaderProcessor::process() {
 	// TODO: sampling rate ? - how defined ? by external loop ?
 	int last_spike_pkg_id = last_pkg_id_;
 
+	if (num_files_with_spikes_ == 0){
+		buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
+	}
+
 	// PROFILING
 //	if (last_pkg_id_ > 1000000){
 //		std::cout << "Exit from FetFile Reader - for profiling...\n";

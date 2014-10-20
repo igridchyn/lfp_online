@@ -28,6 +28,7 @@ void LFPBuffer::Reset(Config* config) {
 	spike_buf_pos_auto_ = 0;
 	spike_buf_pos_lpt_ = 0;
 	spike_buf_pos_fet_writer_ = 0;
+	spike_buf_pos_ws_disp_ = 0;
 
 	if (tetr_info_)
 		delete tetr_info_;
@@ -222,6 +223,12 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
     }
 
     Spike *stop = population_vector_stack_.front();
+
+    // TODO !!! prevent 0 spikes in the window !!!
+    if (stop == nullptr){
+    	return;
+    }
+
     while (stop->pkg_id_ < right_border - POP_VEC_WIN_LEN * SAMPLING_RATE / 1000.f) {
     	// this duplicates population_vector_window_ + config->synchrony tetrodes, but is needed for efficiency ...
     	if (is_high_synchrony_tetrode_[stop->tetrode_])
@@ -241,6 +248,11 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
         }
 
         stop = population_vector_stack_.front();
+
+        // TODO !!! see above
+        if (stop == nullptr){
+          	return;
+        }
     }
 }
 
@@ -310,6 +322,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_auto_ -= std::min(shift_new_start, (int)spike_buf_pos_auto_);
 		spike_buf_pos_lpt_ -= std::min(shift_new_start, (int)spike_buf_pos_lpt_);
 		spike_buf_pos_fet_writer_ -= std::min(shift_new_start, (int)spike_buf_pos_fet_writer_);
+		spike_buf_pos_ws_disp_ -= std::min(shift_new_start, (int)spike_buf_pos_ws_disp_);
 
 		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 
