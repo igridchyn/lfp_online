@@ -14,20 +14,20 @@ void LFPBuffer::Reset(Config* config) {
 
 	config_ = config;
 
-	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
-	spike_buf_nows_pos = SPIKE_BUF_HEAD_LEN;
-	spike_buf_no_rec = SPIKE_BUF_HEAD_LEN;
-	spike_buf_no_disp_pca = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_unproc_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_out = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_clust_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_draw_xy = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_speed_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_pop_vec_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_pf_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_auto_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_lpt_ = SPIKE_BUF_HEAD_LEN;
-	spike_buf_pos_fet_writer_ = SPIKE_BUF_HEAD_LEN;
+	spike_buf_pos = 0;
+	spike_buf_nows_pos = 0;
+	spike_buf_no_rec = 0;
+	spike_buf_no_disp_pca = 0;
+	spike_buf_pos_unproc_ = 0;
+	spike_buf_pos_out = 0;
+	spike_buf_pos_clust_ = 0;
+	spike_buf_pos_draw_xy = 0;
+	spike_buf_pos_speed_ = 0;
+	spike_buf_pos_pop_vec_ = 0;
+	spike_buf_pos_pf_ = 0;
+	spike_buf_pos_auto_ = 0;
+	spike_buf_pos_lpt_ = 0;
+	spike_buf_pos_fet_writer_ = 0;
 
 	if (tetr_info_)
 		delete tetr_info_;
