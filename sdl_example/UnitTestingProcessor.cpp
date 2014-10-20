@@ -96,15 +96,25 @@ void UnitTestingProcessor::process(){
     }
 
     // report running time
-    if (buffer->last_pkg_id >= STOP_PKG){
-    	long run_time = clock();
-    	Log("==================================================================================");
-    	Log("Stop execution at pkg: ", (int)STOP_PKG);
-    	Log("Running time (sec.): ", (double)run_time / CLOCKS_PER_SEC);
-    	Log("==================================================================================");
-    	// TODO stop signalling mechanism, no rude exit
-    	exit(10);
-    }
+//    if (buffer->last_pkg_id >= STOP_PKG){
+//    	long run_time = clock();
+//    	Log("==================================================================================");
+//    	Log("Stop execution at pkg: ", (int)STOP_PKG);
+//    	Log("Running time (sec.): ", (double)run_time / CLOCKS_PER_SEC);
+//    	Log("==================================================================================");
+//    	// TODO stop signalling mechanism, no rude exit
+//    	exit(10);
+//    }
+
+    if (buffer->spike_buf_pos >= STOP_SPK){
+       	long run_time = clock();
+       	Log("==================================================================================");
+       	Log("Stop execution at spike: ", (int)STOP_SPK);
+       	Log("Running time (sec.): ", (double)run_time / CLOCKS_PER_SEC);
+       	Log("==================================================================================");
+       	// TODO stop signalling mechanism, no rude exit
+       	exit(10);
+       }
 }
 
 template<class T>

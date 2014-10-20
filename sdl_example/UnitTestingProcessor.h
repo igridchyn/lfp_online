@@ -85,6 +85,7 @@ class UnitTestingProcessor : public LFPProcessor{
 
     time_t t_start_;
     const unsigned int STOP_PKG = 500000;
+    const unsigned int STOP_SPK = 500000;
     
 public:
     UnitTestingProcessor(LFPBuffer *buf);
