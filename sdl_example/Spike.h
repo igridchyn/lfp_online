@@ -68,6 +68,7 @@ public:
     void set_peak_valley_features();
 
     const float& getFeature(const int& index, const int& npc);
+    float* getFeatureAddr(const int& index, const int& npc);
 
     ~Spike();
 };

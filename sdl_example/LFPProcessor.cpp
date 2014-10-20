@@ -350,3 +350,13 @@ const float& Spike::getFeature(const int& index, const int& npc) {
 		return *(extra_features_[index - num_channels_ * npc]);
 	}
 }
+
+float* Spike::getFeatureAddr(const int& index, const int& npc) {
+	// TODO !!! single linear array of features
+	if (index < num_channels_ * npc){
+		return pc[index % num_channels_] + (index / num_channels_);
+	}
+	else{
+		return extra_features_[index - num_channels_ * npc];
+	}
+}
