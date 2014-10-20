@@ -28,6 +28,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
 	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 1))
 	, display_final_(buffer->config_->getBool("waveshapedisp.final", false))
+	, buf_pointer_(buffer->spike_buf_pos_ws_disp_)
 {
 	for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 		cluster_cuts_.push_back(std::vector<std::vector<WaveshapeCut> >());
@@ -74,15 +75,20 @@ float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
 }
 
 void SDLWaveshapeDisplayProcessor::process() {
+	//quick and dirty: wait for nullptr in buffer->chunk
+	if (buffer->pipeline_status_ != PIPELINE_STATUS_INPUT_OVER){
+		return;
+	}
+
     // 4 channel waveshape, shifted; colour by cluster, if available (use palette)
     
-    // POINTER ??? : after rewind preserve last valid position -> will allow autonomous pointer rewind (restarting from the beginning)ßß
+    // POINTER ??? : after rewind preserve last valid position -> will allow autonomous pointer rewind (restarting from the beginning)
     //  depend on object properties (don't exceed main pointer), not on the previous pointer !!!
     // TODO: implement idea above; workaround: rewind if target pointer less than
-    
-    if (buf_pointer_ > buffer->spike_buf_no_rec){
-        buf_pointer_ = buffer->BUF_HEAD_LEN;
-    }
+    // TODO ??? why is this needed
+//    if (buf_pointer_ > buffer->spike_buf_no_rec){
+//        buf_pointer_ = buffer->BUF_HEAD_LEN;
+//    }
     
     int last_pkg_id = 0;
     
@@ -215,7 +221,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 
 void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	SDL_Keymod kmod = SDL_GetModState();
-	 bool need_redraw = false;
+	bool need_redraw = false;
 
 	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
 			if (e.button.button == SDL_BUTTON_LEFT){

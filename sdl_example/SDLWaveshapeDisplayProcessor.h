@@ -30,7 +30,7 @@ public:
 };
 
 class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor {
-    unsigned int buf_pointer_;
+    unsigned int& buf_pointer_;
     unsigned last_disp_pkg_id_ = 0;
     
     unsigned int targ_tetrode_ = 0;
