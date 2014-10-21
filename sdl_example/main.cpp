@@ -48,7 +48,9 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0921_6l.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1000_l.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
-	Config *config = new Config("../Res/spike_reader_jc118_1001_4l.conf");
+//	Config *config = new Config("../Res/spike_reader_jc118_1001_4l.conf");
+//	Config *config = new Config("../Res/spike_detection_jc118_1002_7s.conf");
+	Config *config = new Config("../Res/spike_reader_jc118_1002_7s.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");

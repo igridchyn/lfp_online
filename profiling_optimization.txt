@@ -1,17 +1,21 @@
+10/21
+	smprocnewnoart: 1003, 5s: 200 s / 1 tetrode	
+
+
 10/20
 	loading fetb / spkb - binary
 		76% in checking spike nullptr / waveshape nullptr with enabled waveshapedisp
 
-	waveshape disabled:
-	46.2% in the libfreetype
+		waveshape disabled:
+		46.2% in the libfreetype
 
-	!!!
-	500k spikes, with font display disabled
-	3 s - 50% in kernel.kallsyms
-	2.6 s - without -g flag to gcc
-	generated gcc commandline for Release:
-		g++ -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
-		changed to not generate automatically
+		!!!
+		500k spikes, with font display disabled
+		3 s - 50% in kernel.kallsyms
+		2.6 s - without -g flag to gcc
+		generated gcc commandline for Release:
+			g++ -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+			changed to not generate automatically
 
 
 10/16

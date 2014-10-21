@@ -14,7 +14,7 @@ Config.o: ../Config.cpp ../Config.h
 FetFileReaderProcessor.o: ../FetFileReaderProcessor.cpp ../FetFileReaderProcessor.h
 	${CC} ${CFLAGS} -c ../FetFileReaderProcessor.cpp
 
-FetFileWriterProcessor.o: ../FetFileWriterProcessor.cpp ../FetFileWriterProcessor.h
+FetFileWriterProcessor.o: ../FetFileWriterProcessor.cpp ../FetFileWriterProcessor.h LFPProcessor.o
 	${CC} ${CFLAGS} -c ../FetFileWriterProcessor.cpp
 	
 FrequencyPowerBandProcessor.o: ../FrequencyPowerBandProcessor.cpp
@@ -59,7 +59,7 @@ PositionDisplayProcessor.o: ../PositionDisplayProcessor.cpp ../PositionDisplayPr
 SDLControlInputMetaProcessor.o: ../SDLControlInputMetaProcessor.cpp
 	${CC} ${CFLAGS} -c ../SDLControlInputMetaProcessor.cpp
 	
-SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h UserContext.o
+SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h UserContext.o SDLSingleWindowDisplay.o
 	${CC} ${CFLAGS} -c ../SDLPCADisplayProcessor.cpp
 	
 SDLSignalDisplayProcessor.o: ../SDLSignalDisplayProcessor.cpp ../SDLSignalDisplayProcessor.h
