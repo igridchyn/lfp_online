@@ -82,6 +82,8 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
 	// get coordinates of spike in current projection
 	void getSpikeCoords(const Spike *const, int& x, int& y);
 
+	SDL_Point *points_;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,

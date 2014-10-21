@@ -55,6 +55,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::str
 	}
 
 	report_rate_ = buffer->SAMPLING_RATE * 60 * 5;
+	buffer->pipeline_status_ = PIPELINE_STATUS_READ_FET;
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {

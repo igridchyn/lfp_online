@@ -76,11 +76,15 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     		buffer->Log("ERROR: Polygon clusters file not found!");
     	}
     }
+
+    points_ = new SDL_Point[1000000];
 }
 
 void SDLPCADisplayProcessor::process(){
     // TODO: parametrize displayed channels and pc numbers
     bool render = false;
+
+    SDL_SetRenderTarget(renderer_, texture_);
 
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
@@ -118,7 +122,6 @@ void SDLPCADisplayProcessor::process(){
         int y;
         getSpikeCoords(spike, x ,y);
 
-
         // polygon cluster
         // TODO use scaled coordinates
         if (spike->cluster_id_ == -1){
@@ -137,9 +140,6 @@ void SDLPCADisplayProcessor::process(){
         // TODO ??? don't display artifacts and unknown with the same color
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
 
-        SDL_SetRenderTarget(renderer_, texture_);
-		std::string sdlerror(SDL_GetError());
-        //SDL_SetRenderDrawColor(renderer_, 255,255,255*((int)spike->cluster_id_/2),255);
         SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
         SDL_RenderDrawPoint(renderer_, x, y);
 
@@ -162,9 +162,6 @@ void SDLPCADisplayProcessor::process(){
     }
 
     if (render){
-        SDL_SetRenderTarget(renderer_, nullptr);
-        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-
         SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
         SDL_RenderDrawLine(renderer_, 0, shift_y_, window_width_, shift_y_);
         SDL_RenderDrawLine(renderer_, shift_x_, 0, shift_x_, window_height_);
@@ -239,6 +236,10 @@ void SDLPCADisplayProcessor::process(){
 			TextOut(ss.str());
 		}
 
+    	// doesn't draw with render OR texture target
+        SDL_SetRenderTarget(renderer_, nullptr);
+        // without copying only part is displayed AND only before redrawing
+        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 		SDL_RenderPresent(renderer_);
     }
 }
@@ -354,8 +355,16 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					polygon_x_.push_back((e.button.x - shift_x_) * scale_);
 					polygon_y_.push_back((e.button.y - shift_y_) * scale_);
 
-					 DrawCross(3, e.button.x, e.button.y, 4);
-					 SDL_RenderPresent(renderer_);
+					SDL_SetRenderTarget(renderer_, texture_);
+					DrawCross(3, e.button.x, e.button.y, 4);
+					if (polygon_x_.size() > 1){
+						int last = polygon_x_.size() - 1;
+						SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 0);
+						SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[last]), scale_y(polygon_y_[last]), scale_x(polygon_x_[last - 1]), scale_y(polygon_y_[last-1]));
+					}
+					SDL_SetRenderTarget(renderer_, NULL);
+					SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+					SDL_RenderPresent(renderer_);
 				}else{
 					polygon_closed_ = false;
 					polygon_x_.clear();
@@ -367,6 +376,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			// TODO !!! draw line without reset
 			polygon_closed_ = true;
 			//reset_spike_pointer();
+			SDL_SetRenderTarget(renderer_, texture_);
+			if (polygon_x_.size() > 1){
+				int last = polygon_x_.size() - 1;
+				SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 0);
+				SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[last]), scale_y(polygon_y_[last]), scale_x(polygon_x_[0]), scale_y(polygon_y_[0]));
+			}
+			SDL_SetRenderTarget(renderer_, NULL);
+			SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+			SDL_RenderPresent(renderer_);
 		}
 	}
 
@@ -710,7 +728,9 @@ void SDLPCADisplayProcessor::addCluster() {
 	// not to redraw: iterate through spikes and redraw
 //	SDL_SetRenderTarget(renderer_, nullptr);
 //	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(clun);
+	int count = 0;
 	for (int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
 		Spike *spike = buffer->spike_buffer_[s];
 		if (spike == nullptr || spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ >= 0){
@@ -721,9 +741,14 @@ void SDLPCADisplayProcessor::addCluster() {
 			int x, y;
 			getSpikeCoords(spike, x, y);
 			spike->cluster_id_ = clun;
-			SDL_RenderDrawPoint(renderer_, x, y);
+			//SDL_RenderDrawPoint(renderer_, x, y);
+			points_[count++ ] = {x, y};
 		}
 	}
+	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+
+	SDL_SetRenderTarget(renderer_, nullptr);
+	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 	SDL_RenderPresent(renderer_);
 }
 
