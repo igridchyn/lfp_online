@@ -310,20 +310,20 @@ void Spike::find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_t
   int i,j,k,pmax,pm1,pm2,tma,tmb;
   pm1=pm2=avb[0][ptm];
   for(i=0; i<num_channels_; i++) {
-    for(j=ptm - tmbefsp; j < ptm; j++) {
-      if (j<0) continue;
-      if (avb[i][j]>pm1) {
-		pm1=avb[i][j];
-		tma=j;
-      }
-    }
+	  for(j=ptm - tmbefsp; j < ptm; j++) {
+		  if (j<0) continue;
+		  if (avb[i][j]>pm1) {
+			  pm1=avb[i][j];
+			  tma=j;
+		  }
+	  }
 
-    for(j=ptm;j<(ptm+tmaftsp);j++) {
-      if (avb[i][j]>pm2) {
-	pm2=avb[i][j];
-	tmb=j;
-      }
-    }
+	  for(j=ptm;j<(ptm+tmaftsp);j++) {
+		  if (avb[i][j]>pm2) {
+			  pm2=avb[i][j];
+			  tmb=j;
+		  }
+	  }
   }
 
   // TODO : configurable
@@ -341,7 +341,7 @@ void Spike::set_peak_valley_features() {
 	find_valleys(peak_time, peak_value, &peak_to_valley_1_, &peak_to_valley_2_, &intervalley_);
 }
 
-const float& Spike::getFeature(const int& index, const int& npc) {
+const float& Spike::getFeature(const int& index, const int& npc) const {
 	// TODO !!! single linear array of features
 	if (index < num_channels_ * npc){
 		return pc[index % num_channels_][index / num_channels_];

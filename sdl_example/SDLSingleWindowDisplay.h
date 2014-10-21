@@ -32,6 +32,7 @@ protected:
     // Graphics
     virtual void DrawCross(int w, int x, int y);
     virtual void DrawCross(int w, int x, int y, int coli);
+    virtual void SetDrawColor(int cluster);
 
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

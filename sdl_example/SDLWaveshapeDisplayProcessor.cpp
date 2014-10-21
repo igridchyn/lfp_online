@@ -223,6 +223,12 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 	SDL_Keymod kmod = SDL_GetModState();
 	bool need_redraw = false;
 
+	if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
+		// update
+		SDL_RenderPresent(renderer_);
+		return;
+	}
+
 	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
 			if (e.button.button == SDL_BUTTON_LEFT){
 				// select cluster

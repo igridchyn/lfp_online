@@ -49,6 +49,7 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
     
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
 }
 
 
@@ -111,4 +112,8 @@ void SDLSingleWindowDisplay::DrawRect(const int& x, const int& y, const int& w,
 
 	 SDL_SetRenderDrawColor(renderer_, palette_.getR(col_id), palette_.getG(col_id), palette_.getB(col_id), 255);
 	 SDL_RenderDrawRect(renderer_, &rect);
+}
+
+void SDLSingleWindowDisplay::SetDrawColor(int cid) {
+	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
 }

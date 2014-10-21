@@ -162,6 +162,7 @@ void FetFileReaderProcessor::process() {
 
 	if (num_files_with_spikes_ == 0){
 		buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
+		return;
 	}
 
 	// PROFILING
