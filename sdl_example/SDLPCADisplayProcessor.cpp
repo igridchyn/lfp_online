@@ -116,24 +116,8 @@ void SDLPCADisplayProcessor::process(){
 
         int x;
         int y;
+        getSpikeCoords(spike, x ,y);
 
-        // time
-        // TODO: check numeration
-        if (comp1_ == 16){
-        	x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
-        }
-        else{
-        	float rawx = spike->getFeature(comp1_, num_pc_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-        	x = rawx / scale_ + shift_x_;
-
-        }
-        if (comp2_ == 16){
-        	y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
-        }
-        else{
-        	float rawy = spike->getFeature(comp2_, num_pc_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
-        	y = rawy / scale_ + shift_y_;
-        }
 
         // polygon cluster
         // TODO use scaled coordinates
@@ -163,7 +147,8 @@ void SDLPCADisplayProcessor::process(){
         if (refractory_display_cluster_ >= 0 && spike->cluster_id_ == refractory_display_cluster_){
         	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
 				SDL_SetRenderDrawColor(renderer_, 255, 0, 0,255);
-				DrawCross(3, x, y, refractory_display_cluster_);
+				// red = 5
+				DrawCross(3, x, y, 5);
         	}
 
         	refractory_last_time_ = spike->pkg_id_;
@@ -171,7 +156,8 @@ void SDLPCADisplayProcessor::process(){
 
         buffer->spike_buf_no_disp_pca++;
 
-        if (!(buffer->spike_buf_no_disp_pca % rend_freq_))
+        int freqmult = buffer->pipeline_status_ == PIPELINE_STATUS_READ_FET ? 30000 : 1;
+        if (!(buffer->spike_buf_no_disp_pca % (rend_freq_ * freqmult)))
             render = true;
     }
 
@@ -285,11 +271,36 @@ void SDLPCADisplayProcessor::reset_spike_pointer(){
 		buffer->spike_buf_no_disp_pca = 1;
 }
 
+void SDLPCADisplayProcessor::getSpikeCoords(const Spike *const spike, int& x, int& y) {
+	 // time
+	// TODO: check numeration
+	if (comp1_ == 16){
+		x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+	}
+	else{
+		float rawx = spike->getFeature(comp1_, num_pc_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+		x = rawx / scale_ + shift_x_;
+
+	}
+	if (comp2_ == 16){
+		y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+	}
+	else{
+		float rawy = spike->getFeature(comp2_, num_pc_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+		y = rawy / scale_ + shift_y_;
+	}
+}
 
 void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	SDL_Keymod kmod = SDL_GetModState();
 
 	bool need_redraw = false;
+
+	if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
+		// update
+		SDL_RenderPresent(renderer_);
+		return;
+	}
 
 	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
 		if (e.button.button == SDL_BUTTON_LEFT){
@@ -353,8 +364,9 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 		}
 		else if (e.button.button == SDL_BUTTON_MIDDLE && polygon_y_.size() > 0){
+			// TODO !!! draw line without reset
 			polygon_closed_ = true;
-			reset_spike_pointer();
+			//reset_spike_pointer();
 		}
 	}
 
@@ -408,6 +420,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         	// polygon operations
         	case SDLK_a:{
         		addCluster();
+        		need_redraw = false;
         		break;
         	}
 
@@ -693,11 +706,30 @@ void SDLPCADisplayProcessor::addCluster() {
 	buffer->ResetAC(target_tetrode_, polygon_clusters_.size() - 1);
 
 	buffer->ResetPopulationWindow();
+
+	// not to redraw: iterate through spikes and redraw
+//	SDL_SetRenderTarget(renderer_, nullptr);
+//	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SetDrawColor(clun);
+	for (int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
+		Spike *spike = buffer->spike_buffer_[s];
+		if (spike == nullptr || spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ >= 0){
+			continue;
+		}
+
+		if (new_clust_.Contains(spike, spike->num_channels_)){
+			int x, y;
+			getSpikeCoords(spike, x, y);
+			spike->cluster_id_ = clun;
+			SDL_RenderDrawPoint(renderer_, x, y);
+		}
+	}
+	SDL_RenderPresent(renderer_);
 }
 
 void SDLPCADisplayProcessor::mergeClusters() {
 
-	// keep the cluster with the lowers number
+	// keep the cluster with the lowers numbers
 	if (user_context_.selected_cluster1_ > user_context_.selected_cluster2_){
 		int swap = user_context_.selected_cluster1_;
 		user_context_.selected_cluster1_ = user_context_.selected_cluster2_;
