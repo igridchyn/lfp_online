@@ -751,7 +751,7 @@ void SDLPCADisplayProcessor::addCluster() {
 	// TODO !!! buffer->resetAC()
 	// set to where it was reset...
 	// TODO check whether correct cluster number is given
-	buffer->ResetAC(target_tetrode_, polygon_clusters_.size() - 1);
+	// buffer->ResetAC(target_tetrode_, polygon_clusters_.size() - 1);
 
 	buffer->ResetPopulationWindow();
 

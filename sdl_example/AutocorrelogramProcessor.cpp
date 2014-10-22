@@ -23,7 +23,6 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true))
 , user_context_(buffer->user_context_){
-	buf->spike_buf_pos_auto_ = buffer->SPIKE_BUF_HEAD_LEN;
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 
@@ -91,7 +90,12 @@ void AutocorrelogramProcessor::process(){
 //					continue;
 //				}
 //			}
-			SetDisplayTetrode(display_tetrode_);
+
+			// TODO !! extract start reset
+			reset_mode_ = true;
+			reset_cluster_ = ua->cluster_number_1_;
+			reset_mode_end_ = buffer->spike_buf_pos_auto_;
+			buffer->spike_buf_pos_auto_ = 0;
 			break;
 
 		case UA_SELECT_CLUSTER1:
@@ -159,26 +163,21 @@ void AutocorrelogramProcessor::process(){
 			}
 		}
 
+		if (reset_mode_ && spike->tetrode_ != display_tetrode_){
+			buffer->spike_buf_pos_auto_++;
+			continue;
+		}
+
 		unsigned int tetrode = spike->tetrode_;
 		unsigned int cluster_id = spike->cluster_id_;
 		unsigned int stime = spike->pkg_id_;
-
-		// RESET
-		if (reset_mode_){
-			if (buffer->spike_buf_pos_auto_ == reset_mode_end_){
-				reset_mode_ = false;
-			}
-			else if(spike->tetrode_ != display_tetrode_){
-				buffer->spike_buf_pos_auto_++;
-				continue;
-			}
-		}
 
 		// update autocorrelation bins
 		std::list<unsigned int>& prev_spikes_queue = spike_times_lists_[tetrode][cluster_id];
 
 		int max_diff = BIN_SIZE * NBINS;
 
+		// update autocorrs for new spike`
 		for (std::list<unsigned int>::iterator si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
 			if (stime - *si > max_diff){
 				continue;
@@ -224,7 +223,18 @@ void AutocorrelogramProcessor::process(){
 
 		buffer->spike_buf_pos_auto_++;
 
-		plotACorCCs(tetrode, spike->cluster_id_);
+		// TODO ??? check change in performance
+		//plotACorCCs(tetrode, spike->cluster_id_);
+
+
+	}
+
+	// RESET
+	// TODO process only given cluster in the reset mode
+	if (reset_mode_ && buffer->spike_buf_pos_auto_ >= reset_mode_end_){
+		reset_mode_ = false;
+		reset_cluster_ = -1;
+		SetDisplayTetrode(display_tetrode_);
 	}
 }
 
