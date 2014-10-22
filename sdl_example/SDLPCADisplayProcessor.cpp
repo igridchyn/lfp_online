@@ -258,6 +258,15 @@ void SDLPCADisplayProcessor::process(){
 			TextOut(ss.str());
 		}
 
+		// if were redrawing in an off-line mode, draw all collected spikes
+		if (buffer->pipeline_status_ != PIPELINE_STATUS_ONLINE){
+			for (int cid=0; cid <  polygon_clusters_[target_tetrode_].size(); ++cid){
+				SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
+				SDL_RenderDrawPoints(renderer_, &spikes_to_draw_[cid][0], spikes_counts_[cid]);
+				spikes_counts_[cid] = 0;
+			}
+		}
+
     	// doesn't draw with render OR texture target
         SDL_SetRenderTarget(renderer_, nullptr);
         // without copying only part is displayed AND only before redrawing
@@ -345,7 +354,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 						else{
 							user_context_.SelectCluster1(c);
 						}
-						need_redraw = true;
+						//need_redraw = true;
 						break;
 					}
 				}
@@ -366,7 +375,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 						else{
 							user_context_.SelectCluster2(c);
 						}
-						need_redraw = true;
+						//need_redraw = true;
 						break;
 					}
 				}
@@ -449,6 +458,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         	// merge clusters
         	case SDLK_m:
+        		need_redraw = false;
         		if (user_context_.selected_cluster1_ < 0 || user_context_.selected_cluster2_ < 0)
         			break;
         		else{
@@ -788,16 +798,29 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	// ??? change spike cluster from the beginning, redraw after
 	// TODO: just set to -1 ?
-	for(int sind = buffer->SPIKE_BUF_HEAD_LEN; sind < buffer->spike_buf_no_disp_pca; ++sind){
+	int scount = 0;
+	SDL_SetRenderTarget(renderer_, texture_);
+	SetDrawColor(user_context_.selected_cluster1_);
+	for(int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 		Spike *spike = buffer->spike_buffer_[sind];
 		if (spike->tetrode_ != target_tetrode_)
 			continue;
 
-		if (spike->cluster_id_ == user_context_.selected_cluster2_)
+		if (spike->cluster_id_ == user_context_.selected_cluster2_){
 			spike->cluster_id_ = user_context_.selected_cluster1_;
+			int x,y;
+			getSpikeCoords(spike, x, y);
+			points_[scount++ ] = {x, y};
+		}
 	}
 
 	// remove cluster from list of tetrode poly clusters
 	user_context_.MergeClusters(polygon_clusters_[target_tetrode_][user_context_.selected_cluster1_], polygon_clusters_[target_tetrode_][user_context_.selected_cluster2_]);
 	buffer->ResetPopulationWindow();
+
+	// TODO !!! extract
+	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
+	SDL_SetRenderTarget(renderer_, nullptr);
+	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SDL_RenderPresent(renderer_);
 }
