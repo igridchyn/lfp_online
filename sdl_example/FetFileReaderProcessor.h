@@ -15,15 +15,15 @@
 #include <vector>
 
 class FetFileReaderProcessor: public LFPProcessor {
-	const std::string fet_path_base_;
+	std::string fet_path_base_;
 	std::vector< std::ifstream * > fet_streams_;
 
 	const unsigned int SAMPLING_RATE = 1000;
-	unsigned int last_pkg_id_;
+	unsigned int last_pkg_id_ = 0;
 
 	const unsigned int WINDOW_SIZE;
 
-	unsigned int num_files_with_spikes_;
+	unsigned int num_files_with_spikes_ = 0;
 
 	std::vector<bool> file_over_;
 	std::vector<Spike *> last_spikies_;
@@ -38,13 +38,17 @@ class FetFileReaderProcessor: public LFPProcessor {
 	bool binary_ = false;
 
 	unsigned int report_rate_;
-	unsigned int last_reported_;
+	unsigned int last_reported_ = 0;
 
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
+	int current_file_ = -1;
+
+	void openNextFile();
+
 public:
 	FetFileReaderProcessor(LFPBuffer *buffer);
-	FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers, const unsigned int window_size);
+	FetFileReaderProcessor(LFPBuffer *buffer, const unsigned int window_size);
 	virtual ~FetFileReaderProcessor();
 
 	// LFPProcessor

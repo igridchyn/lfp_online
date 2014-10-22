@@ -138,6 +138,16 @@ Config::Config(std::string path) {
 					}
 				}
 
+				if (key == "spike.reader.files.number"){
+					int nfiles = atoi(value.c_str());
+					for (int i=0; i < nfiles; ++i){
+						std::getline(fconf, line);
+						if (line[0] != '/' || line[1] != '\''){
+							spike_files_.push_back(line);
+						}
+					}
+				}
+
 			}
 			else{
 				std::cout << "WARNING: unreadable config entry: " << line << "\n";

@@ -9,53 +9,22 @@
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 :FetFileReaderProcessor(buffer,
-		buffer->config_->getString("spike.reader.path.base"),
-		buffer->config_->tetrodes,
 		buffer->config_->getInt("spike.reader.window", 2000)
 		){
 
 }
 
-FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const std::string fet_path_base, const std::vector<int>& tetrode_numbers, const unsigned int window_size)
+FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned int window_size)
 : LFPProcessor(buffer)
-, fet_path_base_(fet_path_base)
 , WINDOW_SIZE(window_size)
 , read_spk_(buffer->config_->getBool("spike.reader.spk.read"))
 , read_whl_(buffer->config_->getBool("spike.reader.whl.read"))
-, binary_(buffer->config_->getBool("spike.reader.binary")){
+, binary_(buffer->config_->getBool("spike.reader.binary"))
+, report_rate_(buffer->SAMPLING_RATE * 60 * 5)
+, num_files_with_spikes_(buffer->tetr_info_->tetrodes_number){
 	// number of feature files that still have spike records
-	num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
 	file_over_.resize(num_files_with_spikes_);
-
-	std::string extapp = binary_ ? "b" : "";
-
-	int dum_ncomp;
-	for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-		fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
-		if (read_spk_){
-			spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
-		}
-
-		if (read_whl_){
-			whl_file_ = new std::ifstream(fet_path_base_ + "whl");
-			int pos_first_pkg_id = -1;
-			(*whl_file_) >> pos_first_pkg_id;
-			buffer->pos_first_pkg_ = pos_first_pkg_id;
-		}
-
-		// read number of records per spike in the beginning of the file
-		if (!binary_){
-			*(fet_streams_[t]) >> dum_ncomp;
-		}
-		Spike *tspike = readSpikeFromFile(t);
-		while(tspike == nullptr && !file_over_[t]){
-			tspike = readSpikeFromFile(t);
-		}
-		last_spikies_.push_back(tspike);
-	}
-
-	report_rate_ = buffer->SAMPLING_RATE * 60 * 5;
-	buffer->pipeline_status_ = PIPELINE_STATUS_READ_FET;
+	openNextFile();
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
@@ -157,13 +126,75 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	return spike;
 }
 
+void FetFileReaderProcessor::openNextFile() {
+	if (current_file_ < (int)buffer->config_->spike_files_.size() - 1){
+		current_file_ ++;
+
+		// TODO !!! close previous files
+		int num_files_ = fet_streams_.size();
+		for (int i=0; i < num_files_; ++i){
+			fet_streams_[i]->close();
+			delete fet_streams_[i];
+			if (read_spk_){
+				spk_streams_[i]->close();
+				delete spk_streams_[i];
+			}
+			if (read_whl_){
+				whl_file_->close();
+				delete whl_file_;
+			}
+
+			file_over_[i] = false;
+		}
+
+		num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
+
+		fet_path_base_ = buffer->config_->spike_files_[current_file_];
+		std::vector<int>& tetrode_numbers = buffer->config_->tetrodes;
+
+		std::string extapp = binary_ ? "b" : "";
+
+		int dum_ncomp;
+		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+			fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
+			if (read_spk_){
+				spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
+			}
+
+			if (read_whl_){
+				whl_file_ = new std::ifstream(fet_path_base_ + "whl");
+				int pos_first_pkg_id = -1;
+				(*whl_file_) >> pos_first_pkg_id;
+				buffer->pos_first_pkg_ = pos_first_pkg_id;
+			}
+
+			// read number of records per spike in the beginning of the file
+			if (!binary_){
+				*(fet_streams_[t]) >> dum_ncomp;
+			}
+			Spike *tspike = readSpikeFromFile(t);
+			while(tspike == nullptr && !file_over_[t]){
+				tspike = readSpikeFromFile(t);
+			}
+			last_spikies_.push_back(tspike);
+		}
+
+		buffer->pipeline_status_ = PIPELINE_STATUS_READ_FET;
+	}
+}
+
 void FetFileReaderProcessor::process() {
 	// TODO: sampling rate ? - how defined ? by external loop ?
 	int last_spike_pkg_id = last_pkg_id_;
 
 	if (num_files_with_spikes_ == 0){
-		buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
-		return;
+		if (current_file_ < buffer->config_->spike_files_.size() - 1){
+			openNextFile();
+		}
+		else{
+			buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
+			return;
+		}
 	}
 
 	// PROFILING

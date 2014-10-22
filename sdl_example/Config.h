@@ -39,6 +39,8 @@ public:
 
 	std::vector<unsigned int> synchrony_tetrodes_;
 
+	std::vector<std::string> spike_files_;
+
 	Config(std::string path);
 
 	int getInt(std::string name);
