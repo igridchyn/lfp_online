@@ -66,6 +66,14 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     double power_threshold_factor_ = 0.1;
     const double power_threshold_factor_step_ = 1.05;
 
+    // caching points to display to speedup
+    // ONLY for during massive redraw operations
+    // per cluster
+    // TODO !!! parametrize
+    const unsigned int spikes_draw_freq_ = 5000;
+    std::vector<SDL_Point *> spikes_to_draw_;
+    std::vector<unsigned int> spikes_counts_;
+
     void save_polygon_clusters();
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }

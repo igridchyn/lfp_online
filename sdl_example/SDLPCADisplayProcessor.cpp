@@ -78,6 +78,14 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     }
 
     points_ = new SDL_Point[1000000];
+
+    // TODO !!! parametrize
+    const unsigned int MAX_CLUST = 30;
+    spikes_to_draw_.resize(MAX_CLUST);
+    for (int c = 0; c < MAX_CLUST; ++c) {
+    	spikes_to_draw_[c] = new SDL_Point[spikes_draw_freq_];
+	}
+    spikes_counts_.resize(MAX_CLUST);
 }
 
 void SDLPCADisplayProcessor::process(){
@@ -140,8 +148,22 @@ void SDLPCADisplayProcessor::process(){
         // TODO ??? don't display artifacts and unknown with the same color
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
 
-        SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
-        SDL_RenderDrawPoint(renderer_, x, y);
+        // if not online, collect and draw in batches
+        if (buffer->pipeline_status_ != PIPELINE_STATUS_ONLINE){
+        	spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+        }
+        else{
+        	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
+        	SDL_RenderDrawPoint(renderer_, x, y);
+        }
+
+        // check if spike batch has to be drawn
+        if (spikes_counts_[cid] >= spikes_draw_freq_)
+        {
+        	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
+        	SDL_RenderDrawPoints(renderer_, &spikes_to_draw_[cid][0], spikes_counts_[cid]);
+        	spikes_counts_[cid] = 0;
+        }
 
         // display refractory spike
         if (refractory_display_cluster_ >= 0 && spike->cluster_id_ == refractory_display_cluster_){
@@ -571,14 +593,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         }
 
-        // control for requesting unavailable channels
-//        if (old_comp1 != comp1_ && (comp1_ % nchan_ >= nchan_)){
-//        	comp1_ = old_comp1;
-//        }
-//
-//        if (old_comp2 != comp2_ && (comp2_ % nchan_ >= nchan_)){
-//        	comp2_ = old_comp2;
-//        }
+        if (comp1_ != old_comp1 || comp2_ != old_comp2){
+        	// TODO parametrize
+        	for (int i=0; i < 40; ++i){
+        		spikes_counts_[i] = 0;
+        	}
+        }
     }
 
     if (need_redraw){
