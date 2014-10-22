@@ -75,54 +75,70 @@ void AutocorrelogramProcessor::process(){
 
 	// TODO process user actions (no need in reset above then)
 	// TODO don't process at every call
-	if (buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
-		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
-		if (spike != nullptr){
-			while(user_context_.HasNewAction(last_proc_ua_id_)){
-				// process new user action
 
-				const UserAction *ua = user_context_.GetNextAction(last_proc_ua_id_);
-				last_proc_ua_id_ = ua->id_;
+	while(user_context_.HasNewAction(last_proc_ua_id_)){
+		// process new user action
 
-				switch(ua->action_type_){
-				case UA_DELETE_CLUSTER:
-					clearACandCCs(ua->cluster_number_1_);
-					SetDisplayTetrode(display_tetrode_);
-					break;
-				case UA_MERGE_CLUSTERS:{
-					// cluster 1 was deleted and cluster 2 has to be updated
-					int clun = ua->cluster_number_1_;
-					SetDisplayTetrode(display_tetrode_);
+		const UserAction *ua = user_context_.GetNextAction(last_proc_ua_id_);
+		last_proc_ua_id_ = ua->id_;
 
-					// merge CCs and ACs
-					for(int i = 0; i < NBINS; ++i){
-						autocorrs_[display_tetrode_][clun][i] += autocorrs_[display_tetrode_][ua->cluster_number_2_][i];
-						autocorrs_[display_tetrode_][clun][i] += cross_corrs_[display_tetrode_][ua->cluster_number_2_][clun][i];
-						autocorrs_[display_tetrode_][clun][i] += cross_corrs_[display_tetrode_][clun][ua->cluster_number_2_][i];
-					}
+		switch(ua->action_type_){
+		case UA_CREATE_CLUSTER:
+			// TODO extract from main and new cluster computation of AC
+//			for (int i=0; i < buffer->spike_buf_pos_auto_; ++i){
+//				Spike *spike = buffer->spike_buffer_[i];
+//				if (spike == nullptr || spike->discarded_ || spike->cluster_id_ != ua->cluster_number_1_){
+//					continue;
+//				}
+//			}
+			SetDisplayTetrode(display_tetrode_);
+			break;
 
-					for (int c = 0; c < MAX_CLUST; ++c) {
-						for (int b = 0; b < NBINS; ++b) {
-							cross_corrs_[display_tetrode_][clun][c][b] += cross_corrs_[display_tetrode_][ua->cluster_number_2_][c][b];
-							cross_corrs_[display_tetrode_][c][clun][b] += cross_corrs_[display_tetrode_][c][ua->cluster_number_2_][b];
-						}
-					}
+		case UA_SELECT_CLUSTER1:
+			SetDisplayTetrode(display_tetrode_);
 
-					clearACandCCs(ua->cluster_number_2_);
+			break;
+		case UA_SELECT_CLUSTER2:
 
-					break;
-				}
+			SetDisplayTetrode(display_tetrode_);
 
-				case UA_ADD_EXCLUSIVE_PROJECTION:
-					reset_mode_ = true;
-					reset_mode_end_ = buffer->spike_buf_pos_auto_;
-					reset_cluster_ = ua->cluster_number_1_;
-					buffer->spike_buf_pos_auto_ = 0;
-					clearACandCCs(ua->cluster_number_1_);
+			break;
+		case UA_DELETE_CLUSTER:
+			clearACandCCs(ua->cluster_number_1_);
+			SetDisplayTetrode(display_tetrode_);
+			break;
+		case UA_MERGE_CLUSTERS:{
+			// cluster 1 was deleted and cluster 2 has to be updated
+			int clun = ua->cluster_number_1_;
+			SetDisplayTetrode(display_tetrode_);
 
-					break;
+			// merge CCs and ACs
+			for(int i = 0; i < NBINS; ++i){
+				autocorrs_[display_tetrode_][clun][i] += autocorrs_[display_tetrode_][ua->cluster_number_2_][i];
+				autocorrs_[display_tetrode_][clun][i] += cross_corrs_[display_tetrode_][ua->cluster_number_2_][clun][i];
+				autocorrs_[display_tetrode_][clun][i] += cross_corrs_[display_tetrode_][clun][ua->cluster_number_2_][i];
+			}
+
+			for (int c = 0; c < MAX_CLUST; ++c) {
+				for (int b = 0; b < NBINS; ++b) {
+					cross_corrs_[display_tetrode_][clun][c][b] += cross_corrs_[display_tetrode_][ua->cluster_number_2_][c][b];
+					cross_corrs_[display_tetrode_][c][clun][b] += cross_corrs_[display_tetrode_][c][ua->cluster_number_2_][b];
 				}
 			}
+
+			clearACandCCs(ua->cluster_number_2_);
+
+			break;
+		}
+
+		case UA_ADD_EXCLUSIVE_PROJECTION:
+			reset_mode_ = true;
+			reset_mode_end_ = buffer->spike_buf_pos_auto_;
+			reset_cluster_ = ua->cluster_number_1_;
+			buffer->spike_buf_pos_auto_ = 0;
+			clearACandCCs(ua->cluster_number_1_);
+
+			break;
 		}
 	}
 
@@ -213,16 +229,20 @@ void AutocorrelogramProcessor::process(){
 }
 
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
-	return ((BWIDTH + 1) * NBINS + 15) * (clust % XCLUST) + 30;
+	return ((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 1);
 }
 
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {
-	return (clust / XCLUST) * ypix_ + 100;
+	return (clust / (XCLUST / 2)) * ypix_ + 100;
 }
 
 
 unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1,
 		const unsigned int& clust2) {
+	// TODO !!! dont use XCLUST, implement paging ??? [XCLU_SHIFT, YCLU_SHIFT, controlled by arrows and controllable by arros]
+	// 	+ set corresponding when a pair is chosen
+	//  + cluster select
+	// 	+ miniaturized preview (with 1-sized bins without interval)
 	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * ((clust1 - 2) % XCLUST) + (CC_BWIDTH + 1) * NBINS;
 }
 
@@ -239,8 +259,8 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 	SDL_Rect rect;
 	int height = ypix_;
 	rect.h = height;
-	rect.w = (BWIDTH + 1) * NBINS;
-	rect.x = xsh;
+	rect.w = 2 * (BWIDTH + 1) * NBINS;
+	rect.x = xsh - (BWIDTH + 1) * NBINS;
 	rect.y = ysh - height;
 	SDL_RenderDrawRect(renderer_, &rect);
 }
@@ -290,7 +310,7 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	SDL_SetRenderTarget(renderer_, texture_);
 	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 	SDL_RenderClear(renderer_);
-	SDL_RenderPresent(renderer_);
+	//SDL_RenderPresent(renderer_);
 
 	for (int c=0; c < MAX_CLUST; ++c) {
 		plotACorCCs(display_tetrode_, c);
@@ -491,8 +511,15 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 		rect.x = xsh + b * (BWIDTH + 1);
 		rect.y = ysh - height;
 
+		SDL_Rect rectmir;
+		rectmir.h = height;
+		rectmir.w = BWIDTH;
+		rectmir.x = xsh - (b + 1) * (BWIDTH + 1);
+		rectmir.y = ysh - height;
+
 		SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster % palette_.NumColors()), palette_.getG(cluster % palette_.NumColors()), palette_.getB(cluster % palette_.NumColors()), 255);
 		SDL_RenderFillRect(renderer_, &rect);
+		SDL_RenderFillRect(renderer_, &rectmir);
 	}
 }
 
