@@ -115,7 +115,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	if (stime < 400)
 		return nullptr;
 
-	spike->pkg_id_ = stime >= 0 ? stime : 0;
+	spike->pkg_id_ = (stime >= 0 ? stime : 0) + shift_;
 	spike->aligned_ = true;
 
 	if (fet_stream.eof()){
@@ -146,6 +146,8 @@ void FetFileReaderProcessor::openNextFile() {
 
 			file_over_[i] = false;
 		}
+		fet_streams_.clear();
+		spk_streams_.clear();
 
 		num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
 
@@ -189,6 +191,8 @@ void FetFileReaderProcessor::process() {
 
 	if (num_files_with_spikes_ == 0){
 		if (current_file_ < buffer->config_->spike_files_.size() - 1){
+			shifts_.push_back(last_pkg_id_);
+			shift_ = last_pkg_id_;
 			openNextFile();
 		}
 		else{
@@ -205,12 +209,12 @@ void FetFileReaderProcessor::process() {
 
 	// read pos from whl
 	int last_pos_pkg_id = last_pkg_id_;
-	while(last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE){
+	while(last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
 		unsigned int *pos_entry = buffer->positions_buf_[buffer->pos_buf_pos_];
 		(*whl_file_) >> pos_entry[0] >> pos_entry[1] >> pos_entry[2] >> pos_entry[3] >> pos_entry[4];
 
 		buffer->pos_buf_pos_ ++;
-		last_pos_pkg_id += 512;
+		last_pos_pkg_id = pos_entry[4];
 		// TODO !!! rewind
 	}
 
@@ -231,6 +235,7 @@ void FetFileReaderProcessor::process() {
 		}
 
 		// add the earliest spike to the buffer and
+		// UPDATE pkg_id to inuclude the shift
 		buffer->AddSpike(last_spikies_[earliest_spike_tetrode_]);
 		last_spike_pkg_id = earliest_spike_time_;
 
