@@ -493,7 +493,7 @@ void PCAExtractionProcessor::process(){
                 	// TODO parametrize waveshape dimension
                 	std::string save_path = pc_path_ + Utils::NUMBERS[channel] + std::string(".txt");
                     saveArray(save_path, pc_transform_[channel], num_pc_, waveshape_samples_);
-                    buffer->Log(std::string("Saved GMM model for tetrode ") + Utils::NUMBERS[tetr] + " to " + save_path);
+                    buffer->Log(std::string("Saved PC transform for tetrode ") + Utils::NUMBERS[tetr] + " to " + save_path);
                 }
                 
                 // DEBUG - print PCA transform matrix

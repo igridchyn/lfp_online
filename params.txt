@@ -1,0 +1,7 @@
+synchrony
+	population window: < 30 ms
+	cooldown: < 100 ms
+	synchrony factor: < 2.0
+
+jc117_0921_5s
+	30/100/2.0 false negative due to long cd, too late detection due to long window, almost no FPs

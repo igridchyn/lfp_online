@@ -70,7 +70,7 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     // ONLY for during massive redraw operations
     // per cluster
     // TODO !!! parametrize
-    const unsigned int spikes_draw_freq_ = 5000;
+    const unsigned int spikes_draw_freq_ = 50000;
     std::vector<SDL_Point *> spikes_to_draw_;
     std::vector<unsigned int> spikes_counts_;
 
