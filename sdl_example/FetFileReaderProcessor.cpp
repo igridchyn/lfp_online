@@ -17,13 +17,20 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned int window_size)
 : LFPProcessor(buffer)
 , WINDOW_SIZE(window_size)
-, read_spk_(buffer->config_->getBool("spike.reader.spk.read"))
-, read_whl_(buffer->config_->getBool("spike.reader.whl.read"))
-, binary_(buffer->config_->getBool("spike.reader.binary"))
+, read_spk_(buffer->config_->getBool("spike.reader.spk.read", false))
+, read_whl_(buffer->config_->getBool("spike.reader.whl.read", false))
+, binary_(buffer->config_->getBool("spike.reader.binary", false))
 , report_rate_(buffer->SAMPLING_RATE * 60 * 5)
 , num_files_with_spikes_(buffer->tetr_info_->tetrodes_number){
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
+
+	if (buffer->config_->spike_files_.size() == 0){
+		Log("ERROR: 0 spike files in the list");
+		// TODO replace all exits with throwing exceptions
+		exit(20);
+	}
+
 	openNextFile();
 }
 
@@ -79,8 +86,8 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	int chno = buffer->tetr_info_->channels_numbers[tetr];
 	spike->num_channels_ = chno;
 
-	std::ifstream& spk_stream = *(spk_streams_[tetr]);
 	if (read_spk_){
+		std::ifstream& spk_stream = *(spk_streams_[tetr]);
 		spike->waveshape = new int*[chno];
 
 		for (int c=0; c < chno; ++c){
@@ -209,7 +216,7 @@ void FetFileReaderProcessor::process() {
 
 	// read pos from whl
 	int last_pos_pkg_id = last_pkg_id_;
-	while(last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
+	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
 		unsigned int *pos_entry = buffer->positions_buf_[buffer->pos_buf_pos_];
 		(*whl_file_) >> pos_entry[0] >> pos_entry[1] >> pos_entry[2] >> pos_entry[3] >> pos_entry[4];
 

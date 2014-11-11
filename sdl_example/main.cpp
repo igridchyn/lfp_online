@@ -33,7 +33,7 @@ void draw_bin() {
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
-//	Config *config = new Config("../Res/decoding_32_jc84.conf");
+	Config *config = new Config("../Res/decoding_32_jc84.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
 //	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
 //	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");/
@@ -46,7 +46,7 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
 //	Config *config = new Config("../Res/nocon.conf");
 //	Config *config = new Config("../Res/spike_detection_jc117_0921_6l.conf");
-	Config *config = new Config("../Res/spike_detection_jc117_0921_5s.conf");
+//	Config *config = new Config("../Res/spike_detection_jc117_0921_5s.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1000_l.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
 //	Config *config = new Config("../Res/spike_reader_jc118_1001_4l.conf");

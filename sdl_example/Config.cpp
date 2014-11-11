@@ -249,7 +249,7 @@ std::string Config::getString(std::string name, std::string def_val) {
 
 std::string Config::getOutPath(std::string outname) {
 	std::string outval = getString(outname);
-	bool append = getBool("out.path.append");
+	bool append = getBool("out.path.append", false);
 
 	if (append){
 		outval = getString("out.path.base") + outval;
