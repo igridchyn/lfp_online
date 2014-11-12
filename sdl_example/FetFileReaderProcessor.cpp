@@ -60,6 +60,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		if (!binary_){
 			for (int pc=0; pc < npc; ++pc) {
 				fet_stream >> spike->pc[t][pc];
+				spike->pc[t][pc] /= 5;
 			}
 		}
 		else{
