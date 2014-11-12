@@ -102,7 +102,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SIGMA_A(sigma_a)
 	, SIGMA_XX(sigma_xx)
 	, LX_WEIGHT(1.0)
-	, HMM_TP_WEIGHT(1.0){
+	, HMM_TP_WEIGHT(1.0)
+	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false)){
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 

@@ -135,7 +135,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	// not to start processing of the same SWR twice - memorize which one was processed last
 	unsigned int last_processed_swr_start_ = 0;
 	unsigned int SWR_SLOWDOWN_DELAY = 23 * 1000000;
-	const bool SWR_SWITCH = false;
+	const bool SWR_SWITCH;
 	const unsigned int HMM_RESET_RATE = 60 * 1000000;
 
 	// STATS / DEBUG
