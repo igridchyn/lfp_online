@@ -101,9 +101,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SIGMA_X(sigma_x)
 	, SIGMA_A(sigma_a)
 	, SIGMA_XX(sigma_xx)
-	, LX_WEIGHT(1.0)
 	, HMM_TP_WEIGHT(1.0)
-	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false)){
+	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false))
+	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)){
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 
@@ -434,9 +434,6 @@ void KDClusteringProcessor::process(){
 
 			// predict from spike in window
 
-			// edges of the window
-			const double DE_SEC = 100 / 1000.0;
-
 			// prediction only after having on all fields
 			if (n_pf_built_ < buffer->tetr_info_->tetrodes_number){
 				buffer->spike_buf_pos_clust_ ++;
@@ -463,7 +460,7 @@ void KDClusteringProcessor::process(){
 
 					swr_regime_ = true;
 					// TODO configurableize
-					PRED_WIN = 400;
+					PRED_WIN = 300;
 
 					last_pred_pkg_id_ = buffer->swrs_.front()[0];
 					last_processed_swr_start_ = buffer->swrs_.front()[0];
@@ -488,6 +485,8 @@ void KDClusteringProcessor::process(){
 					// reset HMM
 					reset_hmm();
 					buffer->swrs_.pop();
+					swr_counter_ ++;
+					swr_win_counter_ = 0;
 				}
 			}
 
@@ -510,18 +509,10 @@ void KDClusteringProcessor::process(){
 
 				// PROFILE
 //				time_t kds = clock();
-				// 0.5 ms for eps = 0.1, 0.02 ms - for eps = 10.0, prediction quality - ???
+				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
 				// TODO : quantify dependence of prediction quality on the EPS
 				kdtrees_[stetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
 //				std::cout << "kd time = " << clock() - kds << "\n";
-
-				// STATS - distances to the nearest neighbour - to compare distributions in SWR and theta
-//				if (swr_regime_){
-//					dist_swr_ << dist << "\n";
-//				}
-//				else{
-//					dist_theta_ << dist << "\n";
-//				}
 
 				// add 'place field' of the spike with the closest wave shape
 				pos_pred_ += laxs_[stetr][closest_ind];
@@ -535,9 +526,13 @@ void KDClusteringProcessor::process(){
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
 
+				// edges of the window
+				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE;
+
 				for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 					if (tetr_spiked_[t]){
-						pos_pred_ -= LX_WEIGHT * DE_SEC  * lxs_[t];
+						// TODO: depricated LX_WEIGHT, was introduced only for debugging purposes
+						pos_pred_ -= DE_SEC  * lxs_[t];
 					}
 				}
 
@@ -546,8 +541,9 @@ void KDClusteringProcessor::process(){
 					std::cout << "prediction within SWR...\n";
 
 					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
-						usleep(1000 * 1500);
+						// usleep(1000 * 1500);
 					}
+
 				}
 
 				last_pred_probs_ = pos_pred_;
@@ -557,11 +553,21 @@ void KDClusteringProcessor::process(){
 
 //				double minval = arma::min(arma::min(pos_pred_));
 //				pos_pred_ = pos_pred_ - minval;
-				pos_pred_ = arma::exp(pos_pred_ / 300);
+				pos_pred_ = arma::exp(pos_pred_ / 200);
 
 				// updated in HMM
 				buffer->last_prediction_ = pos_pred_.t();
 				buffer->last_preidction_window_end_ = last_pred_pkg_id_ + PRED_WIN;
+
+				if (swr_regime_){
+					// DEBUG save prediction
+					pos_pred_.save("../out/jc84_1910/" + std::string("swr_") + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
+					swr_win_counter_ ++;
+				}
+				else{
+					pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
+					swr_win_counter_ ++;
+				}
 
 				// DEBUG
 //				if (!(last_pred_pkg_id_ % 200)){
@@ -585,6 +591,7 @@ void KDClusteringProcessor::process(){
 					std::cout << "Bayesian prediction window bias control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
 				}
 
+				// TODO: extract
 				pos_pred_ = USE_PRIOR ? (buffer->tetr_info_->tetrodes_number * pix_log_) : arma::mat(NBINS, NBINS, arma::fill::zeros);
 
 				// return to display prediction etc...

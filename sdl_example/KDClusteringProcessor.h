@@ -55,7 +55,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	const float SPEED_THOLD;
 
 	const bool USE_HMM;
-	const float LX_WEIGHT;
 	const float HMM_TP_WEIGHT;
 
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
@@ -134,9 +133,12 @@ class KDClusteringProcessor: public LFPProcessor {
 	bool swr_regime_ = false;
 	// not to start processing of the same SWR twice - memorize which one was processed last
 	unsigned int last_processed_swr_start_ = 0;
-	unsigned int SWR_SLOWDOWN_DELAY = 23 * 1000000;
+	// delay before starting to slow down for SWR reconstruction display
+	unsigned int SWR_SLOWDOWN_DELAY;
 	const bool SWR_SWITCH;
 	const unsigned int HMM_RESET_RATE = 60 * 1000000;
+	unsigned int swr_counter_ = 0;
+	unsigned int swr_win_counter_ = 0;
 
 	// STATS / DEBUG
 	std::ofstream dist_theta_;

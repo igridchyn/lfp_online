@@ -47,7 +47,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , RREDICTION_FIRING_RATE_THRESHOLD(prediction_fr_thold)
 , MIN_PKG_ID(min_pkg_id)
 , USE_PRIOR(use_prior)
-, display_prediction_(buf->config_->getBool("pf.display.prediction")){
+, display_prediction_(buf->config_->getBool("pf.display.prediction"))
+, prediction_rate_(buf->config_->getInt("pf.prediction.rate")){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
