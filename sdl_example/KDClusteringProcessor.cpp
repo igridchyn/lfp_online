@@ -460,7 +460,7 @@ void KDClusteringProcessor::process(){
 
 					swr_regime_ = true;
 					// TODO configurableize
-					PRED_WIN = 300;
+					PRED_WIN = 400;
 
 					last_pred_pkg_id_ = buffer->swrs_.front()[0];
 					last_processed_swr_start_ = buffer->swrs_.front()[0];
@@ -553,7 +553,7 @@ void KDClusteringProcessor::process(){
 
 //				double minval = arma::min(arma::min(pos_pred_));
 //				pos_pred_ = pos_pred_ - minval;
-				pos_pred_ = arma::exp(pos_pred_ / 200);
+				pos_pred_ = arma::exp(pos_pred_ / 50);
 
 				// updated in HMM
 				buffer->last_prediction_ = pos_pred_.t();
@@ -565,8 +565,8 @@ void KDClusteringProcessor::process(){
 					swr_win_counter_ ++;
 				}
 				else{
-					pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
-					swr_win_counter_ ++;
+					//pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
+					//swr_win_counter_ ++;
 				}
 
 				// DEBUG
