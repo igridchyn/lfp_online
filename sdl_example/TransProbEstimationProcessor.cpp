@@ -17,8 +17,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer* buf)
 			buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1,
 			buf->config_->getInt("tp.step"),
 			buf->config_->getString("kd.path.base"),
-			buf->config_->getBool("kd.save"),
-			!buf->config_->getBool("kd.save"),
+			buf->config_->getBool("tp.save"),
+			buf->config_->getBool("tp.load"),
 			buf->config_->getBool("tp.smooth"),
 			buf->config_->getBool("tp.use.parametric"),
 			buf->config_->getFloat("tp.par.sigma"),
@@ -95,7 +95,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			}	
 
 			// DEBUG
-//			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + ".mat", arma::raw_ascii);
+			// trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + ".mat", arma::raw_ascii);
 		}
 
 		buffer->tps_ = trans_probs_;
