@@ -386,7 +386,7 @@ void KDClusteringProcessor::process(){
 			}
 			else{
 				// sample every SAMLING_RATE spikes for KDE estimation
-				if (missed_spikes_[tetr] < SAMPLING_RATE - 1){
+				if (missed_spikes_[tetr] < SAMPLING_RATE){
 					missed_spikes_[tetr] ++;
 					buffer->spike_buf_pos_clust_ ++;
 					continue;
