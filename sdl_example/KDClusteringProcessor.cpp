@@ -103,7 +103,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SIGMA_XX(sigma_xx)
 	, HMM_TP_WEIGHT(1.0)
 	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false))
-	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)){
+	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0))
+	, DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)){
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 
@@ -293,7 +294,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 //	}
 
 	// for consistency of comparison
-	if (last_pred_pkg_id_ > 46 * 1000000){
+	if (last_pred_pkg_id_ > DUMP_DELAY){
 		// STATS - dump best HMM trajectory by backtracking
 		std::ofstream dec_hmm("dec_hmm.txt");
 		int t = hmm_traj_[0].size() - 1;
@@ -321,7 +322,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		}
 		dec_hmm.flush();
 
-		std::cout << "Exit after dumping the HMM prediction...\n";
+		std::cout << "Exit after dumping the HMM prediction ( " << DUMP_DELAY << "...\n";
 		// TODO: dump in constructor / parametrized
 		exit(0);
 	}

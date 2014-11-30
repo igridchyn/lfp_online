@@ -32,9 +32,11 @@ void draw_bin() {
 	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
+//	Config *config = new Config("../Res/build_model_jc118_1003.conf");
+	Config *config = new Config("../Res/decoding_jc118_1003.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
-	Config *config = new Config("../Res/decoding_32_jc84_SWR.conf");
+//	Config *config = new Config("../Res/decoding_32_jc84_SWR.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
 //	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
 //	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");/
@@ -55,6 +57,7 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_reader_jc118_1002_7s.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1002_10s.conf");
 //	Config *config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
+//	Config *config = new Config("../Res/spike_detection_jc118_1003_3l.conf");
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");

@@ -152,6 +152,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	//		[bin][t] is 'best' previous bin at t-1, backtracking rule: bin_{t-1} = [bin_t][t]
 	std::vector<std::vector<int> > hmm_traj_;
 
+	const unsigned int DUMP_DELAY;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

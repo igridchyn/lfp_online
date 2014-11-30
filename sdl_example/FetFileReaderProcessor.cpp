@@ -21,7 +21,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , read_whl_(buffer->config_->getBool("spike.reader.whl.read", false))
 , binary_(buffer->config_->getBool("spike.reader.binary", false))
 , report_rate_(buffer->SAMPLING_RATE * 60 * 5)
-, num_files_with_spikes_(buffer->tetr_info_->tetrodes_number){
+, num_files_with_spikes_(buffer->tetr_info_->tetrodes_number)
+, FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0)){
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
 
@@ -60,7 +61,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		if (!binary_){
 			for (int pc=0; pc < npc; ++pc) {
 				fet_stream >> spike->pc[t][pc];
-				spike->pc[t][pc] /= 5;
+				spike->pc[t][pc] /= FET_SCALING; // default = 5.0
 			}
 		}
 		else{

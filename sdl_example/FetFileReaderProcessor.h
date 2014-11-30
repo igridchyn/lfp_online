@@ -46,6 +46,8 @@ class FetFileReaderProcessor: public LFPProcessor {
 	unsigned int shift_ = 0;
 	std::vector<unsigned int> shifts_;
 
+	double FET_SCALING;
+
 	void openNextFile();
 
 public:
