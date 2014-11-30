@@ -129,7 +129,7 @@ long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 	return - sum / 2;
 }
 
-void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma::mat& occupancy) {
+void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma::mat& occupancy, const double& avg_firing_rate) {
 	arma::mat pf(NBINS, NBINS, arma::fill::zeros);
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
@@ -203,7 +203,7 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			// scaled by MULT_INT ^ 2
 //			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
 			if (occupancy(xb, yb)/occ_sum >= MIN_OCC){
-				pf(xb, yb) = log(kern_sum / nspikes / occupancy(xb, yb));
+				pf(xb, yb) = log(kern_sum / nspikes / occupancy(xb, yb) * avg_firing_rate);
 			}
 		}
 	}
@@ -450,7 +450,7 @@ int main(int argc, char **argv){
 //				exit(0);
 		}
 
-		build_pax_(tetr, p, pix);
+		build_pax_(tetr, p, pix, mu);
 	}
 
 	// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
