@@ -136,7 +136,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	// delay before starting to slow down for SWR reconstruction display
 	unsigned int SWR_SLOWDOWN_DELAY;
 	const bool SWR_SWITCH;
-	const unsigned int HMM_RESET_RATE = 60 * 1000000;
+	const unsigned int HMM_RESET_RATE;
 	unsigned int swr_counter_ = 0;
 	unsigned int swr_win_counter_ = 0;
 
@@ -153,6 +153,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<std::vector<int> > hmm_traj_;
 
 	const unsigned int DUMP_DELAY;
+	unsigned int last_hmm_reset_pkg = 0;
 
 	void update_hmm_prediction();
 	void reset_hmm();

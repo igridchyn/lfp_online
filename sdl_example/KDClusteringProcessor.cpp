@@ -104,7 +104,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, HMM_TP_WEIGHT(1.0)
 	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false))
 	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0))
-	, DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)){
+	, DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000))
+	, HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)){
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 
@@ -322,7 +323,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		}
 		dec_hmm.flush();
 
-		std::cout << "Exit after dumping the HMM prediction ( " << DUMP_DELAY << "...\n";
+		std::cout << "Exit after dumping the HMM prediction (" << DUMP_DELAY << ")...\n";
 		// TODO: dump in constructor / parametrized
 		exit(0);
 	}
@@ -581,8 +582,6 @@ void KDClusteringProcessor::process(){
 				// re-init prediction variables
 				tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
 
-//				reset_hmm();
-
 				if (USE_HMM)
 					update_hmm_prediction();
 
@@ -639,7 +638,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
-			SAMPLING_RATE << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
+			SAMPLING_RATE + 1 << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx)\n\t" << os.str() << "\n";
 
