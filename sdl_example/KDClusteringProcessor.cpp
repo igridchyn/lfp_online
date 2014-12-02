@@ -714,3 +714,7 @@ void KDClusteringProcessor::JoinKDETasks(){
     }
     std::cout << "All KDE jobs joined...\n";
 }
+
+std::string KDClusteringProcessor::name(){
+	return "KDClusteringProcessor";
+}

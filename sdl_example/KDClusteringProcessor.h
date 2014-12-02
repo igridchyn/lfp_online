@@ -182,6 +182,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
+	virtual std::string name();
 };
 
 #endif /* KDCLUSTERINGPROCESSOR_H_ */
