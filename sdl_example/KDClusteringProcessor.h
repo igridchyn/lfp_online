@@ -155,6 +155,11 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int DUMP_DELAY;
 	unsigned int last_hmm_reset_pkg = 0;
 
+	bool use_intervals_;
+	std::vector<unsigned int> interval_starts_;
+	std::vector<unsigned int> interval_ends_;
+	unsigned int current_interval_;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

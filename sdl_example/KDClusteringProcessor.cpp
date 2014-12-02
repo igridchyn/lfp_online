@@ -105,7 +105,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false))
 	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0))
 	, DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000))
-	, HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)){
+	, HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000))
+	, use_intervals_(buf->config_->getBool("kd.use.intervals", false)){
 
 	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
 
@@ -200,6 +201,18 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 			<< MIN_SPIKES << " " << sampling_rate << " " << sampling_delay<< " " << NBINS << " " << BIN_SIZE << "\n";
 	fparams.close();
 	std::cout << "Running params written to " << parpath << "\n";
+
+	if (use_intervals_){
+		std::string intpath = buf->config_->getString("kd.intervals.path");
+		std::ifstream intfile(intpath);
+		while (!intfile.eof()){
+			int ints = 0, inte = 0;
+			intfile >> ints >> inte;
+			interval_starts_.push_back(ints);
+			interval_ends_.push_back(inte);
+		}
+		intfile.close();
+	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -387,6 +400,26 @@ void KDClusteringProcessor::process(){
 				}
 			}
 			else{
+
+				if (use_intervals_){
+					// if after current interval -> advance interval pointer
+					if (current_interval_ < interval_starts_.size() && spike->pkg_id_ > interval_ends_[current_interval_]) {
+						Log("Advance to next interval with spike at ", spike->pkg_id_);
+						current_interval_ ++;
+					}
+
+					// out of intervals
+					if (current_interval_ >= interval_starts_.size()) {
+						buffer->spike_buf_pos_clust_ ++;
+						continue;
+					}
+
+					if (spike->pkg_id_ < interval_starts_[current_interval_]) {
+						buffer->spike_buf_pos_clust_ ++;
+						continue;
+					}
+				}
+
 				// sample every SAMLING_RATE spikes for KDE estimation
 				if (missed_spikes_[tetr] < SAMPLING_RATE){
 					missed_spikes_[tetr] ++;
@@ -634,11 +667,24 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
+	unsigned int last_pkg_id = buffer->last_pkg_id;
+	// if using intervals, provide sum of interval lengthes until last_pkg_id
+	if (use_intervals_){
+		last_pkg_id = 0;
+		for (int i = 0; i < current_interval_; ++i) {
+			last_pkg_id += interval_ends_[i] - interval_starts_[i];
+		}
+		if (current_interval_ < interval_starts_.size())
+			last_pkg_id += buffer->last_pkg_id - interval_starts_[current_interval_];
+		Log("Due to interval usage, calling KDE with ", (int)last_pkg_id);
+		Log("	while the real last_pkg_id is ", (int)buffer->last_pkg_id);
+	}
+
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
-			SAMPLING_RATE + 1 << " " << buffer->SAMPLING_RATE << " " << buffer->last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
+			SAMPLING_RATE + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx)\n\t" << os.str() << "\n";
 
