@@ -101,7 +101,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 	, SIGMA_X(sigma_x)
 	, SIGMA_A(sigma_a)
 	, SIGMA_XX(sigma_xx)
-	, HMM_TP_WEIGHT(1.0)
 	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false))
 	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0))
 	, DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000))
@@ -256,7 +255,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 					int shx = xb - x + HMM_NEIGHB_RAD;
 					int shy = yb - y + HMM_NEIGHB_RAD;
 
-					prob_xy += HMM_TP_WEIGHT * buffer->tps_[y * NBINS + x](shx, shy);
+					prob_xy += buffer->tps_[y * NBINS + x](shx, shy);
 					if (prob_xy > best_to_xb_yb){
 						best_to_xb_yb = prob_xy;
 						bestx = x;

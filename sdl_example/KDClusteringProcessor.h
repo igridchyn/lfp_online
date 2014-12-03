@@ -55,7 +55,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	const float SPEED_THOLD;
 
 	const bool USE_HMM;
-	const float HMM_TP_WEIGHT;
 
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
 	const unsigned int N_FEAT = 12;
