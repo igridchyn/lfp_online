@@ -11,6 +11,7 @@
 		B00005F419015CDD00502C4B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B00005F319015CDD00502C4B /* libxml2.dylib */; };
 		B00005F61901697900502C4B /* libmlpack.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B00005F51901697900502C4B /* libmlpack.1.0.dylib */; };
 		B00005F81901B71D00502C4B /* libarmadillo.3.92.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */; };
+		B01A32031A305230004CC713 /* FetFileWriterProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B01A32011A305230004CC713 /* FetFileWriterProcessor.cpp */; };
 		B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */; };
 		B03EACBB18FDA9170087C88F /* PCAExtractionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */; };
 		B03EACBF18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */; };
@@ -72,6 +73,8 @@
 		B00005F319015CDD00502C4B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		B00005F51901697900502C4B /* libmlpack.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmlpack.1.0.dylib; path = ../../../../opt/local/lib/libmlpack.1.0.dylib; sourceTree = "<group>"; };
 		B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libarmadillo.3.92.2.dylib; path = ../../../../opt/local/lib/libarmadillo.3.92.2.dylib; sourceTree = "<group>"; };
+		B01A32011A305230004CC713 /* FetFileWriterProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FetFileWriterProcessor.cpp; sourceTree = "<group>"; };
+		B01A32021A305230004CC713 /* FetFileWriterProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FetFileWriterProcessor.h; sourceTree = "<group>"; };
 		B03EACB618FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WaveshapeReconstructionProcessor.cpp; sourceTree = "<group>"; };
 		B03EACB918FDA9170087C88F /* PCAExtractionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCAExtractionProcessor.cpp; sourceTree = "<group>"; };
 		B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLSignalDisplayProcessor.cpp; sourceTree = "<group>"; };
@@ -195,6 +198,8 @@
 		B052743C18A9375500193EAA /* sdl_example */ = {
 			isa = PBXGroup;
 			children = (
+				B01A32011A305230004CC713 /* FetFileWriterProcessor.cpp */,
+				B01A32021A305230004CC713 /* FetFileWriterProcessor.h */,
 				B049D23319E8846700CC0DC3 /* FrequencyPowerBandProcessor.h */,
 				B049D23419E8846700CC0DC3 /* LFPBuffer.cpp */,
 				B049D23519E8846700CC0DC3 /* SDLSingleWindowDisplay.h */,
@@ -352,6 +357,7 @@
 				B03EACB818FD8A350087C88F /* WaveshapeReconstructionProcessor.cpp in Sources */,
 				B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */,
 				B087CAAB19862D7100FC5E01 /* TransProbEstimationProcessor.cpp in Sources */,
+				B01A32031A305230004CC713 /* FetFileWriterProcessor.cpp in Sources */,
 				B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */,
 				B04F236619CAD2E100D0EAC3 /* PolygonCluster.cpp in Sources */,
 				B087CAAC19862D7100FC5E01 /* WhlFileReaderProcessor.cpp in Sources */,

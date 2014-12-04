@@ -20,16 +20,15 @@ void draw_bin() {
 	Config *config = nullptr;
 	config = new Config(cpath);
 	//config->Init();
-	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #elif defined(__APPLE__)
     // square wave signal - for delay and stability testing
 //    Config *config = new Config("../Res/signal_display_mac.conf");
     
     // decoding position with best params - from fet files
-    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
+//    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
+    Config *config = new Config("../Res/decoding_jc118_1003_env2_mac.conf");
     
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
-	FILE *f = fopen(config->getString("bin.path").c_str(), "rb");
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003.conf");
@@ -65,6 +64,8 @@ void draw_bin() {
 
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
+#endif
+    
 	std::string binpath = config->getString("bin.path", "");
 	FILE *f = nullptr;
 
@@ -75,7 +76,7 @@ void draw_bin() {
 		}
 		f = fopen(binpath.c_str(), "rb");
 	}
-#endif
+
 
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
