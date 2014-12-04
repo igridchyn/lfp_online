@@ -296,14 +296,14 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	int corry = (int)buffer->positions_buf_[ind][1];
 
 //	if (corrx != 1023 && last_pred_pkg_id_ > 20 * 1000000){
-		unsigned int x,y;
-		last_pred_probs_.max(x, y);
-		x = BIN_SIZE * (x + 0.5);
-		y = BIN_SIZE * (y + 0.5);
-		float eb = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
-		err_bay_ << sqrt(eb) << "\n";
-		dec_coords_ << x << " " << y << " " << corrx << " " << corry << "\n";
-		dec_coords_.flush();
+//		unsigned int x,y;
+//		last_pred_probs_.max(x, y);
+//		x = BIN_SIZE * (x + 0.5);
+//		y = BIN_SIZE * (y + 0.5);
+//		float eb = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
+//		err_bay_ << sqrt(eb) << "\n";
+//		dec_coords_ << x << " " << y << " " << corrx << " " << corry << "\n";
+//		dec_coords_.flush();
 //	}
 
 	// for consistency of comparison
@@ -654,11 +654,30 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	unsigned int npoints = 0;
 	// TODO sparse sampling
 	arma::Mat<int> pos_buf(2, buffer->pos_buf_pos_);
+	unsigned int pos_interval = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		// if pos is unknown or speed is below the threshold - ignore
 		if (buffer->positions_buf_[n][0] == 1023 || buffer->positions_buf_[n][5] < SPEED_THOLD){
 			continue;
 		}
+
+		// skip if out of the intervals
+		if (use_intervals_){
+			// TODO account for buffer rewinds
+			unsigned int pos_time = 512 * n;
+			while (pos_interval < interval_starts_.size() && pos_time > interval_ends_[pos_interval]){
+				pos_interval ++;
+			}
+
+			if (pos_interval >= interval_starts_.size()){
+				continue;
+			}
+
+			if (pos_time < interval_starts_[pos_interval]){
+				continue;
+			}
+		}
+
 		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
 		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
 		npoints++;
