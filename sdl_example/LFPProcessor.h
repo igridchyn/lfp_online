@@ -68,6 +68,8 @@ class LFPProcessor{
     
 protected:
     LFPBuffer* buffer = nullptr;
+    const unsigned int processor_number_ = 0;
+
     virtual void Log(std::string message);
     virtual void Log(std::string message, int num);
     virtual void Log(std::string message, double num);
@@ -75,8 +77,9 @@ protected:
 public:
     virtual std::string name();
     virtual void process() = 0;
-    LFPProcessor(LFPBuffer *buf)
-    :buffer(buf){}
+    LFPProcessor(LFPBuffer *buf, const unsigned int& processor_number = 0)
+    : buffer(buf)
+    , processor_number_(processor_number){}
 	virtual ~LFPProcessor(){ buffer->Log(std::string("Destructor of") + name()); }
 };
 

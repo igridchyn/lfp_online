@@ -45,8 +45,9 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	kdtree_stream.close();
 }
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf)
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int& processor_number)
 	: KDClusteringProcessor(buf,
+			processor_number,
 			buf->config_->getInt("kd.min.spikes"),
 			buf->config_->getOutPath("kd.path.base"),
 			buf->config_->getInt("kd.sampling.delay"),
@@ -71,7 +72,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf)
 }
 
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int num_spikes,
+KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int& processor_number, const unsigned int num_spikes,
 		const std::string base_path,
 		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
 		const unsigned int sampling_rate, const float speed_thold, const float eps,
@@ -79,7 +80,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int 
 		const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
 		const unsigned int mult_int,
 		const double sigma_x, const double sigma_a, const double sigma_xx)
-	: LFPProcessor(buf)
+	: LFPProcessor(buf, processor_number)
 	, MIN_SPIKES(num_spikes)
 	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
 	, BASE_PATH(base_path)

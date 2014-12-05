@@ -36,6 +36,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
 	const std::vector<std::string>& processor_names = buf->config_->processors_list_;
 
+	std::map<std::string, unsigned int> processor_numbers;
+
 	for (int i = 0; i < processor_names.size(); ++i) {
 		std::string proc_name = processor_names[i];
 
@@ -50,7 +52,7 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 		} else if (proc_name == "GMMClustering"){
 			processors.push_back(new GMMClusteringProcessor(buf));
 		} else if (proc_name == "KDClustering"){
-			processors.push_back(new KDClusteringProcessor(buf));
+			processors.push_back(new KDClusteringProcessor(buf, processor_numbers[proc_name]));
 		} else if (proc_name == "PackageExtractor"){
 			processors.push_back(new PackageExractorProcessor(buf));
 		} else if (proc_name == "PCAExtraction"){
@@ -99,6 +101,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			buf->log_stream << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			exit(1);
 		}
+
+		processor_numbers[proc_name] ++;
 	}
 }
 
