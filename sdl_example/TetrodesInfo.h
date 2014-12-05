@@ -33,6 +33,8 @@ public:
     // group by electrode
 	int *tetrode_by_channel = nullptr;
     
+	static const int* pc_per_chan;
+
     int number_of_channels(Spike* spike);
 
     static TetrodesInfo* GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to);

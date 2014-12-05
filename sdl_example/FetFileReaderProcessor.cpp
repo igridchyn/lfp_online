@@ -48,15 +48,17 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	spike->tetrode_ = tetr;
 	spike->cluster_id_ = -1;
 
-	// TODO !!! read from config / tetrode info
-	const int ntetr = 4;
-	const int npc = 3;
+	const int chno = buffer->tetr_info_->channels_numbers[tetr];
 
-	spike->pc = new float*[ntetr];
+	// TODO read from config / with default
+	const int npc = TetrodesInfo::pc_per_chan[chno];
+
+	spike->pc = new float*[chno];
+	spike->num_channels_ = chno;
 
 	std::ifstream& fet_stream = *(fet_streams_[tetr]);
 
-	for (int t=0; t < ntetr; ++t) {
+	for (int t=0; t < chno; ++t) {
 		spike->pc[t] = new float[npc];
 		if (!binary_){
 			for (int pc=0; pc < npc; ++pc) {
@@ -84,8 +86,6 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 
 	// TODO !!! read other features
-
-	int chno = buffer->tetr_info_->channels_numbers[tetr];
 	spike->num_channels_ = chno;
 
 	if (read_spk_){

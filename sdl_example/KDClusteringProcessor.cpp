@@ -362,6 +362,9 @@ void KDClusteringProcessor::process(){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 		const unsigned int tetr = spike->tetrode_;
 
+		const int NCHAN = buffer->tetr_info_->channels_numbers[tetr];
+		const int NPC = TetrodesInfo::pc_per_chan[NCHAN];
+
 		// wait until place fields are stabilized
 		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
 			buffer->spike_buf_pos_clust_ ++;
@@ -429,21 +432,23 @@ void KDClusteringProcessor::process(){
 
 				obs_spikes_[tetr].push_back(spike);
 
+				// TODO configurable with default
+
 				// copy features and coords to ann_points_int and obs_mats
-				for (int pc=0; pc < 3; ++pc) {
+				for (int pc=0; pc < NPC; ++pc) {
 					// TODO: tetrode channels
-					for(int chan=0; chan < 4; ++chan){
-						ann_points_[tetr][total_spikes_[tetr]][chan * 3 + pc] = spike->pc[chan][pc];
+					for(int chan=0; chan < NCHAN; ++chan){
+						ann_points_[tetr][total_spikes_[tetr]][chan * NPC + pc] = spike->pc[chan][pc];
 
 						// save integer with increased precision for integer KDE operations
-						ann_points_int_[tetr][total_spikes_[tetr]][chan * 3 + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
+						ann_points_int_[tetr][total_spikes_[tetr]][chan * NPC + pc] = (int)round(spike->pc[chan][pc] * MULT_INT);
 
 						// set from the obs_mats after computing the coordinates normalizing factor
 //						spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
 //						spike_coords_int_[tetr](total_spikes_[tetr], 1) = (int)round(spike->y * MULT_INT);
 
 						// tmp: for stats
-						obs_mats_[tetr](total_spikes_[tetr], chan * 3 + pc) = spike->pc[chan][pc];
+						obs_mats_[tetr](total_spikes_[tetr], chan * NPC + pc) = spike->pc[chan][pc];
 					}
 				}
 
@@ -529,15 +534,16 @@ void KDClusteringProcessor::process(){
 			int closest_ind;
 			// at this points all tetrodes have pfs !
 			// TODO don't need speed (for prediction), can take more spikes
+
 			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
 				const unsigned int stetr = spike->tetrode_;
 				tetr_spiked_[stetr] = true;
 
 				// TODO: convert PC in spike to linear array
-				for (int pc=0; pc < 3; ++pc) {
+				for (int pc=0; pc < NPC; ++pc) {
 					// TODO: tetrode channels
-					for(int chan=0; chan < 4; ++chan){
-						pnt[chan * 3 + pc] = spike->pc[chan][pc];
+					for(int chan=0; chan < NCHAN; ++chan){
+						pnt[chan * NPC + pc] = spike->pc[chan][pc];
 					}
 				}
 

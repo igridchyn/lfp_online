@@ -114,3 +114,5 @@ bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
 	}
 	return true;
 }
+
+const int* TetrodesInfo::pc_per_chan = new int[5] {0, 5, 4, 4, 3};

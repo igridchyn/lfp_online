@@ -17,8 +17,7 @@ void draw_bin() {
 #ifdef _WIN32
 	//std::string cpath("../Res/signal_display_win_bin.conf");
 	std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
-	Config *config = nullptr;
-	config = new Config(cpath);
+	Config *config = new Config(cpath);
 	//config->Init();
 #elif defined(__APPLE__)
     // square wave signal - for delay and stability testing
