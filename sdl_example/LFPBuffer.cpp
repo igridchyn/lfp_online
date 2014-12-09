@@ -30,9 +30,28 @@ void LFPBuffer::Reset(Config* config) {
 	spike_buf_pos_fet_writer_ = 0;
 	spike_buf_pos_ws_disp_ = 0;
 
+	// main tetrode info
 	if (tetr_info_)
 		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
+
+	// load alternative TetrodeInfos (used by some processors)
+	bool tiexists = true;
+	std::string tipath = config->getString("tetr.conf.path.0", config->getString("tetr.conf.path"));
+	int ticount = 1;
+	while (tiexists){
+		alt_tetr_infos_.push_back(new TetrodesInfo(tipath));
+		tipath = config_->getString(std::string("tetr.conf.path.") + Utils::NUMBERS[ticount], "");
+
+		if (tipath.length() == 0){
+			tiexists = false;
+		}
+
+		ticount ++;
+	}
+	std::stringstream ss;
+	ss << "Loaded " << ticount-1 << " alternative tetrode configurations...";
+	Log(ss.str());
 
 	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number, 40, arma::fill::zeros);
 	log_stream << "Buffer reset\n";

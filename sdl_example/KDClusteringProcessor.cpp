@@ -40,75 +40,51 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 
 	pf_built_[t] = true;
 
+	// TODO !!! remove similar spikes from the tree before using for search
+	// 	beware of indices changes
 	std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree");
 	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
 	kdtree_stream.close();
 }
 
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int& processor_number)
-	: KDClusteringProcessor(buf,
-			processor_number,
-			buf->config_->getInt("kd.min.spikes"),
-			buf->config_->getOutPath("kd.path.base"),
-			buf->config_->getInt("kd.sampling.delay"),
-			buf->config_->getBool("kd.save"),
-			!buf->config_->getBool("kd.save"),
-			buf->config_->getBool("kd.use.prior"),
-			buf->config_->getInt("kd.sampling.rate"),
-			buf->config_->getFloat("kd.speed.thold"),
-			buf->config_->getFloat("kd.nn.eps"),
-			buf->config_->getBool("kd.use.hmm"),
-			buf->config_->getInt("nbins"),
-			buf->config_->getInt("bin.size"),
-			buf->config_->getInt("kd.hmm.neighb.rad"),
-			buf->config_->getInt("kd.prediction.delay"),
-			buf->config_->getInt("kd.nn.k"),
-			buf->config_->getInt("kd.nn.k.space"),
-			buf->config_->getInt("kd.mult.int"),
-			buf->config_->getFloat("kd.sigma.x"),
-			buf->config_->getFloat("kd.sigma.a"),
-			buf->config_->getFloat("kd.sigma.xx")
-			){
-}
+	: LFPProcessor(buf,processor_number),
+			MIN_SPIKES(getInt("kd.min.spikes")),
+			BASE_PATH(getString("kd.path.base")),
+			SAMPLING_DELAY(getInt("kd.sampling.delay")),
+			SAVE(getBool("kd.save")),
+			LOAD(!getBool("kd.save")),
+			USE_PRIOR(getBool("kd.use.prior")),
+			SAMPLING_RATE(getInt("kd.sampling.rate")),
+			SPEED_THOLD(getFloat("kd.speed.thold")),
+			NN_EPS(getFloat("kd.nn.eps")),
+			USE_HMM(getBool("kd.use.hmm")),
+			NBINS(getInt("nbins")),
+			BIN_SIZE(getInt("bin.size")),
+			HMM_NEIGHB_RAD(getInt("kd.hmm.neighb.rad")),
+			PREDICTION_DELAY(getInt("kd.prediction.delay")),
+			NN_K(getInt("kd.nn.k")),
+			NN_K_COORDS(getInt("kd.nn.k.space")),
+			MULT_INT(getInt("kd.mult.int")),
+			SIGMA_X(getFloat("kd.sigma.x")),
+			SIGMA_A(getFloat("kd.sigma.a")),
+			SIGMA_XX(getFloat("kd.sigma.xx")),
+			SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false)),
+			SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)),
+			DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)),
+			HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)),
+			use_intervals_(buf->config_->getBool("kd.use.intervals", false)){
 
+	// load proper tetrode info
+	if (buf->alt_tetr_infos_.size() < processor_number_ + 1){
+		tetr_info_ = buf->alt_tetr_infos_[0];
+		Log("WARNING: using default tetrode info for processor number", (int)processor_number_);
+	}
+	else{
+		tetr_info_ = buf->alt_tetr_infos_[processor_number_];
+	}
 
-KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int& processor_number, const unsigned int num_spikes,
-		const std::string base_path,
-		const unsigned int sampling_delay, const bool save, const bool load, const bool use_prior,
-		const unsigned int sampling_rate, const float speed_thold, const float eps,
-		const bool use_hmm, const unsigned int nbins, const unsigned int bin_size, const int neighb_rad,
-		const unsigned int prediction_delay, const unsigned int nn_k, const unsigned int nn_k_coords,
-		const unsigned int mult_int,
-		const double sigma_x, const double sigma_a, const double sigma_xx)
-	: LFPProcessor(buf, processor_number)
-	, MIN_SPIKES(num_spikes)
-	//, BASE_PATH("/hd1/data/bindata/jc103/jc84/jc84-1910-0116/pf_ws/pf_"){
-	, BASE_PATH(base_path)
-	, SAMPLING_DELAY(sampling_delay)
-	, SAVE(save)
-	, LOAD(load)
-	, USE_PRIOR(use_prior)
-	, SAMPLING_RATE(sampling_rate)
-	, SPEED_THOLD(speed_thold)
-	, NN_EPS(eps)
-	, USE_HMM(use_hmm)
-	, NBINS(nbins)
-	, BIN_SIZE(bin_size)
-	, HMM_NEIGHB_RAD(neighb_rad)
-	, PREDICTION_DELAY(prediction_delay)
-	, NN_K(nn_k)
-	, NN_K_COORDS(nn_k_coords)
-	, MULT_INT(mult_int)
-	, SIGMA_X(sigma_x)
-	, SIGMA_A(sigma_a)
-	, SIGMA_XX(sigma_xx)
-	, SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false))
-	, SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0))
-	, DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000))
-	, HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000))
-	, use_intervals_(buf->config_->getBool("kd.use.intervals", false)){
-
-	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
+	const unsigned int tetrn = tetr_info_->tetrodes_number;
 
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
@@ -177,7 +153,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int&
 		}
 	}
 
-	tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
+	tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number, false);
 	// posterior position probabilities map
 	// initialize with log of prior = pi(x)
 
@@ -193,12 +169,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int&
 
 	hmm_traj_.resize(NBINS * NBINS);
 
-	std::string parpath = base_path + "params.txt";
+	std::string parpath = BASE_PATH + "params.txt";
 	std::ofstream fparams(parpath);
 	fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
-			sigma_x << " " << sigma_a << " " << sigma_xx<< " " << mult_int << " " << sampling_rate<< " "
-			<< nn_k << " "<< nn_k_coords << " "
-			<< MIN_SPIKES << " " << sampling_rate << " " << sampling_delay<< " " << NBINS << " " << BIN_SIZE << "\n";
+			SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX<< " " << MULT_INT << " " << SAMPLING_RATE<< " "
+			<< NN_K << " "<< NN_K_COORDS << " "
+			<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINS << " " << BIN_SIZE << "\n";
 	fparams.close();
 	std::cout << "Running params written to " << parpath << "\n";
 
@@ -213,6 +189,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer *buf, const unsigned int&
 		}
 		intfile.close();
 	}
+
+	buffer->last_predictions_.resize(processor_number_ + 1);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -345,7 +323,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// DEBUG
 //	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
-	buffer->last_prediction_ = arma::exp(hmm_prediction_.t() / 200);
+	buffer->last_predictions_[processor_number_] = arma::exp(hmm_prediction_.t() / 200);
 }
 
 void KDClusteringProcessor::reset_hmm() {
@@ -363,7 +341,7 @@ void KDClusteringProcessor::process(){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 		const unsigned int tetr = spike->tetrode_;
 
-		const int NCHAN = buffer->tetr_info_->channels_numbers[tetr];
+		const int NCHAN = tetr_info_->channels_numbers[tetr];
 		const int NPC = TetrodesInfo::pc_per_chan[NCHAN];
 
 		// wait until place fields are stabilized
@@ -475,7 +453,7 @@ void KDClusteringProcessor::process(){
 			// predict from spike in window
 
 			// prediction only after having on all fields
-			if (n_pf_built_ < buffer->tetr_info_->tetrodes_number){
+			if (n_pf_built_ < tetr_info_->tetrodes_number){
 				buffer->spike_buf_pos_clust_ ++;
 				continue;
 			}
@@ -570,7 +548,7 @@ void KDClusteringProcessor::process(){
 				// edges of the window
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE;
 
-				for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+				for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
 					if (tetr_spiked_[t]){
 						// TODO: depricated LX_WEIGHT, was introduced only for debugging purposes
 						pos_pred_ -= DE_SEC  * lxs_[t];
@@ -597,7 +575,7 @@ void KDClusteringProcessor::process(){
 				pos_pred_ = arma::exp(pos_pred_ / 50);
 
 				// updated in HMM
-				buffer->last_prediction_ = pos_pred_.t();
+				buffer->last_predictions_[processor_number_] = pos_pred_.t();
 				buffer->last_preidction_window_end_ = last_pred_pkg_id_ + PRED_WIN;
 
 				if (swr_regime_){
@@ -619,7 +597,7 @@ void KDClusteringProcessor::process(){
 				last_pred_pkg_id_ += PRED_WIN;
 
 				// re-init prediction variables
-				tetr_spiked_ = std::vector<bool>(buffer->tetr_info_->tetrodes_number, false);
+				tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number, false);
 
 				if (USE_HMM)
 					update_hmm_prediction();
@@ -631,7 +609,7 @@ void KDClusteringProcessor::process(){
 				}
 
 				// TODO: extract
-				pos_pred_ = USE_PRIOR ? (buffer->tetr_info_->tetrodes_number * pix_log_) : arma::mat(NBINS, NBINS, arma::fill::zeros);
+				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number * pix_log_) : arma::mat(NBINS, NBINS, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)
@@ -645,7 +623,7 @@ void KDClusteringProcessor::process(){
 void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
 	// dump required data and start process (due to non-thread-safety of ANN)
 	// build tree and dump it along with points
-	std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << buffer->tetr_info_->tetrodes_number << " finished... ";
+	std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
 	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 	std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 
@@ -699,8 +677,9 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		for (int i = 0; i < current_interval_; ++i) {
 			last_pkg_id += interval_ends_[i] - interval_starts_[i];
 		}
-		if (current_interval_ < interval_starts_.size())
+		if (current_interval_ < interval_starts_.size()) // && buffer->last_pkg_id < interval_ends_[current_interval_])
 			last_pkg_id += buffer->last_pkg_id - interval_starts_[current_interval_];
+
 		Log("Due to interval usage, calling KDE with ", (int)last_pkg_id);
 		Log("	while the real last_pkg_id is ", (int)buffer->last_pkg_id);
 	}
@@ -727,13 +706,14 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// TODO competitive
 	n_pf_built_ ++;
 
-	if (n_pf_built_ == buffer->tetr_info_->tetrodes_number){
-		std::cout << "KDE at all tetrodes done\n";
+	if (n_pf_built_ == tetr_info_->tetrodes_number){
+		std::cout << "KDE at all tetrodes done, exiting...\n";
+		exit(0);
 	}
 }
 
 void KDClusteringProcessor::JoinKDETasks(){
-    for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
+    for(int t=0; t < tetr_info_->tetrodes_number; ++t){
         if(fitting_jobs_running_[t])
             fitting_jobs_[t]->join();
     }

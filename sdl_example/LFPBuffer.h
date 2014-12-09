@@ -92,7 +92,9 @@ public:
 	int *CH_MAP_INV;
     
     TetrodesInfo *tetr_info_ = nullptr;
-    
+    // alternative tetrode infos (e.g. for other models)
+    std::vector<TetrodesInfo *> alt_tetr_infos_;
+
     // spikes buffer and POINTERS [all have to be reset at buffer rewind]
     Spike* *spike_buffer_ = nullptr;
     // position, at which next spike will be put
@@ -212,7 +214,8 @@ public:
 
     // TODO !WORKAOURD! implement exchange through interface between processors
     // ? predictions buffer ?
-    arma::mat last_prediction_;
+    // in case there are few processors, using processors are responsible for resizing
+    std::vector<arma::mat> last_predictions_;
     unsigned int last_preidction_window_end_;
 
     std::vector<arma::mat> tps_;

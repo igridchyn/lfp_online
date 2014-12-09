@@ -159,6 +159,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<unsigned int> interval_ends_;
 	unsigned int current_interval_;
 
+	// this one is assigned procces_number_-the loaded tetrode info
+	TetrodesInfo* tetr_info_;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 
