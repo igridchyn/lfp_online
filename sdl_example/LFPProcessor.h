@@ -75,6 +75,12 @@ protected:
     virtual void Log(std::string message, double num);
 
 public:
+    virtual int getInt(std::string name);
+    virtual std::string getString(std::string name);
+    virtual bool getBool(std::string name);
+    virtual float getFloat(std::string name);
+    virtual std::string getOutPath(std::string name);
+
     virtual std::string name();
     virtual void process() = 0;
     LFPProcessor(LFPBuffer *buf, const unsigned int& processor_number = 0)

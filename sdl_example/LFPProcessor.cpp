@@ -207,6 +207,61 @@ void LFPProcessor::Log(std::string message) {
 	buffer->Log(name() + ": " + message);
 }
 
+int LFPProcessor::getInt(std::string name) {
+	int p0val = buffer->config_->getInt(name);
+
+	if (processor_number_ > 0){
+		return buffer->config_->getInt(name + "." + Utils::NUMBERS[processor_number_], p0val);
+	}
+	else{
+		return p0val;
+	}
+}
+
+std::string LFPProcessor::getString(std::string name) {
+	std::string p0val = buffer->config_->getString(name);
+
+	if (processor_number_ > 0){
+		return buffer->config_->getString(name + "." + Utils::NUMBERS[processor_number_], p0val);
+	}
+	else{
+		return p0val;
+	}
+}
+
+bool LFPProcessor::getBool(std::string name) {
+	bool p0val = buffer->config_->getBool(name);
+
+	if (processor_number_ > 0){
+		return buffer->config_->getBool(name + "." + Utils::NUMBERS[processor_number_], p0val);
+	}
+	else{
+		return p0val;
+	}
+}
+
+float LFPProcessor::getFloat(std::string name) {
+	float p0val = buffer->config_->getFloat(name);
+
+	if (processor_number_ > 0){
+		return buffer->config_->getFloat(name + "." + Utils::NUMBERS[processor_number_], p0val);
+	}
+	else{
+		return p0val;
+	}
+}
+
+std::string LFPProcessor::getOutPath(std::string name) {
+	std::string p0val = buffer->config_->getOutPath(name);
+
+	if (processor_number_ > 0){
+		return buffer->config_->getOutPath(name + "." + Utils::NUMBERS[processor_number_], p0val);
+	}
+	else{
+		return p0val;
+	}
+}
+
 std::string LFPProcessor::name() {
 	return "<processor name not specified>";
 }
