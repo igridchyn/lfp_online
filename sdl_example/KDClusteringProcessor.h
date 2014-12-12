@@ -166,12 +166,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	unsigned int swr_counter_ = 0;
 	unsigned int swr_win_counter_ = 0;
 
-	// STATS / DEBUG
-	std::ofstream dist_theta_;
-	std::ofstream dist_swr_;
-	std::ofstream err_bay_;
-	std::ofstream err_hmm_;
-	std::ofstream dec_coords_;
 	int npred = 0;
 
 	// optimal trajectories TO each bin [bin][time]

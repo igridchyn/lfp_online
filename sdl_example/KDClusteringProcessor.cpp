@@ -161,13 +161,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	// TODO !!! priors
 	reset_hmm();
 
-	// STATS
-	dist_swr_.open((std::string("dist_swr.txt")));
-	dist_theta_.open((std::string("dist_theta.txt")));
-	err_bay_.open((std::string("err_bay.txt")));
-	err_hmm_.open((std::string("err_hmm.txt")));
-	dec_coords_.open("dec_coords.txt");
-
 	hmm_traj_.resize(NBINS * NBINS);
 
 	std::string parpath = BASE_PATH + "params.txt";
@@ -274,17 +267,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/512.0);
 	int corrx = buffer->positions_buf_[ind][0];
 	int corry = (int)buffer->positions_buf_[ind][1];
-
-//	if (corrx != 1023 && last_pred_pkg_id_ > 20 * 1000000){
-//		unsigned int x,y;
-//		last_pred_probs_.max(x, y);
-//		x = BIN_SIZE * (x + 0.5);
-//		y = BIN_SIZE * (y + 0.5);
-//		float eb = (corrx - x) * (corrx - x) + (corry - y) * (corry - y);
-//		err_bay_ << sqrt(eb) << "\n";
-//		dec_coords_ << x << " " << y << " " << corrx << " " << corry << "\n";
-//		dec_coords_.flush();
-//	}
 
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > DUMP_DELAY){
