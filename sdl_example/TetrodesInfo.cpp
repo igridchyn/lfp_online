@@ -7,7 +7,7 @@
 
 #include "TetrodesInfo.h"
 
-int TetrodesInfo::number_of_channels(Spike *spike){
+int TetrodesInfo::number_of_channels(Spike *spike) const{
     return channels_numbers[spike->tetrode_];
 }
 
@@ -83,6 +83,12 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 	}
 
 	tconfig.close();
+
+	tetrode_label_map_.resize(16, INVALID_TETRODE);
+	for (int t = 0; t < tetrodes_number; ++t) {
+		int abstetr = (int)floor(tetrode_channels[t][0] / 4);
+		tetrode_label_map_[abstetr] = t;
+	}
 }
 
 TetrodesInfo::TetrodesInfo() {
@@ -115,4 +121,9 @@ bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
 	return true;
 }
 
-const int* TetrodesInfo::pc_per_chan = new int[5] {0, 5, 4, 4, 3};
+const int* TetrodesInfo::pc_per_chan = new int[5] {0, 5, 4, 4, 3 };
+
+unsigned int TetrodesInfo::Translate(const TetrodesInfo* const ti, const unsigned int& tetr) {
+	int abstetr = (int)floor(ti->tetrode_channels[tetr][0] / 4);
+	return tetrode_label_map_[abstetr];
+}
