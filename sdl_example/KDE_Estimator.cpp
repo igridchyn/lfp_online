@@ -73,6 +73,9 @@ ANNpointArray ann_points_coords;
 // TODO init
 int total_spikes;
 
+std::vector<unsigned int> used_ids_;
+unsigned int NUSED = 0;
+
 void cache_spike_and_bin_neighbours(){
 
 	// CACHE spikes with closest WS
@@ -287,6 +290,18 @@ int main(int argc, char **argv){
 		ann_points_int[d] = new int[DIM];
 	}
 
+	// load indices of spikes where PFs have to be constructed
+	std::ifstream used_stream(BASE_PATH + "used_ids.txt");
+	unsigned int nused = 0;
+	used_stream >> nused;
+	for (int i=0; i < nused; ++i){
+		unsigned int used_id = -1;
+		used_stream >> used_id;
+		used_ids_.push_back(used_id);
+	}
+	NUSED = used_ids_.size();
+	used_stream.close();
+
 	// ---
 	// NORMALIZE STDS
 	// TODO: !!! KDE / kd-tree search should be performed with the same std normalization !!!
@@ -438,11 +453,14 @@ int main(int argc, char **argv){
 
 	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours)
 	time_t start = clock();
-	for (int p = 0; p < total_spikes; ++p) {
+	//for (int p = 0; p < total_spikes; ++p) {
+	for (int u=0; u < NUSED; ++u){
+		int p = used_ids_[u];
+
 		// DEBUG
-		if (!(p % 1000)){
+		if (!(u % 1000)){
 			std::cout.precision(2);
-			std::cout << "t " << tetr << ": " << p << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+			std::cout << "t " << tetr << ": " << u << " out of  " << NUSED << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
 			start = clock();
 
 			// PROFILING
@@ -455,9 +473,9 @@ int main(int argc, char **argv){
 
 	// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
 	if (SAVE){
-		arma::mat laxs_tetr_(NBINS, NBINS * MIN_SPIKES);
-		for (int s = 0; s < MIN_SPIKES; ++s) {
-			laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1) = lax[s];
+		arma::mat laxs_tetr_(NBINS, NBINS * NUSED);
+		for (int s = 0; s < NUSED; ++s) {
+			laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1) = lax[used_ids_[s]];
 		}
 		laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[tetr] + "_tetr.mat");
 	}
