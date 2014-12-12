@@ -183,6 +183,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	// this one is assigned procces_number_-the loaded tetrode info
 	TetrodesInfo* tetr_info_;
 
+	unsigned int& spike_buf_pos_clust_;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

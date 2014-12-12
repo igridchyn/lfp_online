@@ -74,7 +74,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)),
 			DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)),
 			HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)),
-			use_intervals_(buf->config_->getBool("kd.use.intervals", false)){
+			use_intervals_(buf->config_->getBool("kd.use.intervals", false)),
+			spike_buf_pos_clust_(buf->spike_buf_pos_clusts_[processor_number]){
 
 	// load proper tetrode info
 	if (buf->alt_tetr_infos_.size() < processor_number_ + 1){
@@ -271,7 +272,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > DUMP_DELAY){
 		// STATS - dump best HMM trajectory by backtracking
-		std::ofstream dec_hmm("dec_hmm.txt");
+		std::ofstream dec_hmm(std::string("dec_hmm_") + Utils::NUMBERS[processor_number_] +".txt");
 		int t = hmm_traj_[0].size() - 1;
 		// best last x,y
 		unsigned int x,y;
@@ -320,16 +321,21 @@ void KDClusteringProcessor::process(){
 	// TODO !!! check if buffer size affects prediction quality
 
 	// need both speed and PCs
-	while(buffer->spike_buf_pos_clust_ < MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
-		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
-		const unsigned int tetr = spike->tetrode_;
+	while(spike_buf_pos_clust_ < MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
+		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
+
+		if (tetr == TetrodesInfo::INVALID_TETRODE){
+			spike_buf_pos_clust_ ++;
+			continue;
+		}
 
 		const int NCHAN = tetr_info_->channels_numbers[tetr];
 		const int NPC = TetrodesInfo::pc_per_chan[NCHAN];
 
 		// wait until place fields are stabilized
 		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
-			buffer->spike_buf_pos_clust_ ++;
+			spike_buf_pos_clust_ ++;
 			continue;
 		}
 
@@ -340,7 +346,7 @@ void KDClusteringProcessor::process(){
 		}
 
 		if (spike->speed < SPEED_THOLD || spike->discarded_){
-			buffer->spike_buf_pos_clust_ ++;
+			spike_buf_pos_clust_ ++;
 			continue;
 		}
 
@@ -387,12 +393,12 @@ void KDClusteringProcessor::process(){
 
 					// out of intervals
 					if (current_interval_ >= interval_starts_.size()) {
-						buffer->spike_buf_pos_clust_ ++;
+						spike_buf_pos_clust_ ++;
 						continue;
 					}
 
 					if (spike->pkg_id_ < interval_starts_[current_interval_]) {
-						buffer->spike_buf_pos_clust_ ++;
+						spike_buf_pos_clust_ ++;
 						continue;
 					}
 				}
@@ -400,7 +406,7 @@ void KDClusteringProcessor::process(){
 				// sample every SAMLING_RATE spikes for KDE estimation
 				if (missed_spikes_[tetr] < SAMPLING_RATE){
 					missed_spikes_[tetr] ++;
-					buffer->spike_buf_pos_clust_ ++;
+					spike_buf_pos_clust_ ++;
 					continue;
 				}
 				missed_spikes_[tetr] = 0;
@@ -433,7 +439,7 @@ void KDClusteringProcessor::process(){
 				total_spikes_[tetr] ++;
 			}
 
-			buffer->spike_buf_pos_clust_ ++;
+			spike_buf_pos_clust_ ++;
 		}
 		else{
 			// if pf_built but job is designated as running, then it is over and can be joined
@@ -450,13 +456,13 @@ void KDClusteringProcessor::process(){
 
 			// prediction only after having on all fields
 			if (n_pf_built_ < tetr_info_->tetrodes_number){
-				buffer->spike_buf_pos_clust_ ++;
+				spike_buf_pos_clust_ ++;
 				continue;
 			}
 
 			// prediction only after reaching delay (place field stability, cross-validation etc.)
-			if (buffer->spike_buffer_[buffer->spike_buf_pos_clust_]->pkg_id_ < PREDICTION_DELAY){
-				buffer->spike_buf_pos_clust_ ++;
+			if (buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_ < PREDICTION_DELAY){
+				spike_buf_pos_clust_ ++;
 				continue;
 			} else if (!prediction_delay_reached_reported){
 				std::cout << "Prediction delay over (" << PREDICTION_DELAY << ").\n";
@@ -482,8 +488,8 @@ void KDClusteringProcessor::process(){
 					// rewind until the first spike in the SW
 					while(spike->pkg_id_ > last_pred_pkg_id_){
 						// TODO OOB control
-						buffer->spike_buf_pos_clust_ --;
-						spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
+						spike_buf_pos_clust_ --;
+						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
 
 					// reset HMM
@@ -510,8 +516,16 @@ void KDClusteringProcessor::process(){
 			// at this points all tetrodes have pfs !
 			// TODO don't need speed (for prediction), can take more spikes
 
-			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
-				const unsigned int stetr = spike->tetrode_;
+			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
+				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
+
+				if (stetr == TetrodesInfo::INVALID_TETRODE){
+					spike_buf_pos_clust_++;
+					// spike may be without speed (the last one) - but it's not crucial
+					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+					continue;
+				}
+
 				tetr_spiked_[stetr] = true;
 
 				// TODO: convert PC in spike to linear array
@@ -532,9 +546,9 @@ void KDClusteringProcessor::process(){
 				// add 'place field' of the spike with the closest wave shape
 				pos_pred_ += laxs_[stetr][closest_ind];
 
-				buffer->spike_buf_pos_clust_++;
+				spike_buf_pos_clust_++;
 				// spike may be without speed (the last one) - but it's not crucial
-				spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
+				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 			}
 
 			// if prediction is final and end of window has been reached (last spike is beyond the window)
@@ -613,6 +627,11 @@ void KDClusteringProcessor::process(){
 			}
 			// marginal rate function at each tetrode
 		}
+	}
+
+	// WORKAROUND
+	if (processor_number_ == 0){
+		buffer->spike_buf_pos_clust_ = spike_buf_pos_clust_;
 	}
 }
 
