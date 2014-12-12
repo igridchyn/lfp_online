@@ -14,6 +14,33 @@
 #include <ANN/ANN.h>
 #include <thread>
 #include <fstream>
+#include <map>
+
+class VertexNode{
+public:
+	unsigned int id_;
+	VertexNode *next_, *previous_;
+	std::vector<unsigned int> neighbour_ids_;
+
+	const unsigned int Size() const {return neighbour_ids_.size();}
+	const bool operator<(const VertexNode& sample) const;
+
+	VertexNode & operator=(VertexNode && ref);
+
+	VertexNode(const unsigned int& id, const std::vector<unsigned int> neighbour_ids)
+	: neighbour_ids_(neighbour_ids)
+	 , id_(id){}
+
+	VertexNode(const VertexNode& ref);
+};
+
+class VertexCoverSolver{
+	// i-th entry is list of neighbour IDs of the i-th spike
+	// can by asymmetric if approximate sear\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ch algorithm is used !!!
+
+public:
+	std::vector<unsigned int> Reduce(ANNkd_tree & full_tree, const double & threshold);
+};
 
 class KDClusteringProcessor: public LFPProcessor {
 	// per tetrode
@@ -104,7 +131,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// TODO synchronize pix dumping
 	void build_lax_and_tree(const unsigned int tetr);
-	void build_lax_and_tree_separate(const unsigned int tetr);
+	void build_lax_and_tree_separate(const unsigned int tetr, std::vector<unsigned int> used_ids);
 
 	// to get the place fields
 	// TODO interface and implementation - OccupancyProvider

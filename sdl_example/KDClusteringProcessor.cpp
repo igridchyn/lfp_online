@@ -17,10 +17,17 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	//				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
 	//			}
 
+	// 	beware of inexation changes
+	std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree.reduced");
+	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
+	kdtree_stream.close();
+
+	unsigned int NUSED = kdtrees_[t]->nPoints();
+
 	// load binary combined matrix and extract individual l(a,x)
-	arma::mat laxs_tetr_(NBINS, NBINS * MIN_SPIKES);
+	arma::mat laxs_tetr_(NBINS, NBINS * NUSED);
 	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
-	for (int s = 0; s < MIN_SPIKES; ++s) {
+	for (int s = 0; s < NUSED; ++s) {
 		laxs_[t][s] = laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1);
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
@@ -39,12 +46,6 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_px.mat");
 
 	pf_built_[t] = true;
-
-	// TODO !!! remove similar spikes from the tree before using for search
-	// 	beware of indices changes
-	std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree");
-	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
-	kdtree_stream.close();
 }
 
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int& processor_number)
@@ -372,8 +373,21 @@ void KDClusteringProcessor::process(){
 				if (!fitting_jobs_running_[tetr]){
 //					build_lax_and_tree_separate(tetr);
 
+					// SHOULD BE DONE IN THE SAME PROCESS, AS KD Search is not parallel
+					// dump required data and start process (due to non-thread-safety of ANN)
+					// build tree and dump it along with points
+					std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
+					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+					std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
+					// find ids to be used in the reduced tree
+					double thold = 250;
+					// TODO !!! NON-static reduce
+					VertexCoverSolver ver_solv;
+					std::vector<unsigned int> used_ids_ = ver_solv.Reduce(*(kdtrees_[tetr]), thold);// form new tree with only used points
+					std::cout << "# of points in reduced tree: " << used_ids_.size() << "\n";
+
 					fitting_jobs_running_[tetr] = true;
-					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
+					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr, used_ids_);
 //
 //					// !!! WORKAROUND due to thread-unsafety of ANN
 //					fitting_jobs_[tetr]->join();
@@ -620,12 +634,29 @@ void KDClusteringProcessor::process(){
 	}
 }
 
-void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
-	// dump required data and start process (due to non-thread-safety of ANN)
-	// build tree and dump it along with points
-	std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
-	kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
-	std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
+void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr, std::vector<unsigned int> used_ids_) {
+	ANNpointArray tree_points = kdtrees_[tetr]->thePoints();
+
+	// write indices to be used to text file
+	std::ofstream used_stream(BASE_PATH + "used_ids.txt");
+	used_stream << used_ids_.size() << "\n";
+	for (int i = 0; i < used_ids_.size(); ++i) {
+		used_stream << used_ids_[i] << "\n";
+	}
+	used_stream.close();
+
+	// construct and save the reduced tree
+	ANNpointArray reduced_array = annAllocPts(used_ids_.size(), DIM);
+	for (int i=0; i < used_ids_.size(); ++i){
+		for (int f=0; f < 12; ++f){
+			reduced_array[i][f] = tree_points[used_ids_[i]][f];
+		}
+	}
+	ANNkd_tree *reduced_tree = new ANNkd_tree(reduced_array, used_ids_.size(), DIM);
+	std::ofstream kdstream_reduced(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree.reduced");
+	reduced_tree->Dump(ANNtrue, kdstream_reduced);
+	kdstream_reduced.close();
+
 
 	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
@@ -722,4 +753,161 @@ void KDClusteringProcessor::JoinKDETasks(){
 
 std::string KDClusteringProcessor::name(){
 	return "KDClusteringProcessor";
+}
+
+std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
+		const double& threshold) {
+
+	VertexNode *head;
+	std::map<unsigned int, VertexNode *> node_by_id;
+	// nodes having an index node in their neighbours lists [because due to approximate neighbour search it can be asymmetric]
+	std::vector< std::vector< unsigned int > > neighbours_of;
+	// create map (for removing neighbours), vector (for sorting) and list (for supporting sorting order)
+	std::vector<VertexNode> nodes;
+
+	// TODO !!! configurableize
+	const unsigned int NNEIGB = 300;
+	// TODO !!! CHECK
+	const double NN_EPS = 0.01;
+	ANNidx *nn_idx = new ANNidx[NNEIGB];
+	ANNdist *dd = new ANNdist[NNEIGB];
+	ANNpointArray tree_points = full_tree.thePoints();
+
+	const unsigned int NPOITNS = full_tree.nPoints();
+
+	neighbours_of.resize(NPOITNS);
+
+	// create Vertex Nodex for each spike
+	for (unsigned int n = 0; n < NPOITNS; ++n) {
+		// find neighbours
+		full_tree.annkSearch(tree_points[n], NNEIGB, nn_idx, dd, NN_EPS);
+
+		// create VertexNode structure
+		std::vector<unsigned int> neigb_ids;
+		for (int ne = 1; ne < NNEIGB; ++ne) {
+			if (dd[ne] > threshold){
+				break;
+			}
+
+			neigb_ids.push_back((unsigned int)nn_idx[ne]);
+			neighbours_of[nn_idx[ne]].push_back(n);
+		}
+
+		nodes.push_back(VertexNode(n, neigb_ids));
+	}
+
+	// optinally: make neiughbours of and lists in VertexNodes equal
+
+	// sort them by number of neighbours less than thold
+	 std::sort(nodes.begin(), nodes.end());
+
+	 for (unsigned int n = 0; n < NPOITNS; ++n) {
+		 node_by_id[nodes[n].id_] = &(nodes[n]);
+	 }
+
+	 std::cout << "Node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n";
+	 std::cout << "Node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n";
+	 std::cout << "Node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n";
+	 std::cout << "Node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n";
+	 std::cout << "Node with least neighbours: " << nodes[nodes.size() - 1].neighbour_ids_.size() << "\n";
+
+	 // create sorted double-linked list
+	 head = &nodes[0];
+	 head->previous_ = nullptr;
+	 VertexNode *last = head;
+	 for (int n = 1; n < NPOITNS; ++n) {
+		 last->next_ = &nodes[n];
+		 nodes[n].previous_ = last;
+		 last = &nodes[n];
+	}
+	last->next_ = nullptr;
+
+	// while list is not empty, choose node with largest number of neighbours and remove it and it's neighborus from list and map
+	std::vector<unsigned int> used_ids_;
+	while (head != nullptr){
+		// add one with most neighbours to the list of active nodes (to build PFs from)
+		used_ids_.push_back(head->id_);
+
+		// remove neighbours from map /	list and reduce neighbour counts of neighbours' neighbours
+		for (int i=0; i < head->neighbour_ids_.size(); ++i){
+			// remove and move down in the sorted list
+			const unsigned int neighb_id =head->neighbour_ids_[i];
+			VertexNode *const neighbour = node_by_id[neighb_id];
+
+			if (neighbour == nullptr)
+				continue;
+
+			// remove from neighbour's list at each neighbour neighbour and move it down
+			for (int j = 0; j < neighbours_of[neighbour->id_].size(); ++j) {
+				unsigned int jthneighbid = neighbours_of[neighbour->id_][j];
+
+				if (jthneighbid == head->id_)
+					continue;
+
+				VertexNode *nn = node_by_id[jthneighbid];
+
+				if (nn == nullptr)
+					continue;
+
+				// TODO don't remove, just have the number of active neighbour nodes
+				if (nn->neighbour_ids_.size() > 0){
+					std::remove(nn->neighbour_ids_.begin(), nn->neighbour_ids_.end(), neighbour->id_);
+				}else{
+					std::cout << "no neighbours!\n";
+				}
+
+				//also remove NN from reverse neighbours list of 2nd order neighbours
+				std::remove(neighbours_of[jthneighbid].begin(), neighbours_of[jthneighbid].end(), neighb_id);
+
+				// move down in the list
+				while (nn->next_ !=0 && nn->Size() < nn->next_->Size()){
+					VertexNode *tmp = nn->next_;
+					nn->next_ = tmp->next_;
+					nn->previous_->next_ = tmp;
+					tmp->next_ = neighbour;
+					tmp->previous_ = nn->previous_;
+					nn->previous_ = tmp;
+					nn->next_->previous_ = nn;
+				}
+			}
+
+			// remove neighbour from the list
+			if (node_by_id[neighbour->id_]->previous_ != nullptr)
+				node_by_id[neighbour->id_]->previous_->next_ = node_by_id[neighbour->id_]->next_;
+
+			if (node_by_id[neighbour->id_]->next_ != nullptr)
+				node_by_id[neighbour->id_]->next_->previous_ = node_by_id[neighbour->id_]->previous_;
+
+			node_by_id[neighbour->id_] = nullptr;
+
+			neighbours_of[neighbour->id_].clear();
+		}
+
+		// move to next node with most neighbours
+		head = head->next_;
+	}
+
+	return used_ids_;
+}
+
+const bool VertexNode::operator <(const VertexNode& sample) const{
+	return Size() > sample.Size();
+}
+
+VertexNode& VertexNode::operator =(VertexNode&& ref) {
+	id_ = ref.id_;
+	// to be used only while sorting !
+	// TODO throw if not null ?
+	next_ = nullptr;
+	previous_ = nullptr;
+	neighbour_ids_ = ref.neighbour_ids_;
+
+	return *this;
+}
+
+VertexNode::VertexNode(const VertexNode& ref) {
+	id_ = ref.id_;
+	next_ = nullptr;
+	previous_ = nullptr;
+	neighbour_ids_ = ref.neighbour_ids_;
 }
