@@ -14,7 +14,7 @@
 
 // ============================================================================================================================================
 
-PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& processors_number)
 	: PlaceFieldProcessor(buf,
 			buf->config_->getFloat("pf.sigma"),
 			buf->config_->getFloat("bin.size"),
@@ -25,16 +25,17 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf)
 			buf->config_->getOutPath("pf.base.path"),
 			buf->config_->getFloat("pf.prediction.firing.rate.threshold"),
 			buf->config_->getInt("pf.min.pkg.id"),
-			buf->config_->getBool("pf.use.prior"))
+			buf->config_->getBool("pf.use.prior"),
+			processors_number)
 {
 }
 
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
-		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior)
-: SDLControlInputProcessor(buf)
+		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number)
+: SDLControlInputProcessor(buf, processors_number)
 , SDLSingleWindowDisplay("pf", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
-, LFPProcessor(buf)
+, LFPProcessor(buf, processors_number)
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbins_(nbins)

@@ -15,7 +15,7 @@
 
 //==========================================================================================
 
-class PlaceFieldProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
+class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
     const float SPEED_THOLD = 80.0f;
     const float EPS = 0.001f;
     
@@ -86,10 +86,11 @@ public:
     
     PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
     		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
-    		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior);
+    		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior,
+    		const unsigned int& processors_number);
     
     // call the constructor above after reading params from config
-    PlaceFieldProcessor(LFPBuffer *buf);
+    PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& processors_number);
 
     const arma::mat& GetSmoothedOccupancy();
 

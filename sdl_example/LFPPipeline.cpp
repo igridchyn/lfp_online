@@ -58,7 +58,7 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 		} else if (proc_name == "PCAExtraction"){
 			processors.push_back(new PCAExtractionProcessor(buf));
 		} else if (proc_name == "PlaceField"){
-			processors.push_back(new PlaceFieldProcessor(buf));
+			processors.push_back(new PlaceFieldProcessor(buf, processor_numbers[proc_name]));
 		} else if (proc_name == "PositionDisplay"){
 			processors.push_back(new PositionDisplayProcessor(buf));
 		} else if (proc_name == "PositionReconstruction"){
