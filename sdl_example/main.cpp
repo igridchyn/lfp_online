@@ -31,10 +31,10 @@ void draw_bin() {
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003.conf");
-//	Config *config = new Config("../Res/build_model_jc118_1003_env1.conf");
+//	Config *config = new Config("../Res/build_model_jc118_1003_env2.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003.conf");
-	Config *config = new Config("../Res/decoding_jc118_1003_env1.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf");
+//	Config *config = new Config("../Res/decoding_jc118_1003_env2.conf");
+	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_SWR.conf");
