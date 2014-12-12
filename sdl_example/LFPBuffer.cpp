@@ -220,7 +220,8 @@ LFPBuffer::LFPBuffer(Config* config)
     }
 
     Reset(config);
-    user_context_.Init(tetr_info_->tetrodes_number);
+
+    spike_buf_pos_clusts_.resize(10);
 }
 
 void LFPBuffer::ResetPopulationWindow(){
@@ -342,6 +343,10 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_lpt_ -= std::min(shift_new_start, (int)spike_buf_pos_lpt_);
 		spike_buf_pos_fet_writer_ -= std::min(shift_new_start, (int)spike_buf_pos_fet_writer_);
 		spike_buf_pos_ws_disp_ -= std::min(shift_new_start, (int)spike_buf_pos_ws_disp_);
+
+		for (int i=0; i < spike_buf_pos_clusts_.size(); ++i){
+			spike_buf_pos_clusts_[i] -= std::min(shift_new_start, (int)spike_buf_pos_clusts_[i]);
+		}
 
 		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 

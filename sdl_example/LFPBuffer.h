@@ -128,6 +128,9 @@ public:
     // ws display
     unsigned int spike_buf_pos_ws_disp_;
 
+    // TODO: size ?
+    std::vector<unsigned int> spike_buf_pos_clusts_;
+
     // TODO ? messaging between processors
     bool ac_reset_ = false;
     int ac_reset_tetrode_ = -1;
