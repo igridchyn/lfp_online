@@ -175,7 +175,8 @@ public:
     unsigned int high_synchrony_tetrode_spikes_ = 0;
     float high_synchrony_factor_;
 
-    std::queue<std::vector<int>> swrs_;
+    std::vector<std::vector<int>> swrs_;
+    std::vector<int> swr_pointers_;
 
     // to be initialized when first pos package is detected
     int pos_first_pkg_ = -1;
@@ -219,7 +220,7 @@ public:
     // ? predictions buffer ?
     // in case there are few processors, using processors are responsible for resizing
     std::vector<arma::mat> last_predictions_;
-    unsigned int last_preidction_window_end_;
+    std::vector<unsigned int> last_preidction_window_ends_;
 
     std::vector<arma::mat> tps_;
 

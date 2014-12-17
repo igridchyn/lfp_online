@@ -50,7 +50,7 @@ void PositionDisplayProcessor::process(){
     while (buffer->pos_buf_disp_pos_ < pos_buf_pointer_limit_) {
 
     	// if exceeded clustering prediction - exit
-    	if (WAIT_PREDICTION && (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_end_)){
+    	if (WAIT_PREDICTION && (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_ends_[processor_number_])){
     		break;
     	}
 

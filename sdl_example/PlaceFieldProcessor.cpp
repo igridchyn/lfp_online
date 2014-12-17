@@ -206,7 +206,7 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     
     // draw actual position tail
     // TODO parametrize
-    unsigned int end = MIN(buffer->last_preidction_window_end_/512, buffer->pos_buf_pos_);
+    unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / 512, buffer->pos_buf_pos_);
     for (int pos = end - 100; pos < end; ++pos) {
     	FillRect(buffer->positions_buf_[pos][0] * binw / bin_size_, buffer->positions_buf_[pos][1] * binh / bin_size_, 0, 2, 2);
     }

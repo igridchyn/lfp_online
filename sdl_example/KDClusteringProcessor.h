@@ -137,7 +137,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	// TODO interface and implementation - OccupancyProvider
 	PlaceFieldProcessor *pfProc_;
 
-	unsigned int PRED_WIN = 2000;
+	unsigned int PRED_WIN;
+	unsigned int THETA_PRED_WIN;
 	// dividable by PRED_WIN
 	unsigned int last_pred_pkg_id_ = 0;;
 	// last prediction probabilities
@@ -162,9 +163,15 @@ class KDClusteringProcessor: public LFPProcessor {
 	// delay before starting to slow down for SWR reconstruction display
 	unsigned int SWR_SLOWDOWN_DELAY;
 	const bool SWR_SWITCH;
+	unsigned int SWR_SLOWDOWN_DURATION;
+	unsigned int SWR_PRED_WIN;
+
 	const unsigned int HMM_RESET_RATE;
 	unsigned int swr_counter_ = 0;
 	unsigned int swr_win_counter_ = 0;
+	// pointer to the last processed SWR event in the buffer
+	// would not rewind due to small spatial requirements to store SWR events
+	unsigned int swr_pointer_ = 0;
 
 	int npred = 0;
 
@@ -184,6 +191,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	TetrodesInfo* tetr_info_;
 
 	unsigned int& spike_buf_pos_clust_;
+
+	// numnber of spike in the last window
+	unsigned int last_window_n_spikes_ = 0;
 
 	void update_hmm_prediction();
 	void reset_hmm();

@@ -72,10 +72,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SIGMA_XX(getFloat("kd.sigma.xx")),
 			SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false)),
 			SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)),
+			SWR_SLOWDOWN_DURATION(buf->config_->getInt("kd.swr.slowdown.duration", 1500)),
+			SWR_PRED_WIN(getInt("kd.swr.pred.win")),
 			DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)),
 			HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)),
 			use_intervals_(buf->config_->getBool("kd.use.intervals", false)),
-			spike_buf_pos_clust_(buf->spike_buf_pos_clusts_[processor_number]){
+			spike_buf_pos_clust_(buf->spike_buf_pos_clusts_[processor_number]),
+			THETA_PRED_WIN(buf->config_->getInt("kd.pred.win", 2000)){
+
+	PRED_WIN = THETA_PRED_WIN;
 
 	// load proper tetrode info
 	if (buf->alt_tetr_infos_.size() < processor_number_ + 1){
@@ -201,9 +206,9 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	arma::mat hmm_upd_(NBINS, NBINS, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
-	if (!(buffer->last_preidction_window_end_ % HMM_RESET_RATE)){
+	if (!(buffer->last_preidction_window_ends_[processor_number_] % HMM_RESET_RATE)){
 		// DEBUG
-		std::cout << "Reset HMM at " << buffer->last_preidction_window_end_  << "..\n";
+		std::cout << "Reset HMM at " << buffer->last_preidction_window_ends_[processor_number_]  << "..\n";
 
 		if (USE_PRIOR){
 			hmm_prediction_ = pix_log_;
@@ -469,21 +474,27 @@ void KDClusteringProcessor::process(){
 				prediction_delay_reached_reported = true;
 
 				last_pred_pkg_id_ = PREDICTION_DELAY;
-				buffer->last_preidction_window_end_ = PREDICTION_DELAY;
+				buffer->last_preidction_window_ends_[processor_number_] = PREDICTION_DELAY;
+			}
+
+			// also rewind SWRs
+			// TODO configurableize
+			while (swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][2] < PREDICTION_DELAY){
+				swr_pointer_ ++;
 			}
 
 			// check if NEW swr was detected and has to switch to the SWR regime
 			if (SWR_SWITCH){
-				if (!swr_regime_ && !buffer->swrs_.empty() && buffer->swrs_.front()[0] != last_processed_swr_start_){
+				if (!swr_regime_ && swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][0] != last_processed_swr_start_){
 					//DEBUG
-					std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_.front()[0] << "\n";
+					std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_[swr_pointer_][0] << "\n";
 
 					swr_regime_ = true;
 					// TODO configurableize
-					PRED_WIN = 400;
+					PRED_WIN = SWR_PRED_WIN;
 
-					last_pred_pkg_id_ = buffer->swrs_.front()[0];
-					last_processed_swr_start_ = buffer->swrs_.front()[0];
+					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
+					last_processed_swr_start_ = buffer->swrs_[swr_pointer_][0];
 
 					// rewind until the first spike in the SW
 					while(spike->pkg_id_ > last_pred_pkg_id_){
@@ -496,15 +507,15 @@ void KDClusteringProcessor::process(){
 					reset_hmm();
 				}
 
-				if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_.front()[2]){
+				if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][2]){
 					// DEBUG
-					std::cout << "Switch to theta prediction regime due to end of SWR at " <<  buffer->swrs_.front()[2] << "\n";
+					std::cout << "Switch to theta prediction regime due to end of SWR at " <<  buffer->swrs_[swr_pointer_][2] << "\n";
 					swr_regime_ = false;
-					PRED_WIN = 2000;
+					PRED_WIN = THETA_PRED_WIN;
 
 					// reset HMM
 					reset_hmm();
-					buffer->swrs_.pop();
+					swr_pointer_ ++;
 					swr_counter_ ++;
 					swr_win_counter_ = 0;
 				}
@@ -536,6 +547,8 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
+				last_window_n_spikes_ ++;
+
 				// PROFILE
 //				time_t kds = clock();
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
@@ -555,6 +568,9 @@ void KDClusteringProcessor::process(){
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
 
+				std::cout << "Number of spikes in the prediction window: " << last_window_n_spikes_ << " (proc# " << processor_number_ << ")\n";
+				last_window_n_spikes_ = 0;
+
 				// edges of the window
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE;
 
@@ -567,12 +583,11 @@ void KDClusteringProcessor::process(){
 
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){
-					std::cout << "prediction within SWR...\n";
+					std::cout << "prediction within SWR..., proc# = " << processor_number_ << "\n";
 
 					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
-						// usleep(1000 * 1500);
+						usleep(1000 * SWR_SLOWDOWN_DURATION);
 					}
-
 				}
 
 				last_pred_probs_ = pos_pred_;
@@ -586,11 +601,11 @@ void KDClusteringProcessor::process(){
 
 				// updated in HMM
 				buffer->last_predictions_[processor_number_] = pos_pred_.t();
-				buffer->last_preidction_window_end_ = last_pred_pkg_id_ + PRED_WIN;
+				buffer->last_preidction_window_ends_[processor_number_] = last_pred_pkg_id_ + PRED_WIN;
 
 				if (swr_regime_){
 					// DEBUG save prediction
-					pos_pred_.save("../out/jc84_1910/" + std::string("swr_") + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
+					pos_pred_.save("../out/jc118_1003/" + std::string("swr_") + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
 					swr_win_counter_ ++;
 				}
 				else{

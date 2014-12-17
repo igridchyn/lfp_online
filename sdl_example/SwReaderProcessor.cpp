@@ -43,7 +43,7 @@ void SwReaderProcessor::process() {
 	// TODO assign end later ?
 	if (buffer->last_pkg_id > swrs_[current_sw_][0]){
 
-		buffer->swrs_.push(swrs_[current_sw_]);
+		buffer->swrs_.push_back(swrs_[current_sw_]);
 
 		if (current_sw_ < swrs_.size()){
 			current_sw_ ++;

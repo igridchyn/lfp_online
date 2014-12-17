@@ -221,7 +221,8 @@ LFPBuffer::LFPBuffer(Config* config)
 
     Reset(config);
 
-    spike_buf_pos_clusts_.resize(10);
+    spike_buf_pos_clusts_.resize(100);
+    last_preidction_window_ends_.resize(100);
 }
 
 void LFPBuffer::ResetPopulationWindow(){
