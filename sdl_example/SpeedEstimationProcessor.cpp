@@ -63,4 +63,20 @@ void SpeedEstimationProcessor::process(){
 
 		buffer->pos_buf_pos_speed_est ++;
 	}
+
+	// ignore estimation for spikes being to far from the first known estimate point
+	if (buffer->pos_buf_pos_speed_est > 16){
+		while (buffer->spike_buf_pos_speed_ < buffer->spike_buf_pos){
+			Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
+
+			if (spike == nullptr)
+				break;
+
+			if (spike->pkg_id_ > buffer->positions_buf_[buffer->pos_buf_pos_speed_est - 16][4])
+				break;
+
+			// leave speed estimation as nanf("")
+			buffer->spike_buf_pos_speed_ ++;
+		}
+	}
 }
