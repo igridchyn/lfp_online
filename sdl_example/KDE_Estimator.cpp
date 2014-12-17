@@ -225,11 +225,12 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 		}
 	}
 
-	if (SAVE){
-		std::string save_path = BASE_PATH + Utils::NUMBERS[tetr] + "_" + Utils::Converter::int2str((int)spikei) + ".mat";
-		pf.save(save_path, arma::raw_ascii);
+	// TODO configurableize saving of individual spikes
+//	if (SAVE){
+//		std::string save_path = BASE_PATH + Utils::NUMBERS[tetr] + "_" + Utils::Converter::int2str((int)spikei) + ".mat";
+//		pf.save(save_path, arma::raw_ascii);
 //		std::cout << save_path << "\n";
-	}
+//	}
 
 	lax[spikei] = pf;
 }
