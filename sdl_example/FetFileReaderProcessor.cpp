@@ -6,6 +6,7 @@
  */
 
 #include "FetFileReaderProcessor.h"
+#include <boost/filesystem.hpp>
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 :FetFileReaderProcessor(buffer,
@@ -167,7 +168,13 @@ void FetFileReaderProcessor::openNextFile() {
 
 		int dum_ncomp;
 		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-			fet_streams_.push_back(new std::ifstream(fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
+			std::string path = fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]];
+			if (!boost::filesystem::exists(path)){
+				Log(std::string("ERROR: ") + path + " doesn't exist or permissions are not set!");
+				exit(21);
+			}
+
+			fet_streams_.push_back(new std::ifstream(path, binary_ ? std::ofstream::binary : std::ofstream::in));
 			if (read_spk_){
 				spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
 			}

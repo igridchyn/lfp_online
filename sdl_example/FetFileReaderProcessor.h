@@ -57,6 +57,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
+	virtual std::string name() { return "FetFileReaderProcessor"; }
 };
 
 #endif /* FETFILEREADERPROCESSOR_H_ */
