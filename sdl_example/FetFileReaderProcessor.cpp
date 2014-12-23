@@ -121,17 +121,18 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		fet_stream.read((char*)&stime, sizeof(int));
 	}
 
+	if (fet_stream.eof()){
+		num_files_with_spikes_ --;
+		std::cout << "Out of spikes in tetorde " << tetr << ", " << num_files_with_spikes_ << " files left\n";
+		file_over_[tetr] = true;
+	}
+
 	// ??? what is the threshold
 	if (stime < 400)
 		return nullptr;
 
 	spike->pkg_id_ = (stime >= 0 ? stime : 0) + shift_;
 	spike->aligned_ = true;
-
-	if (fet_stream.eof()){
-		num_files_with_spikes_ --;
-		file_over_[tetr] = true;
-	}
 
 	return spike;
 }
@@ -209,6 +210,7 @@ void FetFileReaderProcessor::process() {
 		if (current_file_ < buffer->config_->spike_files_.size() - 1){
 			shifts_.push_back(last_pkg_id_);
 			shift_ = last_pkg_id_;
+			Log(std::string("Out of spikes in file ") +  buffer->config_->spike_files_[current_file_]);
 			openNextFile();
 		}
 		else{
