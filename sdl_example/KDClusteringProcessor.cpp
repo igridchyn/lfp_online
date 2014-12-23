@@ -73,12 +73,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false)),
 			SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)),
 			SWR_SLOWDOWN_DURATION(buf->config_->getInt("kd.swr.slowdown.duration", 1500)),
-			SWR_PRED_WIN(getInt("kd.swr.pred.win")),
+			SWR_PRED_WIN(buf->config_->getInt("kd.swr.pred.win", 400)),
 			DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)),
 			HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)),
 			use_intervals_(buf->config_->getBool("kd.use.intervals", false)),
 			spike_buf_pos_clust_(buf->spike_buf_pos_clusts_[processor_number]),
-			THETA_PRED_WIN(buf->config_->getInt("kd.pred.win", 2000)){
+			THETA_PRED_WIN(buf->config_->getInt("kd.pred.win", 2000)),
+			SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(buf->config_->getFloat("kd.spike.graph.cover.distance.threshold", 0)),
+			SPIKE_GRAPH_COVER_NNEIGHB(buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -373,11 +375,11 @@ void KDClusteringProcessor::process(){
 					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
 					std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 					// find ids to be used in the reduced tree
-					double thold = 250;
 					// TODO !!! NON-static reduce
 					VertexCoverSolver ver_solv;
-					std::vector<unsigned int> used_ids_ = ver_solv.Reduce(*(kdtrees_[tetr]), thold);// form new tree with only used points
-					std::cout << "# of points in reduced tree: " << used_ids_.size() << "\n";
+					std::cout << "Tetrode " << tetr << ": run vertex cover solver with distance threshold = " <<  SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << "\n\t and # of neighbours limited to " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+					std::vector<unsigned int> used_ids_ = ver_solv.Reduce(*(kdtrees_[tetr]), SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB);// form new tree with only used points
+					std::cout << "... done (vertex cover), # of points in reduced tree: " << used_ids_.size() << "\n";
 
 					fitting_jobs_running_[tetr] = true;
 					fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr, used_ids_);
@@ -772,7 +774,7 @@ std::string KDClusteringProcessor::name(){
 }
 
 std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
-		const double& threshold) {
+		const double& threshold, const unsigned int& NNEIGB) {
 
 	VertexNode *head;
 	std::map<unsigned int, VertexNode *> node_by_id;
@@ -781,10 +783,8 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 	// create map (for removing neighbours), vector (for sorting) and list (for supporting sorting order)
 	std::vector<VertexNode> nodes;
 
-	// TODO !!! configurableize
-	const unsigned int NNEIGB = 300;
 	// TODO !!! CHECK
-	const double NN_EPS = 0.01;
+	const double NN_EPS = 10; // 0.01
 	ANNidx *nn_idx = new ANNidx[NNEIGB];
 	ANNdist *dd = new ANNdist[NNEIGB];
 	ANNpointArray tree_points = full_tree.thePoints();
@@ -811,6 +811,8 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 		nodes.push_back(VertexNode(n, neigb_ids));
 	}
+
+	std::cout << "\t...cached neighbours (vertex cover)\n";
 
 	// optinally: make neiughbours of and lists in VertexNodes equal
 
@@ -902,6 +904,9 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		// move to next node with most neighbours
 		head = head->next_;
 	}
+
+	delete[] nn_idx;
+	delete[] dd;
 
 	return used_ids_;
 }

@@ -39,7 +39,7 @@ class VertexCoverSolver{
 	// can by asymmetric if approximate sear\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ch algorithm is used !!!
 
 public:
-	std::vector<unsigned int> Reduce(ANNkd_tree & full_tree, const double & threshold);
+	std::vector<unsigned int> Reduce(ANNkd_tree & full_tree, const double & threshold, const unsigned int& NNEIGB);
 };
 
 class KDClusteringProcessor: public LFPProcessor {
@@ -194,6 +194,13 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// numnber of spike in the last window
 	unsigned int last_window_n_spikes_ = 0;
+
+	// edge length threshold for constructing the spike graph to solve the graph cover problem
+	// (0 will make it work as before computing cover consisting of all spikes
+	double SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = 0.0;
+	// number of neighbours, only yo speedup, perfectly should not be reached in the spike with largest number of neighbours
+	//	to decrease number of neighbours, decrease the threshold above
+	unsigned int SPIKE_GRAPH_COVER_NNEIGHB = 1;
 
 	void update_hmm_prediction();
 	void reset_hmm();
