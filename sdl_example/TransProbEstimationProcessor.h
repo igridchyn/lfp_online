@@ -13,7 +13,8 @@
 #include <armadillo>
 
 class TransProbEstimationProcessor: public LFPProcessor {
-	const unsigned int NBINS;
+	const unsigned int NBINSX;
+	const unsigned int NBINSY;
 	const unsigned int BIN_SIZE;
 	const unsigned int NEIGHB_SIZE;
 
@@ -39,7 +40,7 @@ class TransProbEstimationProcessor: public LFPProcessor {
 
 public:
 	TransProbEstimationProcessor(LFPBuffer *buf);
-	TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
+	TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbinsx, const unsigned int nbinsy, const unsigned int bin_size,
 			const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save,
 			const bool load, const bool smooth, const bool use_parametric, const float sigma, const int spread);
 	virtual ~TransProbEstimationProcessor();

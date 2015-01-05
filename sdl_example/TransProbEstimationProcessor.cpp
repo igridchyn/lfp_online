@@ -12,7 +12,8 @@
 
 TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer* buf)
 	: TransProbEstimationProcessor(buf,
-			buf->config_->getInt("nbins"),
+			buf->config_->getInt("nbinsx"),
+			buf->config_->getInt("nbinsy"),
 			buf->config_->getInt("bin.size"),
 			buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1,
 			buf->config_->getInt("tp.step"),
@@ -26,11 +27,12 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer* buf)
 	){
 }
 
-TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbins, const unsigned int bin_size,
+TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbinsx, const unsigned int nbinsy, const unsigned int bin_size,
 		const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save,
 		const bool load, const bool smooth, const bool use_parametric, const float sigma, const int spread)
 	: LFPProcessor(buf)
-	, NBINS(nbins)
+	, NBINSX(nbinsx)
+	, NBINSY(nbinsy)
 	, BIN_SIZE(bin_size)
 	, NEIGHB_SIZE(neighb_size)
 	, STEP(step)
@@ -43,7 +45,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, SIGMA(sigma)
 	, SPREAD(spread){
 	assert(NEIGHB_SIZE % 2);
-	trans_probs_.resize(NBINS * NBINS, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
+	trans_probs_.resize(NBINSX * NBINSY, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 
 	if (LOAD){
 		std::cout << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
@@ -54,9 +56,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			std::cout << "WARNING: parametric TPs used instead of loading estimates...\n";
 		}
 
-		for (int b = 0; b < NBINS * NBINS; ++b) {
+		for (int b = 0; b < NBINSX * NBINSY; ++b) {
 			// extract
-			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
 			trans_probs_[b] = tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
 
 			// DEBUG
@@ -134,7 +135,7 @@ void TransProbEstimationProcessor::process() {
 		int shift_coord_y = b_shift_y + (int)NEIGHB_SIZE / 2;
 
 		if (shift_coord_x >=0 && shift_coord_x < NEIGHB_SIZE && shift_coord_y >=0 && shift_coord_y < NEIGHB_SIZE){
-			trans_probs_[NBINS * yb + xb](shift_coord_x, shift_coord_y) += 1;
+			trans_probs_[NBINSX * yb + xb](shift_coord_x, shift_coord_y) += 1;
 		}
 
 		pos_buf_ptr_ ++;
@@ -144,9 +145,9 @@ void TransProbEstimationProcessor::process() {
 	if (buffer->last_pkg_id > 30000000 && !saved && SAVE){
 		std::cout << "save tps...";
 
-		arma::mat tps(NEIGHB_SIZE, NBINS * NBINS * NEIGHB_SIZE);
+		arma::mat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
 
-		for (int b = 0; b < NBINS * NBINS; ++b) {
+		for (int b = 0; b < NBINSX * NBINSY; ++b) {
 			double psum = arma::sum(arma::sum(trans_probs_[b]));
 			trans_probs_[b] /= psum;
 			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) = trans_probs_[b];

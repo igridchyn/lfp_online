@@ -25,18 +25,18 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	unsigned int NUSED = kdtrees_[t]->nPoints();
 
 	// load binary combined matrix and extract individual l(a,x)
-	arma::mat laxs_tetr_(NBINS, NBINS * NUSED);
+	arma::mat laxs_tetr_(NBINSX, NBINSY * NUSED);
 	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 	for (int s = 0; s < NUSED; ++s) {
-		laxs_[t][s] = laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1);
+		laxs_[t][s] = laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1);
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
 	// load marginal rate function
 	lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
 	double maxval = arma::max(arma::max(lxs_[t]));
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			if (lxs_[t](xb, yb) == 0){
 				lxs_[t](xb, yb) = maxval;
 			}
@@ -60,7 +60,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SPEED_THOLD(getFloat("kd.speed.thold")),
 			NN_EPS(getFloat("kd.nn.eps")),
 			USE_HMM(getBool("kd.use.hmm")),
-			NBINS(getInt("nbins")),
+			NBINSX(getInt("nbinsx")),
+			NBINSY(getInt("nbinsy")),
 			BIN_SIZE(getInt("bin.size")),
 			HMM_NEIGHB_RAD(getInt("kd.hmm.neighb.rad")),
 			PREDICTION_DELAY(getInt("kd.prediction.delay")),
@@ -103,7 +104,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	spike_place_fields_.resize(tetrn);
 	ann_points_int_.resize(tetrn);
 	obs_mats_.resize(tetrn);
-	coords_normalized_.resize(tetrn);
 	missed_spikes_.resize(tetrn);
 
 	kdtrees_coords_.resize(tetrn);
@@ -112,8 +112,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	fitting_jobs_running_.resize(tetrn, false);
 
 	laxs_.resize(tetrn);
-	pxs_.resize(tetrn, arma::mat(NBINS, NBINS, arma::fill::zeros));
-	lxs_.resize(tetrn, arma::mat(NBINS, NBINS, arma::fill::zeros));
+	pxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
+	lxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 
 	for (int t = 0; t < tetrn; ++t) {
 		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
@@ -127,18 +127,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		// tmp
 		obs_mats_[t] = arma::mat(MIN_SPIKES, 14);
 
-		// bin / (x,y)
-		coords_normalized_[t] = arma::Mat<int>(NBINS, 2, arma::fill::zeros);
-
-		laxs_[t].resize(MIN_SPIKES, arma::mat(NBINS, NBINS, arma::fill::zeros));
+		laxs_[t].resize(MIN_SPIKES, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 	}
 
 	pf_built_.resize(tetrn);
 
-	pix_log_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	pix_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	pix_log_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	pix_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 
-	pos_pred_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	pos_pred_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 
 	if (LOAD){
 		// load occupancy
@@ -169,16 +166,16 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	// TODO !!! priors
 	reset_hmm();
 
-	hmm_traj_.resize(NBINS * NBINS);
+	hmm_traj_.resize(NBINSX * NBINSY);
 
 	// save params only for model buuilding scenario
 	if (SAVE){
 		std::string parpath = BASE_PATH + "params.txt";
 		std::ofstream fparams(parpath);
-		fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINS, BIN_SIZE\n" <<
+		fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINSX, NBINSY, BIN_SIZE\n" <<
 				SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX<< " " << MULT_INT << " " << SAMPLING_RATE<< " "
 				<< NN_K << " "<< NN_K_COORDS << " "
-				<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINS << " " << BIN_SIZE << "\n";
+				<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINSX << " " << NBINSY << " " << BIN_SIZE << "\n";
 		fparams.close();
 		std::cout << "Running params written to " << parpath << "\n";
 	}
@@ -208,7 +205,7 @@ const arma::mat& KDClusteringProcessor::GetPrediction() {
 
 void KDClusteringProcessor::update_hmm_prediction() {
 	// old hmm_prediction + transition (without evidence)
-	arma::mat hmm_upd_(NBINS, NBINS, arma::fill::zeros);
+	arma::mat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
 	if (!(buffer->last_preidction_window_ends_[processor_number_] % HMM_RESET_RATE)){
@@ -219,27 +216,27 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			hmm_prediction_ = pix_log_;
 		}
 		else{
-			hmm_prediction_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+			hmm_prediction_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 		}
 	}
 
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			// find best (x, y) - with highest probability of (x,y)->(xb,yb)
 			// implement hmm{t}(xb,yb) = max_{x,y \in neighb(xb,yb)}(hmm_{t-1}(x,y) * tp(x,y,xb,yb) * prob(xb, yb | a_{1..N}))
 
 			float best_to_xb_yb = -1000.0f * 100000000.0f;
 			int bestx, besty;
 
-			for (int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINS - 1); ++x) {
-				for (int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINS - 1); ++y) {
+			for (int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
+				for (int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
 					// TODO weight
 					// split for DEBUG
 					float prob_xy = hmm_prediction_(x, y);
 					int shx = xb - x + HMM_NEIGHB_RAD;
 					int shy = yb - y + HMM_NEIGHB_RAD;
 
-					prob_xy += buffer->tps_[y * NBINS + x](shx, shy);
+					prob_xy += buffer->tps_[y * NBINSX + x](shx, shy);
 					if (prob_xy > best_to_xb_yb){
 						best_to_xb_yb = prob_xy;
 						bestx = x;
@@ -250,7 +247,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 			hmm_upd_(xb, yb) = best_to_xb_yb;
 
-			hmm_traj_[yb * NBINS + xb].push_back(besty * NBINS + bestx);
+			hmm_traj_[yb * NBINSX + xb].push_back(besty * NBINSX + bestx);
 		}
 	}
 
@@ -292,12 +289,12 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			corrx = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY) / 512.0)][0];
 			corry = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY)/ 512.0)][1];
 			dec_hmm << corrx << " " << corry << "\n";
-			int b = hmm_traj_[y * NBINS + x][t];
+			int b = hmm_traj_[y * NBINSX + x][t];
 			// TODO !!! fix
 			// WORKAROUND - keep the previous position
-			if (b < NBINS * NBINS){
-				y = b / NBINS;
-				x = b % NBINS;
+			if (b < NBINSX * NBINSY){
+				y = b / NBINSX;
+				x = b % NBINSX;
 			}
 			else
 			{
@@ -321,7 +318,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 }
 
 void KDClusteringProcessor::reset_hmm() {
-	hmm_prediction_ = arma::mat(NBINS, NBINS, arma::fill::zeros);
+	hmm_prediction_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 	if (USE_PRIOR){
 		hmm_prediction_ = pix_log_;
 	}
@@ -639,7 +636,7 @@ void KDClusteringProcessor::process(){
 				}
 
 				// TODO: extract
-				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number * pix_log_) : arma::mat(NBINS, NBINS, arma::fill::zeros);
+				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number * pix_log_) : arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)
@@ -716,7 +713,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
-			MULT_INT << " " << BIN_SIZE << " " << NBINS << " " << MIN_SPIKES << " " <<
+			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << MIN_SPIKES << " " <<
 			SAMPLING_RATE + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";

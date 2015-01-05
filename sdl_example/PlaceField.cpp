@@ -8,12 +8,13 @@
 
 #include "PlaceField.h"
 
-PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbins, const unsigned int& spread)
+PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy, const unsigned int& spread)
 : sigma_(sigma)
 , bin_size_(bin_size)
 , spread_(spread)
-, NBINS(nbins){
-    place_field_ = arma::mat(nbins, nbins, arma::fill::zeros);
+, NBINSX(nbinsx)
+, NBINSY(nbinsy){
+    place_field_ = arma::mat(nbinsx, nbinsy, arma::fill::zeros);
 }
 
 void PlaceField::Load(const std::string path, arma::file_type ft){
@@ -32,7 +33,7 @@ void PlaceField::AddSpike(Spike *spike){
     
     // WORKAOURND
     // TODO handle x/y overflow
-    if (xb >= NBINS || yb >= NBINS){
+    if (xb >= NBINSX || yb >= NBINSY){
     	// DEBUG
     	std::cout << "overflow in x/y: " << xb << ", " << yb << "\n";
     	return;
@@ -61,7 +62,7 @@ void PlaceField::AddSpike(Spike *spike){
 }
 
 PlaceField PlaceField::Smooth(){
-    PlaceField spf(sigma_, bin_size_, place_field_.n_cols, spread_);
+    PlaceField spf(sigma_, bin_size_, place_field_.n_rows, place_field_.n_cols, spread_);
     int width = place_field_.n_cols;
     int height = place_field_.n_rows;
     
@@ -190,6 +191,7 @@ PlaceField::PlaceField(const arma::mat& mat, const double& sigma,
 	, sigma_(sigma)
 	, bin_size_(bin_size)
 	, spread_(spread)
-	, NBINS(mat.n_rows)
+	, NBINSX(mat.n_rows)
+	, NBINSY(mat.n_cols)
 {
 }

@@ -21,10 +21,12 @@ int NN_K_COORDS;
 int N_FEAT;
 int MULT_INT;
 int BIN_SIZE;
-int NBINS;
+int NBINSX;
+int NBINSY;
 
 const unsigned int BLOCK_SIZE = 3;
-int NBLOCKS;
+int NBLOCKSX;
+int NBLOCKSY;
 
 int MIN_SPIKES;
 int SAMPLING_RATE;
@@ -62,8 +64,8 @@ arma::Mat<int> spike_coords_int, coords_normalized, pos_buf;
 // this one is loaded
 arma::mat obs_mat;
 // these are created
-arma::mat px(NBINS, NBINS, arma::fill::zeros), lx(NBINS, NBINS, arma::fill::zeros),
-		pix(NBINS, NBINS, arma::fill::zeros), pix_log(NBINS, NBINS, arma::fill::zeros);
+arma::mat px(NBINSX, NBINSY, arma::fill::zeros), lx(NBINSX, NBINSY, arma::fill::zeros),
+		pix(NBINSX, NBINSY, arma::fill::zeros), pix_log(NBINSX, NBINSY, arma::fill::zeros);
 
 std::vector<arma::mat> lax;
 
@@ -286,8 +288,8 @@ void cache_spike_and_bin_neighbours(){
 	// build kd-tree in the (x, y) space
 	kd_tree_coords_ = new ANNkd_tree(ann_points_coords, total_spikes, 2);
 	// cache neighbours for each bin center
-	for (int xb = 0; xb < NBINS; ++xb) {
-			for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+			for (int yb = 0; yb < NBINSY; ++yb) {
 				ANNpoint xy_pnt = annAllocPt(2);
 				xy_pnt[0] = BIN_SIZE * (xb + 0.5);
 				xy_pnt[1] = BIN_SIZE * (yb + 0.5);
@@ -323,7 +325,7 @@ long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 }
 
 void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma::mat& occupancy, const double& avg_firing_rate) {
-	arma::mat pf(NBINS, NBINS, arma::fill::zeros);
+	arma::mat pf(NBINSX, NBINSY, arma::fill::zeros);
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
 
@@ -353,8 +355,8 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 	ANNidx *nn_idx = new ANNidx[NN_K];
 	ANNdist *dd = new ANNdist[NN_K];
 
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			// order of >= 30
 			double kern_sum = 0;
 
@@ -364,12 +366,12 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 			// do kd search if first bin in the block, otherwise - use cached neighbours
 			// find closest points for 'spike with a given sha'
-			int nblock = (yb / BLOCK_SIZE) * NBLOCKS + xb / BLOCK_SIZE;
+			int nblock = (yb / BLOCK_SIZE) * NBLOCKSX + xb / BLOCK_SIZE;
 			if (!(xb % BLOCK_SIZE) && !(yb % BLOCK_SIZE)){
 				// form a point (a_i, x_b, y_b) and find its nearest neighbours in (a, x) space for KDE
 				// have to choose central bin of the block
-				p_bin_spike[N_FEAT] = coords_normalized(xb < NBINS - 1 ? xb + 1 : xb, 0);
-				p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINS - 1 ? yb + 1 : yb, 1);
+				p_bin_spike[N_FEAT] = coords_normalized(xb < NBINSX - 1 ? xb + 1 : xb, 0);
+				p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINSY - 1 ? yb + 1 : yb, 1);
 
 				kdtree_ax_->annkSearch(p_bin_spike, NN_K, cache_block_neighbs_[nblock], dd, NN_EPS / 3.0);
 			}
@@ -407,8 +409,8 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 	double occ_min = pf.min();
 	// set min at low occupancy
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			if (occupancy(xb, yb)/occ_sum < MIN_OCC){
 				pf(xb, yb) = occ_min;
 			}
@@ -432,22 +434,22 @@ int main(int argc, char **argv){
 //	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
-	if (argc != 21){
-		std::cout << "Exactly 20 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
+	if (argc != 22){
+		std::cout << "Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
 		exit(1);
 	}
-	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &BIN_SIZE, &NBINSX, &NBINSY, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
 
-	for(int p=0; p < 13; ++p){
+	for(int p=0; p < 14; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
 	}
-	NN_EPS = atof(argv[14]);
-	SIGMA_X = atof(argv[15]);
-	SIGMA_A = atof(argv[16]);
-	SIGMA_XX = atof(argv[17]);
-	SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = atof(argv[18]);
-	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[19]);
-	BASE_PATH = argv[20];
+	NN_EPS = atof(argv[15]);
+	SIGMA_X = atof(argv[16]);
+	SIGMA_A = atof(argv[17]);
+	SIGMA_XX = atof(argv[18]);
+	SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = atof(argv[19]);
+	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[20]);
+	BASE_PATH = argv[21];
 
 	std::cout << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 
@@ -469,15 +471,15 @@ int main(int argc, char **argv){
 	total_spikes = obs_mat.n_rows;
 
 	// allocate estimation matrices
-	px = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	lx = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	pix = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	pix_log = arma::mat(NBINS, NBINS, arma::fill::zeros);
-	lax.resize(MIN_SPIKES,  arma::mat(NBINS, NBINS, arma::fill::zeros));
+	px = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	lx = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	pix = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	pix_log = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	lax.resize(MIN_SPIKES,  arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 
 	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 	spike_coords_int = arma::Mat<int>(total_spikes, 2);
-	coords_normalized = arma::Mat<int>(NBINS, 2);
+	coords_normalized = arma::Mat<int>(std::max(NBINSX, NBINSY), 2);
 	ann_points_int = new int*[MIN_SPIKES];
 	for (int d = 0; d < MIN_SPIKES; ++d) {
 		ann_points_int[d] = new int[DIM];
@@ -535,8 +537,8 @@ int main(int argc, char **argv){
 	kdtree_ax_ = new ANNkd_tree(ax_points_, total_spikes, DIM + 2);
 
 	// spike location KDE
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			double xc = BIN_SIZE * (0.5 + xb);
 			double yc = BIN_SIZE * (0.5 + yb);
 
@@ -570,8 +572,8 @@ int main(int argc, char **argv){
 	// overall tetrode average firing rate, spikes / s
 	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / double(BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
 	std::cout << "t " << tetr << ": Average firing rate: " << mu << "\n";
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			double xc = BIN_SIZE * (0.5 + xb);
 			double yc = BIN_SIZE * (0.5 + yb);
 
@@ -601,8 +603,8 @@ int main(int argc, char **argv){
 	// TODO !!! uniform + parametrize
 	const double MIN_OCC = 0.0001;
 	double pisum = arma::sum(arma::sum(pix));
-	for (int xb = 0; xb < NBINS; ++xb) {
-		for (int yb = 0; yb < NBINS; ++yb) {
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
 			// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
 			if (pix(xb, yb) > MIN_OCC * pisum){
 				lx(xb, yb) = mu * px(xb, yb) / pix(xb, yb);
@@ -618,16 +620,17 @@ int main(int argc, char **argv){
 
 	// pre-compute matrix of normalized bin centers
 	// ASSUMING xbin size == ybin size
-	for (int xb = 0; xb < NBINS; ++xb) {
-		coords_normalized(xb, 0) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
-		coords_normalized(xb, 1) = (int)((float)BIN_SIZE * (0.5 + xb) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
+	for (int b = 0; b < std::max(NBINSX, NBINSY); ++b) {
+		coords_normalized(b, 0) = (int)((float)BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
+		coords_normalized(b, 1) = (int)((float)BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
 	std::cout << "t " << tetr << ": done coords_normalized\n";
 
 	// prepare bin block neighbours cache - allocate
-	NBLOCKS = NBINS / BLOCK_SIZE + ((NBINS % BLOCK_SIZE) ? 1 : 0);
-	for (int xb = 0; xb < NBLOCKS; ++xb) {
-		for (int yb = 0; yb < NBLOCKS; ++yb) {
+	NBLOCKSX = NBINSX / BLOCK_SIZE + ((NBINSX % BLOCK_SIZE) ? 1 : 0);
+	NBLOCKSY = NBINSY / BLOCK_SIZE + ((NBINSY % BLOCK_SIZE) ? 1 : 0);
+	for (int xb = 0; xb < NBLOCKSX; ++xb) {
+		for (int yb = 0; yb < NBLOCKSY; ++yb) {
 			cache_block_neighbs_.push_back(new int[NN_K]);
 		}
 	}
@@ -673,9 +676,9 @@ int main(int argc, char **argv){
 
 	// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
 	if (SAVE){
-		arma::mat laxs_tetr_(NBINS, NBINS * NUSED);
+		arma::mat laxs_tetr_(NBINSX, NBINSY * NUSED);
 		for (int s = 0; s < NUSED; ++s) {
-			laxs_tetr_.cols(s*NBINS, (s + 1) * NBINS - 1) = lax[used_ids_[s]];
+			laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1) = lax[used_ids_[s]];
 		}
 		laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[tetr] + "_tetr.mat");
 	}

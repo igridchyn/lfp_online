@@ -31,9 +31,9 @@ void draw_bin() {
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003.conf");
-//	Config *config = new Config("../Res/build_model_jc118_1003_env1.conf");
+//	Config *config = new Config("../Res/build_model_jc118_1003_env1_2x.conf");
 ////	Config *config = new Config("../Res/decoding_jc118_1003.conf");
-	Config *config = new Config("../Res/decoding_jc118_1003_env1.conf");
+	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
@@ -131,7 +131,7 @@ void draw_bin() {
 #else // WIN32
 	int main(int argc, char *argv[]){
 #endif // WIN32
-	draw_bin();
+		draw_bin();
 
 	return 0;
 }

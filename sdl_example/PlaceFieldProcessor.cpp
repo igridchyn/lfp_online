@@ -18,7 +18,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 	: PlaceFieldProcessor(buf,
 			buf->config_->getFloat("pf.sigma"),
 			buf->config_->getFloat("bin.size"),
-			buf->config_->getInt("nbins"),
+			buf->config_->getInt("nbinsx"),
+			buf->config_->getInt("nbinsy"),
 			buf->config_->getInt("pf.spread"),
 			!buf->config_->getBool("pf.save"),
 			buf->config_->getBool("pf.save"),
@@ -30,7 +31,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 {
 }
 
-PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
+PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number)
 : SDLControlInputProcessor(buf, processors_number)
@@ -38,10 +39,11 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , LFPProcessor(buf, processors_number)
 , sigma_(sigma)
 , bin_size_(bin_size)
-, nbins_(nbins)
+, nbinsx_(nbinsx)
+, nbinsy_(nbinsy)
 , spread_(spread)
-, occupancy_(sigma, bin_size, nbins, spread)
-, occupancy_smoothed_(sigma, bin_size, nbins, spread)
+, occupancy_(sigma, bin_size, nbinsx, nbinsy, spread)
+, occupancy_smoothed_(sigma, bin_size, nbinsx, nbinsy, spread)
 , SAVE(save)
 , LOAD(load)
 , BASE_PATH(base_path)
@@ -59,8 +61,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     // TODO: ???
     for (size_t t=0; t < tetrn; ++t) {
         for (size_t c=0; c < MAX_CLUST; ++c) {
-            place_fields_[t].push_back(PlaceField(sigma_, bin_size_, nbins_, spread_));
-			place_fields_smoothed_[t].push_back(PlaceField(sigma_, bin_size_, nbins_, spread_));
+            place_fields_[t].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+			place_fields_smoothed_[t].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 			if (LOAD){
 				place_fields_smoothed_[t][c].Load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
 			}
@@ -89,7 +91,7 @@ void PlaceFieldProcessor::AddPos(int x, int y){
  
     // WORKAROUND
     // TODO handle x/y overflow
-    if (xb >= nbins_ || yb >= nbins_){
+    if (xb >= nbinsx_ || yb >= nbinsy_){
     	std::cout << "WARNING: overflow x/y: " << xb << ", " << yb << "\n";
     	return;
     }
@@ -176,8 +178,8 @@ void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode)
 }
 
 void PlaceFieldProcessor::drawMat(const arma::mat& mat){
-    const unsigned int binw = window_width_ / nbins_;
-    const unsigned int binh = window_height_ / nbins_;
+    const unsigned int binw = window_width_ / nbinsx_;
+    const unsigned int binh = window_height_ / nbinsy_;
     
     double max_val = 0;
     for (unsigned int c = 0; c < mat.n_cols; ++c){

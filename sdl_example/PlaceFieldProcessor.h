@@ -34,7 +34,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     
     double bin_size_;
     double sigma_;
-    unsigned int nbins_;
+    unsigned int nbinsx_;
+    unsigned int nbinsy_;
     double spread_;
     
     unsigned int display_tetrode_ = 0;
@@ -42,7 +43,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     bool display_prediction_;
     bool pos_updated_ = false;
     unsigned int last_predicted_pkg_ = 0;
-    
+
     // every 100 ms
     const unsigned int prediction_rate_;
     
@@ -84,7 +85,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     
 public:
     
-    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbins,
+    PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy,
     		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
     		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior,
     		const unsigned int& processors_number);

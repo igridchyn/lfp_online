@@ -31,12 +31,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int NN_K ;
 	const unsigned int NN_K_COORDS;
 	const double NN_EPS = 0.1;
-	const unsigned int NBINS;
+	const unsigned int NBINSX, NBINSY;
 	// TODO float
 	const unsigned int BIN_SIZE;
-
-	// normalized to have average feature std / per tetrode
-	std::vector<arma::Mat<int>> coords_normalized_;
 
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT;
