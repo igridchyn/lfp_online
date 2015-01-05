@@ -37,6 +37,9 @@ double SIGMA_X;
 double SIGMA_A;
 double SIGMA_XX;
 
+double SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD;
+double SPIKE_GRAPH_COVER_NNEIGHB;
+
 int tetr;
 
 std::string BASE_PATH;
@@ -73,8 +76,195 @@ ANNpointArray ann_points_coords;
 // TODO init
 int total_spikes;
 
-std::vector<unsigned int> used_ids_;
 unsigned int NUSED = 0;
+
+class VertexNode{
+public:
+	unsigned int id_;
+	VertexNode *next_, *previous_;
+	std::vector<unsigned int> neighbour_ids_;
+
+	const unsigned int Size() const {return neighbour_ids_.size();}
+	const bool operator<(const VertexNode& sample) const;
+
+	VertexNode & operator=(VertexNode && ref);
+
+	VertexNode(const unsigned int& id, const std::vector<unsigned int> neighbour_ids)
+	: neighbour_ids_(neighbour_ids)
+	 , id_(id){}
+
+	VertexNode(const VertexNode& ref);
+};
+
+class VertexCoverSolver{
+	// i-th entry is list of neighbour IDs of the i-th spike
+	// can by asymmetric if approximate sear\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ch algorithm is used !!!
+
+public:
+	std::vector<unsigned int> Reduce(ANNkd_tree & full_tree, const double & threshold, const unsigned int& NNEIGB);
+};
+
+
+std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
+		const double& threshold, const unsigned int& NNEIGB) {
+
+	VertexNode *head;
+	std::map<unsigned int, VertexNode *> node_by_id;
+	// nodes having an index node in their neighbours lists [because due to approximate neighbour search it can be asymmetric]
+	std::vector< std::vector< unsigned int > > neighbours_of;
+	// create map (for removing neighbours), vector (for sorting) and list (for supporting sorting order)
+	std::vector<VertexNode> nodes;
+
+	// TODO !!! CHECK
+	const double NN_EPS = 0.1; // 0.01
+	ANNidx *nn_idx = new ANNidx[NNEIGB];
+	ANNdist *dd = new ANNdist[NNEIGB];
+	ANNpointArray tree_points = full_tree.thePoints();
+
+	const unsigned int NPOITNS = full_tree.nPoints();
+
+	neighbours_of.resize(NPOITNS);
+
+	// create Vertex Nodex for each spike
+	for (unsigned int n = 0; n < NPOITNS; ++n) {
+		// find neighbours
+		full_tree.annkSearch(tree_points[n], NNEIGB, nn_idx, dd, NN_EPS);
+
+		// create VertexNode structure
+		std::vector<unsigned int> neigb_ids;
+		for (int ne = 1; ne < NNEIGB; ++ne) {
+			if (dd[ne] > threshold){
+				break;
+			}
+
+			neigb_ids.push_back((unsigned int)nn_idx[ne]);
+			neighbours_of[nn_idx[ne]].push_back(n);
+		}
+
+		nodes.push_back(VertexNode(n, neigb_ids));
+	}
+
+	std::cout << "t " << tetr << ": cached neighbours (vertex cover)\n";
+
+	// optinally: make neiughbours of and lists in VertexNodes equal
+
+	// sort them by number of neighbours less than thold
+	 std::sort(nodes.begin(), nodes.end());
+
+	 for (unsigned int n = 0; n < NPOITNS; ++n) {
+		 node_by_id[nodes[n].id_] = &(nodes[n]);
+	 }
+
+	 std::cout << "t " << tetr << ": node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n";
+	 std::cout << "t " << tetr << ": node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n";
+	 std::cout << "t " << tetr << ": node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n";
+	 std::cout << "t " << tetr << ": node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n";
+	 std::cout << "t " << tetr << ": node with least neighbours: " << nodes[nodes.size() - 1].neighbour_ids_.size() << "\n";
+
+	 // create sorted double-linked list
+	 head = &nodes[0];
+	 head->previous_ = nullptr;
+	 VertexNode *last = head;
+	 for (int n = 1; n < NPOITNS; ++n) {
+		 last->next_ = &nodes[n];
+		 nodes[n].previous_ = last;
+		 last = &nodes[n];
+	}
+	last->next_ = nullptr;
+
+	// while list is not empty, choose node with largest number of neighbours and remove it and it's neighborus from list and map
+	std::vector<unsigned int> used_ids_;
+	while (head != nullptr){
+		// add one with most neighbours to the list of active nodes (to build PFs from)
+		used_ids_.push_back(head->id_);
+
+		// remove neighbours from map /	list and reduce neighbour counts of neighbours' neighbours
+		for (int i=0; i < head->neighbour_ids_.size(); ++i){
+			// remove and move down in the sorted list
+			const unsigned int neighb_id =head->neighbour_ids_[i];
+			VertexNode *const neighbour = node_by_id[neighb_id];
+
+			if (neighbour == nullptr)
+				continue;
+
+			// remove from neighbour's list at each neighbour neighbour and move it down
+			for (int j = 0; j < neighbours_of[neighbour->id_].size(); ++j) {
+				unsigned int jthneighbid = neighbours_of[neighbour->id_][j];
+
+				if (jthneighbid == head->id_)
+					continue;
+
+				VertexNode *nn = node_by_id[jthneighbid];
+
+				if (nn == nullptr)
+					continue;
+
+				// TODO don't remove, just have the number of active neighbour nodes
+				if (nn->neighbour_ids_.size() > 0){
+					std::remove(nn->neighbour_ids_.begin(), nn->neighbour_ids_.end(), neighbour->id_);
+				}else{
+					std::cout << "no neighbours!\n";
+				}
+
+				//also remove NN from reverse neighbours list of 2nd order neighbours
+				std::remove(neighbours_of[jthneighbid].begin(), neighbours_of[jthneighbid].end(), neighb_id);
+
+				// move down in the list
+				while (nn->next_ !=0 && nn->Size() < nn->next_->Size()){
+					VertexNode *tmp = nn->next_;
+					nn->next_ = tmp->next_;
+					nn->previous_->next_ = tmp;
+					tmp->next_ = neighbour;
+					tmp->previous_ = nn->previous_;
+					nn->previous_ = tmp;
+					nn->next_->previous_ = nn;
+				}
+			}
+
+			// remove neighbour from the list
+			if (node_by_id[neighbour->id_]->previous_ != nullptr)
+				node_by_id[neighbour->id_]->previous_->next_ = node_by_id[neighbour->id_]->next_;
+
+			if (node_by_id[neighbour->id_]->next_ != nullptr)
+				node_by_id[neighbour->id_]->next_->previous_ = node_by_id[neighbour->id_]->previous_;
+
+			node_by_id[neighbour->id_] = nullptr;
+
+			neighbours_of[neighbour->id_].clear();
+		}
+
+		// move to next node with most neighbours
+		head = head->next_;
+	}
+
+	delete[] nn_idx;
+	delete[] dd;
+
+	return used_ids_;
+}
+
+const bool VertexNode::operator <(const VertexNode& sample) const{
+	return Size() > sample.Size();
+}
+
+VertexNode& VertexNode::operator =(VertexNode&& ref) {
+	id_ = ref.id_;
+	// to be used only while sorting !
+	// TODO throw if not null ?
+	next_ = nullptr;
+	previous_ = nullptr;
+	neighbour_ids_ = ref.neighbour_ids_;
+
+	return *this;
+}
+
+VertexNode::VertexNode(const VertexNode& ref) {
+	id_ = ref.id_;
+	next_ = nullptr;
+	previous_ = nullptr;
+	neighbour_ids_ = ref.neighbour_ids_;
+}
+
 
 void cache_spike_and_bin_neighbours(){
 
@@ -242,8 +432,8 @@ int main(int argc, char **argv){
 //	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
-	if (argc != 19){
-		std::cout << "Exactly 18 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
+	if (argc != 21){
+		std::cout << "Exactly 20 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
 		exit(1);
 	}
 	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &BIN_SIZE, &NBINS, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
@@ -255,9 +445,11 @@ int main(int argc, char **argv){
 	SIGMA_X = atof(argv[15]);
 	SIGMA_A = atof(argv[16]);
 	SIGMA_XX = atof(argv[17]);
-	BASE_PATH = argv[18];
+	SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = atof(argv[18]);
+	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[19]);
+	BASE_PATH = argv[20];
 
-	std::cout << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << "\n";
+	std::cout << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 
 	std::cout << "t " << tetr << ": " << "start KDE estimation\n";
 
@@ -290,18 +482,6 @@ int main(int argc, char **argv){
 	for (int d = 0; d < MIN_SPIKES; ++d) {
 		ann_points_int[d] = new int[DIM];
 	}
-
-	// load indices of spikes where PFs have to be constructed
-	std::ifstream used_stream(BASE_PATH + "used_ids.txt");
-	unsigned int nused = 0;
-	used_stream >> nused;
-	for (int i=0; i < nused; ++i){
-		unsigned int used_id = -1;
-		used_stream >> used_id;
-		used_ids_.push_back(used_id);
-	}
-	NUSED = used_ids_.size();
-	used_stream.close();
 
 	// ---
 	// NORMALIZE STDS
@@ -452,6 +632,29 @@ int main(int argc, char **argv){
 		}
 	}
 
+	// reduce the tree by solving vertex cover
+	VertexCoverSolver ver_solv;
+	std::cout << "t " << tetr << ": run vertex cover solver with distance threshold = " <<  SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << "\n\t and # of neighbours limited to " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	std::vector<unsigned int> used_ids_ = ver_solv.Reduce(*kdtree_, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB);// form new tree with only used points
+	std::cout << "t " << tetr << ": done vertex cover, # of points in reduced tree: " << used_ids_.size() << "\n";
+	NUSED = used_ids_.size();
+
+	// construct and save the reduced tree
+	ANNpointArray tree_points = kdtree_->thePoints();
+	ANNpointArray reduced_array = annAllocPts(used_ids_.size(), DIM);
+	for (int i=0; i < used_ids_.size(); ++i){
+		for (int f=0; f < DIM; ++f){
+			reduced_array[i][f] = tree_points[used_ids_[i]][f];
+		}
+	}
+
+	// save to be used during decoding
+	ANNkd_tree *reduced_tree = new ANNkd_tree(reduced_array, used_ids_.size(), DIM);
+	std::ofstream kdstream_reduced(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree.reduced");
+	reduced_tree->Dump(ANNtrue, kdstream_reduced);
+	kdstream_reduced.close();
+	delete reduced_tree;
+
 	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours)
 	time_t start = clock();
 	//for (int p = 0; p < total_spikes; ++p) {
@@ -463,10 +666,6 @@ int main(int argc, char **argv){
 			std::cout.precision(2);
 			std::cout << "t " << tetr << ": " << u << " out of  " << NUSED << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
 			start = clock();
-
-			// PROFILING
-//			if (p >= 1000)
-//				exit(0);
 		}
 
 		build_pax_(tetr, p, pix, mu);
