@@ -9,7 +9,7 @@
 
 WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer* buffer)
 : WhlFileReaderProcessor(buffer,
-		buffer->config_->getString("dat.path.base") + "whl",
+		buffer->config_->getString("dat.path.base") + buffer->config_->getString("whl.extension", "whl"),
 		buffer->config_->getInt("whl.sampling.factor"),
 		buffer->config_->getFloat("whl.sub.x"),
 		buffer->config_->getFloat("whl.sub.y")
