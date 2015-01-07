@@ -211,6 +211,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	log_stream.open(log_path_prefix + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
 	std::cout << "Created LOG\n";
 
+	// TODO !!! create buffer only for valid channels
     for (int c = 0; c < CHANNEL_NUM; ++c){
     	unsigned int WS_SHIFT = 100;
     	signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];

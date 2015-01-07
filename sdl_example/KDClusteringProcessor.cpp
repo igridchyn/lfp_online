@@ -23,12 +23,13 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	kdtree_stream.close();
 
 	unsigned int NUSED = kdtrees_[t]->nPoints();
+	laxs_[t].reserve(NUSED);
 
 	// load binary combined matrix and extract individual l(a,x)
 	arma::mat laxs_tetr_(NBINSX, NBINSY * NUSED);
 	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 	for (int s = 0; s < NUSED; ++s) {
-		laxs_[t][s] = laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1);
+		laxs_[t].push_back(laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1));
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
@@ -126,8 +127,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 		// tmp
 		obs_mats_[t] = arma::mat(MIN_SPIKES, 14);
-
-		laxs_[t].resize(MIN_SPIKES, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 	}
 
 	pf_built_.resize(tetrn);
@@ -327,6 +326,20 @@ void KDClusteringProcessor::reset_hmm() {
 void KDClusteringProcessor::process(){
 	// TODO !!! check if buffer size affects prediction quality
 
+	// TODO make callback for pipeline data over event
+	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
+		for (int tetr=0; tetr < tetr_info_->tetrodes_number; ++tetr){
+			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr]){
+				std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
+				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+				std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
+
+				fitting_jobs_running_[tetr] = true;
+				fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
+			}
+		}
+	}
+
 	// need both speed and PCs
 	while(spike_buf_pos_clust_ < MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
@@ -361,13 +374,12 @@ void KDClusteringProcessor::process(){
 			// to start prediction only after all PFs are available
 			last_pred_pkg_id_ = spike->pkg_id_;
 
-			if (total_spikes_[tetr] >= MIN_SPIKES){
+			if (total_spikes_[tetr] >= MIN_SPIKES || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
 
 				// start clustering if it is not running yet, otherwise - ignore
 				if (!fitting_jobs_running_[tetr]){
 //					build_lax_and_tree_separate(tetr);
-
 					// SHOULD BE DONE IN THE SAME PROCESS, AS KD Search is not parallel
 					// dump required data and start process (due to non-thread-safety of ANN)
 					// build tree and dump it along with points
@@ -675,6 +687,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	kdstream.close();
 
 	// dump obs_mat
+	obs_mats_[tetr].resize(total_spikes_[tetr], obs_mats_[tetr].n_cols);
 	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 
 	// create pos_buf and dump (first count points),
@@ -730,7 +743,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
-			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << MIN_SPIKES << " " <<
+			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
 			SAMPLING_RATE + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";

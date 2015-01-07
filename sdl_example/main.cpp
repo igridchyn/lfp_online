@@ -33,9 +33,9 @@ void draw_bin() {
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env1_2x.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
+	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf");
-	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf");
+//	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf");
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_SWR.conf");
