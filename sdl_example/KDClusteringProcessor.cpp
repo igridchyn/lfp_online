@@ -690,6 +690,10 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	obs_mats_[tetr].resize(total_spikes_[tetr], obs_mats_[tetr].n_cols);
 	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 
+	// free resources
+	obs_mats_[tetr].clear();
+	delete kdtrees_[tetr];
+
 	// create pos_buf and dump (first count points),
 	// TODO cut matrix later
 	unsigned int npoints = 0;

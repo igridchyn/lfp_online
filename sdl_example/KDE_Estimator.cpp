@@ -176,7 +176,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 	// while list is not empty, choose node with largest number of neighbours and remove it and it's neighborus from list and map
 	std::vector<unsigned int> used_ids_;
-	while (head != nullptr){
+	while (head != nullptr && head->neighbour_ids_.size() > 0){
 		// add one with most neighbours to the list of active nodes (to build PFs from)
 		used_ids_.push_back(head->id_);
 
@@ -211,7 +211,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 				//also remove NN from reverse neighbours list of 2nd order neighbours
 				std::remove(neighbours_of[jthneighbid].begin(), neighbours_of[jthneighbid].end(), neighb_id);
 
-				// move down in the list
+				// move down in the list to support the sorted order
 				while (nn->next_ !=0 && nn->Size() < nn->next_->Size()){
 					VertexNode *tmp = nn->next_;
 					nn->next_ = tmp->next_;
