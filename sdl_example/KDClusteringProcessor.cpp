@@ -489,7 +489,8 @@ void KDClusteringProcessor::process(){
 			if (SWR_SWITCH){
 				if (!swr_regime_ && swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][0] != last_processed_swr_start_){
 					//DEBUG
-					std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_[swr_pointer_][0] << "\n";
+					std::cout << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_[swr_pointer_][0] << ", SWR length = "
+							<< (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]) * 1000 / buffer->SAMPLING_RATE << " ms\n";
 
 					swr_regime_ = true;
 					// TODO configurableize
@@ -497,11 +498,19 @@ void KDClusteringProcessor::process(){
 
 					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
 					last_processed_swr_start_ = buffer->swrs_[swr_pointer_][0];
+					last_window_n_spikes_ = 0;
 
-					// rewind until the first spike in the SW
-					while(spike->pkg_id_ > last_pred_pkg_id_){
-						// TODO OOB control
+					// the following is required due to different possible order of SWR detection / spike processing
+
+					// if spikes have been processed before SWR detection - rewind until the first spike in the SW
+					while(spike_buf_pos_clust_ > 0 && spike !=nullptr && spike->pkg_id_ > last_pred_pkg_id_){
 						spike_buf_pos_clust_ --;
+						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+					}
+
+					// !!! if spikes have not been processed yet - rewind until the first spieks in the SWR
+					while(spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ && spike != nullptr && spike->pkg_id_ < last_pred_pkg_id_){
+						spike_buf_pos_clust_ ++;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
 
@@ -509,6 +518,7 @@ void KDClusteringProcessor::process(){
 					reset_hmm();
 				}
 
+				// end SWR regime if the SWR is over
 				if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][2]){
 					// DEBUG
 					std::cout << "Switch to theta prediction regime due to end of SWR at " <<  buffer->swrs_[swr_pointer_][2] << "\n";
@@ -535,6 +545,13 @@ void KDClusteringProcessor::process(){
 				if (stetr == TetrodesInfo::INVALID_TETRODE){
 					spike_buf_pos_clust_++;
 					// spike may be without speed (the last one) - but it's not crucial
+					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+					continue;
+				}
+
+				// in the SWR regime - skip until the first spike in the SWR
+				if (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_){
+					spike_buf_pos_clust_++;
 					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					continue;
 				}
@@ -585,7 +602,7 @@ void KDClusteringProcessor::process(){
 
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){
-					std::cout << "prediction within SWR..., proc# = " << processor_number_ << "\n";
+					std::cout << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "\n";
 
 					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
 						usleep(1000 * SWR_SLOWDOWN_DURATION);
