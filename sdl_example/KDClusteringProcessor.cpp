@@ -505,8 +505,8 @@ void KDClusteringProcessor::process(){
 							<< (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]) * 1000 / buffer->SAMPLING_RATE << " ms\n";
 
 					swr_regime_ = true;
-					// TODO configurableize
-					PRED_WIN = SWR_PRED_WIN;
+
+					PRED_WIN = SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]);
 
 					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
 					last_processed_swr_start_ = buffer->swrs_[swr_pointer_][0];
@@ -551,7 +551,7 @@ void KDClusteringProcessor::process(){
 			// at this points all tetrodes have pfs !
 			// TODO don't need speed (for prediction), can take more spikes
 
-			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && spike_buf_pos_clust_ < buffer->spike_buf_pos_speed_){
+			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ - 1){
 				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
 
 				if (stetr == TetrodesInfo::INVALID_TETRODE){
