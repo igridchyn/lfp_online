@@ -132,6 +132,8 @@ void LFPBuffer::Reset(Config* config) {
 
 	// TODO check if all members are properly being reset
 	high_synchrony_tetrode_spikes_ = 0;
+
+	user_context_.Init(tetr_info_->tetrodes_number);
 }
 
 LFPBuffer::~LFPBuffer(){
