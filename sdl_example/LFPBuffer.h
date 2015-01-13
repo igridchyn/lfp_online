@@ -226,6 +226,8 @@ public:
 
 	std::ofstream log_stream;
 
+	unsigned int input_duration_ = 0;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);

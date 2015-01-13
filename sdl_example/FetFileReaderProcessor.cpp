@@ -33,6 +33,26 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 		exit(20);
 	}
 
+	// estimate duration of all files together
+	// TODO: implement for binary as well
+	unsigned long total_dur = 0;
+	if (!binary_){
+		for (int f=0; f < buffer->config_->spike_files_.size(); ++f){
+			std::string path = buffer->config_->spike_files_[f] + "fet." + Utils::NUMBERS[buffer->config_->tetrodes[0]];
+			std::ifstream ffet(path);
+			int d;
+			while (!ffet.eof()){
+				ffet >> d;
+			}
+			ffet.close();
+			total_dur += d;
+		}
+
+		unsigned int dur_sec = total_dur / buffer->SAMPLING_RATE;
+		std::cout << "Approximate duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
+		buffer->input_duration_ = total_dur;
+	}
+
 	openNextFile();
 }
 

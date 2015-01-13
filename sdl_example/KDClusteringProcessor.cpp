@@ -383,8 +383,9 @@ void KDClusteringProcessor::process(){
 					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(SAMPLING_DELAY);
 					std::cout << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
 					// TODO configrableize expected session duration
-					std::cout << "WARNING: duration of the session is hard-coded !!!\n";
-					tetrode_sampling_rates_.push_back(std::max<unsigned int>(0, (unsigned int)round(60 * 19 * firing_rate / MIN_SPIKES) - 1));
+					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
+					std::cout << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
+					tetrode_sampling_rates_.push_back(std::max<unsigned int>(0, (unsigned int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
 					std::cout << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 			}
 		}
