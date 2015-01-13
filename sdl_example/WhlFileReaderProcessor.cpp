@@ -43,16 +43,16 @@ void WhlFileReaderProcessor::process(){
 		unsigned int *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
 
 		if (x < 0 || x <= SUB_X || y <= SUB_Y){
-			pos_rec[0] = 1023;
-			pos_rec[1] = 1023;
-//			pos_rec[2] = 0;
-//			pos_rec[3] = 0;
+			pos_rec[0] = buffer->pos_unknown_;
+			pos_rec[1] = buffer->pos_unknown_;
+			pos_rec[2] = buffer->pos_unknown_;
+			pos_rec[3] = buffer->pos_unknown_;
 		}
 		else{
 			pos_rec[0] = x - SUB_X;
 			pos_rec[1] = y - SUB_Y;
-//			pos_rec[2] = 0;
-//			pos_rec[3] = 0;
+			pos_rec[2] = x - SUB_X;
+			pos_rec[3] = y - SUB_Y;
 		}
 
 		pos_rec[4] = last_pos_pkg_id_;

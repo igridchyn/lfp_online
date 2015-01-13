@@ -74,23 +74,23 @@ public:
     //      STORE WAVESHAPE with prev_spike
 //    static const int BUF_HEAD_LEN = 1 << 8; // 11
     const int BUF_HEAD_LEN;
-    
+
     const int SPIKE_BUF_LEN;
     const int SPIKE_BUF_HEAD_LEN;
-    
+
     // Axona package configuration in bytes
     const int CHUNK_SIZE = 432;
     const int HEADER_LEN = 32;
     const int TAIL_LEN = 16;
     const int BLOCK_SIZE = 64;
-    
+
     const unsigned int SAMPLING_RATE;
 
 	int *CH_MAP; // = { 8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55 };
-    
+
     // which channel is at i-th position in the BIN chunk
 	int *CH_MAP_INV;
-    
+
     TetrodesInfo *tetr_info_ = nullptr;
     // alternative tetrode infos (e.g. for other models)
     std::vector<TetrodesInfo *> alt_tetr_infos_;
@@ -135,7 +135,7 @@ public:
     bool ac_reset_ = false;
     int ac_reset_tetrode_ = -1;
 	int ac_reset_cluster_ = -1;
-    
+
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]
     //const int POS_BUF_SIZE = 1 << 20;
@@ -160,7 +160,7 @@ public:
 
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
-    
+
     // length of a population vector, in number of samples (length in seconds = POP_VEC_WIN_LEN / SAMPLING_RATE)
     const unsigned int POP_VEC_WIN_LEN;
     // pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
@@ -169,7 +169,7 @@ public:
     std::vector< std::vector<unsigned int> > population_vector_window_;
     unsigned int population_vector_total_spikes_ = 0;
     std::queue<Spike*> population_vector_stack_;
-    
+
     // map of whether tetrode is used for high synchrony detection
     bool *is_high_synchrony_tetrode_;
     unsigned int high_synchrony_tetrode_spikes_ = 0;
@@ -183,12 +183,12 @@ public:
 
 private:
     bool is_valid_channel_[_CHANNEL_NUM];
-    
+
 public:
     signal_type *signal_buf[_CHANNEL_NUM];
     int *filtered_signal_buf[_CHANNEL_NUM];
     int *power_buf[_CHANNEL_NUM];
-    
+
     // ??? for all arrays ?
     int buf_pos = BUF_HEAD_LEN;
     int buf_pos_trig_ = BUF_HEAD_LEN;
@@ -196,18 +196,18 @@ public:
     unsigned int last_pkg_id = 0;
     // for each tetrode
     int *last_spike_pos_ = nullptr;
-    
+
     // if shift has happened, what was the previous zero level;
     int zero_level;
-    
+
     unsigned char *chunk_ptr = nullptr;
     int num_chunks;
-    
+
     OnlineEstimator<float, float>* powerEstimators_;
     OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];
-    
+
     OnlineEstimator<float, float>* speedEstimator_;
-    
+
     // for ISI estimation - previous spike
     // ??? initialize with fake spike to avoid checks
     unsigned int *previous_spikes_pkg_ids_;
@@ -227,14 +227,14 @@ public:
 	std::ofstream log_stream;
 
     //====================================================================================================
-    
+
     LFPBuffer(Config* config);
 	~LFPBuffer();
-    
+
     void Reset(Config* config);
 
     inline bool is_valid_channel(int channel_num) { return is_valid_channel_[channel_num]; }
-    
+
 	// Population window operations
     void RemoveSpikesOutsideWindow(const unsigned int& right_border);
     void UpdateWindowVector(Spike *spike);
@@ -263,7 +263,7 @@ public:
 class Utils{
 public:
     static const char* const NUMBERS[];
-    
+
     class Converter{
     public:
     	static std::string int2str(int a);

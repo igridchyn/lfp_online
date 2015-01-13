@@ -10,7 +10,7 @@
 
 SpeedEstimationProcessor::SpeedEstimationProcessor(LFPBuffer *buffer)
 : LFPProcessor(buffer) {
-
+	dump_.open("../out/spike_speed.txt");
 }
 
 SpeedEstimationProcessor::~SpeedEstimationProcessor() {
@@ -56,6 +56,8 @@ void SpeedEstimationProcessor::process(){
 				// TODO: weights ?
 				spike->speed = ( buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_][5] * w_bef + buffer->positions_buf_[buffer->pos_buf_pos_speed_est - 8][5] * w_aft) / (float)(w_bef + w_aft);
 				//                std::cout << "Spike speed " << spike->speed << "\n";
+
+				dump_ << spike->x << " " << spike->y << " " << spike->speed << "\n";
 
 				buffer->spike_buf_pos_speed_ ++;
 			}

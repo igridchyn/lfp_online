@@ -12,6 +12,8 @@
 
 class SpeedEstimationProcessor: public LFPProcessor {
 public:
+	std::ofstream dump_;
+
 	SpeedEstimationProcessor(LFPBuffer *buffer);
 	virtual ~SpeedEstimationProcessor();
 

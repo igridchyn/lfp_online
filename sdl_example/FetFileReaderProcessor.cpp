@@ -214,6 +214,11 @@ void FetFileReaderProcessor::process() {
 			openNextFile();
 		}
 		else{
+			if (buffer->pipeline_status_ != PIPELINE_STATUS_INPUT_OVER){
+				std::stringstream ss;
+				ss << "End of input files, file duration: " << last_pkg_id_ / buffer->SAMPLING_RATE / 60 << " min " << (last_pkg_id_ / buffer->SAMPLING_RATE) % 60 << " sec \n";
+				Log(ss.str());
+			}
 			buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 			return;
 		}
