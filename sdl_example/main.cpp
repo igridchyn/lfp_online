@@ -31,11 +31,13 @@ void draw_bin() {
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf");
+//	Config *config = new Config("../Res/build_model_jc118_1003_env_shift_learn_1.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env1_2x.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003.conf");
-	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf");
+//	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
+  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_learn1.conf");
+//	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf"); // 2 separate maps decoded in parallel
+//	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84_SWR.conf");
@@ -55,14 +57,14 @@ void draw_bin() {
 //	Config *config = new Config("../Res/spike_detection_jc118_1000_l.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
 //	Config *config = new Config("../Res/spike_reader_jc118_1001_4l.conf");
-//	Config *config = new Config("../Res/spike_detection_jc118_1002_7s.conf");
+//	Config *config = new Config("../Res/spike_detection_jc118_1002_7s.conf"); // +++
 //	Config *config = new Config("../Res/spike_reader_jc118_1002_7s.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1002_10s.conf");
 //	Config *config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1003_3l.conf");
-
 //	Config *config = new Config("../Res/signal_display.conf");
 //	Config *config = new Config("../Res/spike_detection_jc11.conf");
+
 #endif
     
 	std::string binpath = config->getString("bin.path", "");
