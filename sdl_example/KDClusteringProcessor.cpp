@@ -192,6 +192,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	}
 
 	buffer->last_predictions_.resize(processor_number_ + 1);
+
+	dec_bayesian_.open("dec_bay.txt");
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -362,7 +364,29 @@ void KDClusteringProcessor::process(){
 		// DEBUG
 		if (!delay_reached_reported){
 			delay_reached_reported = true;
-			std::cout << "Delay over (" << SAMPLING_DELAY << "). Start spike collection...\n";
+			std::cout << "Delay over (" << SAMPLING_DELAY << "). Estimate firing rates => sampling rates and start spike collection...\n";
+
+			// estimate firing rates
+			std::vector<unsigned int> spike_numbers_;
+			spike_numbers_.resize(tetr_info_->tetrodes_number);
+			for (int i=0; i < buffer->spike_buf_pos_speed_; ++i){
+				Spike *spike = buffer->spike_buffer_[i];
+				if (spike == NULL || spike->discarded_ || spike->speed < SPEED_THOLD){
+					continue;
+				}
+
+				// TODO convert tetrode number
+				spike_numbers_[spike->tetrode_] ++;
+			}
+
+			for (int t=0; t < tetr_info_->tetrodes_number; ++t){
+					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(SAMPLING_DELAY);
+					std::cout << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
+					// TODO configrableize expected session duration
+					std::cout << "WARNING: duration of the session is hard-coded !!!\n";
+					tetrode_sampling_rates_.push_back(std::max<unsigned int>(0, (unsigned int)round(60 * 19 * firing_rate / MIN_SPIKES) - 1));
+					std::cout << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
+			}
 		}
 
 		if (spike->speed < SPEED_THOLD || spike->discarded_){
@@ -423,7 +447,7 @@ void KDClusteringProcessor::process(){
 				}
 
 				// sample every SAMLING_RATE spikes for KDE estimation
-				if (missed_spikes_[tetr] < SAMPLING_RATE){
+				if (missed_spikes_[tetr] < tetrode_sampling_rates_[tetr]){
 					missed_spikes_[tetr] ++;
 					spike_buf_pos_clust_ ++;
 					continue;
@@ -612,6 +636,30 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
+				// DUMP decoded coordinate
+				unsigned int mx = 0,my = 0;
+				pos_pred_.max(mx, my);
+				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
+				// TODO extract to get pos
+				unsigned int *pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / 512)];
+				if (pose[0] == buffer->pos_unknown_){
+					if (pose[2] != buffer->pos_unknown_){
+						gtx = pose[2];
+						gty = pose[3];
+					}
+				} else if (pose[2] == buffer->pos_unknown_){
+					if (pose[0] != buffer->pos_unknown_){
+						gtx = pose[0];
+						gty = pose[1];
+					}
+				}
+				else {
+					gtx = (pose[0] + pose[2]) / 2;
+					gty = (pose[1] + pose[3]) / 2;
+				}
+				dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
+				dec_bayesian_.flush();
+
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){
 					std::cout << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "\n";
@@ -748,7 +796,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	std::ostringstream  os;
 	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
-			SAMPLING_RATE + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
+			tetrode_sampling_rates_[tetr] + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";
 

@@ -48,6 +48,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool USE_PRIOR;
 	const unsigned int PREDICTION_DELAY;
 
+	std::vector<unsigned int> tetrode_sampling_rates_;
+
 	const unsigned int SAMPLING_RATE;
 	const unsigned int SAMPLING_DELAY;
 	const float SPEED_THOLD;
@@ -172,6 +174,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	// number of neighbours, only yo speedup, perfectly should not be reached in the spike with largest number of neighbours
 	//	to decrease number of neighbours, decrease the threshold above
 	unsigned int SPIKE_GRAPH_COVER_NNEIGHB = 1;
+
+	std::ofstream dec_bayesian_;
 
 	void update_hmm_prediction();
 	void reset_hmm();
