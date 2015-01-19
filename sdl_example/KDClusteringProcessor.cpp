@@ -177,6 +177,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 				<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINSX << " " << NBINSY << " " << BIN_SIZE << "\n";
 		fparams.close();
 		std::cout << "Running params written to " << parpath << "\n";
+
+		// save all params together with the model directory
+		std::string all_params = buffer->config_->getAllParamsText();
+		std::ofstream model_config(BASE_PATH + "params.conf");
+		model_config << all_params;
+		model_config.close();
 	}
 
 	if (use_intervals_){
@@ -343,7 +349,8 @@ void KDClusteringProcessor::process(){
 	}
 
 	// need both speed and PCs
-	while(spike_buf_pos_clust_ < MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
+	unsigned int limit = LOAD ? (buffer->spike_buf_pos_unproc_ - 1): MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_ - 1);
+	while(spike_buf_pos_clust_ < limit){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
 
@@ -624,7 +631,8 @@ void KDClusteringProcessor::process(){
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
 
-				std::cout << "Number of spikes in the prediction window: " << last_window_n_spikes_ << " (proc# " << processor_number_ << ")\n";
+				// DEBUG
+				// std::cout << "Number of spikes in the prediction window: " << last_window_n_spikes_ << " (proc# " << processor_number_ << ")\n";
 				last_window_n_spikes_ = 0;
 
 				// edges of the window

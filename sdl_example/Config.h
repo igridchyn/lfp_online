@@ -41,6 +41,8 @@ public:
 
 	std::vector<std::string> spike_files_;
 
+	std::string config_path_;
+
 	Config(std::string path);
 
 	int getInt(std::string name);
@@ -58,6 +60,8 @@ public:
 	void checkUnused();
 
 	virtual ~Config();
+
+	std::string getAllParamsText();
 };
 
 #endif /* CONFIG_H_ */

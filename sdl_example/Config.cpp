@@ -37,6 +37,8 @@ void Config::read_processors(std::ifstream& fconf) {
 }
 
 Config::Config(std::string path) {
+	config_path_ = path;
+
 	std::ifstream fconf(path);
 	// parse out pairs <param_name>, <string value> from lines
 	// <param name> <param_value>
@@ -280,3 +282,12 @@ Config::~Config() {
 	log_.close();
 }
 
+std::string Config::getAllParamsText() {
+	std::stringstream ss;
+
+	for (std::map<std::string, std::string>::iterator it=params_.begin(); it!=params_.end(); ++it){
+		ss << it->first << "=" << it->second << "\n";
+	}
+
+	return ss.str();
+}
