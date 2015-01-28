@@ -30,14 +30,14 @@ void draw_bin() {
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 #else
 //	Config *config = new Config("../Res/build_model_jc84.conf");
-	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
+//	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift_learn_1.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env1_2x.conf"); // 2 independent models built in parallel
 //	Config *config = new Config("../Res/decoding_jc118_1003.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
 //  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_learn1.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf"); // 2 separate maps decoded in parallel
-//	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
+	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
