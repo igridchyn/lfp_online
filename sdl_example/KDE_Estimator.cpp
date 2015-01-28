@@ -24,6 +24,7 @@ int BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
+// !!! TODO analyze effect carefully
 const unsigned int BLOCK_SIZE = 3;
 int NBLOCKSX;
 int NBLOCKSY;
@@ -176,7 +177,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 	// while list is not empty, choose node with largest number of neighbours and remove it and it's neighborus from list and map
 	std::vector<unsigned int> used_ids_;
-	while (head != nullptr && head->neighbour_ids_.size() > 0){
+	while (head != nullptr ){ // && head->neighbour_ids_.size() > 0){
 		// add one with most neighbours to the list of active nodes (to build PFs from)
 		used_ids_.push_back(head->id_);
 
