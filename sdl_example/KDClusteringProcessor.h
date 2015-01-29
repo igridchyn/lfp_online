@@ -175,7 +175,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	//	to decrease number of neighbours, decrease the threshold above
 	unsigned int SPIKE_GRAPH_COVER_NNEIGHB = 1;
 
+	// DUMP
 	std::ofstream dec_bayesian_;
+	std::ofstream window_spike_counts_;
 
 	void update_hmm_prediction();
 	void reset_hmm();

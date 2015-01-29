@@ -167,7 +167,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 	hmm_traj_.resize(NBINSX * NBINSY);
 
-	// save params only for model buuilding scenario
+	// save params only for model building scenario
 	if (SAVE){
 		std::string parpath = BASE_PATH + "params.txt";
 		std::ofstream fparams(parpath);
@@ -200,6 +200,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	buffer->last_predictions_.resize(processor_number_ + 1);
 
 	dec_bayesian_.open("dec_bay.txt");
+	window_spike_counts_.open("../out/window_spike_counts.txt");
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -630,11 +631,6 @@ void KDClusteringProcessor::process(){
 			// if prediction is final and end of window has been reached (last spike is beyond the window)
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
-
-				// DEBUG
-				// std::cout << "Number of spikes in the prediction window: " << last_window_n_spikes_ << " (proc# " << processor_number_ << ")\n";
-				last_window_n_spikes_ = 0;
-
 				// edges of the window
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE;
 
@@ -676,20 +672,19 @@ void KDClusteringProcessor::process(){
 					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
 						usleep(1000 * SWR_SLOWDOWN_DURATION);
 					}
+
+					window_spike_counts_ << last_window_n_spikes_ << "\n";
+					window_spike_counts_.flush();
 				}
+
+				// DEBUG
+				// std::cout << "Number of spikes in the prediction window: " << last_window_n_spikes_ << " (proc# " << processor_number_ << ")\n";
+				last_window_n_spikes_ = 0;
 
 				last_pred_probs_ = pos_pred_;
 				// to avoid OOR
 				double minpred = arma::max(arma::max(last_pred_probs_));
 				last_pred_probs_ -= minpred;
-
-//				double minval = arma::min(arma::min(pos_pred_));
-//				pos_pred_ = pos_pred_ - minval;
-				pos_pred_ = arma::exp(pos_pred_ / 50);
-
-				// updated in HMM
-				buffer->last_predictions_[processor_number_] = pos_pred_.t();
-				buffer->last_preidction_window_ends_[processor_number_] = last_pred_pkg_id_ + PRED_WIN;
 
 				if (swr_regime_){
 					// DEBUG save prediction
@@ -700,6 +695,14 @@ void KDClusteringProcessor::process(){
 					//pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
 					//swr_win_counter_ ++;
 				}
+
+//				double minval = arma::min(arma::min(pos_pred_));
+//				pos_pred_ = pos_pred_ - minval;
+				pos_pred_ = arma::exp(pos_pred_ / 50);
+
+				// updated in HMM
+				buffer->last_predictions_[processor_number_] = pos_pred_.t();
+				buffer->last_preidction_window_ends_[processor_number_] = last_pred_pkg_id_ + PRED_WIN;
 
 				// DEBUG
 //				if (!(last_pred_pkg_id_ % 200)){
