@@ -26,12 +26,13 @@
 		B052748018A9441100193EAA /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052747F18A9441100193EAA /* SDL2.framework */; };
 		B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B052748218ACD51900193EAA /* SDL2_ttf.framework */; };
 		B0611B6F1934C62F0066583E /* AutocorrelogramProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */; };
-		B0611B71193887E60066583E /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B0611B70193887E60066583E /* libboost_system.dylib */; };
 		B0611B74193CDF600066583E /* PlaceFieldProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */; };
 		B062E2D4199E9A98003B514B /* LPTTriggerProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B062E2D2199E9A98003B514B /* LPTTriggerProcessor.cpp */; };
 		B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */; };
 		B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */; };
 		B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C591918E65500C1328D /* OnlineEstimator.cpp */; };
+		B08779ED1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B08779EC1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib */; };
+		B08779EF1A7FBD2B00CC7422 /* libboost_system-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B08779EE1A7FBD2B00CC7422 /* libboost_system-mt.dylib */; };
 		B087CAA519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */; };
 		B087CAA619862D7100FC5E01 /* FetFileReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */; };
 		B087CAA719862D7100FC5E01 /* KDClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9919862D7100FC5E01 /* KDClusteringProcessor.cpp */; };
@@ -95,7 +96,6 @@
 		B052748218ACD51900193EAA /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 		B0611B6D1934C62F0066583E /* AutocorrelogramProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutocorrelogramProcessor.cpp; sourceTree = "<group>"; };
 		B0611B6E1934C62F0066583E /* AutocorrelogramProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutocorrelogramProcessor.h; sourceTree = "<group>"; };
-		B0611B70193887E60066583E /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../../../opt/local/lib/libboost_system.dylib; sourceTree = "<group>"; };
 		B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlaceFieldProcessor.cpp; sourceTree = "<group>"; };
 		B062E2D1199E9A98003B514B /* LFPOnline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPOnline.h; sourceTree = "<group>"; };
 		B062E2D2199E9A98003B514B /* LPTTriggerProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LPTTriggerProcessor.cpp; sourceTree = "<group>"; };
@@ -104,6 +104,8 @@
 		B0797C561918E41000C1328D /* SpikeDetectorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpikeDetectorProcessor.cpp; sourceTree = "<group>"; };
 		B0797C591918E65500C1328D /* OnlineEstimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnlineEstimator.cpp; sourceTree = "<group>"; };
 		B0797C5A1918E65500C1328D /* OnlineEstimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnlineEstimator.h; sourceTree = "<group>"; };
+		B08779EC1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_filesystem-mt.dylib"; path = "../../../../opt/local/lib/libboost_filesystem-mt.dylib"; sourceTree = "<group>"; };
+		B08779EE1A7FBD2B00CC7422 /* libboost_system-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_system-mt.dylib"; path = "../../../../opt/local/lib/libboost_system-mt.dylib"; sourceTree = "<group>"; };
 		B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CluReaderClusteringProcessor.cpp; sourceTree = "<group>"; };
 		B087CA9619862D7100FC5E01 /* CluReaderClusteringProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CluReaderClusteringProcessor.h; sourceTree = "<group>"; };
 		B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FetFileReaderProcessor.cpp; sourceTree = "<group>"; };
@@ -158,10 +160,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B087CAAE1986373300FC5E01 /* libANN.a in Frameworks */,
-				B0611B71193887E60066583E /* libboost_system.dylib in Frameworks */,
 				B00005F81901B71D00502C4B /* libarmadillo.3.92.2.dylib in Frameworks */,
 				B00005F61901697900502C4B /* libmlpack.1.0.dylib in Frameworks */,
 				B00005F419015CDD00502C4B /* libxml2.dylib in Frameworks */,
+				B08779EF1A7FBD2B00CC7422 /* libboost_system-mt.dylib in Frameworks */,
+				B08779ED1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib in Frameworks */,
 				B052748318ACD51900193EAA /* SDL2_ttf.framework in Frameworks */,
 				B052748018A9441100193EAA /* SDL2.framework in Frameworks */,
 				B052747E18A943A700193EAA /* Cocoa.framework in Frameworks */,
@@ -174,8 +177,9 @@
 		B052743118A9375400193EAA = {
 			isa = PBXGroup;
 			children = (
+				B08779EE1A7FBD2B00CC7422 /* libboost_system-mt.dylib */,
+				B08779EC1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib */,
 				B087CAAD1986373300FC5E01 /* libANN.a */,
-				B0611B70193887E60066583E /* libboost_system.dylib */,
 				B00005F71901B71D00502C4B /* libarmadillo.3.92.2.dylib */,
 				B00005F51901697900502C4B /* libmlpack.1.0.dylib */,
 				B00005F319015CDD00502C4B /* libxml2.dylib */,
