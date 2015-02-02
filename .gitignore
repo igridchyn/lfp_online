@@ -1,4 +1,4 @@
-res/
+out/
 third/LogicAnalyzer 1.5/*.cpp
 third/*.zip
 sdl_example.xcodeproj/*

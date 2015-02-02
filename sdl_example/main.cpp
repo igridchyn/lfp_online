@@ -25,7 +25,8 @@ void draw_bin() {
     
     // decoding position with best params - from fet files
 //    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
-    Config *config = new Config("../Res/decoding_jc118_1003_env2_mac.conf");
+//    Config *config = new Config("../Res/decoding_jc118_1003_env2_mac.conf");
+    Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
     
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 #else
