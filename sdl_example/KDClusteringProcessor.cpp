@@ -632,7 +632,8 @@ void KDClusteringProcessor::process(){
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
 				// edges of the window
-				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE;
+				// account for the increase in the firing rate during high synchrony with additional factor
+				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
 
 				for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
 					if (tetr_spiked_[t]){
@@ -667,7 +668,7 @@ void KDClusteringProcessor::process(){
 
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){
-					std::cout << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "\n";
+					std::cout << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "# of spikes = " << last_window_n_spikes_ << "\n";
 
 					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
 						usleep(1000 * SWR_SLOWDOWN_DURATION);
