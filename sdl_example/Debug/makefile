@@ -38,7 +38,7 @@ LFPProcessor.o: ../LFPProcessor.cpp ../LFPProcessor.h LFPBuffer.o
 LPTTriggerProcessor.o: ../LPTTriggerProcessor.cpp ../LPTTriggerProcessor.h
 	${CC} ${CFLAGS} -c ../LPTTriggerProcessor.cpp
 	
-PackageExractorProcessor.o: ../PackageExractorProcessor.cpp
+PackageExractorProcessor.o: ../PackageExractorProcessor.cpp ../PackageExtractorProcessor.h
 	${CC} ${CFLAGS} -c ../PackageExractorProcessor.cpp
 	
 PCAExtractionProcessor.o: ../PCAExtractionProcessor.cpp ../PCAExtractionProcessor.h

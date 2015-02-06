@@ -1,6 +1,7 @@
 #include "LFPProcessor.h"
 #include "LFPPipeline.h"
 #include "Config.h"
+#include "boost/filesystem.hpp"
 
 typedef short t_bin;
 
@@ -30,15 +31,21 @@ void draw_bin() {
     
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 #else
+//	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
+//	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_SHIFT.conf");
+//    Config *config = new Config("../Res/decoding_online_jc118_1003.conf");
+    Config *config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
+
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift_learn_1.conf");
-//	Config *config = new Config("../Res/build_model_jc118_1003_env1_2x.conf"); // 2 independent models built in parallel
+//	Config *config = new Config("../Res/build_model_jc118_1003_2x.conf"); // 2 independent models built in parallel
+//  Config *config = new Config("../Res/build_model_jc118_1003.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf");
+//	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf"); // shifted map
 //  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_learn1.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf"); // 2 separate maps decoded in parallel
-	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
+//	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 
 //	Config *config = new Config("../Res/build_model_jc84_2110.conf");
 //	Config *config = new Config("../Res/decoding_32_jc84.conf");
@@ -103,6 +110,9 @@ void draw_bin() {
 	if (f != nullptr)
 	{
 		buf->pipeline_status_ == PIPELINE_STATUS_READ_BIN;
+		buf->input_duration_ = boost::filesystem::file_size(binpath) * 3 / 432;
+		std::cout << "Input file duration: " << buf->input_duration_ / (buf->SAMPLING_RATE * 60) << " min " <<  buf->input_duration_ / (buf->SAMPLING_RATE) % 60 << "sec\n";
+
 		while (!feof(f)) {
 			fread((void*)block, 1, CHUNK_SIZE*nblock, f);
 
@@ -110,7 +120,7 @@ void draw_bin() {
 			buf->num_chunks = nblock;
 			pipeline->process(nullptr);
 		}
-		buf->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER;
+		buf->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 		std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
 	}
 	else
