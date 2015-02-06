@@ -52,7 +52,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int& processor_number)
 	: LFPProcessor(buf,processor_number),
 			MIN_SPIKES(getInt("kd.min.spikes")),
-			BASE_PATH(getString("kd.path.base")),
+			BASE_PATH(getOutPath("kd.path.base")),
 			SAMPLING_DELAY(getInt("kd.sampling.delay")),
 			SAVE(getBool("kd.save")),
 			LOAD(!getBool("kd.save")),
@@ -77,12 +77,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SWR_SLOWDOWN_DURATION(buf->config_->getInt("kd.swr.slowdown.duration", 1500)),
 			SWR_PRED_WIN(buf->config_->getInt("kd.swr.pred.win", 400)),
 			DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)),
+			DUMP_END(buf->config_->getInt("kd.dump.end", 1000000000)),
 			HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)),
 			use_intervals_(buf->config_->getBool("kd.use.intervals", false)),
 			spike_buf_pos_clust_(buf->spike_buf_pos_clusts_[processor_number]),
 			THETA_PRED_WIN(buf->config_->getInt("kd.pred.win", 2000)),
 			SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(buf->config_->getFloat("kd.spike.graph.cover.distance.threshold", 0)),
-			SPIKE_GRAPH_COVER_NNEIGHB(buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)){
+			SPIKE_GRAPH_COVER_NNEIGHB(buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)),
+			POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -216,9 +218,14 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	arma::mat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
-	if (!(buffer->last_preidction_window_ends_[processor_number_] % HMM_RESET_RATE)){
+	unsigned int prevmaxx = 0, prevmaxy = 0;
+	// TODO ! MAY NOT BE DIVIDABLE, count time since last reset instead
+	bool reset = !(buffer->last_preidction_window_ends_[processor_number_] % HMM_RESET_RATE);
+	if (reset){
 		// DEBUG
 		std::cout << "Reset HMM at " << buffer->last_preidction_window_ends_[processor_number_]  << "..\n";
+
+		hmm_prediction_.max(prevmaxx, prevmaxy);
 
 		if (USE_PRIOR){
 			hmm_prediction_ = pix_log_;
@@ -255,13 +262,19 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 			hmm_upd_(xb, yb) = best_to_xb_yb;
 
-			hmm_traj_[yb * NBINSX + xb].push_back(besty * NBINSX + bestx);
+			if (reset){
+				// all leading to the best before the reset
+				hmm_traj_[yb * NBINSX + xb].push_back(prevmaxy * NBINSX + prevmaxx);
+			}
+			else{
+				hmm_traj_[yb * NBINSX + xb].push_back(besty * NBINSX + bestx);
+			}
 		}
 	}
 
 	// DEBUG - check that no window is skipped and the chain is broken
 	if(!(hmm_traj_[0].size() % 2000)){
-		std::cout << "hmm bias control: " << hmm_traj_[0].size() << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
+		std::cout << "hmm bias control: " << hmm_traj_[0].size() << " / " << (int)round((last_pred_pkg_id_ - PREDICTION_DELAY) / (float)PRED_WIN) << "\n";
 		// DEBUG
 		hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 	}
@@ -280,7 +293,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 //	hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 
 	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
-	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/512.0);
+	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/(float)POS_SAMPLING_RATE);
 	int corrx = buffer->positions_buf_[ind][0];
 	int corry = (int)buffer->positions_buf_[ind][1];
 
@@ -294,8 +307,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		hmm_prediction_.max(x, y);
 		while (t >= 0){
 			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << " ";
-			corrx = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY) / 512.0)][0];
-			corry = buffer->positions_buf_[(int)((t * 2000 + PREDICTION_DELAY)/ 512.0)][1];
+			corrx = buffer->positions_buf_[(int)((t * PRED_WIN + PREDICTION_DELAY) / (float)POS_SAMPLING_RATE)][0];
+			corry = buffer->positions_buf_[(int)((t * PRED_WIN + PREDICTION_DELAY)/ (float)POS_SAMPLING_RATE)][1];
 			dec_hmm << corrx << " " << corry << "\n";
 			int b = hmm_traj_[y * NBINSX + x][t];
 			// TODO !!! fix
@@ -350,7 +363,7 @@ void KDClusteringProcessor::process(){
 	}
 
 	// need both speed and PCs
-	unsigned int limit = LOAD ? (buffer->spike_buf_pos_unproc_ - 1): MIN(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_ - 1);
+	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0): MIN(buffer->spike_buf_pos_speed_, std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0));
 	while(spike_buf_pos_clust_ < limit){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
@@ -393,7 +406,7 @@ void KDClusteringProcessor::process(){
 					// TODO configrableize expected session duration
 					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					std::cout << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
-					tetrode_sampling_rates_.push_back(std::max<unsigned int>(0, (unsigned int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
+					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
 					std::cout << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 			}
 		}
@@ -587,7 +600,7 @@ void KDClusteringProcessor::process(){
 			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ - 1){
 				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
 
-				if (stetr == TetrodesInfo::INVALID_TETRODE){
+				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_){
 					spike_buf_pos_clust_++;
 					// spike may be without speed (the last one) - but it's not crucial
 					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
@@ -647,7 +660,8 @@ void KDClusteringProcessor::process(){
 				pos_pred_.max(mx, my);
 				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
 				// TODO extract to get pos
-				unsigned int *pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / 512)];
+				// !!! WORKAROUND
+				unsigned int *pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
 				if (pose[0] == buffer->pos_unknown_){
 					if (pose[2] != buffer->pos_unknown_){
 						gtx = pose[2];
@@ -663,8 +677,10 @@ void KDClusteringProcessor::process(){
 					gtx = (pose[0] + pose[2]) / 2;
 					gty = (pose[1] + pose[3]) / 2;
 				}
-				dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
-				dec_bayesian_.flush();
+				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
+					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
+					dec_bayesian_.flush();
+				}
 
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){
@@ -722,7 +738,7 @@ void KDClusteringProcessor::process(){
 				// DEBUG
 				npred ++;
 				if (!(npred % 2000)){
-					std::cout << "Bayesian prediction window bias control: " << npred << " / " << (int)round(last_pred_pkg_id_ / (float)PRED_WIN) << "\n";
+					std::cout << "Bayesian prediction window bias control: " << npred << " / " << (int)round((last_pred_pkg_id_ - PREDICTION_DELAY) / (float)PRED_WIN) << "\n";
 				}
 
 				// TODO: extract
@@ -770,7 +786,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		// skip if out of the intervals
 		if (use_intervals_){
 			// TODO account for buffer rewinds
-			unsigned int pos_time = 512 * n;
+			unsigned int pos_time = POS_SAMPLING_RATE * n;
 			while (pos_interval < interval_starts_.size() && pos_time > interval_ends_[pos_interval]){
 				pos_interval ++;
 			}

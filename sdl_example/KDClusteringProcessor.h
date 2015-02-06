@@ -153,6 +153,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<std::vector<int> > hmm_traj_;
 
 	const unsigned int DUMP_DELAY;
+	const unsigned int DUMP_END;
 	unsigned int last_hmm_reset_pkg = 0;
 
 	bool use_intervals_;
@@ -178,6 +179,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	// DUMP
 	std::ofstream dec_bayesian_;
 	std::ofstream window_spike_counts_;
+
+	float POS_SAMPLING_RATE = .0f;
 
 	void update_hmm_prediction();
 	void reset_hmm();
