@@ -283,6 +283,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
 , save_transform_(save_transform)
 , pc_path_(pc_path)
 , cleanup_ws_(buffer->config_->getBool("waveshape.cleanup", false))
+, feature_scale_(buffer->config_->getFloat("pca.scale", 1.0))
 {
     num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number];
     pca_done_ = new bool[buffer->tetr_info_->tetrodes_number];
@@ -375,7 +376,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
                     for (int w=0; w < waveshape_samples_; ++w) {
                         // STANDARDIZED OR NOT
                         // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
-                        spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w];
+                        spike->pc[c][pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w] / feature_scale_;
                     }
                 }
                 if (cleanup_ws_){
