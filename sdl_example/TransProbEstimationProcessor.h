@@ -38,6 +38,9 @@ class TransProbEstimationProcessor: public LFPProcessor {
 	//DEBUG
 	bool saved = false;
 
+	// number of packages until sampling is over
+	const unsigned int SAMPLING_END_;
+
 public:
 	TransProbEstimationProcessor(LFPBuffer *buf);
 	TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbinsx, const unsigned int nbinsy, const unsigned int bin_size,

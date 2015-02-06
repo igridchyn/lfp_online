@@ -17,7 +17,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer* buf)
 			buf->config_->getInt("bin.size"),
 			buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1,
 			buf->config_->getInt("tp.step"),
-			buf->config_->getString("kd.path.base"),
+			buf->config_->getOutPath("kd.path.base"),
 			buf->config_->getBool("tp.save"),
 			buf->config_->getBool("tp.load"),
 			buf->config_->getBool("tp.smooth"),
@@ -43,7 +43,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, SMOOTH(smooth)
 	, USE_PARAMETRIC(use_parametric)
 	, SIGMA(sigma)
-	, SPREAD(spread){
+	, SPREAD(spread)
+	, SAMPLING_END_(buf->config_->getInt("tp.sampling.end", 15000000)){
 	assert(NEIGHB_SIZE % 2);
 	trans_probs_.resize(NBINSX * NBINSY, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 
@@ -142,7 +143,7 @@ void TransProbEstimationProcessor::process() {
 	}
 
 	// TODO configurable interval
-	if (buffer->last_pkg_id > 30000000 && !saved && SAVE){
+	if (buffer->last_pkg_id > SAMPLING_END_ && !saved && SAVE){
 		std::cout << "save tps...";
 
 		arma::mat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
@@ -151,8 +152,9 @@ void TransProbEstimationProcessor::process() {
 			double psum = arma::sum(arma::sum(trans_probs_[b]));
 			trans_probs_[b] /= psum;
 			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) = trans_probs_[b];
-			tps.save(BASE_PATH + "tps.mat");
 		}
+		tps.save(BASE_PATH + "tps.mat");
+		Log(std::string("Saved tps at ") + BASE_PATH + "tps.mat");
 
 		buffer->tps_ = trans_probs_;
 		saved = true;
