@@ -51,7 +51,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , MIN_PKG_ID(min_pkg_id)
 , USE_PRIOR(use_prior)
 , display_prediction_(buf->config_->getBool("pf.display.prediction"))
-, prediction_rate_(buf->config_->getInt("pf.prediction.rate")){
+, prediction_rate_(buf->config_->getInt("pf.prediction.rate"))
+, POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)){
     const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
     const unsigned int MAX_CLUST = 30;
     
@@ -208,7 +209,7 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     
     // draw actual position tail
     // TODO parametrize
-    unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / 512, buffer->pos_buf_pos_);
+    unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
     for (int pos = end - 100; pos < end; ++pos) {
     	FillRect(buffer->positions_buf_[pos][0] * binw / bin_size_, buffer->positions_buf_[pos][1] * binh / bin_size_, 0, 2, 2);
     }

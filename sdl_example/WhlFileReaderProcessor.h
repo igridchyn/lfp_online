@@ -14,7 +14,7 @@ class WhlFileReaderProcessor: public LFPProcessor {
 	const std::string whl_path_;
 	std::ifstream whl_stream_;
 
-	const unsigned int sampling_rate_;
+	float sampling_rate_ = .0f;
 	int last_pos_pkg_id_ = 0;
 
 	const float SUB_X;

@@ -64,6 +64,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
 
     const bool USE_PRIOR;
 
+    float POS_SAMPLING_RATE = 0.0;
     //================================
     
     void drawMat(const arma::mat& mat);
