@@ -6,15 +6,17 @@
 //  Copyright (c) 2014 Igor Gridchyn. All rights reserved.
 //
 
-#include "LFPProcessor.h"
+#include "PackageExtractorProcessor.h"
 #include "OnlineEstimator.cpp"
 
 PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
     : LFPProcessor(buffer)
 	, SCALE(buffer->config_->getFloat("pack.extr.xyscale"))
+	, exit_on_data_over_(buffer->config_->getBool("pack.extr.exit.on.over", false))
+	, read_pos_(buffer->config_->getBool("pack.extr.read.pos", true))
 {
 	Log("Created");
-	report_rate_ = buffer->SAMPLING_RATE * 60 * 5;
+	report_rate_ = buffer->SAMPLING_RATE * 60;
 }
 
 void PackageExractorProcessor::process(){
@@ -22,7 +24,11 @@ void PackageExractorProcessor::process(){
 
     // IDLE processing, waiting for user input
     if (buffer->chunk_ptr == nullptr){
-		buffer->Log("PEXTR: zero pointer, return");
+//		buffer->Log("PEXTR: zero pointer, return");
+    	if (!end_reported_){
+    		Log("EOF reached!");
+    		end_reported_ = true;
+    	}
         return;
     }
     
@@ -66,26 +72,30 @@ void PackageExractorProcessor::process(){
     		unsigned short sy = *((unsigned short*)(pos_chunk + 22));
 
     		// EVERY 240 !!! = 100 Hz
-    		//        std::cout << "new pos at " << buffer->buf_pos << "\n";
+//    		std::cout << "new pos at " << buffer->buf_pos << ": " << bx << ", " << by  << "\n";
 
-    		// WORKAROUND
-    		if (bx != buffer->pos_unknown_){
-    			buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE);
-    			buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE);
-    		}else{
-    			buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
-    			buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
-    		}
-    		if (sx != buffer->pos_unknown_){
-    			buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)(sx * SCALE);
-    			buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)(sy * SCALE);
-    		}else{
-    			buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)buffer->pos_unknown_;
-    			buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)buffer->pos_unknown_;
-    		}
-    		buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)(buffer->last_pkg_id + c);
+    		// skip every other position sample
+    		skip_next_pos_ = ! skip_next_pos_;
+    		if (!skip_next_pos_ && read_pos_){
+    			// WORKAROUND
+    			if (bx != buffer->pos_unknown_){
+    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE);
+    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE);
+    			}else{
+    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
+    			}
+    			if (sx != buffer->pos_unknown_){
+    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)(sx * SCALE);
+    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)(sy * SCALE);
+    			}else{
+    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)buffer->pos_unknown_;
+    			}
+    			buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)(buffer->last_pkg_id + c);
 
-    		buffer->pos_buf_pos_++;
+    			buffer->pos_buf_pos_++;;
+    		}
     	}
     }
     
@@ -134,7 +144,7 @@ void PackageExractorProcessor::process(){
 
     if (buffer->last_pkg_id - last_reported_ > report_rate_){
     	last_reported_ = buffer->last_pkg_id;
-    	std::cout << "Processed " << last_reported_ / report_rate_ * 5 << " minutes of data...\n";
+    	std::cout << "Processed " << last_reported_ / (buffer->SAMPLING_RATE * 60) << " minutes of data...\n";
     }
 }
 

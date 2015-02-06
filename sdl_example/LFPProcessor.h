@@ -135,20 +135,6 @@ public:
     SDLControlInputMetaProcessor(LFPBuffer* buffer, std::vector<SDLControlInputProcessor *> control_processors);
 };
 
-//====================================================================================================
-
-
-class PackageExractorProcessor : public LFPProcessor{
-	const float SCALE;
-	unsigned int last_reported_ = 0;
-	unsigned int report_rate_;
-
-public:
-	virtual std::string name();
-    virtual void process();
-    PackageExractorProcessor(LFPBuffer *buffer);
-};
-
 //==========================================================================================
 
 class SpikeAlignmentProcessor : public LFPProcessor{
