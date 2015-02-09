@@ -388,6 +388,11 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 					continue;
 				}
 
+				// don't use too fat apart neighbours for the estimation
+//				if (dd[ni] > SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD * 10){
+//					break;
+//				}
+
 				// TODO: optimze kernel computation and don't compute (x_s - x_b) each time
 				long long logprob = kern_H_ax_(nn_idx[ni], coords_normalized(xb, 0), coords_normalized(yb, 1));
 				logprob += feature_sum[nn_idx[ni]];
@@ -518,7 +523,7 @@ int main(int argc, char **argv){
 		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
 
 		for (int f = 0; f < N_FEAT; ++f) {
-			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT) * avg_feat_std / stds[f];
+			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT); // * avg_feat_std / stds[f];
 		}
 	}
 
@@ -529,7 +534,7 @@ int main(int argc, char **argv){
 	ax_points_ = annAllocPts(MIN_SPIKES, DIM + 2);
 	for (int s = 0; s < total_spikes; ++s) {
 		for (int f = 0; f < N_FEAT; ++f) {
-			ax_points_[s][f] = obs_mat(s, f) / SIGMA_A * MULT_INT * avg_feat_std / stds[f];
+			ax_points_[s][f] = obs_mat(s, f) / SIGMA_A * MULT_INT; // * avg_feat_std / stds[f];
 		}
 
 		ax_points_[s][N_FEAT] = obs_mat(s, N_FEAT) / SIGMA_X * MULT_INT * avg_feat_std / stdx;
