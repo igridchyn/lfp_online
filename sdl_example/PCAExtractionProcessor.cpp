@@ -355,9 +355,20 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
                 }
                 
                 pca_done_[i] = true;
+                npcdone_ ++;
                 fpc.close();
             }
+            // TODO handle cases when some channel PC transforms are missing
+            npcdone_ -= buffer->tetr_info_->channels_numbers[i] - 1;
         }
+    }
+
+    if (npcdone_ == buffer->tetr_info_->tetrodes_number){
+    	Log("All PC transforms have been loaded");
+    	buf_ptr_ptr_ = &(buffer->spike_buf_pos_unproc_);
+    }
+    else{
+    	buf_ptr_ptr_ = &(buffer->spike_buf_pos_featext_collected_);
     }
 }
 
@@ -416,11 +427,11 @@ void PCAExtractionProcessor::process(){
     // CURRENT LOGIC: PCA is computed once after required number of spikes has been collected,
     //  computed for all spikes and all new-coming
     
-    while (buffer->spike_buf_pos_unproc_ < buffer->spike_buf_no_rec){
-        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_];
+    while (*buf_ptr_ptr_ < buffer->spike_buf_no_rec){
+        Spike *spike = buffer->spike_buffer_[*buf_ptr_ptr_];
         
         if (spike->discarded_){
-            buffer->spike_buf_pos_unproc_++;
+            (*buf_ptr_ptr_)++;
             continue;
         }
         
@@ -451,7 +462,7 @@ void PCAExtractionProcessor::process(){
         
         num_spikes[spike->tetrode_]++;
         // TODO: account for buffer rewind
-        buffer->spike_buf_pos_unproc_++;
+        (*buf_ptr_ptr_)++;
     }
     
     // TODO: when to redo PCA?
@@ -513,7 +524,7 @@ void PCAExtractionProcessor::process(){
             pca_done_[tetr] = true;
             
             // get PCs for all past spikes
-            for (int s=0; s < buffer->spike_buf_pos_unproc_; ++s) {
+            for (int s=0; s < *buf_ptr_ptr_; ++s) {
                 Spike *spike = buffer->spike_buffer_[s];
                 if (spike == nullptr || spike->discarded_ || spike->tetrode_ != tetr){
                     continue;
@@ -529,6 +540,20 @@ void PCAExtractionProcessor::process(){
     //                }
     //                printf("\n");
     //            }
+            }
+
+            npcdone_ ++;
+
+            if (npcdone_ == buffer->tetr_info_->tetrodes_number){
+            	Log("PCA done on all channels !");
+            	// switch pointer
+            	buffer->spike_buf_pos_unproc_ = *buf_ptr_ptr_;
+            	buf_ptr_ptr_ = &(buffer->spike_buf_pos_unproc_);
+            }
+            else{
+            	std::stringstream ss;
+            	ss << "PCA done in " << npcdone_ << " out of " << buffer->tetr_info_->tetrodes_number << " tetrodes...";
+            	Log(ss.str());
             }
         }
     }

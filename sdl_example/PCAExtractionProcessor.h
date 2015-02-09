@@ -55,6 +55,7 @@ class PCAExtractionProcessor : public LFPProcessor{
     // WORKAROUND
     // TODO: recalc PCA periodically using online estimators
 	bool *pca_done_ = nullptr;
+	unsigned int npcdone_ = 0;
     
     bool save_transform_ = false;
     bool load_transform_ = true;
@@ -65,6 +66,9 @@ class PCAExtractionProcessor : public LFPProcessor{
 
     // after transform
     float feature_scale_ = 1.0;
+
+    // one of the two pointers depending on whether all PCAs have been done or not
+    unsigned int *buf_ptr_ptr_ = nullptr;
 
 public:
     PCAExtractionProcessor(LFPBuffer *buffer);

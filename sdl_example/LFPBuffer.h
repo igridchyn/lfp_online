@@ -127,6 +127,8 @@ public:
     unsigned int spike_buf_pos_fet_writer_;
     // ws display
     unsigned int spike_buf_pos_ws_disp_;
+    // collected by feature extractor but doesn't have features yet
+    unsigned int spike_buf_pos_featext_collected_;
 
     // TODO: size ?
     std::vector<unsigned int> spike_buf_pos_clusts_;
