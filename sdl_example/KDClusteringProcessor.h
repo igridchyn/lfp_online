@@ -54,6 +54,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int SAMPLING_DELAY;
 	const float SPEED_THOLD;
 
+	const unsigned int FR_ESTIMATE_DELAY;
+
 	const bool USE_HMM;
 
 	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)

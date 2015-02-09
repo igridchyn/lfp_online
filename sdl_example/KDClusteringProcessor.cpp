@@ -84,7 +84,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			THETA_PRED_WIN(buf->config_->getInt("kd.pred.win", 2000)),
 			SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(buf->config_->getFloat("kd.spike.graph.cover.distance.threshold", 0)),
 			SPIKE_GRAPH_COVER_NNEIGHB(buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)),
-			POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)){
+			POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)),
+			FR_ESTIMATE_DELAY(buf->config_->getFloat("kd.frest.delay", 1000000)){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -383,22 +384,31 @@ void KDClusteringProcessor::process(){
 		}
 
 		// DEBUG
-		if (!delay_reached_reported){
+		if (!delay_reached_reported && !LOAD){
 			delay_reached_reported = true;
-			std::cout << "Delay over (" << SAMPLING_DELAY << "). Estimate firing rates => sampling rates and start spike collection...\n";
+			std::cout << "Sampling delay over (" << SAMPLING_DELAY << ")...\n";
+		}
+
+		// wait for enough spikes to estimate the firing rate; beware of the rewind after estimating the FRs
+		if (spike->pkg_id_ < FR_ESTIMATE_DELAY && !LOAD && (tetrode_sampling_rates_.size() == 0)){
+			spike_buf_pos_clust_ ++;
+			continue;
+		}
+
+		// estimate firing rates => spike sampling rates if model has not been loaded
+		if (tetrode_sampling_rates_.size() == 0 && !LOAD){
+			std::stringstream ss;
+			ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
+			Log(ss.str());
 
 			// estimate firing rates
 			std::vector<unsigned int> spike_numbers_;
 			spike_numbers_.resize(tetr_info_->tetrodes_number);
+			// TODO which pointer ?
 			for (int i=0; i < buffer->spike_buf_pos_speed_; ++i){
 				Spike *spike = buffer->spike_buffer_[i];
 				if (spike == NULL || spike->discarded_ || spike->speed < SPEED_THOLD){
 					continue;
-				}
-
-				// TODO separate sampling delay and F.R. estimation delay
-				if (spike->pkg_id_ > SAMPLING_DELAY){
-					break;
 				}
 
 				// TODO convert tetrode number
@@ -406,13 +416,21 @@ void KDClusteringProcessor::process(){
 			}
 
 			for (int t=0; t < tetr_info_->tetrodes_number; ++t){
-					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(SAMPLING_DELAY);
+					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY);
 					std::cout << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
 					// TODO configrableize expected session duration
 					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					std::cout << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
 					std::cout << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
+			}
+
+			// REWIND TO THE FIRST SPIKE AFTER SAMPLING DELAY
+			Log("Rewind the pointer to the last spike after the sampling delay");
+			Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+			while ((spike == NULL || spike->pkg_id_ > SAMPLING_DELAY) && (spike_buf_pos_clust_ > 0)){
+				spike_buf_pos_clust_ --;
+				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 			}
 		}
 
