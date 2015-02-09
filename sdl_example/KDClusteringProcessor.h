@@ -155,7 +155,9 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<std::vector<int> > hmm_traj_;
 
 	const unsigned int DUMP_DELAY;
+	bool dump_delay_reach_reported_ = false;
 	const unsigned int DUMP_END;
+	bool dump_end_reach_reported_ = false;
 	unsigned int last_hmm_reset_pkg = 0;
 
 	bool use_intervals_;

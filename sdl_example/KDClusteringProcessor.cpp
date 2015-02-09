@@ -700,6 +700,17 @@ void KDClusteringProcessor::process(){
 					gtx = (pose[0] + pose[2]) / 2;
 					gty = (pose[1] + pose[3]) / 2;
 				}
+
+				// DEBUG
+				if (last_pred_pkg_id_ > DUMP_DELAY && !dump_delay_reach_reported_){
+					dump_delay_reach_reported_= true;
+					Log("Dump delay reached: ", (int)DUMP_DELAY);
+				}
+				if (last_pred_pkg_id_ > DUMP_END && !dump_end_reach_reported_){
+					dump_end_reach_reported_= true;
+					Log("Dump end reached: ", (int)DUMP_END);
+				}
+
 				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
 					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
 					dec_bayesian_.flush();
