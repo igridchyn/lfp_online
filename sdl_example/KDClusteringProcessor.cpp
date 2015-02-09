@@ -396,6 +396,11 @@ void KDClusteringProcessor::process(){
 					continue;
 				}
 
+				// TODO separate sampling delay and F.R. estimation delay
+				if (spike->pkg_id_ > SAMPLING_DELAY){
+					break;
+				}
+
 				// TODO convert tetrode number
 				spike_numbers_[spike->tetrode_] ++;
 			}

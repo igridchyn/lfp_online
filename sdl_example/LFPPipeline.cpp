@@ -31,6 +31,7 @@
 #include "LPTTriggerProcessor.h"
 #include "FrequencyPowerBandProcessor.h"
 #include "FetFileWriterProcessor.h"
+#include "PackageExtractorProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
