@@ -389,7 +389,7 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 				}
 
 				// don't use too fat apart neighbours for the estimation
-//				if (dd[ni] > SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD * 10){
+//				if (dd[ni] > dd[0] * 2){
 //					break;
 //				}
 
@@ -422,6 +422,12 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			}
 		}
 	}
+
+	// normalize to sum up to 1 - did
+//	arma::mat pfexp = arma::exp(pf);
+//	double pfsum = arma::sum(arma::sum(pfexp));
+//	pfexp /= pfsum;
+//	pf = arma::log(pfexp);
 
 	// TODO configurableize saving of individual spikes
 //	if (SAVE){

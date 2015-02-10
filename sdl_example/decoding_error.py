@@ -24,16 +24,20 @@ errs = []
 classn = 0.0
 classcorr = 0
 
+predmap = np.zeros((nbins, nbins*2))
+
 for line in f:
 	vals = line.split(' ')
 	vals = [float(v) for v in vals]
 
 	gtx = vals[2]
 	gty = vals[3]
+	px = vals[0]
+	py = vals[1]
 
-	dist = sqrt( (vals[0]-vals[2])**2 + (vals[1]-vals[3])**2 )
+	dist = sqrt( (px-gtx)**2 + (py-gty)**2 )
 
-	if vals[2] > 1000 or vals[0] < 5:
+	if gtx > 1000 or px < 5:
 		continue
 
 	distsb1 = sqrt((gtx-sbs[0][0])**2 + (gty-sbs[0][1])**2)
@@ -51,6 +55,10 @@ for line in f:
 	xb = (round(gtx / bsize) + 0.5) * bsize
 	yb = (round(gty / bsize) + 0.5) * bsize
 
+	xpb = round((px-bsize/2)/bsize)
+	ypb = round((py-bsize/2)/bsize)
+	predmap[ypb, xpb] += 1
+
 	errb += sqrt((xb-gtx)**2 + (yb-gty)**2)
 
 	# classification
@@ -58,7 +66,6 @@ for line in f:
 	if (vals[0] - nbins*bsize) * (gtx - nbins*bsize) > 0:
 		classcorr += 1
 
-n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
 # P.figure()
 
 print "Average error: ", sum/ndist
@@ -67,4 +74,10 @@ print "Average error outside of SB: ", sumnosb/nnosb
 print ("Classification precision: %.1f%%") % (classcorr * 100 / classn)
 print "Binning error: ", errb/ndist
 
-P.show()
+if len(argv) > 2:
+	n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
+	P.show()
+
+	im=P.imshow(predmap, cmap='hot')
+	P.show()
+

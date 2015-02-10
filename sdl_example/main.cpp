@@ -14,7 +14,12 @@ typedef short t_bin;
 // ESC - exit
 // SHIFT+NUM ~ 10+NUM
 
-void draw_bin() {
+#ifdef WIN32
+	int wmain(int argc, wchar_t *argv[]){
+#else // WIN32
+	int main(int argc, char *argv[]){
+#endif // WIN32
+
 #ifdef _WIN32
 	//std::string cpath("../Res/signal_display_win_bin.conf");
 	std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
@@ -32,9 +37,13 @@ void draw_bin() {
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 #else
 //	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
-//	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_SHIFT.conf");
 //    Config *config = new Config("../Res/decoding_online_jc118_1003.conf");
+//    Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
     Config *config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
+
+    if (argc > 1){
+    	config = new Config(argv[1]);
+    }
 
 //	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
@@ -87,7 +96,6 @@ void draw_bin() {
 		f = fopen(binpath.c_str(), "rb");
 	}
 
-
 	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
 
 	const unsigned int nblock = 1;
@@ -101,11 +109,6 @@ void draw_bin() {
 	//delete buf;
 	//buf = new LFPBuffer(config);
 	//pipeline = new LFPPipeline(buf);
-
-	// check for unused parameters in the config
-//	config->checkUnused();
-
-	// TODO: parallel threads ?
 
 	if (f != nullptr)
 	{
@@ -134,18 +137,6 @@ void draw_bin() {
 	}
 
 	std::cout << "EOF, waiting for processors jobs to join...\n";
-
-	// TODO: perfrom from within pipeline (virtual 'End tasks' ?)
-//	kdClustProc->JoinKDETasks();
-//    gmmClustProc->JoinGMMTasks();
-}
-
-#ifdef WIN32
-	int wmain(int argc, wchar_t *argv[]){
-#else // WIN32
-	int main(int argc, char *argv[]){
-#endif // WIN32
-		draw_bin();
 
 	return 0;
 }

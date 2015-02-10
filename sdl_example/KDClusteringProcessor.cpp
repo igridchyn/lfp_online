@@ -30,6 +30,9 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 	for (int s = 0; s < NUSED; ++s) {
 		laxs_[t].push_back(laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1));
+
+		if (!(s % 1000))
+			laxs_[t][laxs_[t].size() - 1].save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(s) + ".tmp", arma::raw_ascii);
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
@@ -834,6 +837,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 			}
 		}
 
+		// TODO !!! take avg
 		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
 		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
 		npoints++;

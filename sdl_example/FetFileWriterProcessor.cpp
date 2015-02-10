@@ -11,7 +11,7 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 :LFPProcessor(buf)
 {
 	// TODO Auto-generated constructor stub
-	std::string path_base = buf->config_->getString("spike.writer.path.base");
+	std::string path_base = buf->config_->getOutPath("spike.writer.path.base");
 	write_spk_ = buf->config_->getBool("spike.writer.spk.write");
 	binary_ = buf->config_->getBool("spike.writer.binary", false);
 
