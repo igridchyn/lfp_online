@@ -205,7 +205,7 @@ public:
     unsigned char *chunk_ptr = nullptr;
     int num_chunks;
 
-    OnlineEstimator<float, float>* powerEstimators_;
+    std::vector<OnlineEstimator<float, float> > powerEstimators_;
     OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];
 
     OnlineEstimator<float, float>* speedEstimator_;
@@ -229,6 +229,10 @@ public:
 	std::ofstream log_stream;
 
 	unsigned int input_duration_ = 0;
+
+	// dimensionalities of spike feature representations for each tetrode
+	// this should be abstracted from the wat the features are extracted (PCs etc.)
+	std::vector<unsigned int> feature_space_dims_;
 
     //====================================================================================================
 

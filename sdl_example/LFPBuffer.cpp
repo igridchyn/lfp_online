@@ -36,6 +36,14 @@ void LFPBuffer::Reset(Config* config) {
 		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 
+	// set dimensionalities
+	int *pc_per_chan = new int[5] {0, 5, 4, 4, 3 };
+	for (int t=0; t < tetr_info_->tetrodes_number; ++t){
+		int nchan = tetr_info_->channels_numbers[t];
+		int npc = pc_per_chan[nchan];
+		feature_space_dims_.push_back(nchan * npc);
+	}
+
 	// load alternative TetrodeInfos (used by some processors)
 	bool tiexists = true;
 	std::string tipath = config->getString("tetr.conf.path.0", config->getString("tetr.conf.path"));
@@ -72,7 +80,10 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "done\n";
 
 	log_stream << "INFO: Create online estimators...";
-    powerEstimators_ = new OnlineEstimator<float, float>[tetr_info_->tetrodes_number];
+	for (int t=0; t < tetr_info_->tetrodes_number; ++t){
+		powerEstimators_.push_back(OnlineEstimator<float, float>(config->getInt("spike.detection.min.power.samples", 500000)));
+	}
+
     // TODO: configurableize
     speedEstimator_ = new OnlineEstimator<float, float>(16);
 	log_stream << "done\n";
@@ -87,7 +98,7 @@ void LFPBuffer::Reset(Config* config) {
     // create a map of pointers to tetrode power estimators for each electrode
     for (int tetr = 0; tetr < tetr_info_->tetrodes_number; ++tetr ){
         for (int ci = 0; ci < tetr_info_->channels_numbers[tetr]; ++ci){
-            powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = powerEstimators_ + tetr;
+            powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = &(powerEstimators_[0]) + tetr;
             is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
 
             tetr_info_->tetrode_by_channel[tetr_info_->tetrode_channels[tetr][ci]] = tetr;

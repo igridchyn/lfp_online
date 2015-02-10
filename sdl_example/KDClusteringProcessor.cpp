@@ -123,12 +123,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	lxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 
 	for (int t = 0; t < tetrn; ++t) {
-		ann_points_[t] = annAllocPts(MIN_SPIKES, DIM);
+		const unsigned int dim = buf->feature_space_dims_[t];
+
+		ann_points_[t] = annAllocPts(MIN_SPIKES, dim);
 		spike_place_fields_[t].reserve(MIN_SPIKES);
 
 		ann_points_int_[t] = new int*[MIN_SPIKES];
 		for (int d = 0; d < MIN_SPIKES; ++d) {
-			ann_points_int_[t][d] = new int[DIM];
+			ann_points_int_[t][d] = new int[dim];
 		}
 
 		// tmp
