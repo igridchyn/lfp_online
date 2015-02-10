@@ -816,7 +816,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	unsigned int pos_interval = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		// if pos is unknown or speed is below the threshold - ignore
-		if (buffer->positions_buf_[n][0] == 1023 || buffer->positions_buf_[n][5] < SPEED_THOLD){
+		if (buffer->positions_buf_[n][0] == 1023 || buffer->positions_buf_[n][2] == 1023 || buffer->positions_buf_[n][5] < SPEED_THOLD){
 			continue;
 		}
 
@@ -838,8 +838,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		}
 
 		// TODO !!! take avg
-		pos_buf(0, npoints) = buffer->positions_buf_[n][0];
-		pos_buf(1, npoints) = buffer->positions_buf_[n][1];
+		pos_buf(0, npoints) = (buffer->positions_buf_[n][0] + buffer->positions_buf_[n][2]) / 2.0;
+		pos_buf(1, npoints) = (buffer->positions_buf_[n][1] + buffer->positions_buf_[n][3]) / 2.0;
 		npoints++;
 	}
 	pos_buf = pos_buf.cols(0, npoints - 1);
