@@ -524,8 +524,8 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
-				obs_mats_[tetr](total_spikes_[tetr], N_FEAT) = spike->x;
-				obs_mats_[tetr](total_spikes_[tetr], N_FEAT + 1) = spike->y;
+				obs_mats_[tetr](total_spikes_[tetr], DIM) = spike->x;
+				obs_mats_[tetr](total_spikes_[tetr], DIM + 1) = spike->y;
 
 				total_spikes_[tetr] ++;
 			}
@@ -861,7 +861,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
-	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << N_FEAT << " " <<
+	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << DIM << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
 			tetrode_sampling_rates_[tetr] + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;

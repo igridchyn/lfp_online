@@ -58,9 +58,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const bool USE_HMM;
 
-	// TODO: !!! take from tetrode info? (channel nu,bner * 3 ???)
-	const unsigned int N_FEAT = 12;
-
 	// trees and points for spike features
 	std::vector<ANNkd_tree*> kdtrees_;
 	std::vector<ANNpointArray> ann_points_;
