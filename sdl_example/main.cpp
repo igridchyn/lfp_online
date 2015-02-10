@@ -29,7 +29,6 @@ typedef short t_bin;
     // square wave signal - for delay and stability testing
 //    Config *config = new Config("../Res/signal_display_mac.conf");
     
-    // decoding position with best params - from fet files
 //    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
 //    Config *config = new Config("../Res/decoding_jc118_1003_env2_mac.conf");
     Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
@@ -42,101 +41,25 @@ typedef short t_bin;
     Config *config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 
     if (argc > 1){
+    	delete config;
     	config = new Config(argv[1]);
     }
 
-//	Config *config = new Config("../Res/build_model_jc84.conf");
 //	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
-//	Config *config = new Config("../Res/build_model_jc118_1003_env_shift_learn_1.conf");
-//	Config *config = new Config("../Res/build_model_jc118_1003_2x.conf"); // 2 independent models built in parallel
-//  Config *config = new Config("../Res/build_model_jc118_1003.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003.conf");
 //	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.conf"); // shifted map
-//  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_learn1.conf");
-//	Config *config = new Config("../Res/decoding_jc118_1003_both_env.conf"); // 2 separate maps decoded in parallel
 //	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 
-//	Config *config = new Config("../Res/build_model_jc84_2110.conf");
-//	Config *config = new Config("../Res/decoding_32_jc84.conf");
-//	Config *config = new Config("../Res/decoding_32_jc84_SWR.conf");
-//	Config *config = new Config("../Res/decoding_32_jc84_2110.conf");
-//	Config *config = new Config("../Res/spike_detection_and_KD_jc103.conf");
-//	Config *config = new Config("../Res/spike_detection_jc103_nodisp.conf");/
-//	Config *config = new Config("../Res/spike_detection_jc103.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_load_pc_gmm.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_0908_screen2_npc2_step2.conf");
-//	Config *config = new Config("../Res/jc117_power.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_0911_screen2.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_0914_screen3.conf");
-//	Config *config = new Config("../Res/nocon.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_0921_6l.conf");
-//	Config *config = new Config("../Res/spike_detection_jc117_0921_5s.conf");
-//	Config *config = new Config("../Res/spike_detection_jc118_1000_l.conf");
-//	Config *config = new Config("../Res/spike_detection_jc118_1001_4l.conf");
-//	Config *config = new Config("../Res/spike_reader_jc118_1001_4l.conf");
-//	Config *config = new Config("../Res/spike_detection_jc118_1002_7s.conf"); // +++
-//	Config *config = new Config("../Res/spike_reader_jc118_1002_7s.conf");
-//	Config *config = new Config("../Res/spike_detection_jc118_1002_10s.conf");
 //	Config *config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
 //	Config *config = new Config("../Res/spike_detection_jc118_1003_3l.conf");
-//	Config *config = new Config("../Res/signal_display.conf");
-//	Config *config = new Config("../Res/spike_detection_jc11.conf");
 
 #endif
-    
-	std::string binpath = config->getString("bin.path", "");
-	FILE *f = nullptr;
-
-	if (binpath.length() > 0){
-		if (!Utils::FS::FileExists(binpath)){
-			std::cout << "File doesn't exist: " << binpath << "\n";
-			exit(1);
-		}
-		f = fopen(binpath.c_str(), "rb");
-	}
-
-	const int CHUNK_SIZE = config->getInt("chunk.size"); // bytes
-
-	const unsigned int nblock = 1;
-	unsigned char *block = new unsigned char[CHUNK_SIZE * nblock];
 
 	LFPBuffer *buf = new LFPBuffer(config);
 	LFPPipeline *pipeline = new LFPPipeline(buf);
 
-	// TEST
-	//delete pipeline;
-	//delete buf;
-	//buf = new LFPBuffer(config);
-	//pipeline = new LFPPipeline(buf);
-
-	if (f != nullptr)
-	{
-		buf->pipeline_status_ == PIPELINE_STATUS_READ_BIN;
-		buf->input_duration_ = boost::filesystem::file_size(binpath) * 3 / 432;
-		std::cout << "Input file duration: " << buf->input_duration_ / (buf->SAMPLING_RATE * 60) << " min " <<  buf->input_duration_ / (buf->SAMPLING_RATE) % 60 << "sec\n";
-
-		while (!feof(f)) {
-			fread((void*)block, 1, CHUNK_SIZE*nblock, f);
-
-			buf->chunk_ptr = block;
-			buf->num_chunks = nblock;
-			pipeline->process(nullptr);
-		}
-		buf->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
-		std::cout << "Out of data packages, entering endless loop to process user input. Press ESC to exit...\n";
-	}
-	else
-	{
-		std::cout << "No bin file provided, starting endless loop...\n";
-	}
-
-	buf->chunk_ptr = nullptr;
 	while (true) {
-		pipeline->process(nullptr);
+		pipeline->process();
 	}
-
-	std::cout << "EOF, waiting for processors jobs to join...\n";
 
 	return 0;
 }

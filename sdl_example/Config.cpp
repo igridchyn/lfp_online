@@ -45,15 +45,6 @@ Config::Config(std::string path) {
 	// with commend lines starting with '//'
 	std::string line;
 
-	//char *known_processors_a [] = { "Autocorrelogram", "CluReaderClustering", "FetFileReader",
-	//	"FrequencyPowerBand", "", "KDClustering", "PackageExtractor", "PlaceField", "PCAExtraction",
-	//	"PositionDisplay", "PositionReconstruction", "SDLControlInputMeta", "SDLPCADisplay",
-	//	"SDLSignalDisplay", "SDLWaveshapeDisplay", "SlowDown", "SpeedEstimation", "SpikeAlignment",
-	//	"SpikeDetector", "SwReader", "TransProbEstimation", "UnitTesting", "WaveshapeReconstruction",
-	//	"WhlFileReader", "LPTTrigger" };
-
-	//known_processors_ = std::vector<std::string>(known_processors_a, known_processors_a + 25);
-
 	known_processors_.push_back("PackageExtractor");
 	known_processors_.push_back("SpikeDetector");
 	known_processors_.push_back("Autocorrelogram");
@@ -80,6 +71,7 @@ Config::Config(std::string path) {
 	known_processors_.push_back("WhlFileReader");
 	known_processors_.push_back("LPTTrigger");
 	known_processors_.push_back("FetFileWriter");
+	known_processors_.push_back("BinFileReader");
 
 
 	//for (size_t i = 0; i < NPROC; i++)

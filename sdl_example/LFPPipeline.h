@@ -19,7 +19,7 @@ class LFPONLINEAPI LFPPipeline{
 
 public:
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
-    void process(unsigned char *data);
+    void process();
     
     LFPProcessor *get_processor(const unsigned int& index);
     

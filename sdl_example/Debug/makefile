@@ -5,6 +5,9 @@ LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o
 	${CC} ${CFLAGS} -c ../AutocorrelogramProcessor.cpp
 	
+BinFileReaderProcessor.o: ../BinFileReaderProcessor.cpp ../BinFileReaderProcessor.h
+	${CC} ${CFLAGS} -c ../BinFileReaderProcessor.cpp
+	
 CluReaderClusteringProcessor.o: ../CluReaderClusteringProcessor.cpp ../CluReaderClusteringProcessor.h
 	${CC} ${CFLAGS} -c ../CluReaderClusteringProcessor.cpp
 	
@@ -107,8 +110,8 @@ WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcesso
 main.o: ../main.cpp
 	${CC} ${CFLAGS} -c ../main.cpp
 		
-lfp_online: main.o AutocorrelogramProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
-	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
+lfp_online: main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
+	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
 	
 clean:
 	rm *.o

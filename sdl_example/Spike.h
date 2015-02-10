@@ -21,7 +21,7 @@ class Spike{
 public:
     static const int WL_LENGTH = 22;
     static const int WS_LENGTH_ALIGNED = 32;
-    
+
     int pkg_id_;
     int **waveshape = nullptr;
     int **waveshape_final = nullptr;
@@ -36,17 +36,17 @@ public:
     float **extra_features_;
 
     int cluster_id_ = -1;
-    
+
     int tetrode_ = -1;
     int num_channels_ = -1;
-    
+
     // workaround ? - has to be checked in every processor
     // TODO: list of spikes or new buffer
     bool discarded_ = false;
-    
+
     // for next processors to know whether they can process this spike
     bool aligned_ = false;
-    
+
     // coordinates
     // TODO: set to nan ?
     float x = nanf(""), y = nanf("");

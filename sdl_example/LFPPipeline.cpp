@@ -32,6 +32,7 @@
 #include "FrequencyPowerBandProcessor.h"
 #include "FetFileWriterProcessor.h"
 #include "PackageExtractorProcessor.h"
+#include "BinFileReaderProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
@@ -96,6 +97,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new LPTTriggerProcessor(buf));
 		} else if (proc_name == "FetFileWriter"){
 			processors.push_back(new FetFileWriterProcessor(buf));
+		} else if (proc_name == "BinFileReader"){
+			processors.push_back(new BinFileReaderProcessor(buf));
 		}
 		else{
 			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
@@ -116,9 +119,7 @@ LFPPipeline::~LFPPipeline(){
 	}
 }
 
-void LFPPipeline::process(unsigned char *data){
-    // TODO: put data into buffer
-    
+void LFPPipeline::process(){
     for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
         (*piter)->process();
     }
