@@ -27,7 +27,7 @@ public:
     int **waveshape_final = nullptr;
 
     // FEATURES
-    float **pc = nullptr;
+    float *pc = nullptr;
     float peak_to_valley_1_ = 0;
     float peak_to_valley_2_ = 0;
     float intervalley_ = 0;
@@ -67,8 +67,8 @@ public:
     void find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_time_2, float *intervalley);
     void set_peak_valley_features();
 
-    const float& getFeature(const int& index, const int& npc) const;
-    float* getFeatureAddr(const int& index, const int& npc);
+    const float& getFeature(const int& index) const;
+    float* getFeatureAddr(const int& index);
 
     ~Spike();
 };

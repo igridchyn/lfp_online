@@ -72,9 +72,9 @@ void FetFileWriterProcessor::process() {
 		// TODO !!!! write the same value
 		for(int f=0; f < 16; ++f){
 			if (binary_)
-				fet_file.write((char*)spike->getFeatureAddr(f, 3), sizeof(float));
+				fet_file.write((char*)spike->getFeatureAddr(f), sizeof(float));
 			else
-				fet_file << (int)round(spike->getFeature(f, 3)) << " ";
+				fet_file << (int)round(spike->getFeature(f)) << " ";
 		}
 
 		if (binary_)

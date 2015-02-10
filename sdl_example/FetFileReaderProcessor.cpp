@@ -71,25 +71,21 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 	const int chno = buffer->tetr_info_->channels_numbers[tetr];
 
-	// TODO read from config / with default
-	const int npc = TetrodesInfo::pc_per_chan[chno];
+	const unsigned int fetn = buffer->feature_space_dims_[tetr];
 
-	spike->pc = new float*[chno];
+	spike->pc = new float[fetn];
 	spike->num_channels_ = chno;
 
 	std::ifstream& fet_stream = *(fet_streams_[tetr]);
 
-	for (int t=0; t < chno; ++t) {
-		spike->pc[t] = new float[npc];
-		if (!binary_){
-			for (int pc=0; pc < npc; ++pc) {
-				fet_stream >> spike->pc[t][pc];
-				spike->pc[t][pc] /= FET_SCALING; // default = 5.0
-			}
+	if (!binary_){
+		for (int fet=0; fet < fetn; ++fet) {
+			fet_stream >> spike->pc[fet];
+			spike->pc[fet] /= FET_SCALING; // default = 5.0
 		}
-		else{
-			fet_stream.read((char*)spike->pc[t], npc * sizeof(float));
-		}
+	}
+	else{
+		fet_stream.read((char*)spike->pc, fetn * sizeof(float));
 	}
 
 	if (!binary_){

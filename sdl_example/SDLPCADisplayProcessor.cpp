@@ -310,7 +310,7 @@ void SDLPCADisplayProcessor::getSpikeCoords(const Spike *const spike, int& x, in
 		x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
 	}
 	else{
-		float rawx = spike->getFeature(comp1_, num_pc_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+		float rawx = spike->getFeature(comp1_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
 		x = rawx / scale_ + shift_x_;
 
 	}
@@ -318,7 +318,7 @@ void SDLPCADisplayProcessor::getSpikeCoords(const Spike *const spike, int& x, in
 		y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
 	}
 	else{
-		float rawy = spike->getFeature(comp2_, num_pc_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+		float rawy = spike->getFeature(comp2_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
 		y = rawy / scale_ + shift_y_;
 	}
 }
@@ -680,8 +680,8 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 				continue;
 
 			if (spike -> cluster_id_ == user_context_.selected_cluster2_){
-				float rawx = spike->getFeature(comp1_, num_pc_); //spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-				float rawy = spike->getFeature(comp2_, num_pc_);; //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
+				float rawx = spike->getFeature(comp1_); //spike->pc[comp1_ % nchan_][comp1_ / nchan_];
+				float rawy = spike->getFeature(comp2_);; //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
 
 				if (tmpproj.Contains(rawx, rawy)){
 					spike->cluster_id_ = -1;

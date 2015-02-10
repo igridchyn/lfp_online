@@ -34,8 +34,6 @@ public:
     
     // group by electrode
 	int *tetrode_by_channel = nullptr;
-    
-	static const int* pc_per_chan;
 
 	// maps absolute tetrode number (floor(channel number / 4))
 	//	with -1 meaning tetrode is absent in the configuration

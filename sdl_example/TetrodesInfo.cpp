@@ -121,7 +121,6 @@ bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
 	return true;
 }
 
-const int* TetrodesInfo::pc_per_chan = new int[5] {0, 5, 4, 4, 3 };
 
 unsigned int TetrodesInfo::Translate(const TetrodesInfo* const ti, const unsigned int& tetr) {
 	int abstetr = (int)floor(ti->tetrode_channels[tetr][0] / 4);

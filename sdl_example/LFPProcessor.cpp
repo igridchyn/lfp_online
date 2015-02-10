@@ -114,19 +114,16 @@ Spike::~Spike() {
 
 		if (waveshape_final && waveshape_final[c])
 			delete[] waveshape_final[c];
-
-		if (pc && pc[c])
-			delete[] pc[c];
 	}
+
+	if (pc)
+		delete[] pc;
 
 	if (waveshape)
 		delete[] waveshape;
 
 	if (waveshape_final)
 		delete[] waveshape_final;
-
-	if (pc)
-		delete[] pc;
 
 	delete[] extra_features_;
 }
@@ -396,22 +393,23 @@ void Spike::set_peak_valley_features() {
 	find_valleys(peak_time, peak_value, &peak_to_valley_1_, &peak_to_valley_2_, &intervalley_);
 }
 
-const float& Spike::getFeature(const int& index, const int& npc) const {
+// TODO !!! let pike know its representational dimensionality !!!
+const float& Spike::getFeature(const int& index) const {
 	// TODO !!! single linear array of features
-	if (index < num_channels_ * npc){
-		return pc[index % num_channels_][index / num_channels_];
+	if (index < num_channels_ * 3){
+		return pc[index];
 	}
 	else{
-		return *(extra_features_[index - num_channels_ * npc]);
+		return *(extra_features_[index - num_channels_ * 3]);
 	}
 }
 
-float* Spike::getFeatureAddr(const int& index, const int& npc) {
-	// TODO !!! single linear array of features
-	if (index < num_channels_ * npc){
-		return pc[index % num_channels_] + (index / num_channels_);
+// TODO !!! let pike know its representational dimensionality !!!
+float* Spike::getFeatureAddr(const int& index) {
+	if (index < num_channels_ * 3){
+		return pc + index;
 	}
 	else{
-		return extra_features_[index - num_channels_ * npc];
+		return extra_features_[index - num_channels_ * 3];
 	}
 }

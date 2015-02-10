@@ -210,18 +210,15 @@ void GMMClusteringProcessor::process(){
             break;
         }
         
-        // TODO: configurableize
-        for (int pc=0; pc < num_princomp_; ++pc) {
-            // TODO: tetrode channels
-            for(int chan=0; chan < nchan; ++chan){
-                // TODO: disable OFB check in armadillo settings
-                if (observations_[tetr].n_cols <= total_observations_[tetr]){
-                    observations_[tetr].resize(observations_[tetr].n_rows, observations_[tetr].n_cols * 2);
-                }
+        for(int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
+        	// TODO: disable OFB check in armadillo settings
+        	if (observations_[tetr].n_cols <= total_observations_[tetr]){
+        		observations_[tetr].resize(observations_[tetr].n_rows, observations_[tetr].n_cols * 2);
+        	}
 
-                observations_[tetr](chan * num_princomp_ + pc, total_observations_[tetr]) = (double)spike->pc[chan][pc];
-            }
+        	observations_[tetr](fet, total_observations_[tetr]) = (double)spike->pc[fet];
         }
+
         obs_spikes_[tetr].push_back(spike);
         total_observations_[tetr] ++;
         
@@ -229,12 +226,11 @@ void GMMClusteringProcessor::process(){
             if (spikes_collected_[tetr] < min_observations_){
                 // TODO: use submatrix of total observations
                 if (!(total_observations_[tetr] % rate_)){
-                    for (int pc=0; pc < num_princomp_; ++pc) {
-                        for(int chan=0; chan < nchan; ++chan){
-                            // TODO: disable OFB check in armadillo settings
-                            observations_train_[tetr](chan * num_princomp_ + pc, spikes_collected_[tetr]) = (double)spike->pc[chan][pc];
-                        }
-                    }
+
+                	for(int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
+                		// TODO: disable OFB check in armadillo settings
+                		observations_train_[tetr](fet, spikes_collected_[tetr]) = (double)spike->pc[fet];
+                	}
 
                     spikes_collected_[tetr]++;
                 }
