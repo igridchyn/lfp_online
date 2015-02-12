@@ -44,6 +44,7 @@ void BinFileReaderProcessor::process() {
 		end_bin_file_reported_ = true;
 		buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 		Log("Out of data packages. Press ESC to exit...\n");
+		buffer->chunk_ptr = nullptr;
 	}
 }
 
