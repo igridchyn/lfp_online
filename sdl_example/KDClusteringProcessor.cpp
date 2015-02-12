@@ -359,7 +359,7 @@ void KDClusteringProcessor::process(){
 		for (int tetr=0; tetr < tetr_info_->tetrodes_number; ++tetr){
 			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr]){
 				std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
-				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], buffer->feature_space_dims_[tetr]);
 				std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 
 				fitting_jobs_running_[tetr] = true;
@@ -373,6 +373,7 @@ void KDClusteringProcessor::process(){
 	while(spike_buf_pos_clust_ < limit){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
+		const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 
 		if (tetr == TetrodesInfo::INVALID_TETRODE){
 			spike_buf_pos_clust_ ++;
@@ -455,7 +456,7 @@ void KDClusteringProcessor::process(){
 					// dump required data and start process (due to non-thread-safety of ANN)
 					// build tree and dump it along with points
 					std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
-					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], DIM);
+					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], nfeat);
 					std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 					// find ids to be used in the reduced tree
 					// TODO !!! NON-static reduce
@@ -504,7 +505,7 @@ void KDClusteringProcessor::process(){
 				obs_spikes_[tetr].push_back(spike);
 
 				// copy features and coords to ann_points_int and obs_mats
-				for(int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
+				for(int fet=0; fet < nfeat; ++fet){
 					ann_points_[tetr][total_spikes_[tetr]][fet] = spike->pc[fet];
 
 					// save integer with increased precision for integer KDE operations
@@ -519,8 +520,8 @@ void KDClusteringProcessor::process(){
 				}
 
 
-				obs_mats_[tetr](total_spikes_[tetr], DIM) = spike->x;
-				obs_mats_[tetr](total_spikes_[tetr], DIM + 1) = spike->y;
+				obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
+				obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
 
 				total_spikes_[tetr] ++;
 			}
@@ -612,7 +613,7 @@ void KDClusteringProcessor::process(){
 				}
 			}
 
-			ANNpoint pnt = annAllocPt(DIM);
+			ANNpoint pnt = annAllocPt(nfeat);
 			double dist;
 			int closest_ind;
 			// at this points all tetrodes have pfs !
@@ -637,7 +638,7 @@ void KDClusteringProcessor::process(){
 
 				tetr_spiked_[stetr] = true;
 
-				for(int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
+				for(int fet=0; fet < nfeat; ++fet){
 					pnt[fet] = spike->pc[fet];
 				}
 
@@ -852,7 +853,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
-	os << "./kde_estimator " << tetr << " " << DIM << " " << NN_K << " " << NN_K_COORDS << " " << DIM << " " <<
+	const unsigned int nfeat = buffer->feature_space_dims_[tetr];
+	os << "./kde_estimator " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
 			tetrode_sampling_rates_[tetr] + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;

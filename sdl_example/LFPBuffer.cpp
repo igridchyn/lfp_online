@@ -36,8 +36,18 @@ void LFPBuffer::Reset(Config* config) {
 		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 
-	// set dimensionalities
-	int *pc_per_chan = new int[5] {0, 5, 4, 4, 3 };
+	// set dimensionalities for each number of channels per tetrode
+	std::vector<int> pc_per_chan;
+	pc_per_chan.push_back(0);
+	const unsigned int npc4 = config->getInt("pca.num.pc", 3);
+	for (int nc = 1; nc < 5; ++ nc){
+		pc_per_chan.push_back(npc4 - nc + 4);
+	}
+
+	Log("Number of PCs per channel for a group of 4 channels: ", pc_per_chan[4]);
+	Log("Number of PCs per channel for a group of 3 channels: ", pc_per_chan[3]);
+	Log("Number of PCs per channel for a group of 2 channels: ", pc_per_chan[2]);
+
 	for (int t=0; t < tetr_info_->tetrodes_number; ++t){
 		int nchan = tetr_info_->channels_numbers[t];
 		int npc = pc_per_chan[nchan];

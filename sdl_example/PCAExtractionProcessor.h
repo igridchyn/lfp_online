@@ -74,6 +74,7 @@ public:
     PCAExtractionProcessor(LFPBuffer *buffer);
     PCAExtractionProcessor(LFPBuffer *buffer, const unsigned int& num_pc, const unsigned int& waveshape_samples, const unsigned int& min_samples, const bool load_transform, const bool save_transform, const std::string& pc_path);
     virtual void process();
+    virtual inline std::string name() { return "PC Extractor"; }
 };
 
 #endif
