@@ -25,6 +25,7 @@ public:
 	FetFileWriterProcessor(LFPBuffer *buf);
 	virtual ~FetFileWriterProcessor();
 	virtual void process();
+	virtual inline std::string name() { return "Fet File Writer"; }
 };
 
 #endif /* FETFILEWRITERPROCESSOR_H_ */

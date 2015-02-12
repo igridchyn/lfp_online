@@ -98,6 +98,7 @@ public:
 
     // LFPProcessor
     virtual void process();
+    virtual inline std::string name() { return "Place Field"; }
     
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);

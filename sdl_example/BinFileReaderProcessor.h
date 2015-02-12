@@ -27,6 +27,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
+	virtual inline std::string name() { return "Bin File Reader"; }
 	virtual ~BinFileReaderProcessor();
 };
 

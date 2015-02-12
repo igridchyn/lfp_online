@@ -30,6 +30,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
+	virtual inline std::string name() { return "Clu Reader Clustering"; }
 };
 
 #endif /* CLUREADERCLUSTERINGPROCESSOR_H_ */

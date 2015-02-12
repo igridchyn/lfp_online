@@ -78,6 +78,7 @@ public:
     
     // LFPProcessor
     virtual void process();
+    virtual inline std::string name() { return "Waveshape Display"; }
     
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);

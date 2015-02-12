@@ -46,6 +46,7 @@ public:
     SpikeDetectorProcessor(LFPBuffer* buffer);
     SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory);
     virtual void process();
+    virtual inline std::string name() { return "Spike Detector"; }
 };
 
 #endif

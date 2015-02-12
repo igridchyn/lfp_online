@@ -23,6 +23,7 @@ public:
 
 	// LFProcessor
 	virtual void process();
+	virtual inline std::string name() { return "SW Reader"; }
 };
 
 #endif /* SWREADERPROCESSOR_H_ */

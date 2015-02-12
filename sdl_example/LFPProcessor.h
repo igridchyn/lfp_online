@@ -146,6 +146,7 @@ class SpikeAlignmentProcessor : public LFPProcessor{
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer);
     virtual void process();
+    virtual inline std::string name() { return "Spike Alignment"; }
 };
 
 //==========================================================================================

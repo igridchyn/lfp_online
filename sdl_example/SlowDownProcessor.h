@@ -22,6 +22,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
+	virtual inline std::string name() { return "Slow Down"; }
 };
 
 #endif /* SLOWDOWNPROCESSOR_H_ */

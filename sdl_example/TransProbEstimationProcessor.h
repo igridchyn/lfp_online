@@ -50,6 +50,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
+	virtual inline std::string name() { return "TP Estimator"; }
 };
 
 #endif /* TRANSPROBESTIMATIONPROCESSOR_H_ */

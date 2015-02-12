@@ -28,6 +28,7 @@ public:
 
 	//LFPProcessor
 	virtual void process();
+	virtual inline std::string name() { return "Whl File Reader"; }
 };
 
 #endif /* WHLFILEREADERPROCESSOR_H_ */

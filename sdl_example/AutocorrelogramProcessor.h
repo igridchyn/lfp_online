@@ -84,6 +84,7 @@ public:
     AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins);
 
     virtual void process();
+    virtual inline std::string name() { return "Autocorrelogram"; }
     virtual ~AutocorrelogramProcessor() {};
 
     void plotAC(const unsigned int tetr, const unsigned int cluster);

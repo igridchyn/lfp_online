@@ -100,6 +100,7 @@ public:
     
     // LFPProcessor
     virtual void process();
+    virtual inline std::string name() { return "PC display"; }
     
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     

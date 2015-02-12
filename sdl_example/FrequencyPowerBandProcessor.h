@@ -22,6 +22,7 @@ public:
     FrequencyPowerBandProcessor(LFPBuffer *buf);
     FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height);
     virtual void process();
+    virtual inline std::string name() { return "Frequency Power Band"; }
 
     // SDLControlInputProcessor
     virtual void process_SDL_control_input(const SDL_Event& e);
