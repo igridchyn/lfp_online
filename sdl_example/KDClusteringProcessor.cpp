@@ -88,7 +88,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(buf->config_->getFloat("kd.spike.graph.cover.distance.threshold", 0)),
 			SPIKE_GRAPH_COVER_NNEIGHB(buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)),
 			POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)),
-			FR_ESTIMATE_DELAY(buf->config_->getFloat("kd.frest.delay", 1000000)){
+			FR_ESTIMATE_DELAY(buf->config_->getFloat("kd.frest.delay", 1000000)),
+			DUMP_SPEED_THOLD(buf->config_->getFloat("kd.dump.speed.thold", .0)){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -706,7 +707,7 @@ void KDClusteringProcessor::process(){
 					Log("Dump end reached: ", (int)DUMP_END);
 				}
 
-				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
+				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose[5] >= DUMP_SPEED_THOLD){
 					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
 					dec_bayesian_.flush();
 				}

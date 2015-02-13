@@ -21,6 +21,8 @@ void SpeedEstimationProcessor::process(){
 	// TODO: use average of bx, sx or alike
 	// TODO: deal with missing points
 
+	// SPEED is estimated as a mean displacement in the range of 16 position samples across few subsequent displacements
+
 	while(buffer->pos_buf_pos_speed_est < buffer->pos_buf_pos_){
 		unsigned int bx = buffer->positions_buf_[buffer->pos_buf_pos_speed_est][0];
 		unsigned int by = buffer->positions_buf_[buffer->pos_buf_pos_speed_est][1];

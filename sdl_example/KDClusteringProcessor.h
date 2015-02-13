@@ -156,6 +156,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int DUMP_END;
 	bool dump_end_reach_reported_ = false;
 	unsigned int last_hmm_reset_pkg = 0;
+	float DUMP_SPEED_THOLD = .0;
 
 	bool use_intervals_;
 	std::vector<unsigned int> interval_starts_;
