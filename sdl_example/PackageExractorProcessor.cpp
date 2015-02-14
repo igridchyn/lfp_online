@@ -29,6 +29,13 @@ void PackageExractorProcessor::process(){
     		Log("EOF reached!");
     		end_reported_ = true;
     	}
+    	else{
+    		// give chance to all subsequent processors to process...
+    		if (exit_on_data_over_){
+    			Log("Exit on data over...");
+    			exit(0);
+    		}
+    	}
         return;
     }
     

@@ -25,6 +25,7 @@ classn = 0.0
 classcorr = 0
 
 predmap = np.zeros((nbins, nbins*2))
+occmap = np.zeros((nbins, nbins*2))
 
 for line in f:
 	vals = line.split(' ')
@@ -55,6 +56,10 @@ for line in f:
 	xb = (round(gtx / bsize) + 0.5) * bsize
 	yb = (round(gty / bsize) + 0.5) * bsize
 
+	gtxb=round((gtx-bsize/2.0)/bsize)
+	gtyb=round((gty-bsize/2.0)/bsize)
+	occmap[gtyb, gtxb] += 1
+
 	xpb = round((px-bsize/2)/bsize)
 	ypb = round((py-bsize/2)/bsize)
 	predmap[ypb, xpb] += 1
@@ -78,6 +83,8 @@ if len(argv) > 2:
 	n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
 	P.show()
 
-	im=P.imshow(predmap, cmap='hot')
+	im=P.imshow(predmap, cmap='hot', interpolation='none')
 	P.show()
-
+	
+	imocc=P.imshow(occmap, cmap='hot', interpolation='none')
+	P.show()
