@@ -12,6 +12,7 @@
 
 class BinFileReaderProcessor: public LFPProcessor {
 	std::string file_path_;
+	std::vector<std::string> files_list_;
 	const unsigned int chunk_size_;
 
 	FILE *bin_file_;
@@ -21,6 +22,13 @@ class BinFileReaderProcessor: public LFPProcessor {
 	unsigned char *block_;
 
 	bool end_bin_file_reported_ = false;
+
+	unsigned int current_file_ = 0;
+
+	unsigned int totalAxonaPackages(std::vector<std::string> file_list);
+	std::string axonaFileDurationFromNSampes(const unsigned int& nsamples);
+	std::string axonaFileDuration(std::string file_path);
+	std::string axonaFilesDuration(std::vector<std::string> file_list);
 
 public:
 	BinFileReaderProcessor(LFPBuffer *buf);
