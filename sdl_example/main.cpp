@@ -31,14 +31,14 @@ typedef short t_bin;
     
 //    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
 //    Config *config = new Config("../Res/decoding_jc118_1003_env2_mac.conf");
-    Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
+	  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
     
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 #else
 //	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    Config *config = new Config("../Res/decoding_online_jc118_1003.conf");
 //    Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
-    Config *config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
+    	Config *config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 
     if (argc > 1){
     	delete config;
