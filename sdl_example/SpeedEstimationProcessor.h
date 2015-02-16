@@ -13,6 +13,7 @@
 class SpeedEstimationProcessor: public LFPProcessor {
 public:
 	std::ofstream dump_;
+	const unsigned int ESTIMATION_RADIUS = 8;
 
 	SpeedEstimationProcessor(LFPBuffer *buffer);
 	virtual ~SpeedEstimationProcessor();
