@@ -89,7 +89,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SPIKE_GRAPH_COVER_NNEIGHB(buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)),
 			POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)),
 			FR_ESTIMATE_DELAY(buf->config_->getFloat("kd.frest.delay", 1000000)),
-			DUMP_SPEED_THOLD(buf->config_->getFloat("kd.dump.speed.thold", .0)){
+			DUMP_SPEED_THOLD(buf->config_->getFloat("kd.dump.speed.thold", .0)),
+			WAIT_FOR_SPEED_EST(getBool("kd.wait.speed")){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -659,6 +660,11 @@ void KDClusteringProcessor::process(){
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 			}
 
+			// if have to wait until the speed estimate
+			if(WAIT_FOR_SPEED_EST && (unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE) >= buffer->pos_buf_pos_speed_est){
+				return;
+			}
+
 			// if prediction is final and end of window has been reached (last spike is beyond the window)
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
@@ -714,6 +720,9 @@ void KDClusteringProcessor::process(){
 					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
 					dec_bayesian_.flush();
 				}
+
+				// DEBUG
+//				std::cout << "Searching at " << (unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE) << " while speed_est at " << buffer->pos_buf_pos_speed_est << ", speed = " << pose[5] << "\n";
 
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){

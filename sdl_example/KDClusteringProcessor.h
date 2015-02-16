@@ -184,6 +184,8 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	float POS_SAMPLING_RATE = .0f;
 
+	const bool WAIT_FOR_SPEED_EST = false;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 
