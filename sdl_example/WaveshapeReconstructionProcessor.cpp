@@ -20,7 +20,7 @@ void WaveShapeReconstructionProcessor::construct_lookup_table(){
     for (i=0;i<nosm*mul;i++) {
         if (!(*(sztable + i) = (double *) calloc(nosm,sizeof(double)))) {
             fprintf(stderr,"Memory allocation error!! \n");
-            exit(-1);
+            exit(LFPONLINE_BAD_ALLOC);
         };
     }
     

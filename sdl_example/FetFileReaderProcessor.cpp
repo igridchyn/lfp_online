@@ -30,7 +30,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	if (buffer->config_->spike_files_.size() == 0){
 		Log("ERROR: 0 spike files in the list");
 		// TODO replace all exits with throwing exceptions
-		exit(20);
+		exit(LFPONLINE_ERROR_SPIKE_FILES_LIST_EMPTY);
 	}
 
 	// estimate duration of all files together
@@ -187,8 +187,8 @@ void FetFileReaderProcessor::openNextFile() {
 		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 			std::string path = fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]];
 			if (!boost::filesystem::exists(path)){
-				Log(std::string("ERROR: ") + path + " doesn't exist or permissions are not set!");
-				exit(21);
+				Log(std::string("ERROR: ") + path + " doesn't exist or is not available!");
+				exit(LFPONLINE_ERROR_FET_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 			}
 
 			fet_streams_.push_back(new std::ifstream(path, binary_ ? std::ofstream::binary : std::ofstream::in));

@@ -456,7 +456,7 @@ const unsigned int& LFPBuffer::GetPosBufPointer(std::string name) {
 	}
 	else{
 		Log("ERROR: Wrong name for position buffer pointer. Allowed names are: pos, disp, spike.pos, spike.speed, speed.est");
-		exit(10);
+		exit(LFPONLINE_ERROR_UNKNOWN_POS_BUFFER_POINTER);
 	}
 }
 
