@@ -63,10 +63,6 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new PlaceFieldProcessor(buf, processor_numbers[proc_name]));
 		} else if (proc_name == "PositionDisplay"){
 			processors.push_back(new PositionDisplayProcessor(buf));
-		} else if (proc_name == "PositionReconstruction"){
-			std::cout << "ERROR: " << proc_name << " not implemented. Terminating...\n";
-			exit(1);
-			// processors.push_back(new PositionReconstructionProcessor(buf));
 		} else if (proc_name == "SDLControlInputMeta"){
 			processors.push_back(new SDLControlInputMetaProcessor(buf, GetSDLControlInputProcessors()));
 		} else if (proc_name == "SDLPCADisplay"){

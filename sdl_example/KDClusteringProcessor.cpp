@@ -334,7 +334,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		dec_hmm.flush();
 
 		std::cout << "Exit after dumping the HMM prediction (" << DUMP_DELAY << ")...\n";
-		// TODO: dump in constructor / parametrized
 		exit(0);
 	}
 
@@ -884,7 +883,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	n_pf_built_ ++;
 
 	if (n_pf_built_ == tetr_info_->tetrodes_number){
-		std::cout << "KDE at all tetrodes done, exiting...\n";
+		Log("KDE at all tetrodes done, exiting...\n");
 		exit(0);
 	}
 }

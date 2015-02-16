@@ -29,7 +29,7 @@ void Config::read_processors(std::ifstream& fconf) {
 			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			log_ << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			log_.close();
-			exit(1);
+			exit(LFPONLINE_ERROR_UNKNOWN_PROCESSOR);
 		}
 
 		if (!(proc_name[0]=='/' && proc_name[1] == '/'))
@@ -163,7 +163,7 @@ bool Config::check_parameter(std::string name, bool exit_on_fail){
 		if (exit_on_fail){
 			log_ << "ERROR: no parameter named " << name << "\n";
 			log_.close();
-			exit(1);
+			exit(LFPONLINE_ERROR_MISSING_PARAMETER);
 		}else{
 			return false;
 		}
@@ -264,7 +264,7 @@ std::string Config::getOutPath(std::string outname,
 		}
 		else{
 			log_ << "ERROR: default out path is allowed only if append is enabled, not path for " << outname << "\n";
-			exit(1);
+			exit(LFPONLINE_ERROR_DEFAULT_OUTPATH_NOT_ALLOWED);
 		}
 	}
 	else{

@@ -15,15 +15,15 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 
 	if (file_path_.length() > 0){
 		if (!Utils::FS::FileExists(file_path_)){
-			std::cout << "File doesn't exist: " << file_path_ << "\n";
-			exit(1);
+			std::cout << "File doesn't exist or is unavailable: " << file_path_ << "\n";
+			exit(LFPONLINE_ERROR_BIN_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 		}
 		bin_file_ = fopen(file_path_.c_str(), "rb");
 		Log(std::string("1-st file duration: ") + axonaFileDuration(file_path_));
 	}
 	else{
 		Log("No bin file path provided in the config, exiting");
-		exit(1);
+		exit(LFPONLINE_ERROR_NO_BIN_FILE_PROVIDED);
 	}
 
 	// read additional files
@@ -38,8 +38,8 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 		}
 
 		if (!Utils::FS::FileExists(file_path_)){
-			std::cout << "File doesn't exist: " << file_path_ << ". Exit\n";
-			exit(1);
+			std::cout << "File doesn't exist or is unavailable: " << file_path_ << ". Exit\n";
+			exit(LFPONLINE_ERROR_BIN_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 		}
 
 		nfiles ++;

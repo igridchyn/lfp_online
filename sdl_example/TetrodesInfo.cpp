@@ -66,7 +66,7 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 
 	if (tetrodes_number <= 0){
 		std::cout << "# of tetrodes should be positive! Terminating...\n";
-		exit(1);
+		exit(100);
 	}
 
 	channels_numbers = new int[tetrodes_number];
