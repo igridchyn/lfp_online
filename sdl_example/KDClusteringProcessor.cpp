@@ -663,6 +663,10 @@ void KDClusteringProcessor::process(){
 			// if prediction is final and end of window has been reached (last spike is beyond the window)
 			// 		or prediction will be finalized in subsequent iterations
 			if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
+
+				// DEBUG
+				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in KD at the prediction start\n");
+
 				// edges of the window
 				// account for the increase in the firing rate during high synchrony with additional factor
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
@@ -742,6 +746,10 @@ void KDClusteringProcessor::process(){
 					//pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
 					//swr_win_counter_ ++;
 				}
+
+				// THE POINT AT WHICH THE PREDICTION IS READY
+				// DEBUG
+				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until prediction for the window ready\n");
 
 //				double minval = arma::min(arma::min(pos_pred_));
 //				pos_pred_ = pos_pred_ - minval;

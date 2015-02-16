@@ -149,9 +149,12 @@ void PackageExractorProcessor::process(){
 
 	//Log("Package extraction done");
 
+    // DEBUG - performance test
+    buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id, Utils::Converter::int2str(buffer->last_pkg_id) + " pkg is reached, start clock\n", true);
+
     if (buffer->last_pkg_id - last_reported_ > report_rate_){
     	last_reported_ = buffer->last_pkg_id;
-    	std::cout << "Processed " << last_reported_ / (buffer->SAMPLING_RATE * 60) << " minutes of data...\n";
+    	Log(std::string("Processed ") + Utils::Converter::int2str(last_reported_ / (buffer->SAMPLING_RATE * 60)) + " minutes of data...\n");
     }
 }
 

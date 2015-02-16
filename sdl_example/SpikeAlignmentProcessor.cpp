@@ -10,10 +10,17 @@
 
 
 void SpikeAlignmentProcessor::process(){
+	//
+	int last_spike_pkg_id = 0;
+
     // try to populate unpopulated spikes -
     while (buffer->spike_buf_nows_pos < buffer->spike_buf_pos &&
            buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_nows_pos];
+
+		// DEBUG
+		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in SpikeAlign \n");
+
         int num_of_ch = buffer->tetr_info_->channels_numbers[spike->tetrode_];
         spike->waveshape = new int*[num_of_ch];
         spike->num_channels_ = num_of_ch;
@@ -123,6 +130,9 @@ void SpikeAlignmentProcessor::process(){
             }
         }
         
+		// DEBUG
+		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until start of temporal shift check in SpikeAlign\n");
+
         // make sure the temporal order of spikes didn't change (assuming it is correct for all previous spikes) by pushing current spikes donw in buffer until more recent spike is found
         int spike_sort_pos = buffer-> spike_buf_nows_pos;
         while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
@@ -133,8 +143,21 @@ void SpikeAlignmentProcessor::process(){
             spike_sort_pos --;
         }
         
+        // DEBUG
+		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until end of temporal shift check in SpikeAlign\n");
+
         buffer-> spike_buf_nows_pos++;
+        last_spike_pkg_id = spike->pkg_id_;
     }
+
+    // mark all spikes with last pkg_id beyond their refractory as aligned to be available for further processing
+    // before the next spike at their tetrode arrives
+    // TODO !!! can take even later package? (max = buffer's last package id)
+    for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+    	if (prev_spike_[t] != nullptr && last_spike_pkg_id - prev_spike_pos_[t] > 16){
+    		prev_spike_[t]->aligned_ = true;
+    	}
+	}
 }
 
 SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)

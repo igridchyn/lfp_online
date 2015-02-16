@@ -136,8 +136,20 @@ WaveShapeReconstructionProcessor::WaveShapeReconstructionProcessor(LFPBuffer* bu
 
 void WaveShapeReconstructionProcessor::process(){
     // make sure alignment has been performed
+
+	// DEBUG
+	unsigned int first_nows_pos = buffer->spike_buf_nows_pos;
+	buffer->CheckPkgIdAndReportTime(buffer->spike_buf_nows_pos, "Time from after package extraction until WS start for nows_pos = 7543\n");
+
     while (buffer->spike_buf_no_rec < buffer->spike_buf_nows_pos){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_rec];
+
+		// DEBUG
+		buffer->CheckBufPosAndReportTime(spike->pkg_id_,
+				"Time from after package extraction until WS start\n\t first no_rec pos was: " +
+				Utils::Converter::int2str(first_nows_pos) + ", current = " +
+				Utils::Converter::int2str(buffer->spike_buf_no_rec) + "\n");
+
         if (!(spike->aligned_ || spike->discarded_)){
             break;
         }
@@ -193,7 +205,7 @@ void WaveShapeReconstructionProcessor::process(){
 //            }
 //            printf("\n");
 //        }
-        
+
         buffer->spike_buf_no_rec++;
     }
 }

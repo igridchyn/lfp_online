@@ -237,6 +237,8 @@ public:
 	// DEBUG
 	// for performance evaluation
 	time_t checkpoint_ = 0;
+	unsigned int target_pkg_id_ = 482412;
+	unsigned int target_buf_pos_ = 7543;
 
     //====================================================================================================
 
@@ -268,6 +270,10 @@ public:
     // cause recalculation of autocorrelograms due to change in cluster(s) - from buffer start
     void ResetAC(const unsigned int& reset_tetrode, const int& reset_cluster);
     void ResetAC(const unsigned int& reset_tetrode);
+
+    // DEBUG
+    void CheckPkgIdAndReportTime(const unsigned int& pkg_id, const std::string msg, bool set_checkpoint = false);
+    void CheckBufPosAndReportTime(const unsigned int& buf_pos, const std::string msg);
 };
 
 //==========================================================================================

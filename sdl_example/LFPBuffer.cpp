@@ -244,7 +244,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	strftime (buffer, 80, "%F_%T", timeinfo);
 	buffer[13] = '-';
 	buffer[16] = '-';
-	log_stream.open(config_->getString("out.path.base") + log_path_prefix + buffer + ".txt", std::ios_base::app);
+	log_stream.open(config->getString("out.path.base") + log_path_prefix + buffer + ".txt", std::ios_base::app);
 
 	std::cout << "Created LOG\n";
 
@@ -471,4 +471,21 @@ void LFPBuffer::ResetAC(const unsigned int& reset_tetrode,
 
 void LFPBuffer::ResetAC(const unsigned int& reset_tetrode) {
 	ResetAC(reset_tetrode, -1);
+}
+
+void LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
+		const std::string msg, bool set_checkpoint) {
+	if (pkg_id == target_pkg_id_){
+		std::cout << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+		if (set_checkpoint){
+			checkpoint_ = clock();
+		}
+	}
+}
+
+void LFPBuffer::CheckBufPosAndReportTime(const unsigned int& buf_pos,
+		const std::string msg) {
+	if (buf_pos == target_buf_pos_){
+		std::cout << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+	}
 }
