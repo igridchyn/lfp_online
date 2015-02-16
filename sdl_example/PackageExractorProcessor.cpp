@@ -138,11 +138,10 @@ void PackageExractorProcessor::process(){
     buffer->last_pkg_id += 3 * buffer->num_chunks;
 
 	// DEBUG
-	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){
-		buffer->log_stream << "INFO: PackExtr pkg id = " << buffer->last_pkg_id << "\n";
-		buffer->log_stream << "INFO: PackExtr pkg value (chan 4) = " << buffer->signal_buf[4][buffer->buf_pos - 1]<< "\n";
-		buffer->log_stream.flush();
-	}
+//	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){
+//		Log("pkg id = ",  buffer->last_pkg_id);
+//		Log("pkg value (chan 4) = ", (unsigned int)buffer->signal_buf[4][buffer->buf_pos - 1]);
+//	}
     
     // TODO: use filter width !!!
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);

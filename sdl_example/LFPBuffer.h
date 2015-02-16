@@ -198,6 +198,7 @@ public:
 
 private:
     bool is_valid_channel_[_CHANNEL_NUM];
+	std::ofstream log_stream;
 
 public:
     signal_type *signal_buf[_CHANNEL_NUM];
@@ -238,8 +239,6 @@ public:
     std::vector<unsigned int> last_preidction_window_ends_;
 
     std::vector<arma::mat> tps_;
-
-	std::ofstream log_stream;
 
 	unsigned int input_duration_ = 0;
 

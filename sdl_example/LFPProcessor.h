@@ -73,6 +73,7 @@ protected:
     virtual void Log(std::string message);
     virtual void Log(std::string message, int num);
     virtual void Log(std::string message, double num);
+    virtual void Log(std::string message, unsigned int num);
 
 public:
     virtual int getInt(std::string name);

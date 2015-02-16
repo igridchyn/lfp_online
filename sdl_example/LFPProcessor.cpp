@@ -204,6 +204,10 @@ void LFPProcessor::Log(std::string message) {
 	buffer->Log(name() + ": " + message);
 }
 
+void LFPProcessor::Log(std::string message, unsigned int num) {
+	buffer->Log(name() + ": " + message + Utils::Converter::int2str(num));
+}
+
 int LFPProcessor::getInt(std::string name) {
 	int p0val = buffer->config_->getInt(name);
 
