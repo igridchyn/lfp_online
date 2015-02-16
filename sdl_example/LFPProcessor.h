@@ -143,6 +143,8 @@ class SpikeAlignmentProcessor : public LFPProcessor{
     int *prev_max_val_ = nullptr;
     Spike **prev_spike_ = nullptr;
     
+    const unsigned int REFRACTORY_PERIOD;
+
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer);
     virtual void process();

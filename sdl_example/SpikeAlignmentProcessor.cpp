@@ -82,7 +82,7 @@ void SpikeAlignmentProcessor::process(){
         
         // if not within refractory period from previous spike
         
-		if (peak_pos - prev_spike_pos_[tetrode] > 16 || prev_spike_[tetrode] == nullptr)
+		if (peak_pos - prev_spike_pos_[tetrode] > REFRACTORY_PERIOD || prev_spike_[tetrode] == nullptr)
     	{
 			// !!!  This is the EARLIEST point when the spike is accepted for further analysis
             if (prev_spike_[tetrode] != nullptr){
@@ -154,14 +154,15 @@ void SpikeAlignmentProcessor::process(){
     // before the next spike at their tetrode arrives
     // TODO !!! can take even later package? (max = buffer's last package id)
     for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
-    	if (prev_spike_[t] != nullptr && last_spike_pkg_id - prev_spike_pos_[t] > 16){
+    	if (prev_spike_[t] != nullptr && last_spike_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD){
     		prev_spike_[t]->aligned_ = true;
     	}
 	}
 }
 
 SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
-: LFPProcessor(buffer){
+: LFPProcessor(buffer)
+, REFRACTORY_PERIOD(buffer->config_->getInt("spike.detection.refractory", 16)){
     int tetr_num = buffer->tetr_info_->tetrodes_number;
     
     prev_spike_pos_ = new unsigned int[tetr_num];
