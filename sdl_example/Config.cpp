@@ -13,7 +13,8 @@
 #include <algorithm>
 
 void Config::read_processors(std::ifstream& fconf) {
-	log_.open("lfponline_config_log.txt");
+	std::string log_prefix = params_.find("out.path.base") == params_.end() ? "" : params_["out.path.base"];
+	log_.open(log_prefix + "lfponline_config_log.txt");
 
 	int numproc;
 	fconf >> numproc;
@@ -34,6 +35,7 @@ void Config::read_processors(std::ifstream& fconf) {
 		if (!(proc_name[0]=='/' && proc_name[1] == '/'))
 			processors_list_.push_back(proc_name);
 	}
+	log_.flush();
 }
 
 Config::Config(std::string path) {

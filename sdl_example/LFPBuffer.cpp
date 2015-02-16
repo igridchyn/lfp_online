@@ -7,6 +7,7 @@
 
 #include "LFPBuffer.h"
 #include "OnlineEstimator.cpp"
+#include "time.h"
 
 void LFPBuffer::Reset(Config* config) {
 	if (config_)
@@ -227,12 +228,24 @@ LFPBuffer::LFPBuffer(Config* config)
 
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
 
-	// TODO !!! creatre normal random name
-
-	srand(time(nullptr));
-	int i = rand() % 64;
 	std::string log_path_prefix = config->getString("log.path.prefix", "lfponline_LOG_");
-	log_stream.open(log_path_prefix + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
+
+	// OLD LOG NAME SOLUTION
+//	srand(time(nullptr));
+//	int i = rand() % 64;
+//	log_stream.open(log_path_prefix + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
+
+	// generate temporary file with current date _ time
+	time_t rawtime;
+	struct tm * timeinfo;
+	char buffer [80];
+	time (&rawtime);
+	timeinfo = localtime (&rawtime);
+	strftime (buffer, 80, "%F_%T", timeinfo);
+	buffer[13] = '-';
+	buffer[16] = '-';
+	log_stream.open(config_->getString("out.path.base") + log_path_prefix + buffer + ".txt", std::ios_base::app);
+
 	std::cout << "Created LOG\n";
 
 	// TODO !!! create buffer only for valid channels

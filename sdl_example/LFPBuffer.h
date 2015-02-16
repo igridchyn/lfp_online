@@ -234,6 +234,10 @@ public:
 	// this should be abstracted from the wat the features are extracted (PCs etc.)
 	std::vector<unsigned int> feature_space_dims_;
 
+	// DEBUG
+	// for performance evaluation
+	time_t checkpoint_ = 0;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);
