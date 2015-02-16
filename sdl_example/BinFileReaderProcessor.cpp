@@ -11,7 +11,12 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 	: LFPProcessor(buf)
 	, file_path_(buf->config_->getString("bin.path", ""))
 	, chunk_size_(getInt("chunk.size"))
-	, nblock_(buf->config_->getInt("bin.nblock", 1)){
+	, nblock_(buf->config_->getInt("bin.nblock", 1))
+	, x_shift_upon_file_change_(buf->config_->getFloat("bin.x.shift"))
+	, y_shift_upon_file_change_(buf->config_->getFloat("bin.y.shift")){
+
+	buffer->coord_shift_x_ = x_shift_upon_file_change_;
+	buffer->coord_shift_y_ = y_shift_upon_file_change_;
 
 	if (file_path_.length() > 0){
 		if (!Utils::FS::FileExists(file_path_)){
@@ -70,6 +75,15 @@ void BinFileReaderProcessor::process() {
 		file_path_ = files_list_[current_file_];
 		fclose(bin_file_);
 		bin_file_ = fopen(file_path_.c_str(), "rb");
+
+		if (!(current_file_ % 2)){
+			buffer->coord_shift_x_ = x_shift_upon_file_change_;
+			buffer->coord_shift_y_ = y_shift_upon_file_change_;
+		}
+		else{
+			buffer->coord_shift_x_ = 0;
+			buffer->coord_shift_y_ = 0;
+		}
 	}
 	else if	(!end_bin_file_reported_){
 		end_bin_file_reported_ = true;

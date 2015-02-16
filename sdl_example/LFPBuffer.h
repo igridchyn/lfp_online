@@ -252,6 +252,9 @@ public:
 	unsigned int target_pkg_id_ = 482412;
 	unsigned int target_buf_pos_ = 7543;
 
+	int coord_shift_x_ = 0;
+	int coord_shift_y_ = 0;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);

@@ -25,6 +25,10 @@ class BinFileReaderProcessor: public LFPProcessor {
 
 	unsigned int current_file_ = 0;
 
+	// for fake environment separation assuming that subsequent files represent different environments
+	float x_shift_upon_file_change_ = .0;
+	float y_shift_upon_file_change_ = .0;
+
 	unsigned int totalAxonaPackages(std::vector<std::string> file_list);
 	std::string axonaFileDurationFromNSampes(const unsigned int& nsamples);
 	std::string axonaFileDuration(std::string file_path);
