@@ -13,10 +13,19 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 	, chunk_size_(getInt("chunk.size"))
 	, nblock_(buf->config_->getInt("bin.nblock", 1))
 	, x_shift_upon_file_change_(buf->config_->getFloat("bin.x.shift"))
-	, y_shift_upon_file_change_(buf->config_->getFloat("bin.y.shift")){
+	, y_shift_upon_file_change_(buf->config_->getFloat("bin.y.shift"))
+	, SHIFT_ODD(getBool("bin.shift.odd")){
 
-	buffer->coord_shift_x_ = x_shift_upon_file_change_;
-	buffer->coord_shift_y_ = y_shift_upon_file_change_;
+	std::stringstream ss;
+	ss << "Shift of " << x_shift_upon_file_change_ << " / " << y_shift_upon_file_change_ <<
+			" will be set for each " << (SHIFT_ODD ? "ODD" : "EVEN") << " file (starting from file #0).";
+	Log(ss.str());
+
+	// if shift even files - start with the shifted ones
+	if (!SHIFT_ODD){
+		buffer->coord_shift_x_ = x_shift_upon_file_change_;
+		buffer->coord_shift_y_ = y_shift_upon_file_change_;
+	}
 
 	if (file_path_.length() > 0){
 		if (!Utils::FS::FileExists(file_path_)){
@@ -76,11 +85,13 @@ void BinFileReaderProcessor::process() {
 		fclose(bin_file_);
 		bin_file_ = fopen(file_path_.c_str(), "rb");
 
-		if (!(current_file_ % 2)){
+		if ((!(current_file_ % 2)) ^ SHIFT_ODD){
+			Log("Add shift in file number ", current_file_);
 			buffer->coord_shift_x_ = x_shift_upon_file_change_;
 			buffer->coord_shift_y_ = y_shift_upon_file_change_;
 		}
 		else{
+			Log("No shift in file number ", current_file_);
 			buffer->coord_shift_x_ = 0;
 			buffer->coord_shift_y_ = 0;
 		}

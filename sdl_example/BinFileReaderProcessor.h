@@ -29,6 +29,9 @@ class BinFileReaderProcessor: public LFPProcessor {
 	float x_shift_upon_file_change_ = .0;
 	float y_shift_upon_file_change_ = .0;
 
+	// whether to shift coordinates in odd or in even trials
+	const bool SHIFT_ODD = false;
+
 	unsigned int totalAxonaPackages(std::vector<std::string> file_list);
 	std::string axonaFileDurationFromNSampes(const unsigned int& nsamples);
 	std::string axonaFileDuration(std::string file_path);
