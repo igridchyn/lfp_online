@@ -65,12 +65,12 @@ enum LFPONLINE__ERROR_CODES{
 class SpatialInfo{
 public:
 	// if only one LED pos is known, the other one will be equal to -1
-	float x_small_LED_ = -1.0;
-	float y_small_LED_ = -1.0;
-	float x_big_LED_ = -1.0;
-	float y_big_LED_ = -1.0;
+	float x_small_LED_ = .0;
+	float y_small_LED_ = .0;
+	float x_big_LED_ = .0;
+	float y_big_LED_ = .0;
 	unsigned int pkg_id_ = 0;
-	float speed_ = -1.0;
+	float speed_ = .0;
 	// valid if at least one LED is known
 	bool valid = false;
 

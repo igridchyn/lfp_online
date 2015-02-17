@@ -486,18 +486,18 @@ void LFPBuffer::CheckBufPosAndReportTime(const unsigned int& buf_pos,
 }
 
 float AverageLEDs(const float & smallLED, const float & bigLED, const bool & valid){
-	if (!valid)
-		return -1.0;
-
-	if (smallLED < 0){
-		return bigLED;
-	}
-	else if (bigLED < 0){
-		return smallLED;
-	}
-	else{
+//	if (!valid)
+//		return -1.0;
+//
+//	if (smallLED < 0){
+//		return bigLED;
+//	}
+//	else if (bigLED < 0){
+//		return smallLED;
+//	}
+//	else{
 		return (smallLED + bigLED) / 2.0;
-	}
+//	}
 }
 
 float SpatialInfo::x_pos() {

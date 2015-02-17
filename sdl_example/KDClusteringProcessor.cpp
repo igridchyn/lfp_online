@@ -693,12 +693,25 @@ void KDClusteringProcessor::process(){
 				// DUMP decoded coordinate
 				unsigned int mx = 0,my = 0;
 				pos_pred_.max(mx, my);
-				float gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
+				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
 				// TODO extract to get pos
 				// !!! WORKAROUND
 				SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
-				gtx = pose.x_pos();
-				gty = pose.y_pos();
+				if (pose.x_big_LED_ == buffer->pos_unknown_){
+					if (pose.x_small_LED_ != buffer->pos_unknown_){
+						gtx = pose.x_small_LED_;
+						gty = pose.y_small_LED_;
+					}
+				} else if (pose.x_small_LED_ == buffer->pos_unknown_){
+					if (pose.x_big_LED_ != buffer->pos_unknown_){
+						gtx = pose.x_big_LED_;
+						gty = pose.y_big_LED_;
+					}
+				}
+				else {
+					gtx = pose.x_pos();
+					gty = pose.y_pos();
+				}
 
 				// DEBUG
 				if (last_pred_pkg_id_ > DUMP_DELAY && !dump_delay_reach_reported_){
@@ -817,9 +830,14 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// TODO sparse sampling
 	arma::Mat<float> pos_buf(2, buffer->pos_buf_pos_);
 	unsigned int pos_interval = 0;
+	int nskip = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
+		if (buffer->positions_buf_[n].speed_ < SPEED_THOLD){
+			nskip ++;
+		}
+
 		// if pos is unknown or speed is below the threshold - ignore
-		if ((! buffer->positions_buf_[n].valid ) || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
+		if ( buffer->positions_buf_[n].x_small_LED_ == 1023 || buffer->positions_buf_[n].x_big_LED_ == 1023 || buffer->positions_buf_[n].x_big_LED_ < 0 || buffer->positions_buf_[n].x_small_LED_ < 0 || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			continue;
 		}
 
@@ -844,6 +862,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
 		npoints++;
 	}
+	Log("Skipped due to speed: ", nskip);
 	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
