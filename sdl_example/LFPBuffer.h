@@ -29,9 +29,7 @@
 
 #include <armadillo>
 
-#ifndef __APPLE__
-    #include <boost/filesystem.hpp>
-#endif
+#include <boost/filesystem.hpp>
 
 #ifdef _WIN32
 #define _USE_MATH_DEFINES
