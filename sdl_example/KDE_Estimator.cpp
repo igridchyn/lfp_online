@@ -61,7 +61,8 @@ std::vector<double *> cache_sim_spikes_dists_;
 std::vector<int *> cache_block_neighbs_;
 
 //spike_coords_int - computed; coords_normalized - computed; pos buf - copied from buffer->pos_buf and loaded
-arma::Mat<int> spike_coords_int, coords_normalized, pos_buf;
+arma::Mat<int> spike_coords_int, coords_normalized;
+arma::Mat<float> pos_buf;
 // this one is loaded
 arma::mat obs_mat;
 // these are created

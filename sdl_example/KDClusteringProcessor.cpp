@@ -90,7 +90,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)),
 			FR_ESTIMATE_DELAY(buf->config_->getFloat("kd.frest.delay", 1000000)),
 			DUMP_SPEED_THOLD(buf->config_->getFloat("kd.dump.speed.thold", .0)),
-			WAIT_FOR_SPEED_EST(getBool("kd.wait.speed")){
+			WAIT_FOR_SPEED_EST(getBool("kd.wait.speed")),
+			RUN_KDE_ON_MIN_COLLECTED(getBool("kd.run.on.min")){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -127,16 +128,16 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	for (int t = 0; t < tetrn; ++t) {
 		const unsigned int dim = buf->feature_space_dims_[t];
 
-		ann_points_[t] = annAllocPts(MIN_SPIKES, dim);
-		spike_place_fields_[t].reserve(MIN_SPIKES);
+		ann_points_[t] = annAllocPts(MIN_SPIKES * 2, dim);
+		spike_place_fields_[t].reserve(MIN_SPIKES * 2);
 
-		ann_points_int_[t] = new int*[MIN_SPIKES];
-		for (int d = 0; d < MIN_SPIKES; ++d) {
+		ann_points_int_[t] = new int*[MIN_SPIKES * 2];
+		for (int d = 0; d < MIN_SPIKES * 2; ++d) {
 			ann_points_int_[t][d] = new int[dim];
 		}
 
 		// tmp
-		obs_mats_[t] = arma::mat(MIN_SPIKES, 14);
+		obs_mats_[t] = arma::mat(MIN_SPIKES * 2, 14);
 	}
 
 	pf_built_.resize(tetrn);
@@ -448,7 +449,7 @@ void KDClusteringProcessor::process(){
 			// to start prediction only after all PFs are available
 			last_pred_pkg_id_ = spike->pkg_id_;
 
-			if (total_spikes_[tetr] >= MIN_SPIKES || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
+			if ((total_spikes_[tetr] >= MIN_SPIKES && RUN_KDE_ON_MIN_COLLECTED) || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
 
 				// start clustering if it is not running yet, otherwise - ignore
@@ -822,7 +823,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// TODO cut matrix later
 	unsigned int npoints = 0;
 	// TODO sparse sampling
-	arma::Mat<int> pos_buf(2, buffer->pos_buf_pos_);
+	arma::Mat<float> pos_buf(2, buffer->pos_buf_pos_);
 	unsigned int pos_interval = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		// if pos is unknown or speed is below the threshold - ignore
@@ -847,7 +848,6 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 			}
 		}
 
-		// TODO !!! take avg
 		pos_buf(0, npoints) = (buffer->positions_buf_[n][0] + buffer->positions_buf_[n][2]) / 2.0;
 		pos_buf(1, npoints) = (buffer->positions_buf_[n][1] + buffer->positions_buf_[n][3]) / 2.0;
 		npoints++;
