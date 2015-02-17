@@ -137,7 +137,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		}
 
 		// tmp
-		obs_mats_[t] = arma::mat(MIN_SPIKES * 2, 14);
+		obs_mats_[t] = arma::mat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
 	}
 
 	pf_built_.resize(tetrn);
@@ -522,9 +522,14 @@ void KDClusteringProcessor::process(){
 					obs_mats_[tetr](total_spikes_[tetr], fet) = spike->pc[fet];
 				}
 
-
-				obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
-				obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
+				if (spike->x > 0){
+					obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
+				}
+				else{
+					obs_mats_[tetr](total_spikes_[tetr], nfeat) = 1023;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 1023;
+				}
 
 				total_spikes_[tetr] ++;
 			}
@@ -814,7 +819,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	unsigned int pos_interval = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		// if pos is unknown or speed is below the threshold - ignore
-		if (! buffer->positions_buf_[n].valid || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
+		if ((! buffer->positions_buf_[n].valid ) || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			continue;
 		}
 
