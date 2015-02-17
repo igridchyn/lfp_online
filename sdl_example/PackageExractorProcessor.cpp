@@ -86,20 +86,16 @@ void PackageExractorProcessor::process(){
     		if (!skip_next_pos_ && read_pos_){
     			// WORKAROUND
     			if (bx != buffer->pos_unknown_){
-    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = (bx * SCALE) + buffer->coord_shift_x_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = (by * SCALE) + buffer->coord_shift_y_;
-    			}else{
-    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = buffer->pos_unknown_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].x_big_LED_ = (bx * SCALE) + buffer->coord_shift_x_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].y_big_LED_ = (by * SCALE) + buffer->coord_shift_y_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].valid = true;
     			}
     			if (sx != buffer->pos_unknown_){
-    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = (sx * SCALE) + buffer->coord_shift_x_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = (sy * SCALE) + buffer->coord_shift_y_;
-    			}else{
-    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = buffer->pos_unknown_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].x_small_LED_ = (sx * SCALE) + buffer->coord_shift_x_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].y_small_LED_ = (sy * SCALE) + buffer->coord_shift_y_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].valid = true;
     			}
-    			buffer->positions_buf_[buffer->pos_buf_pos_][4] = buffer->last_pkg_id + c;
+    			buffer->positions_buf_[buffer->pos_buf_pos_].pkg_id_ = buffer->last_pkg_id + c;
 
     			buffer->pos_buf_pos_++;;
     		}

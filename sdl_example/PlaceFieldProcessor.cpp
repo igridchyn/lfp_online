@@ -86,14 +86,16 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     
     // TODO: ? reconstruct ?? (in previous proc)
     // unknown coord
-    if (x == 1023 || y == 1023){
+    if (x == buffer->pos_unknown_ || y == buffer->pos_unknown_){
         return;
     }
  
     // WORKAROUND
     // TODO handle x/y overflow
     if (xb >= nbinsx_ || yb >= nbinsy_){
-    	std::cout << "WARNING: overflow x/y: " << xb << ", " << yb << "\n";
+    	std::stringstream ss;
+    	ss << "WARNING: overflow x/y: " << xb << ", " << yb;
+    	Log(ss.str());
     	return;
     }
 
@@ -149,8 +151,8 @@ void PlaceFieldProcessor::process(){
     // TODO: configurable [in LFPProc ?]
     while(buffer->pos_buf_pos_ >= 8 && pos_buf_pos_ < buffer->pos_buf_pos_ - 8){
         // TODO: use noth LEDs to compute coord (in upstream processor) + speed estimate
-        if (buffer->positions_buf_[pos_buf_pos_][5] > SPEED_THOLD){
-            AddPos(buffer->positions_buf_[pos_buf_pos_][0], buffer->positions_buf_[pos_buf_pos_][1]);
+        if (buffer->positions_buf_[pos_buf_pos_].speed_ > SPEED_THOLD && buffer->positions_buf_[pos_buf_pos_].valid){
+            AddPos(buffer->positions_buf_[pos_buf_pos_].x_pos(), buffer->positions_buf_[pos_buf_pos_].y_pos());
         }
         pos_buf_pos_ ++;
     }
@@ -211,7 +213,7 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     // TODO parametrize
     unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
     for (int pos = end - 100; pos < end; ++pos) {
-    	FillRect(buffer->positions_buf_[pos][0] * binw / bin_size_, buffer->positions_buf_[pos][1] * binh / bin_size_, 0, 2, 2);
+    	FillRect(buffer->positions_buf_[pos].x_pos() * binw / bin_size_, buffer->positions_buf_[pos].y_pos() * binh / bin_size_, 0, 2, 2);
     }
 
     SDL_SetRenderTarget(renderer_, nullptr);
@@ -429,6 +431,9 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     //  find the coordinates (and write to pos?)
     unsigned int rmax, cmax;
     double pmax = reconstructed_position_.max(rmax, cmax);
-    buffer->positions_buf_[buffer->pos_buf_pos_][2] = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
-    buffer->positions_buf_[buffer->pos_buf_pos_][3] = (rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
+
+    buffer->positions_buf_[buffer->pos_buf_pos_].x_small_LED_ = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
+    buffer->positions_buf_[buffer->pos_buf_pos_].x_big_LED_ = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
+    buffer->positions_buf_[buffer->pos_buf_pos_].y_small_LED_ = (rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
+    buffer->positions_buf_[buffer->pos_buf_pos_].y_big_LED_ = (rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
 }

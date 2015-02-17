@@ -249,11 +249,11 @@ void FetFileReaderProcessor::process() {
 	// read pos from whl
 	int last_pos_pkg_id = last_pkg_id_;
 	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
-		float *pos_entry = buffer->positions_buf_[buffer->pos_buf_pos_];
-		(*whl_file_) >> pos_entry[0] >> pos_entry[1] >> pos_entry[2] >> pos_entry[3] >> pos_entry[4];
+		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
+		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->x_big_LED_ >> pos_entry->pkg_id_;
 
 		buffer->pos_buf_pos_ ++;
-		last_pos_pkg_id = pos_entry[4];
+		last_pos_pkg_id = pos_entry->pkg_id_;
 		// TODO !!! rewind
 	}
 
@@ -288,13 +288,13 @@ void FetFileReaderProcessor::process() {
 		// set coords
 		// find position
 		// !!! TODO: interpolate, wait for next if needed [separate processor ?]
-		while(buffer->positions_buf_[buffer->pos_buf_spike_pos_][4] < spike->pkg_id_ && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
+		while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike->pkg_id_ && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
 			buffer->pos_buf_spike_pos_++;
 		}
 		// TODO: average of two LED coords
 		if (buffer->pos_buf_spike_pos_ > 0){
-			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
-			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
+			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
 		}
 
 		// TODO: buffer rewind

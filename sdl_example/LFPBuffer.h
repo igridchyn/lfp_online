@@ -62,6 +62,24 @@ enum LFPONLINE__ERROR_CODES{
 	LFPONLINE_BAD_ALLOC
 };
 
+class SpatialInfo{
+public:
+	// if only one LED pos is known, the other one will be equal to -1
+	float x_small_LED_ = -1.0;
+	float y_small_LED_ = -1.0;
+	float x_big_LED_ = -1.0;
+	float y_big_LED_ = -1.0;
+	unsigned int pkg_id_ = 0;
+	float speed_ = -1.0;
+	// valid if at least one LED is known
+	bool valid = false;
+
+public:
+	// TODO cache pos ???
+	float x_pos();
+	float y_pos();
+};
+
 class LFPONLINEAPI LFPBuffer{
 
 public:
@@ -155,7 +173,7 @@ public:
     // TODO rewind ??? [max = 8h]
     //const int POS_BUF_SIZE = 1 << 20;
     // 4 coords, pkg_id and speed magnitude
-    float positions_buf_[_POS_BUF_SIZE][6];
+    SpatialInfo positions_buf_[_POS_BUF_SIZE];
     // main poiter - where the next position will be put
     unsigned int pos_buf_pos_ = 0;
     // the last displayed position
@@ -171,6 +189,7 @@ public:
     unsigned int pos_buf_pos_whl_writer_ = 0;
 
     // value of pos., meaning that position is unknown
+    // ACCORDING TO THE AXONA CONVENTIONS
     const int pos_unknown_;
 
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter

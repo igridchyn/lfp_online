@@ -128,11 +128,6 @@ void LFPBuffer::Reset(Config* config) {
 
 	memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
 
-	for (int pos_buf = 0; pos_buf < _POS_BUF_SIZE; ++pos_buf) {
-		// TODO fix
-		memset(positions_buf_[pos_buf], 0, 6 * sizeof(float));
-	}
-
 	ISIEstimators_ = new OnlineEstimator<float, float>*[tetr_info_->tetrodes_number];
 	for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
 		ISIEstimators_[t] = new OnlineEstimator<float, float>();
@@ -488,4 +483,27 @@ void LFPBuffer::CheckBufPosAndReportTime(const unsigned int& buf_pos,
 	if (buf_pos == target_buf_pos_){
 		std::cout << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
 	}
+}
+
+float AverageLEDs(const float & smallLED, const float & bigLED, const bool & valid){
+	if (!valid)
+		return -1.0;
+
+	if (smallLED < 0){
+		return bigLED;
+	}
+	else if (bigLED < 0){
+		return smallLED;
+	}
+	else{
+		return (smallLED + bigLED) / 2.0;
+	}
+}
+
+float SpatialInfo::x_pos() {
+	return AverageLEDs(x_small_LED_, x_big_LED_, valid);
+}
+
+float SpatialInfo::y_pos() {
+	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
 }

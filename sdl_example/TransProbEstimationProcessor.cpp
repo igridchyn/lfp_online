@@ -112,7 +112,7 @@ void TransProbEstimationProcessor::process() {
 	// TODO delay
 
 	while(pos_buf_ptr_ < buffer->pos_buf_pos_){
-		if (buffer->positions_buf_[pos_buf_ptr_][0] == 1023 || buffer->positions_buf_[pos_buf_ptr_ - STEP][0] == 1023){
+		if (! buffer->positions_buf_[pos_buf_ptr_].valid){
 			pos_buf_ptr_ ++;
 			continue;
 		}
@@ -120,13 +120,13 @@ void TransProbEstimationProcessor::process() {
 //		std::cout << buffer->positions_buf_[pos_buf_ptr_][0] << " " << buffer->positions_buf_[pos_buf_ptr_][1] << "\n";
 
 		// bins in shift rather than shift in bins (more precise)
-		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][0] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][0]) / (float)BIN_SIZE);
-		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][1] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][1]) / (float)BIN_SIZE);
+		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_].x_pos() - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos()) / (float)BIN_SIZE);
+		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_].y_pos() - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos()) / (float)BIN_SIZE);
 
-		unsigned int tmpx = buffer->positions_buf_[pos_buf_ptr_ - STEP][0];
-		int xb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP][0] / (float)BIN_SIZE - 0.5);
-		unsigned int tmpy = buffer->positions_buf_[pos_buf_ptr_ - STEP][1];
-		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP][1] / (float)BIN_SIZE - 0.5);
+		unsigned int tmpx = buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos();
+		int xb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos() / (float)BIN_SIZE - 0.5);
+		unsigned int tmpy = buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos();
+		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos() / (float)BIN_SIZE - 0.5);
 
 		if (tmpx == 0)
 			xb = 0;

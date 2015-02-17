@@ -303,8 +303,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
 	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/(float)POS_SAMPLING_RATE);
-	float corrx = (buffer->positions_buf_[ind][0] + buffer->positions_buf_[ind][2]) / 2;
-	float corry = (buffer->positions_buf_[ind][1] + buffer->positions_buf_[ind][3]) / 2;
+	float corrx = buffer->positions_buf_[ind].x_pos();
+	float corry = buffer->positions_buf_[ind].y_pos();
 
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > DUMP_DELAY){
@@ -317,8 +317,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		while (t >= 0){
 			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << " ";
 			int posind = (int)((t * PRED_WIN + PREDICTION_DELAY) / (float)POS_SAMPLING_RATE);
-			corrx = (buffer->positions_buf_[posind][0] + buffer->positions_buf_[posind][2]) / 2;
-			corry = (buffer->positions_buf_[posind][1] + buffer->positions_buf_[posind][3]) / 2;
+			corrx = buffer->positions_buf_[posind].x_pos();
+			corry = buffer->positions_buf_[posind].y_pos();
 			dec_hmm << corrx << " " << corry << "\n";
 			int b = hmm_traj_[y * NBINSX + x][t];
 			// TODO !!! fix
@@ -688,25 +688,12 @@ void KDClusteringProcessor::process(){
 				// DUMP decoded coordinate
 				unsigned int mx = 0,my = 0;
 				pos_pred_.max(mx, my);
-				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
+				float gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
 				// TODO extract to get pos
 				// !!! WORKAROUND
-				float *pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
-				if (pose[0] == buffer->pos_unknown_){
-					if (pose[2] != buffer->pos_unknown_){
-						gtx = pose[2];
-						gty = pose[3];
-					}
-				} else if (pose[2] == buffer->pos_unknown_){
-					if (pose[0] != buffer->pos_unknown_){
-						gtx = pose[0];
-						gty = pose[1];
-					}
-				}
-				else {
-					gtx = (pose[0] + pose[2]) / 2;
-					gty = (pose[1] + pose[3]) / 2;
-				}
+				SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
+				gtx = pose.x_pos();
+				gty = pose.y_pos();
 
 				// DEBUG
 				if (last_pred_pkg_id_ > DUMP_DELAY && !dump_delay_reach_reported_){
@@ -718,7 +705,7 @@ void KDClusteringProcessor::process(){
 					Log("Dump end reached: ", (int)DUMP_END);
 				}
 
-				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose[5] >= DUMP_SPEED_THOLD){
+				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose.speed_ >= DUMP_SPEED_THOLD){
 					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
 					dec_bayesian_.flush();
 				}
@@ -827,7 +814,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	unsigned int pos_interval = 0;
 	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		// if pos is unknown or speed is below the threshold - ignore
-		if (buffer->positions_buf_[n][0] == 1023 || buffer->positions_buf_[n][2] == 1023 || buffer->positions_buf_[n][5] < SPEED_THOLD){
+		if (! buffer->positions_buf_[n].valid || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			continue;
 		}
 
@@ -848,8 +835,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 			}
 		}
 
-		pos_buf(0, npoints) = (buffer->positions_buf_[n][0] + buffer->positions_buf_[n][2]) / 2.0;
-		pos_buf(1, npoints) = (buffer->positions_buf_[n][1] + buffer->positions_buf_[n][3]) / 2.0;
+		pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos();
+		pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
 		npoints++;
 	}
 	pos_buf = pos_buf.cols(0, npoints - 1);

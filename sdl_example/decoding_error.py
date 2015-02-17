@@ -38,7 +38,7 @@ for line in f:
 
 	dist = sqrt( (px-gtx)**2 + (py-gty)**2 )
 
-	if gtx > 1000 or px < 5:
+	if gtx > 1000 or px < 5 or gtx < 0:
 		continue
 
 	distsb1 = sqrt((gtx-sbs[0][0])**2 + (gty-sbs[0][1])**2)

@@ -172,13 +172,13 @@ void SpikeDetectorProcessor::process()
                 // set coords
                 // find position
                 // !!! TODO: interpolate, wait for next if needed [separate processor ?]
-                while(buffer->positions_buf_[buffer->pos_buf_spike_pos_][4] < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
+                while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
                     buffer->pos_buf_spike_pos_++;
                 }
                 // TODO: average of two LED coords
                 if (buffer->pos_buf_spike_pos_ > 0){
-                	spike->x = (buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0] + buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][2]) / 2;
-                	spike->y = (buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1] + buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][3]) / 2;
+                	spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
+                	spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
                 }
                 else{
                 	// TODO read unknown pos

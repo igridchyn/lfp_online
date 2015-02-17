@@ -108,8 +108,8 @@ void FetFileWriterProcessor::process() {
 
 	// write fet
 	while(buffer->pos_buf_pos_whl_writer_ < buffer->pos_buf_pos_){
-		float *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
-		(*whl_file_) << pos_rec[0] << " " << pos_rec[1] << " " << pos_rec[2] << " " << pos_rec[3] << " " << pos_rec[4] << "\n";
+		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
+		(*whl_file_) << pos_rec.x_small_LED_ << " " << pos_rec.y_small_LED_ << " " << pos_rec.x_big_LED_ << " " << pos_rec.y_big_LED_ << " " << pos_rec.pkg_id_ << "\n";
 		buffer->pos_buf_pos_whl_writer_++;
 	}
 }

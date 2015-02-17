@@ -50,18 +50,19 @@ void PositionDisplayProcessor::process(){
     while (buffer->pos_buf_disp_pos_ < pos_buf_pointer_limit_) {
 
     	// if exceeded clustering prediction - exit
-    	if (WAIT_PREDICTION && (buffer->positions_buf_[buffer->pos_buf_disp_pos_][4] > buffer->last_preidction_window_ends_[processor_number_])){
+    	if (WAIT_PREDICTION && (buffer->positions_buf_[buffer->pos_buf_disp_pos_].pkg_id_ > buffer->last_preidction_window_ends_[processor_number_])){
     		break;
     	}
 
-        float x = (buffer->positions_buf_[buffer->pos_buf_disp_pos_][0] + buffer->positions_buf_[buffer->pos_buf_disp_pos_][2]) / 2;
-        float y = (buffer->positions_buf_[buffer->pos_buf_disp_pos_][1] + buffer->positions_buf_[buffer->pos_buf_disp_pos_][3]) / 2;
+        float x = buffer->positions_buf_[buffer->pos_buf_disp_pos_].x_pos();
+        float y = buffer->positions_buf_[buffer->pos_buf_disp_pos_].y_pos();
         
         const unsigned int imm_level = estimate_speed_ ? 150 : 80;
         unsigned int grey_level = imm_level;
 
-        if (estimate_speed_ && buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] > 30.0f){
-            grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_][5] + 50);
+        // TODO parametrize speed display parameters
+        if (estimate_speed_ && buffer->positions_buf_[buffer->pos_buf_disp_pos_].speed_ > 2.0f){
+            grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_].speed_ * 5 + 50);
         }
         
         SDL_SetRenderTarget(renderer_, texture_);
@@ -75,8 +76,8 @@ void PositionDisplayProcessor::process(){
 
         // display predicted position
         if (DISPLAY_PREDICTION){
-			float predx = (buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][0] + buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][2]) / 2;
-			float predy = (buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][1] + buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][3]) / 2;
+			float predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1].x_pos();
+			float predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1].y_pos();
 			if (predx > 0 && predy > 0){
 				SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
 	//        	SDL_RenderDrawPoint(renderer_, predx, predy);

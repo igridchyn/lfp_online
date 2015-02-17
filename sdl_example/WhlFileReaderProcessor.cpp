@@ -40,22 +40,17 @@ void WhlFileReaderProcessor::process(){
 		last_pos_pkg_id_ += sampling_rate_;
 
 		// TODO: rewind (also for spike buffer in fet reader)
-		float *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
+		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
 
-		if (x < 0 || x <= SUB_X || y <= SUB_Y){
-			pos_rec[0] = buffer->pos_unknown_;
-			pos_rec[1] = buffer->pos_unknown_;
-			pos_rec[2] = buffer->pos_unknown_;
-			pos_rec[3] = buffer->pos_unknown_;
-		}
-		else{
-			pos_rec[0] = x - SUB_X;
-			pos_rec[1] = y - SUB_Y;
-			pos_rec[2] = x - SUB_X;
-			pos_rec[3] = y - SUB_Y;
+		// otherwise remains unknown (valid = false) with coords set to -1
+		if (!(x < 0 || x <= SUB_X || y <= SUB_Y)){
+			pos_rec.x_small_LED_ = x - SUB_X;
+			pos_rec.y_small_LED_ = y - SUB_Y;
+			pos_rec.x_big_LED_ = x - SUB_X;
+			pos_rec.y_big_LED_ = y - SUB_Y;
 		}
 
-		pos_rec[4] = last_pos_pkg_id_;
+		pos_rec.pkg_id_ = last_pos_pkg_id_;
 		buffer->pos_buf_pos_ ++;
 	}
 }

@@ -24,21 +24,21 @@ void SpeedEstimationProcessor::process(){
 	// SPEED is estimated as a mean displacement in the range of 16 position samples across few subsequent displacements
 
 	while(buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS < buffer->pos_buf_pos_){
-		float bx = (buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][0] + buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][2]) / 2;
-		float by = (buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][1] + buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][3]) / 2;
+		float bx = buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS].x_pos();
+		float by = buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS].y_pos();
 
-		if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS && bx != buffer->pos_unknown_ && buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][0] != buffer->pos_unknown_){
-			float dx = (bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][0] + bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][2]) / 2;
-			float dy = (by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][1]  +by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][3]) / 2;
+		if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS && bx != buffer->pos_unknown_ && buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].valid){
+			float dx = bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].x_pos();
+			float dy = by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].y_pos();
 			// TODO: make internal
 			buffer->speedEstimator_->push(sqrt(dx * dx + dy * dy));
 			// TODO: float / scale ?
-			buffer->positions_buf_[buffer->pos_buf_pos_speed_est][5] = buffer->speedEstimator_->get_mean_estimate();
+			buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ = buffer->speedEstimator_->get_mean_estimate();
 			//            std::cout << "speed= " << buffer->speedEstimator_->get_mean_estimate() << "\n";
 
 			// update spike speed
 			// TODO: independent on previous operation ?
-			int known_speed_pkg_id = buffer->positions_buf_[buffer->pos_buf_pos_speed_est][4];
+			int known_speed_pkg_id = buffer->positions_buf_[buffer->pos_buf_pos_speed_est].pkg_id_;
 			while (true){
 				Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
 				if (spike == nullptr || spike->pkg_id_ > known_speed_pkg_id){
@@ -46,17 +46,17 @@ void SpeedEstimationProcessor::process(){
 				}
 
 				// find last position sample before the spike
-				while(buffer->pos_buf_pos_spike_speed_ < buffer->pos_buf_pos_speed_est && buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_ + 1][4] < spike->pkg_id_){
+				while(buffer->pos_buf_pos_spike_speed_ < buffer->pos_buf_pos_speed_est && buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_ + 1].pkg_id_ < spike->pkg_id_){
 					buffer->pos_buf_pos_spike_speed_ ++;
 				}
 
 				// interpolate speed during spike :
-				int diff_bef = spike->pkg_id_ - buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_][4];
+				int diff_bef = spike->pkg_id_ - buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_].pkg_id_;
 				int diff_aft = (int)(known_speed_pkg_id - spike->pkg_id_);
 				float w_bef = 1/(float)(diff_bef + 1);
 				float w_aft = 1/(float)(diff_aft + 1);
 				// TODO: weights ?
-				spike->speed = ( buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_][5] * w_bef + buffer->positions_buf_[buffer->pos_buf_pos_speed_est][5] * w_aft) / (float)(w_bef + w_aft);
+				spike->speed = ( buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_].speed_ * w_bef + buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ * w_aft) / (float)(w_bef + w_aft);
 				//                std::cout << "Spike speed " << spike->speed << "\n";
 
 				dump_ << spike->x << " " << spike->y << " " << spike->speed << "\n";
@@ -76,7 +76,7 @@ void SpeedEstimationProcessor::process(){
 			if (spike == nullptr)
 				break;
 
-			if (spike->pkg_id_ > buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][4])
+			if (spike->pkg_id_ > buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].pkg_id_)
 				break;
 
 			// leave speed estimation as nanf("")
