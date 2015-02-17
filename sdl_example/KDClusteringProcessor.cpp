@@ -302,8 +302,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
 	int ind = (int)round((last_pred_pkg_id_ - PRED_WIN/2)/(float)POS_SAMPLING_RATE);
-	int corrx = buffer->positions_buf_[ind][0];
-	int corry = (int)buffer->positions_buf_[ind][1];
+	float corrx = (buffer->positions_buf_[ind][0] + buffer->positions_buf_[ind][2]) / 2;
+	float corry = (buffer->positions_buf_[ind][1] + buffer->positions_buf_[ind][3]) / 2;
 
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > DUMP_DELAY){
@@ -315,8 +315,9 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		hmm_prediction_.max(x, y);
 		while (t >= 0){
 			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << " ";
-			corrx = buffer->positions_buf_[(int)((t * PRED_WIN + PREDICTION_DELAY) / (float)POS_SAMPLING_RATE)][0];
-			corry = buffer->positions_buf_[(int)((t * PRED_WIN + PREDICTION_DELAY)/ (float)POS_SAMPLING_RATE)][1];
+			int posind = (int)((t * PRED_WIN + PREDICTION_DELAY) / (float)POS_SAMPLING_RATE);
+			corrx = (buffer->positions_buf_[posind][0] + buffer->positions_buf_[posind][2]) / 2;
+			corry = (buffer->positions_buf_[posind][1] + buffer->positions_buf_[posind][3]) / 2;
 			dec_hmm << corrx << " " << corry << "\n";
 			int b = hmm_traj_[y * NBINSX + x][t];
 			// TODO !!! fix
@@ -689,7 +690,7 @@ void KDClusteringProcessor::process(){
 				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
 				// TODO extract to get pos
 				// !!! WORKAROUND
-				unsigned int *pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
+				float *pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
 				if (pose[0] == buffer->pos_unknown_){
 					if (pose[2] != buffer->pos_unknown_){
 						gtx = pose[2];

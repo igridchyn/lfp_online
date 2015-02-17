@@ -177,8 +177,8 @@ void SpikeDetectorProcessor::process()
                 }
                 // TODO: average of two LED coords
                 if (buffer->pos_buf_spike_pos_ > 0){
-                	spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0];
-                	spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1];
+                	spike->x = (buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][0] + buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][2]) / 2;
+                	spike->y = (buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][1] + buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1][3]) / 2;
                 }
                 else{
                 	// TODO read unknown pos

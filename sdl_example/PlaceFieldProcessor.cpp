@@ -80,9 +80,9 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     }
 }
 
-void PlaceFieldProcessor::AddPos(int x, int y){
-    int xb = (int)round(x / bin_size_);
-    int yb = (int)round(y / bin_size_);
+void PlaceFieldProcessor::AddPos(float x, float y){
+    int xb = (int)round(x / bin_size_ - 0.5);
+    int yb = (int)round(y / bin_size_ - 0.5);
     
     // TODO: ? reconstruct ?? (in previous proc)
     // unknown coord

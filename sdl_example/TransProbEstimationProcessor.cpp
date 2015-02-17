@@ -117,6 +117,8 @@ void TransProbEstimationProcessor::process() {
 			continue;
 		}
 
+//		std::cout << buffer->positions_buf_[pos_buf_ptr_][0] << " " << buffer->positions_buf_[pos_buf_ptr_][1] << "\n";
+
 		// bins in shift rather than shift in bins (more precise)
 		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][0] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][0]) / (float)BIN_SIZE);
 		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_][1] - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP][1]) / (float)BIN_SIZE);

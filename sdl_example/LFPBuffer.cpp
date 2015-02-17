@@ -130,7 +130,7 @@ void LFPBuffer::Reset(Config* config) {
 
 	for (int pos_buf = 0; pos_buf < _POS_BUF_SIZE; ++pos_buf) {
 		// TODO fix
-		memset(positions_buf_[pos_buf], 0, 6 * sizeof(unsigned int));
+		memset(positions_buf_[pos_buf], 0, 6 * sizeof(float));
 	}
 
 	ISIEstimators_ = new OnlineEstimator<float, float>*[tetr_info_->tetrodes_number];

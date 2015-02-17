@@ -54,8 +54,8 @@ void PositionDisplayProcessor::process(){
     		break;
     	}
 
-        int x = buffer->positions_buf_[buffer->pos_buf_disp_pos_][0];
-        int y = buffer->positions_buf_[buffer->pos_buf_disp_pos_][1];
+        float x = (buffer->positions_buf_[buffer->pos_buf_disp_pos_][0] + buffer->positions_buf_[buffer->pos_buf_disp_pos_][2]) / 2;
+        float y = (buffer->positions_buf_[buffer->pos_buf_disp_pos_][1] + buffer->positions_buf_[buffer->pos_buf_disp_pos_][3]) / 2;
         
         const unsigned int imm_level = estimate_speed_ ? 150 : 80;
         unsigned int grey_level = imm_level;
@@ -66,7 +66,7 @@ void PositionDisplayProcessor::process(){
         
         SDL_SetRenderTarget(renderer_, texture_);
         SDL_SetRenderDrawColor(renderer_, grey_level, grey_level, grey_level, 255);
-        SDL_RenderDrawPoint(renderer_, x, y);
+        SDL_RenderDrawPoint(renderer_, (int)x, (int)y);
         
         buffer->pos_buf_disp_pos_++;
         
@@ -75,12 +75,12 @@ void PositionDisplayProcessor::process(){
 
         // display predicted position
         if (DISPLAY_PREDICTION){
-			int predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][2];
-			int predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][3];
+			float predx = (buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][0] + buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][2]) / 2;
+			float predy = (buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][1] + buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1][3]) / 2;
 			if (predx > 0 && predy > 0){
 				SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
 	//        	SDL_RenderDrawPoint(renderer_, predx, predy);
-				FillRect(predx, predy, 0, 2, 2);
+				FillRect((int)predx, (int)predy, 0, 2, 2);
 			}
         }
     }

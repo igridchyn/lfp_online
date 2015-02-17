@@ -40,7 +40,7 @@ void WhlFileReaderProcessor::process(){
 		last_pos_pkg_id_ += sampling_rate_;
 
 		// TODO: rewind (also for spike buffer in fet reader)
-		unsigned int *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
+		float *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
 
 		if (x < 0 || x <= SUB_X || y <= SUB_Y){
 			pos_rec[0] = buffer->pos_unknown_;

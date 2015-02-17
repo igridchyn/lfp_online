@@ -108,7 +108,7 @@ void FetFileWriterProcessor::process() {
 
 	// write fet
 	while(buffer->pos_buf_pos_whl_writer_ < buffer->pos_buf_pos_){
-		unsigned int *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
+		float *pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
 		(*whl_file_) << pos_rec[0] << " " << pos_rec[1] << " " << pos_rec[2] << " " << pos_rec[3] << " " << pos_rec[4] << "\n";
 		buffer->pos_buf_pos_whl_writer_++;
 	}

@@ -86,20 +86,20 @@ void PackageExractorProcessor::process(){
     		if (!skip_next_pos_ && read_pos_){
     			// WORKAROUND
     			if (bx != buffer->pos_unknown_){
-    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)(bx * SCALE) + buffer->coord_shift_x_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)(by * SCALE) + buffer->coord_shift_y_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = (bx * SCALE) + buffer->coord_shift_x_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = (by * SCALE) + buffer->coord_shift_y_;
     			}else{
-    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = (unsigned int)buffer->pos_unknown_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = (unsigned int)buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][0] = buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][1] = buffer->pos_unknown_;
     			}
     			if (sx != buffer->pos_unknown_){
-    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)(sx * SCALE) + buffer->coord_shift_x_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)(sy * SCALE) + buffer->coord_shift_y_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = (sx * SCALE) + buffer->coord_shift_x_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = (sy * SCALE) + buffer->coord_shift_y_;
     			}else{
-    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = (unsigned int)buffer->pos_unknown_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = (unsigned int)buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][2] = buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_][3] = buffer->pos_unknown_;
     			}
-    			buffer->positions_buf_[buffer->pos_buf_pos_][4] = (unsigned int)(buffer->last_pkg_id + c);
+    			buffer->positions_buf_[buffer->pos_buf_pos_][4] = buffer->last_pkg_id + c;
 
     			buffer->pos_buf_pos_++;;
     		}

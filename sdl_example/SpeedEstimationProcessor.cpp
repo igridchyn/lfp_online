@@ -24,12 +24,12 @@ void SpeedEstimationProcessor::process(){
 	// SPEED is estimated as a mean displacement in the range of 16 position samples across few subsequent displacements
 
 	while(buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS < buffer->pos_buf_pos_){
-		unsigned int bx = buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][0];
-		unsigned int by = buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][1];
+		float bx = (buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][0] + buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][2]) / 2;
+		float by = (buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][1] + buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS][3]) / 2;
 
 		if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS && bx != buffer->pos_unknown_ && buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][0] != buffer->pos_unknown_){
-			float dx = (float)bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][0];
-			float dy = (float)by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][1];
+			float dx = (bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][0] + bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][2]) / 2;
+			float dy = (by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][1]  +by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS][3]) / 2;
 			// TODO: make internal
 			buffer->speedEstimator_->push(sqrt(dx * dx + dy * dy));
 			// TODO: float / scale ?
@@ -38,7 +38,7 @@ void SpeedEstimationProcessor::process(){
 
 			// update spike speed
 			// TODO: independent on previous operation ?
-			int known_speed_pkg_id =  buffer->positions_buf_[buffer->pos_buf_pos_speed_est][4];
+			int known_speed_pkg_id = buffer->positions_buf_[buffer->pos_buf_pos_speed_est][4];
 			while (true){
 				Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
 				if (spike == nullptr || spike->pkg_id_ > known_speed_pkg_id){

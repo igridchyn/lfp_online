@@ -155,7 +155,7 @@ public:
     // TODO rewind ??? [max = 8h]
     //const int POS_BUF_SIZE = 1 << 20;
     // 4 coords, pkg_id and speed magnitude
-    unsigned int positions_buf_[_POS_BUF_SIZE][6];
+    float positions_buf_[_POS_BUF_SIZE][6];
     // main poiter - where the next position will be put
     unsigned int pos_buf_pos_ = 0;
     // the last displayed position

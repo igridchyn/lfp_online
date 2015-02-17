@@ -249,7 +249,7 @@ void FetFileReaderProcessor::process() {
 	// read pos from whl
 	int last_pos_pkg_id = last_pkg_id_;
 	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
-		unsigned int *pos_entry = buffer->positions_buf_[buffer->pos_buf_pos_];
+		float *pos_entry = buffer->positions_buf_[buffer->pos_buf_pos_];
 		(*whl_file_) >> pos_entry[0] >> pos_entry[1] >> pos_entry[2] >> pos_entry[3] >> pos_entry[4];
 
 		buffer->pos_buf_pos_ ++;

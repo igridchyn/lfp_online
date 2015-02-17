@@ -73,7 +73,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     void drawOccupancy();
     void drawPrediction();
     
-    void AddPos(int x, int y);
+    void AddPos(float x, float y);
     
     // cache Poisson / Normal distribution to be used for fast position inference
     void cachePDF();
