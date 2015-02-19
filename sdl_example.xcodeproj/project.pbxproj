@@ -33,6 +33,8 @@
 		B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0797C591918E65500C1328D /* OnlineEstimator.cpp */; };
 		B08779ED1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B08779EC1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib */; };
 		B08779EF1A7FBD2B00CC7422 /* libboost_system-mt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B08779EE1A7FBD2B00CC7422 /* libboost_system-mt.dylib */; };
+		B0877A0D1A96302600CC7422 /* BinFileReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0877A0B1A96302600CC7422 /* BinFileReaderProcessor.cpp */; };
+		B0877A1C1A96376B00CC7422 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0877A1B1A96376B00CC7422 /* Utils.cpp */; };
 		B087CAA519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */; };
 		B087CAA619862D7100FC5E01 /* FetFileReaderProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */; };
 		B087CAA719862D7100FC5E01 /* KDClusteringProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B087CA9919862D7100FC5E01 /* KDClusteringProcessor.cpp */; };
@@ -47,7 +49,6 @@
 		B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */; };
 		B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */; };
 		B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */; };
-		B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */; };
 		B0C023B31940747700778F00 /* PackageExractorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */; };
 		B0C023B6194074DA00778F00 /* SDLControlInputMetaProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */; };
 		B0C023B91940750700778F00 /* SDLSingleWindowDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */; };
@@ -55,6 +56,16 @@
 		B0C023C01941CBDA00778F00 /* PlaceField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023BE1941CBDA00778F00 /* PlaceField.cpp */; };
 		B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0CA797A18E952D600144950 /* LFPProcessor.cpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B0877A071A962F3D00CC7422 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B0877A031A962F3B00CC7422 /* KDE_MAC.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B08779F91A962F3B00CC7422;
+			remoteInfo = KDE_MAC;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		B052743818A9375500193EAA /* CopyFiles */ = {
@@ -106,6 +117,11 @@
 		B0797C5A1918E65500C1328D /* OnlineEstimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnlineEstimator.h; sourceTree = "<group>"; };
 		B08779EC1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_filesystem-mt.dylib"; path = "../../../../opt/local/lib/libboost_filesystem-mt.dylib"; sourceTree = "<group>"; };
 		B08779EE1A7FBD2B00CC7422 /* libboost_system-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_system-mt.dylib"; path = "../../../../opt/local/lib/libboost_system-mt.dylib"; sourceTree = "<group>"; };
+		B0877A031A962F3B00CC7422 /* KDE_MAC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KDE_MAC.xcodeproj; path = KDE_MAC/KDE_MAC.xcodeproj; sourceTree = "<group>"; };
+		B0877A0B1A96302600CC7422 /* BinFileReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinFileReaderProcessor.cpp; sourceTree = "<group>"; };
+		B0877A0C1A96302600CC7422 /* BinFileReaderProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinFileReaderProcessor.h; sourceTree = "<group>"; };
+		B0877A1A1A96376200CC7422 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		B0877A1B1A96376B00CC7422 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
 		B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CluReaderClusteringProcessor.cpp; sourceTree = "<group>"; };
 		B087CA9619862D7100FC5E01 /* CluReaderClusteringProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CluReaderClusteringProcessor.h; sourceTree = "<group>"; };
 		B087CA9719862D7100FC5E01 /* FetFileReaderProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FetFileReaderProcessor.cpp; sourceTree = "<group>"; };
@@ -141,8 +157,6 @@
 		B0C023AB193F34FA00778F00 /* SDLWaveshapeDisplayProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDLWaveshapeDisplayProcessor.h; sourceTree = "<group>"; };
 		B0C023AC193F43F000778F00 /* TetrodesInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TetrodesInfo.h; sourceTree = "<group>"; };
 		B0C023AD193F442100778F00 /* Spike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Spike.h; sourceTree = "<group>"; };
-		B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositionReconstructionProcessor.cpp; sourceTree = "<group>"; };
-		B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionReconstructionProcessor.h; sourceTree = "<group>"; };
 		B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PackageExractorProcessor.cpp; sourceTree = "<group>"; };
 		B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLControlInputMetaProcessor.cpp; sourceTree = "<group>"; };
 		B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLSingleWindowDisplay.cpp; sourceTree = "<group>"; };
@@ -177,6 +191,7 @@
 		B052743118A9375400193EAA = {
 			isa = PBXGroup;
 			children = (
+				B0877A031A962F3B00CC7422 /* KDE_MAC.xcodeproj */,
 				B08779EE1A7FBD2B00CC7422 /* libboost_system-mt.dylib */,
 				B08779EC1A7FBCE200CC7422 /* libboost_filesystem-mt.dylib */,
 				B087CAAD1986373300FC5E01 /* libANN.a */,
@@ -202,16 +217,13 @@
 		B052743C18A9375500193EAA /* sdl_example */ = {
 			isa = PBXGroup;
 			children = (
+				B0877A1B1A96376B00CC7422 /* Utils.cpp */,
 				B01A32011A305230004CC713 /* FetFileWriterProcessor.cpp */,
-				B01A32021A305230004CC713 /* FetFileWriterProcessor.h */,
-				B049D23319E8846700CC0DC3 /* FrequencyPowerBandProcessor.h */,
 				B049D23419E8846700CC0DC3 /* LFPBuffer.cpp */,
-				B049D23519E8846700CC0DC3 /* SDLSingleWindowDisplay.h */,
 				B049D23619E8846700CC0DC3 /* TetrodesInfo.cpp */,
 				B049D23719E8846700CC0DC3 /* UserContext.cpp */,
-				B049D23819E8846700CC0DC3 /* UserContext.h */,
 				B04F236419CAD2E100D0EAC3 /* PolygonCluster.cpp */,
-				B04F236519CAD2E100D0EAC3 /* PolygonCluster.h */,
+				B0877A0B1A96302600CC7422 /* BinFileReaderProcessor.cpp */,
 				B0C023A3193F335800778F00 /* include */,
 				B087CA9519862D7100FC5E01 /* CluReaderClusteringProcessor.cpp */,
 				B087CAB0198790DD00FC5E01 /* Config.cpp */,
@@ -238,7 +250,6 @@
 				B0C023BE1941CBDA00778F00 /* PlaceField.cpp */,
 				B0611B72193CDF600066583E /* PlaceFieldProcessor.cpp */,
 				B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */,
-				B0C023AE193F591F00778F00 /* PositionReconstructionProcessor.cpp */,
 				B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */,
 				B0797C531918E38C00C1328D /* SDLPCADisplayProcessor.cpp */,
 				B03EACBD18FEC87D0087C88F /* SDLSignalDisplayProcessor.cpp */,
@@ -252,9 +263,24 @@
 			path = sdl_example;
 			sourceTree = "<group>";
 		};
+		B0877A041A962F3B00CC7422 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B0877A081A962F3D00CC7422 /* KDE_MAC */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		B0C023A3193F335800778F00 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				B0877A1A1A96376200CC7422 /* Utils.h */,
+				B0877A0C1A96302600CC7422 /* BinFileReaderProcessor.h */,
+				B01A32021A305230004CC713 /* FetFileWriterProcessor.h */,
+				B049D23319E8846700CC0DC3 /* FrequencyPowerBandProcessor.h */,
+				B049D23519E8846700CC0DC3 /* SDLSingleWindowDisplay.h */,
+				B049D23819E8846700CC0DC3 /* UserContext.h */,
+				B04F236519CAD2E100D0EAC3 /* PolygonCluster.h */,
 				B087CAAF198790D400FC5E01 /* Config.h */,
 				B087CA9619862D7100FC5E01 /* CluReaderClusteringProcessor.h */,
 				B087CA9819862D7100FC5E01 /* FetFileReaderProcessor.h */,
@@ -274,7 +300,6 @@
 				B0C023BF1941CBDA00778F00 /* PlaceField.h */,
 				B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */,
 				B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */,
-				B0C023AF193F591F00778F00 /* PositionReconstructionProcessor.h */,
 				B0C023A6193F341A00778F00 /* SDLPCADisplayProcessor.h */,
 				B0C023A8193F345F00778F00 /* SDLSignalDisplayProcessor.h */,
 				B0C023AB193F34FA00778F00 /* SDLWaveshapeDisplayProcessor.h */,
@@ -325,12 +350,28 @@
 			mainGroup = B052743118A9375400193EAA;
 			productRefGroup = B052743B18A9375500193EAA /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = B0877A041A962F3B00CC7422 /* Products */;
+					ProjectRef = B0877A031A962F3B00CC7422 /* KDE_MAC.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				B052743918A9375500193EAA /* sdl_example */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		B0877A081A962F3D00CC7422 /* KDE_MAC */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = KDE_MAC;
+			remoteRef = B0877A071A962F3D00CC7422 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B052743618A9375500193EAA /* Sources */ = {
@@ -362,11 +403,12 @@
 				B00005F2190153DE00502C4B /* GMMClusteringProcessor.cpp in Sources */,
 				B087CAAB19862D7100FC5E01 /* TransProbEstimationProcessor.cpp in Sources */,
 				B01A32031A305230004CC713 /* FetFileWriterProcessor.cpp in Sources */,
+				B0877A0D1A96302600CC7422 /* BinFileReaderProcessor.cpp in Sources */,
 				B0797C551918E38C00C1328D /* SDLPCADisplayProcessor.cpp in Sources */,
+				B0877A1C1A96376B00CC7422 /* Utils.cpp in Sources */,
 				B04F236619CAD2E100D0EAC3 /* PolygonCluster.cpp in Sources */,
 				B087CAAC19862D7100FC5E01 /* WhlFileReaderProcessor.cpp in Sources */,
 				B0CA797C18E952D600144950 /* LFPProcessor.cpp in Sources */,
-				B0C023B0193F591F00778F00 /* PositionReconstructionProcessor.cpp in Sources */,
 				B087CAB1198790DD00FC5E01 /* Config.cpp in Sources */,
 				B087CAA919862D7100FC5E01 /* SpeedEstimationProcessor.cpp in Sources */,
 				B087CAAA19862D7100FC5E01 /* SwReaderProcessor.cpp in Sources */,

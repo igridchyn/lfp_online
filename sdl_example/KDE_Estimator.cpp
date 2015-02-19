@@ -13,7 +13,9 @@
 #include <iostream>
 #include <vector>
 
-#include "LFPBuffer.h"
+#include "Utils.h"
+
+#include <map>
 
 int DIM;
 int NN_K;
