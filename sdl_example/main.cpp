@@ -31,8 +31,9 @@ typedef short t_bin;
     
 //    Config *config = new Config("../Res/decoding_32_jc84_mac.conf");
 //    Config *config = new Config("../Res/decoding_jc118_1003_env2_mac.conf");
-	  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
-    
+//	  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
+    Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift_MAC.conf");
+        
     //	Config *config = new Config("../Res/spike_detection_jc11.conf");
 #else
 //	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");

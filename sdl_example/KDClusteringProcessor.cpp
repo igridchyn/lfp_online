@@ -91,7 +91,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			FR_ESTIMATE_DELAY(buf->config_->getFloat("kd.frest.delay", 1000000)),
 			DUMP_SPEED_THOLD(buf->config_->getFloat("kd.dump.speed.thold", .0)),
 			WAIT_FOR_SPEED_EST(getBool("kd.wait.speed")),
-			RUN_KDE_ON_MIN_COLLECTED(getBool("kd.run.on.min")){
+			RUN_KDE_ON_MIN_COLLECTED(getBool("kd.run.on.min")),
+            kde_path_(buf->config_->getString("kd.path", "./kde_estimator")){
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -883,7 +884,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;
 	const unsigned int nfeat = buffer->feature_space_dims_[tetr];
-	os << "./kde_estimator " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " <<
+	os << kde_path_ << " " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " <<
 			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
 			tetrode_sampling_rates_[tetr] + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;

@@ -190,6 +190,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	// otherwise collection will keep until the data is over
 	const bool RUN_KDE_ON_MIN_COLLECTED = false;
 
+    std::string kde_path_;
+    
 	void update_hmm_prediction();
 	void reset_hmm();
 

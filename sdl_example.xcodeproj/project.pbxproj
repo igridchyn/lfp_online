@@ -551,7 +551,7 @@
 				B052744218A9375500193EAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		B052744318A9375500193EAA /* Build configuration list for PBXNativeTarget "sdl_example" */ = {
 			isa = XCConfigurationList;
@@ -560,7 +560,7 @@
 				B052744518A9375500193EAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
