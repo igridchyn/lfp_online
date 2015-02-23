@@ -360,7 +360,7 @@ void KDClusteringProcessor::process(){
 
 	// TODO make callback for pipeline data over event
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
-		for (int tetr=0; tetr < tetr_info_->tetrodes_number(); ++tetr){
+		for (size_t tetr=0; tetr < tetr_info_->tetrodes_number(); ++tetr){
 			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr]){
 				std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number() << " finished... ";
 				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], buffer->feature_space_dims_[tetr]);
@@ -422,7 +422,7 @@ void KDClusteringProcessor::process(){
 				spike_numbers_[spike->tetrode_] ++;
 			}
 
-			for (int t=0; t < tetr_info_->tetrodes_number(); ++t){
+			for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
 					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY);
 					std::cout << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
 					// TODO configrableize expected session duration
@@ -684,7 +684,7 @@ void KDClusteringProcessor::process(){
 				// account for the increase in the firing rate during high synchrony with additional factor
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
 
-				for (int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+				for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 					if (tetr_spiked_[t]){
 						// TODO: depricated LX_WEIGHT, was introduced only for debugging purposes
 						pos_pred_ -= DE_SEC  * lxs_[t];
@@ -911,7 +911,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 }
 
 void KDClusteringProcessor::JoinKDETasks(){
-    for(int t=0; t < tetr_info_->tetrodes_number(); ++t){
+    for(size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
         if(fitting_jobs_running_[t])
             fitting_jobs_[t]->join();
     }

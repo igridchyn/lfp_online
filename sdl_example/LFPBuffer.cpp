@@ -49,7 +49,7 @@ void LFPBuffer::Reset(Config* config) {
 	Log("Number of PCs per channel for a group of 3 channels: ", pc_per_chan[3]);
 	Log("Number of PCs per channel for a group of 2 channels: ", pc_per_chan[2]);
 
-	for (int t=0; t < tetr_info_->tetrodes_number(); ++t){
+	for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
 		int nchan = tetr_info_->channels_number(t);
 		int npc = pc_per_chan[nchan];
 		feature_space_dims_.push_back(nchan * npc);
@@ -78,7 +78,7 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number() << "\n";
 	log_stream << "INFO: set memory...";
 
-	for(int c=0; c < CHANNEL_NUM; ++c){
+	for(size_t c=0; c < CHANNEL_NUM; ++c){
 	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(signal_type));
 	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
 	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
@@ -91,7 +91,7 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "done\n";
 
 	log_stream << "INFO: Create online estimators...";
-	for (int t=0; t < tetr_info_->tetrodes_number(); ++t){
+	for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
 		powerEstimators_.push_back(OnlineEstimator<float, float>(config->getInt("spike.detection.min.power.samples", 500000)));
 	}
 
@@ -107,8 +107,8 @@ void LFPBuffer::Reset(Config* config) {
     last_spike_pos_ = new int[tetr_info_->tetrodes_number()];
 
     // create a map of pointers to tetrode power estimators for each electrode
-    for (int tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
-        for (int ci = 0; ci < tetr_info_->channels_number(tetr); ++ci){
+    for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
+        for (size_t ci = 0; ci < tetr_info_->channels_number(tetr); ++ci){
             powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = &(powerEstimators_[0]) + tetr;
             is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
 
@@ -120,7 +120,7 @@ void LFPBuffer::Reset(Config* config) {
     population_vector_window_.resize(tetr_info_->tetrodes_number());
     // initialize for counting unclusterred spikes
     // clustering processors should resize this to use for clustered spikes clusters
-    for (int t=0; t < tetr_info_->tetrodes_number(); ++t){
+    for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
     	population_vector_window_[t].push_back(0);
     }
 
@@ -129,7 +129,7 @@ void LFPBuffer::Reset(Config* config) {
 	memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
 
 	ISIEstimators_ = new OnlineEstimator<float, float>*[tetr_info_->tetrodes_number()];
-	for (int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+	for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 		ISIEstimators_[t] = new OnlineEstimator<float, float>();
 	}
 
@@ -138,13 +138,13 @@ void LFPBuffer::Reset(Config* config) {
 	// (memory for 1 spike per tetrode will be lost)
 	// TODO fix for package IDs starting not with nullptr
 	// TODO warn packages strating not with 0
-	for (int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+	for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 		previous_spikes_pkg_ids_[t] = 0;
 	}
 
 	is_high_synchrony_tetrode_ = new bool[tetr_info_->tetrodes_number()];
 	memset(is_high_synchrony_tetrode_, 0, sizeof(bool) * tetr_info_->tetrodes_number());
-	for (int t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
 		is_high_synchrony_tetrode_[config_->synchrony_tetrodes_[t]] =  true;
 	}
 
@@ -157,7 +157,7 @@ void LFPBuffer::Reset(Config* config) {
 LFPBuffer::~LFPBuffer(){
 	Log("Buffer destructor called");
 
-	for (int s = 0; s < SPIKE_BUF_LEN; ++s) {
+	for (size_t s = 0; s < SPIKE_BUF_LEN; ++s) {
 		if (spike_buffer_[s] != nullptr)
 			delete spike_buffer_[s];
 	}
@@ -168,7 +168,7 @@ LFPBuffer::~LFPBuffer(){
 
 	Log("Buffer destructor: delete signal / filtered signal / power buffers");
 
-	for (int c = 0; c < CHANNEL_NUM; ++c){
+	for (size_t c = 0; c < CHANNEL_NUM; ++c){
 		delete[] signal_buf[c];
 		delete[] filtered_signal_buf[c];
 		delete[] power_buf[c];
@@ -186,7 +186,7 @@ LFPBuffer::~LFPBuffer(){
 	    	delete[] last_spike_pos_;
 
 	 Log("Buffer destructor: delete ISI estimators");
-	 for (int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+	 for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 		 delete ISIEstimators_[t];
 	 }
 	 delete[] ISIEstimators_;
@@ -244,7 +244,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	std::cout << "Created LOG\n";
 
 	// TODO !!! create buffer only for valid channels
-    for (int c = 0; c < CHANNEL_NUM; ++c){
+    for (size_t c = 0; c < CHANNEL_NUM; ++c){
     	unsigned int WS_SHIFT = 100;
     	signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];
     	// + waveshape length
@@ -262,8 +262,8 @@ void LFPBuffer::ResetPopulationWindow(){
 	while (!population_vector_stack_.empty())
 		population_vector_stack_.pop();
 
-	for (int t = 0; t < tetr_info_->tetrodes_number(); ++t){
-		for (int c = 0; c < population_vector_window_[t].size(); ++c){
+	for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t){
+		for (size_t c = 0; c < population_vector_window_[t].size(); ++c){
 			population_vector_window_[t][c] = 0;
 		}
 	}
@@ -379,7 +379,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		spike_buf_pos_ws_disp_ -= std::min(shift_new_start, (int)spike_buf_pos_ws_disp_);
 		spike_buf_pos_featext_collected_ -= std::min(shift_new_start, (int)spike_buf_pos_featext_collected_);
 
-		for (int i=0; i < spike_buf_pos_clusts_.size(); ++i){
+		for (size_t i=0; i < spike_buf_pos_clusts_.size(); ++i){
 			spike_buf_pos_clusts_[i] -= std::min(shift_new_start, (int)spike_buf_pos_clusts_[i]);
 		}
 
@@ -392,7 +392,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 double LFPBuffer::AverageSynchronySpikesWindow(){
 	double average_spikes_window = .0f;
 
-	for (int t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
 		average_spikes_window += 1.0 / ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate();
 	}
 	average_spikes_window *= POP_VEC_WIN_LEN / 1000.0f;

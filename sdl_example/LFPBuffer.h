@@ -97,16 +97,7 @@ public:
 	Config *config_ = nullptr;
 	UserContext user_context_;
 
-    const int CHANNEL_NUM = 64;
-    //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
-    const int LFP_BUF_LEN;
-    // TODO: large buffer now needed only for delayed spike registration
-    //      STORE WAVESHAPE with prev_spike
-//    static const int BUF_HEAD_LEN = 1 << 8; // 11
-    const int BUF_HEAD_LEN;
-
-    const int SPIKE_BUF_LEN;
-    const int SPIKE_BUF_HEAD_LEN;
+    const unsigned int CHANNEL_NUM = 64;
 
     // Axona package configuration in bytes
     const int CHUNK_SIZE = 432;
@@ -114,7 +105,26 @@ public:
     const int TAIL_LEN = 16;
     const int BLOCK_SIZE = 64;
 
+    // length of a population vector, in number of samples (length in seconds = POP_VEC_WIN_LEN / SAMPLING_RATE)
+    const unsigned int POP_VEC_WIN_LEN;
+
     const unsigned int SAMPLING_RATE;
+
+    // value of pos., meaning that position is unknown
+    // ACCORDING TO THE AXONA CONVENTIONS
+    const int pos_unknown_;
+
+    const unsigned int SPIKE_BUF_LEN;
+    const unsigned int SPIKE_BUF_HEAD_LEN;
+
+    //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
+    const unsigned int LFP_BUF_LEN;
+    // TODO: large buffer now needed only for delayed spike registration
+    //      STORE WAVESHAPE with prev_spike
+//    static const int BUF_HEAD_LEN = 1 << 8; // 11
+    const unsigned int BUF_HEAD_LEN;
+
+    float high_synchrony_factor_;
 
 	int *CH_MAP; // = { 8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55 };
 
@@ -187,15 +197,9 @@ public:
     // TODO !!! rewind
     unsigned int pos_buf_pos_whl_writer_ = 0;
 
-    // value of pos., meaning that position is unknown
-    // ACCORDING TO THE AXONA CONVENTIONS
-    const int pos_unknown_;
-
     // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
     // TODO: INIT SPIKES instead of creating new /deleting
 
-    // length of a population vector, in number of samples (length in seconds = POP_VEC_WIN_LEN / SAMPLING_RATE)
-    const unsigned int POP_VEC_WIN_LEN;
     // pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
     // initialized by GMM clustering processor
     // !!! the cluster number is shifted by one
@@ -206,7 +210,6 @@ public:
     // map of whether tetrode is used for high synchrony detection
     bool *is_high_synchrony_tetrode_;
     unsigned int high_synchrony_tetrode_spikes_ = 0;
-    float high_synchrony_factor_;
 
     std::vector<std::vector<unsigned int>> swrs_;
     std::vector<int> swr_pointers_;
