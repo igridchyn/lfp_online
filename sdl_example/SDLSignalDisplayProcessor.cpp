@@ -12,7 +12,7 @@
 void SDLSignalDisplayProcessor::SetDisplayTetrode(const unsigned  int& display_tetrode){
     // TODO: configurableize
 
-	for (int c = 0; c < buffer->tetr_info_->channels_numbers[display_tetrode]; ++c) {
+	for (int c = 0; c < buffer->tetr_info_->channels_number(display_tetrode); ++c) {
         displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode][c]);
     }
 }
@@ -54,7 +54,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
     if (!buffer->tetr_info_->ContainsChannels(displayed_channels_)){
     	std::cout << "WARNING: requested channels are absent in channels config, displaying first tetrode channels...\n";
     	displayed_channels_.clear();
-    	for (int c = 0; c < buffer->tetr_info_->channels_numbers[0]; ++c) {
+    	for (int c = 0; c < buffer->tetr_info_->channels_number(0); ++c) {
     		displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[0][c]);
 		}
     }
@@ -228,10 +228,10 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
 				break;
         }
 
-		if (display_tetrode_ < buffer->tetr_info_->tetrodes_number){
+		if (display_tetrode_ < buffer->tetr_info_->tetrodes_number()){
 			displayed_channels_.clear();
 
-			for (int c = 0; c < buffer->tetr_info_->channels_numbers[display_tetrode_]; ++c){
+			for (int c = 0; c < buffer->tetr_info_->channels_number(display_tetrode_); ++c){
 				displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode_][c]);
 			}
 

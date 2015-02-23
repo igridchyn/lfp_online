@@ -19,7 +19,7 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 	std::ifstream swr_stream(path);
 
 	while(!swr_stream.eof()){
-		swrs_.push_back(std::vector<int>());
+		swrs_.push_back(std::vector<unsigned int>());
 
 		// read times of SWR beginning, peak and end
 		int b,p,e;

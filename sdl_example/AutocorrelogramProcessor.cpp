@@ -24,7 +24,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true))
 , user_context_(buffer->user_context_){
 
-	const unsigned int tetrn = buf->tetr_info_->tetrodes_number;
+	const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
 
 	autocorrs_.resize(tetrn);
 	cross_corrs_.resize(tetrn);
@@ -310,7 +310,7 @@ void AutocorrelogramProcessor::resetACandCCs(const unsigned int& clu) {
 }
 
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
-	if (display_tetrode_ >= buffer->tetr_info_->tetrodes_number)
+	if (display_tetrode_ >= buffer->tetr_info_->tetrodes_number())
 		return;
 
 	// TODO extract redraw

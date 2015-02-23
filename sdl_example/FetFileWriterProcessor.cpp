@@ -19,7 +19,7 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 
 	std::string spk_path_base = path_base + "spk" + extapp + ".";
 
-	for (int t=0; t < buf->tetr_info_->tetrodes_number; ++t){
+	for (int t=0; t < buf->tetr_info_->tetrodes_number(); ++t){
 		fet_files_.push_back(new std::ofstream(path_base + "fet" + extapp + "." + Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));
 		if (write_spk_){
 			spk_files_.push_back(new std::ofstream(spk_path_base+ Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));

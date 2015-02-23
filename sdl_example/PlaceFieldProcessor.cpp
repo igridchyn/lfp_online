@@ -53,7 +53,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , display_prediction_(buf->config_->getBool("pf.display.prediction"))
 , prediction_rate_(buf->config_->getInt("pf.prediction.rate"))
 , POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)){
-    const unsigned int& tetrn = buf->tetr_info_->tetrodes_number;
+    const unsigned int& tetrn = buf->tetr_info_->tetrodes_number();
     const unsigned int MAX_CLUST = 30;
     
     place_fields_.resize(tetrn);
@@ -176,7 +176,7 @@ const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
 }
 
 void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
-    display_tetrode_ = MIN(display_tetrode, buffer->tetr_info_->tetrodes_number - 1);
+    display_tetrode_ = MIN(display_tetrode, buffer->tetr_info_->tetrodes_number() - 1);
     drawPlaceField();
 }
 
@@ -357,12 +357,12 @@ void PlaceFieldProcessor::cachePDF(){
 void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned int> > pop_vec){
     reconstructed_position_.resize(occupancy_smoothed_.Height(), occupancy_smoothed_.Width());
 	reconstructed_position_.fill(0);
-    assert(pop_vec.size() == buffer->tetr_info_->tetrodes_number);
+    assert(pop_vec.size() == buffer->tetr_info_->tetrodes_number());
     
     // TODO: build cache in LFP buffer, configurableize
-    arma::mat firing_rates(buffer->tetr_info_->tetrodes_number, 40);
+    arma::mat firing_rates(buffer->tetr_info_->tetrodes_number(), 40);
     int fr_cnt = 0;
-    for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+    for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 		for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
 			// TODO: configurableize sampling rate
 			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * buffer->SAMPLING_RATE;
@@ -380,7 +380,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));
 
     unsigned int nclust = 0;
-    for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+    for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
         nclust += pop_vec[t].size();
     }
     
@@ -394,7 +394,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
         	}
 
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
-            for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+            for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
                 for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
                 	if (firing_rates(t, cl) < RREDICTION_FIRING_RATE_THRESHOLD){
                 		continue;

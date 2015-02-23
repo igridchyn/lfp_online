@@ -82,10 +82,10 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
 	, num_princomp_(buf->config_->getInt("gmm.num.princomp", 3))
 	, nclust_step_(buf->config_->getInt("gmm.nclust.step", 1)){
     
-    const unsigned int ntetr =buf->tetr_info_->tetrodes_number;
+    const unsigned int ntetr =buf->tetr_info_->tetrodes_number();
         
-    for (int tetr=0; tetr<buf->tetr_info_->tetrodes_number; ++tetr) {
-    	unsigned int dimensionality = buffer->tetr_info_->channels_numbers[tetr] * num_princomp_;
+    for (int tetr=0; tetr<buf->tetr_info_->tetrodes_number(); ++tetr) {
+    	unsigned int dimensionality = buffer->tetr_info_->channels_number(tetr) * num_princomp_;
 
         // more spikes will be collected while clustering happens
         observations_.push_back(arma::mat(dimensionality, 2 * min_observations * rate_, arma::fill::zeros));
@@ -203,7 +203,7 @@ void GMMClusteringProcessor::process(){
         }
         
         const unsigned int tetr = spike->tetrode_;
-        const unsigned int nchan = buffer->tetr_info_->channels_numbers[tetr];
+        const unsigned int nchan = buffer->tetr_info_->channels_number(tetr);
         
         // if PCA has not been computed yet
         if (spike->pc == nullptr){
@@ -309,7 +309,7 @@ void GMMClusteringProcessor::process(){
 }
 
 void GMMClusteringProcessor::JoinGMMTasks(){
-    for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
+    for(int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
         if(clustering_job_running_[t])
             clustering_jobs_[t]->join();
     }

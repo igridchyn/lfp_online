@@ -24,16 +24,38 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const unsigned int MIN_SPIKES;
 
-	// TODO: configurableize
-	const unsigned int DIM = 12;
+	const std::string BASE_PATH;
+
+	const unsigned int SAMPLING_DELAY;
+
+	const bool SAVE;
+	const bool LOAD;
+
+	const bool USE_PRIOR;
+
+	const unsigned int SAMPLING_RATE;
+
+	const float SPEED_THOLD;
+
+	const double NN_EPS;
+
+	const bool USE_HMM;
+
+	const unsigned int NBINSX, NBINSY;
+
+	// TODO float
+	const unsigned int BIN_SIZE;
+
+	const int HMM_NEIGHB_RAD;
+
+	const unsigned int PREDICTION_DELAY;
 
 	// TODO: parametrize (from main for a start)
 	const unsigned int NN_K ;
 	const unsigned int NN_K_COORDS;
-	const double NN_EPS = 0.1;
-	const unsigned int NBINSX, NBINSY;
-	// TODO float
-	const unsigned int BIN_SIZE;
+
+	// TODO: configurableize
+	const unsigned int DIM = 12;
 
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT;
@@ -41,22 +63,45 @@ class KDClusteringProcessor: public LFPProcessor {
 	const double SIGMA_A;
 	const double SIGMA_XX;
 
-	const bool SAVE;
-	const bool LOAD;
-	const std::string BASE_PATH;
+	// delay before starting to slow down for SWR reconstruction display
+	const bool SWR_SWITCH;
+	unsigned int SWR_SLOWDOWN_DELAY;
+	unsigned int SWR_SLOWDOWN_DURATION;
+	unsigned int SWR_PRED_WIN;
 
-	const bool USE_PRIOR;
-	const unsigned int PREDICTION_DELAY;
+	const unsigned int DUMP_DELAY;
+	const unsigned int DUMP_END;
 
-	std::vector<unsigned int> tetrode_sampling_rates_;
+	const unsigned int HMM_RESET_RATE;
 
-	const unsigned int SAMPLING_RATE;
-	const unsigned int SAMPLING_DELAY;
-	const float SPEED_THOLD;
+	bool use_intervals_;
+
+	unsigned int& spike_buf_pos_clust_;
+
+	unsigned int THETA_PRED_WIN;
+
+	// edge length threshold for constructing the spike graph to solve the graph cover problem
+	// (0 will make it work as before computing cover consisting of all spikes
+	double SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = 0.0;
+	// number of neighbours, only yo speedup, perfectly should not be reached in the spike with largest number of neighbours
+	//	to decrease number of neighbours, decrease the threshold above
+	unsigned int SPIKE_GRAPH_COVER_NNEIGHB = 1;
+
+	float POS_SAMPLING_RATE = .0f;
 
 	const unsigned int FR_ESTIMATE_DELAY;
 
-	const bool USE_HMM;
+	float DUMP_SPEED_THOLD = .0;
+
+	const bool WAIT_FOR_SPEED_EST = false;
+
+	std::vector<unsigned int> tetrode_sampling_rates_;
+
+	// if true, KDE starts after collecting MIN_SPIKES on a tetrode
+	// otherwise collection will keep until the data is over
+	const bool RUN_KDE_ON_MIN_COLLECTED = false;
+
+    std::string kde_path_;
 
 	// trees and points for spike features
 	std::vector<ANNkd_tree*> kdtrees_;
@@ -82,7 +127,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	// tmp - to estimate std
 	std::vector< arma::mat > obs_mats_;
 
-	std::vector<int> missed_spikes_;
+	std::vector<unsigned int> missed_spikes_;
 
 	// occupancy, spike occurance map, generalized firing rate
 	arma::mat pix_log_;
@@ -110,7 +155,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	PlaceFieldProcessor *pfProc_;
 
 	unsigned int PRED_WIN;
-	unsigned int THETA_PRED_WIN;
 	// dividable by PRED_WIN
 	unsigned int last_pred_pkg_id_ = 0;;
 	// last prediction probabilities
@@ -123,7 +167,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// hmm prediction at last_pred_pkg_id_
 	arma::mat hmm_prediction_;
-	const int HMM_NEIGHB_RAD;
 
 	bool delay_reached_reported = false;
 	bool prediction_delay_reached_reported = false;
@@ -132,13 +175,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	bool swr_regime_ = false;
 	// not to start processing of the same SWR twice - memorize which one was processed last
 	unsigned int last_processed_swr_start_ = 0;
-	// delay before starting to slow down for SWR reconstruction display
-	unsigned int SWR_SLOWDOWN_DELAY;
-	const bool SWR_SWITCH;
-	unsigned int SWR_SLOWDOWN_DURATION;
-	unsigned int SWR_PRED_WIN;
 
-	const unsigned int HMM_RESET_RATE;
 	unsigned int swr_counter_ = 0;
 	unsigned int swr_win_counter_ = 0;
 	// pointer to the last processed SWR event in the buffer
@@ -149,16 +186,15 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// optimal trajectories TO each bin [bin][time]
 	//		[bin][t] is 'best' previous bin at t-1, backtracking rule: bin_{t-1} = [bin_t][t]
-	std::vector<std::vector<int> > hmm_traj_;
+	std::vector<std::vector<unsigned int> > hmm_traj_;
 
-	const unsigned int DUMP_DELAY;
+
 	bool dump_delay_reach_reported_ = false;
-	const unsigned int DUMP_END;
+
 	bool dump_end_reach_reported_ = false;
 	unsigned int last_hmm_reset_pkg = 0;
-	float DUMP_SPEED_THOLD = .0;
 
-	bool use_intervals_;
+
 	std::vector<unsigned int> interval_starts_;
 	std::vector<unsigned int> interval_ends_;
 	unsigned int current_interval_;
@@ -166,31 +202,13 @@ class KDClusteringProcessor: public LFPProcessor {
 	// this one is assigned procces_number_-the loaded tetrode info
 	TetrodesInfo* tetr_info_;
 
-	unsigned int& spike_buf_pos_clust_;
-
 	// numnber of spike in the last window
 	unsigned int last_window_n_spikes_ = 0;
-
-	// edge length threshold for constructing the spike graph to solve the graph cover problem
-	// (0 will make it work as before computing cover consisting of all spikes
-	double SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = 0.0;
-	// number of neighbours, only yo speedup, perfectly should not be reached in the spike with largest number of neighbours
-	//	to decrease number of neighbours, decrease the threshold above
-	unsigned int SPIKE_GRAPH_COVER_NNEIGHB = 1;
 
 	// DUMP
 	std::ofstream dec_bayesian_;
 	std::ofstream window_spike_counts_;
 
-	float POS_SAMPLING_RATE = .0f;
-
-	const bool WAIT_FOR_SPEED_EST = false;
-
-	// if true, KDE starts after collecting MIN_SPIKES on a tetrode
-	// otherwise collection will keep until the data is over
-	const bool RUN_KDE_ON_MIN_COLLECTED = false;
-
-    std::string kde_path_;
     
 	void update_hmm_prediction();
 	void reset_hmm();

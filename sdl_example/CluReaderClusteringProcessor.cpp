@@ -22,9 +22,9 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 , clu_path_(clu_path)
 , res_path_(res_path_base)
 {
-		max_clust_.resize(buffer->tetr_info_->tetrodes_number);
+		max_clust_.resize(buffer->tetr_info_->tetrodes_number());
 
-		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+		for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			clu_streams_.push_back(new std::ifstream(clu_path_ + Utils::NUMBERS[tetrodes[t]]));
 			res_streams_.push_back(new std::ifstream(res_path_ + Utils::NUMBERS[tetrodes[t]]));
 			// read number of clusters given in the beginning of the file

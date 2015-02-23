@@ -18,9 +18,9 @@ FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf)
 
  FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name,
 		 const unsigned int window_width, const unsigned int window_height)
- 	 	 : SDLControlInputProcessor(buf)
- 	 	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
-		 , LFPProcessor(buf)
+ 	 	 : LFPProcessor(buf)
+ 	 	 , SDLControlInputProcessor(buf)
+	 	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 		 , FACTOR(buf->config_->getInt("freqpow.factor"))
 		 , BUF_LEN(buf->config_->getInt("freqpow.factor") * buf->SAMPLING_RATE)
 		 , ANAL_RATE(buf->config_->getInt("freqpow.anal.rate.frac") * buf->config_->getFloat("freqpow.anal.rate.frac"))

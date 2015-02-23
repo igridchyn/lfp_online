@@ -24,16 +24,14 @@ public:
 	enum { INVALID_TETRODE = 666666 };
 
     // number of tetrodes = channel groups
-    int tetrodes_number;
-    
-    // number of channels in each group
-    int *channels_numbers = nullptr;
+    inline const unsigned int tetrodes_number() const { return tetrode_channels.size(); }
+    inline const unsigned int channels_number(unsigned int tetrode) const { return tetrode_channels[tetrode].size(); }
     
     // of size tetrodes_number, indices of channels in each group
-	int **tetrode_channels = nullptr;
+	std::vector< std::vector< unsigned int > > tetrode_channels;
     
     // group by electrode
-	int *tetrode_by_channel = nullptr;
+	unsigned int *tetrode_by_channel = nullptr;
 
 	// maps absolute tetrode number (floor(channel number / 4))
 	//	with -1 meaning tetrode is absent in the configuration

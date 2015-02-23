@@ -22,7 +22,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
 	kdtree_stream.close();
 
-	unsigned int NUSED = kdtrees_[t]->nPoints();
+	int NUSED = kdtrees_[t]->nPoints();
 	laxs_[t].reserve(NUSED);
 
 	// load binary combined matrix and extract individual l(a,x)
@@ -39,8 +39,8 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	// load marginal rate function
 	lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
 	double maxval = arma::max(arma::max(lxs_[t]));
-	for (int xb = 0; xb < NBINSX; ++xb) {
-		for (int yb = 0; yb < NBINSY; ++yb) {
+	for (unsigned int xb = 0; xb < NBINSX; ++xb) {
+		for (unsigned int yb = 0; yb < NBINSY; ++yb) {
 			if (lxs_[t](xb, yb) == 0){
 				lxs_[t](xb, yb) = maxval;
 			}
@@ -105,7 +105,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		tetr_info_ = buf->alt_tetr_infos_[processor_number_];
 	}
 
-	const unsigned int tetrn = tetr_info_->tetrodes_number;
+	const unsigned int tetrn = tetr_info_->tetrodes_number();
 
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
@@ -126,14 +126,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	pxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 	lxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
 
-	for (int t = 0; t < tetrn; ++t) {
+	for (unsigned int t = 0; t < tetrn; ++t) {
 		const unsigned int dim = buf->feature_space_dims_[t];
 
 		ann_points_[t] = annAllocPts(MIN_SPIKES * 2, dim);
 		spike_place_fields_[t].reserve(MIN_SPIKES * 2);
 
 		ann_points_int_[t] = new int*[MIN_SPIKES * 2];
-		for (int d = 0; d < MIN_SPIKES * 2; ++d) {
+		for (unsigned int d = 0; d < MIN_SPIKES * 2; ++d) {
 			ann_points_int_[t][d] = new int[dim];
 		}
 
@@ -154,7 +154,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
 		std::vector<std::thread*> load_threads;
-		for (int t = 0; t < tetrn; ++t) {
+		for (unsigned int t = 0; t < tetrn; ++t) {
 //			load_threads.push_back(new std::thread(&KDClusteringProcessor::load_laxs_tetrode, this, t));
 			load_laxs_tetrode(t);
 		}
@@ -170,7 +170,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		}
 	}
 
-	tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number, false);
+	tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number(), false);
 	// posterior position probabilities map
 	// initialize with log of prior = pi(x)
 
@@ -245,16 +245,16 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		}
 	}
 
-	for (int xb = 0; xb < NBINSX; ++xb) {
-		for (int yb = 0; yb < NBINSY; ++yb) {
+	for (unsigned int xb = 0; xb < NBINSX; ++xb) {
+		for (unsigned int yb = 0; yb < NBINSY; ++yb) {
 			// find best (x, y) - with highest probability of (x,y)->(xb,yb)
 			// implement hmm{t}(xb,yb) = max_{x,y \in neighb(xb,yb)}(hmm_{t-1}(x,y) * tp(x,y,xb,yb) * prob(xb, yb | a_{1..N}))
 
 			float best_to_xb_yb = -1000.0f * 100000000.0f;
 			int bestx, besty;
 
-			for (int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
-				for (int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
+			for (unsigned int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
+				for (unsigned int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
 					// TODO weight
 					// split for DEBUG
 					float prob_xy = hmm_prediction_(x, y);
@@ -321,7 +321,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			corrx = buffer->positions_buf_[posind].x_pos();
 			corry = buffer->positions_buf_[posind].y_pos();
 			dec_hmm << corrx << " " << corry << "\n";
-			int b = hmm_traj_[y * NBINSX + x][t];
+			unsigned int b = hmm_traj_[y * NBINSX + x][t];
 			// TODO !!! fix
 			// WORKAROUND - keep the previous position
 			if (b < NBINSX * NBINSY){
@@ -360,9 +360,9 @@ void KDClusteringProcessor::process(){
 
 	// TODO make callback for pipeline data over event
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
-		for (int tetr=0; tetr < tetr_info_->tetrodes_number; ++tetr){
+		for (int tetr=0; tetr < tetr_info_->tetrodes_number(); ++tetr){
 			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr]){
-				std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
+				std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number() << " finished... ";
 				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], buffer->feature_space_dims_[tetr]);
 				std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 
@@ -373,7 +373,7 @@ void KDClusteringProcessor::process(){
 	}
 
 	// need both speed and PCs
-	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0): MIN(buffer->spike_buf_pos_speed_, std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0));
+	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0): MIN(buffer->spike_buf_pos_speed_, (unsigned int)std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0));
 	while(spike_buf_pos_clust_ < limit){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
@@ -410,9 +410,9 @@ void KDClusteringProcessor::process(){
 
 			// estimate firing rates
 			std::vector<unsigned int> spike_numbers_;
-			spike_numbers_.resize(tetr_info_->tetrodes_number);
+			spike_numbers_.resize(tetr_info_->tetrodes_number());
 			// TODO which pointer ?
-			for (int i=0; i < buffer->spike_buf_pos_speed_; ++i){
+			for (unsigned int i=0; i < buffer->spike_buf_pos_speed_; ++i){
 				Spike *spike = buffer->spike_buffer_[i];
 				if (spike == NULL || spike->discarded_ || spike->speed < SPEED_THOLD){
 					continue;
@@ -422,7 +422,7 @@ void KDClusteringProcessor::process(){
 				spike_numbers_[spike->tetrode_] ++;
 			}
 
-			for (int t=0; t < tetr_info_->tetrodes_number; ++t){
+			for (int t=0; t < tetr_info_->tetrodes_number(); ++t){
 					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY);
 					std::cout << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
 					// TODO configrableize expected session duration
@@ -459,7 +459,7 @@ void KDClusteringProcessor::process(){
 					// SHOULD BE DONE IN THE SAME PROCESS, AS KD Search is not parallel
 					// dump required data and start process (due to non-thread-safety of ANN)
 					// build tree and dump it along with points
-					std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number << " finished... ";
+					std::cout << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number() << " finished... ";
 					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], nfeat);
 					std::cout << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 					// find ids to be used in the reduced tree
@@ -509,7 +509,7 @@ void KDClusteringProcessor::process(){
 				obs_spikes_[tetr].push_back(spike);
 
 				// copy features and coords to ann_points_int and obs_mats
-				for(int fet=0; fet < nfeat; ++fet){
+				for(unsigned int fet=0; fet < nfeat; ++fet){
 					ann_points_[tetr][total_spikes_[tetr]][fet] = spike->pc[fet];
 
 					// save integer with increased precision for integer KDE operations
@@ -551,7 +551,7 @@ void KDClusteringProcessor::process(){
 			// predict from spike in window
 
 			// prediction only after having on all fields
-			if (n_pf_built_ < tetr_info_->tetrodes_number){
+			if (n_pf_built_ < tetr_info_->tetrodes_number()){
 				spike_buf_pos_clust_ ++;
 				continue;
 			}
@@ -647,7 +647,7 @@ void KDClusteringProcessor::process(){
 
 				tetr_spiked_[stetr] = true;
 
-				for(int fet=0; fet < nfeat; ++fet){
+				for(unsigned int fet=0; fet < nfeat; ++fet){
 					pnt[fet] = spike->pc[fet];
 				}
 
@@ -684,7 +684,7 @@ void KDClusteringProcessor::process(){
 				// account for the increase in the firing rate during high synchrony with additional factor
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
 
-				for (int t = 0; t < tetr_info_->tetrodes_number; ++t) {
+				for (int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 					if (tetr_spiked_[t]){
 						// TODO: depricated LX_WEIGHT, was introduced only for debugging purposes
 						pos_pred_ -= DE_SEC  * lxs_[t];
@@ -784,7 +784,7 @@ void KDClusteringProcessor::process(){
 				last_pred_pkg_id_ += PRED_WIN;
 
 				// re-init prediction variables
-				tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number, false);
+				tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number(), false);
 
 				if (USE_HMM)
 					update_hmm_prediction();
@@ -796,7 +796,7 @@ void KDClusteringProcessor::process(){
 				}
 
 				// TODO: extract
-				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number * pix_log_) : arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)
@@ -832,7 +832,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	arma::Mat<float> pos_buf(2, buffer->pos_buf_pos_);
 	unsigned int pos_interval = 0;
 	int nskip = 0;
-	for (int n = 0; n < buffer->pos_buf_pos_; ++n) {
+	for (unsigned int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		if (buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			nskip ++;
 		}
@@ -871,7 +871,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// if using intervals, provide sum of interval lengthes until last_pkg_id
 	if (use_intervals_){
 		last_pkg_id = 0;
-		for (int i = 0; i < current_interval_; ++i) {
+		for (unsigned int i = 0; i < current_interval_; ++i) {
 			last_pkg_id += interval_ends_[i] - interval_starts_[i];
 		}
 		if (current_interval_ < interval_starts_.size()) // && buffer->last_pkg_id < interval_ends_[current_interval_])
@@ -904,14 +904,14 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	// TODO competitive
 	n_pf_built_ ++;
 
-	if (n_pf_built_ == tetr_info_->tetrodes_number){
+	if (n_pf_built_ == tetr_info_->tetrodes_number()){
 		Log("KDE at all tetrodes done, exiting...\n");
 		exit(0);
 	}
 }
 
 void KDClusteringProcessor::JoinKDETasks(){
-    for(int t=0; t < tetr_info_->tetrodes_number; ++t){
+    for(int t=0; t < tetr_info_->tetrodes_number(); ++t){
         if(fitting_jobs_running_[t])
             fitting_jobs_[t]->join();
     }

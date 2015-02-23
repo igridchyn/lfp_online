@@ -43,9 +43,9 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , num_pc_(buffer->config_->getInt("pca.num.pc"))
 , power_thold_nstd_(buffer->config_->getInt("spike.detection.nstd"))
 {
-    nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode];
+    nchan_ = buffer->tetr_info_->channels_number(target_tetrode);
 
-    for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
+    for(int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
     	polygon_clusters_.push_back(std::vector<PolygonCluster>());
     	// insert fake 0 cluster (interpreted as artifact cluster)
     	polygon_clusters_[t].push_back(PolygonCluster());
@@ -60,7 +60,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 			int ntetr = 0;
 			fpoly >> ntetr;
 
-			if (ntetr == buffer->tetr_info_->tetrodes_number){
+			if (ntetr == buffer->tetr_info_->tetrodes_number()){
 				for(int t=0; t < ntetr; ++t){
 					int nclust = 0;
 					fpoly >> nclust;
@@ -283,7 +283,7 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 
 	std::ofstream fpoly(poly_path_);
 
-	int ntetr = buffer->tetr_info_->tetrodes_number;
+	int ntetr = buffer->tetr_info_->tetrodes_number();
 	fpoly << ntetr << "\n";
 
 	for(int t=0; t < ntetr; ++t){
@@ -640,7 +640,7 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 	polygon_x_.clear();
 	polygon_y_.clear();
 
-	nchan_ = buffer->tetr_info_->channels_numbers[target_tetrode_];
+	nchan_ = buffer->tetr_info_->channels_number(target_tetrode_);
 
 	user_context_.selected_cluster1_ = -1;
 	user_context_.selected_cluster2_ = -1;

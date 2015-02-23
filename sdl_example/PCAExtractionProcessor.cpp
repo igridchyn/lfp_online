@@ -285,10 +285,10 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
 , cleanup_ws_(buffer->config_->getBool("waveshape.cleanup", false))
 , feature_scale_(buffer->config_->getFloat("pca.scale", 1.0))
 {
-    num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number];
-    pca_done_ = new bool[buffer->tetr_info_->tetrodes_number];
+    num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number()];
+    pca_done_ = new bool[buffer->tetr_info_->tetrodes_number()];
     
-    for(int t=0; t < buffer->tetr_info_->tetrodes_number; ++t){
+    for(int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
         num_spikes[t] = 0;
         pca_done_[t] = false;
     }
@@ -337,8 +337,8 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     if (load_transform_){
         printf("Load PC available transforms...\n");
         
-        for (int i=0; i < buffer->tetr_info_->tetrodes_number; ++i) {
-            for (int ci=0; ci < buffer->tetr_info_->channels_numbers[i]; ++ci) {
+        for (int i=0; i < buffer->tetr_info_->tetrodes_number(); ++i) {
+            for (int ci=0; ci < buffer->tetr_info_->channels_number(i); ++ci) {
                 const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
                 std::string pca_path(pc_path_ + Utils::NUMBERS[chan] + ".txt");
                 if (!Utils::FS::FileExists(pca_path)){
@@ -359,11 +359,11 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
                 fpc.close();
             }
             // TODO handle cases when some channel PC transforms are missing
-            npcdone_ -= buffer->tetr_info_->channels_numbers[i] - 1;
+            npcdone_ -= buffer->tetr_info_->channels_number(i) - 1;
         }
     }
 
-    if (npcdone_ == buffer->tetr_info_->tetrodes_number){
+    if (npcdone_ == buffer->tetr_info_->tetrodes_number()){
     	Log("All PC transforms have been loaded");
     	buf_ptr_ptr_ = &(buffer->spike_buf_pos_unproc_);
     }
@@ -468,7 +468,7 @@ void PCAExtractionProcessor::process(){
     
     // TODO: when to redo PCA?
     // TODO: tetrode-wise counting !!! and check
-    for (int tetr=0; tetr < buffer->tetr_info_->tetrodes_number; ++tetr) {
+    for (int tetr=0; tetr < buffer->tetr_info_->tetrodes_number(); ++tetr) {
         if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
 
 //            std::cout << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
@@ -476,7 +476,7 @@ void PCAExtractionProcessor::process(){
 			ss << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
 			buffer->Log(ss.str());
 
-            for (int ci=0; ci < buffer->tetr_info_->channels_numbers[tetr]; ++ci) {
+            for (int ci=0; ci < buffer->tetr_info_->channels_number(tetr); ++ci) {
                 int channel = buffer->tetr_info_->tetrode_channels[tetr][ci];
 //            }
 //            
@@ -545,7 +545,7 @@ void PCAExtractionProcessor::process(){
 
             npcdone_ ++;
 
-            if (npcdone_ == buffer->tetr_info_->tetrodes_number){
+            if (npcdone_ == buffer->tetr_info_->tetrodes_number()){
             	Log("PCA done on all channels !");
             	// switch pointer
             	buffer->spike_buf_pos_unproc_ = *buf_ptr_ptr_;
@@ -553,7 +553,7 @@ void PCAExtractionProcessor::process(){
             }
             else{
             	std::stringstream ss;
-            	ss << "PCA done in " << npcdone_ << " out of " << buffer->tetr_info_->tetrodes_number << " tetrodes...";
+            	ss << "PCA done in " << npcdone_ << " out of " << buffer->tetr_info_->tetrodes_number() << " tetrodes...";
             	Log(ss.str());
             }
         }

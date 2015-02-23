@@ -22,7 +22,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , read_whl_(buffer->config_->getBool("spike.reader.whl.read", false))
 , binary_(buffer->config_->getBool("spike.reader.binary", false))
 , report_rate_(buffer->SAMPLING_RATE * 60 * 5)
-, num_files_with_spikes_(buffer->tetr_info_->tetrodes_number)
+, num_files_with_spikes_(buffer->tetr_info_->tetrodes_number())
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0)){
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
@@ -69,7 +69,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	spike->tetrode_ = tetr;
 	spike->cluster_id_ = -1;
 
-	const int chno = buffer->tetr_info_->channels_numbers[tetr];
+	const int chno = buffer->tetr_info_->channels_number(tetr);
 
 	const unsigned int fetn = buffer->feature_space_dims_[tetr];
 
@@ -176,7 +176,7 @@ void FetFileReaderProcessor::openNextFile() {
 		fet_streams_.clear();
 		spk_streams_.clear();
 
-		num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number;
+		num_files_with_spikes_ = buffer->tetr_info_->tetrodes_number();
 
 		fet_path_base_ = buffer->config_->spike_files_[current_file_];
 		std::vector<int>& tetrode_numbers = buffer->config_->tetrodes;
@@ -184,7 +184,7 @@ void FetFileReaderProcessor::openNextFile() {
 		std::string extapp = binary_ ? "b" : "";
 
 		int dum_ncomp;
-		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+		for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			std::string path = fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]];
 			if (!boost::filesystem::exists(path)){
 				Log(std::string("ERROR: ") + path + " doesn't exist or is not available!");
@@ -262,7 +262,7 @@ void FetFileReaderProcessor::process() {
 		int earliest_spike_tetrode_ = -1;
 		unsigned int earliest_spike_time_ = std::numeric_limits<unsigned int>::max();
 
-		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+		for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			if (file_over_[t]){
 				continue;
 			}

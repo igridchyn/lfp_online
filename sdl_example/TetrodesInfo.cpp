@@ -8,7 +8,7 @@
 #include "TetrodesInfo.h"
 
 int TetrodesInfo::number_of_channels(Spike *spike) const{
-    return channels_numbers[spike->tetrode_];
+    return tetrode_channels[spike->tetrode_].size();
 }
 
 TetrodesInfo* TetrodesInfo::GetInfoForTetrodesRange(const unsigned int& from, const unsigned int& to){
@@ -17,14 +17,10 @@ TetrodesInfo* TetrodesInfo::GetInfoForTetrodesRange(const unsigned int& from, co
 
 	const unsigned int tetrn = to - from + 1;
 
-	tetrinf->tetrodes_number = tetrn;
-	tetrinf->channels_numbers = new int[tetrn];
-	tetrinf->tetrode_channels = new int*[tetrn];
-
-	for (int t = 0; t < tetrn; ++t) {
-		tetrinf->channels_numbers[t] = 4;
-		tetrinf->tetrode_channels[t] = new int[4];
-		for (int c = 0; c < 4; ++c) {
+	tetrinf->tetrode_channels.resize(tetrn);
+	for (unsigned int t = 0; t < tetrn; ++t) {
+		tetrinf->tetrode_channels[t].resize(4);
+		for (unsigned int c = 0; c < 4; ++c) {
 			tetrinf->tetrode_channels[t][c] = (from+t)*4 + c;
 		}
 	}
@@ -35,23 +31,22 @@ TetrodesInfo* TetrodesInfo::GetInfoForTetrodesRange(const unsigned int& from, co
 TetrodesInfo* TetrodesInfo::GetMergedTetrodesInfo(const TetrodesInfo* ti1, const TetrodesInfo* ti2){
 	TetrodesInfo * tetrinf = new TetrodesInfo();
 
-	const unsigned int tetrn = ti1->tetrodes_number + ti2->tetrodes_number;
-	tetrinf->tetrodes_number = tetrn;
+	const unsigned int tetrn = ti1->tetrodes_number() + ti2->tetrodes_number();
 
-	tetrinf->channels_numbers = new int[tetrn];
-	tetrinf->tetrode_channels = new int*[tetrn];
-
-	for (int t = 0; t < ti1->tetrodes_number; ++t) {
-		tetrinf->channels_numbers[t] = ti1->channels_numbers[t];
-		tetrinf->tetrode_channels[t] = new int [ti1->channels_numbers[t]];
-		memcpy(tetrinf->tetrode_channels[t], ti1->tetrode_channels[t], sizeof(int) * ti1->channels_numbers[t]);
+	tetrinf->tetrode_channels.resize(tetrn);
+	for (unsigned int t = 0; t < ti1->tetrodes_number(); ++t) {
+		tetrinf->tetrode_channels[t].resize(ti1->tetrode_channels[t].size());
+		for (unsigned int c = 0; c < ti1->tetrode_channels[t].size(); ++c){
+			tetrinf->tetrode_channels[t][c] = ti1->tetrode_channels[t][c];
+		}
 	}
 
-	const unsigned int shift = ti1->tetrodes_number;
-	for (int t = 0; t < ti2->tetrodes_number; ++t) {
-			tetrinf->channels_numbers[t + shift] = ti2->channels_numbers[t];
-			tetrinf->tetrode_channels[t + shift] = new int [ti2->channels_numbers[t]];
-			memcpy(tetrinf->tetrode_channels[t + shift], ti2->tetrode_channels[t], sizeof(int) * ti2->channels_numbers[t]);
+	const unsigned int shift = ti1->tetrodes_number();
+	for (unsigned int t = 0; t < ti2->tetrodes_number(); ++t) {
+			tetrinf->tetrode_channels[t + shift].resize(ti2->tetrode_channels[t].size());
+			for (unsigned int c = 0; c < ti1->tetrode_channels[t].size(); ++c){
+				tetrinf->tetrode_channels[t + shift][c] = ti1->tetrode_channels[t][c];
+			}
 	}
 
 	return tetrinf;
@@ -62,21 +57,20 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 
 	std::ifstream tconfig(config_path);
 
-	tconfig >> tetrodes_number;
+	int tetrn = 0;
+	tconfig >> tetrn;
 
-	if (tetrodes_number <= 0){
+	if (tetrn <= 0){
 		std::cout << "# of tetrodes should be positive! Terminating...\n";
 		exit(100);
 	}
 
-	channels_numbers = new int[tetrodes_number];
-	tetrode_channels = new int*[tetrodes_number];
+	tetrode_channels.resize(tetrn);
 
 	int chnum;
-	for (int t = 0; t < tetrodes_number; ++t) {
+	for (unsigned int t = 0; t < tetrn; ++t) {
 		tconfig >> chnum;
-		channels_numbers[t] = chnum;
-		tetrode_channels[t] = new int[chnum];
+		tetrode_channels[t].resize(chnum);
 		for(int c=0; c < chnum; ++c){
 			tconfig >> tetrode_channels[t][c];
 		}
@@ -85,7 +79,7 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 	tconfig.close();
 
 	tetrode_label_map_.resize(16, INVALID_TETRODE);
-	for (int t = 0; t < tetrodes_number; ++t) {
+	for (unsigned int t = 0; t < tetrn; ++t) {
 		int abstetr = (int)floor(tetrode_channels[t][0] / 4);
 		tetrode_label_map_[abstetr] = t;
 	}
@@ -95,16 +89,11 @@ TetrodesInfo::TetrodesInfo() {
 }
 
 TetrodesInfo::~TetrodesInfo() {
-	delete[] tetrode_by_channel;
-	delete[] channels_numbers;
-	for (int i = 0; i < tetrodes_number; ++i){
-		delete[] tetrode_channels[i];
-	}
 }
 
 bool TetrodesInfo::ContainsChannel(const unsigned int& channel) {
-	for (int t = 0; t < tetrodes_number; ++t) {
-		for (int c = 0; c < channels_numbers[t]; ++c) {
+	for (unsigned int t = 0; t < tetrodes_number(); ++t) {
+		for (int c = 0; c < tetrode_channels[t].size(); ++c) {
 			if (tetrode_channels[t][c] == channel)
 				return true;
 		}

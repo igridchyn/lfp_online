@@ -11,7 +11,7 @@
 #include "LFPProcessor.h"
 
 class SwReaderProcessor: public LFPProcessor {
-	std::vector<std::vector<int>> swrs_;
+	std::vector<std::vector<unsigned int>> swrs_;
 
 	// current pkg_id is within or before this SW
 	int current_sw_ = 0;

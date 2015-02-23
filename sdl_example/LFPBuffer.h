@@ -208,7 +208,7 @@ public:
     unsigned int high_synchrony_tetrode_spikes_ = 0;
     float high_synchrony_factor_;
 
-    std::vector<std::vector<int>> swrs_;
+    std::vector<std::vector<unsigned int>> swrs_;
     std::vector<int> swr_pointers_;
 
     // to be initialized when first pos package is detected

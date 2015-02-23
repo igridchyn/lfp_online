@@ -124,7 +124,7 @@ void SDLControlInputMetaProcessor::process(){
                     }
                     
                     if (tetrode >= 0){
-                    	if (tetrode < buffer->tetr_info_->tetrodes_number){
+                    	if (tetrode < buffer->tetr_info_->tetrodes_number()){
                     		SwitchDisplayTetrode(tetrode);
                     		buffer->Log(std::string("Switch displays to tetrode #") + Utils::NUMBERS[tetrode]);
                     	}

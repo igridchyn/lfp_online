@@ -54,7 +54,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     
     filt_pos = buffer->HEADER_LEN;
     
-    for (int t=0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+    for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
         buffer->last_spike_pos_[t] = - refractory_;
     }
     

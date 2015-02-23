@@ -30,7 +30,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, display_final_(buffer->config_->getBool("waveshapedisp.final", false))
 	, buf_pointer_(buffer->spike_buf_pos_ws_disp_)
 {
-	for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
+	for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 		cluster_cuts_.push_back(std::vector<std::vector<WaveshapeCut> >());
 		cluster_cuts_[t].resize(MAX_CLUST);
 	}
@@ -206,7 +206,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         	SDL_RenderDrawLine(renderer_, x1_, y1_, x2_, y2_);
         }
 
-        DrawRect(0, window_height_ / buffer->tetr_info_->channels_numbers[targ_tetrode_] * selected_channel_, window_width_, window_height_ / buffer->tetr_info_->channels_numbers[targ_tetrode_], 5);
+        DrawRect(0, window_height_ / buffer->tetr_info_->channels_number(targ_tetrode_) * selected_channel_, window_width_, window_height_ / buffer->tetr_info_->channels_number(targ_tetrode_), 5);
 
         // draw cuts
         // TODO 2 colors cuts for 2 clusters
