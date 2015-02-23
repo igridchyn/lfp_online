@@ -13,7 +13,6 @@ class SpikeDetectorProcessor : public LFPProcessor{
     // TODO: read from config
     
     static const int POWER_BUF_LEN = 2 << 10;
-    const int REFR_LEN;
     
     // int is not enough for convolution
     long long filter_int_ [ 2 << 7 ];
@@ -21,9 +20,13 @@ class SpikeDetectorProcessor : public LFPProcessor{
     float filter[ 2 << 7];
     int filter_len;
     
+    int last_processed_id;
+
     float nstd_;
-    int refractory_;
+    unsigned int refractory_;
     
+    const int REFR_LEN;
+
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
     int filt_pos = 0;
@@ -32,8 +35,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     int powerBufPos = 0;
     float powerBuf[POWER_BUF_LEN];
     float powerSum;
-    
-    int last_processed_id;
+
     
     int *thresholds_;
     

@@ -37,7 +37,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	// TODO: implement for binary as well
 	unsigned long total_dur = 0;
 	if (!binary_){
-		for (int f=0; f < buffer->config_->spike_files_.size(); ++f){
+		for (unsigned int f=0; f < buffer->config_->spike_files_.size(); ++f){
 			std::string path = buffer->config_->spike_files_[f] + "fet." + Utils::NUMBERS[buffer->config_->tetrodes[0]];
 			std::ifstream ffet(path);
 			int d;
@@ -57,7 +57,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
-	for (int i = 0; i < fet_streams_.size(); ++i) {
+	for (unsigned int i = 0; i < fet_streams_.size(); ++i) {
 		fet_streams_[i]->close();
 	}
 }
@@ -79,7 +79,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	std::ifstream& fet_stream = *(fet_streams_[tetr]);
 
 	if (!binary_){
-		for (int fet=0; fet < fetn; ++fet) {
+		for (unsigned int fet=0; fet < fetn; ++fet) {
 			fet_stream >> spike->pc[fet];
 			spike->pc[fet] /= FET_SCALING; // default = 5.0
 		}
@@ -154,7 +154,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 }
 
 void FetFileReaderProcessor::openNextFile() {
-	if (current_file_ < (int)buffer->config_->spike_files_.size() - 1){
+	if (current_file_ < buffer->config_->spike_files_.size() - 1){
 		current_file_ ++;
 
 		// TODO !!! close previous files
@@ -247,7 +247,7 @@ void FetFileReaderProcessor::process() {
 //	}
 
 	// read pos from whl
-	int last_pos_pkg_id = last_pkg_id_;
+	unsigned int last_pos_pkg_id = last_pkg_id_;
 	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
 		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
 		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->x_big_LED_ >> pos_entry->pkg_id_;

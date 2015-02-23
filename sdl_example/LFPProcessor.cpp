@@ -89,15 +89,20 @@ float Spike::getWidth(float level, int chan) {
 	// TODO ??? limit ???
 
 	bool reached_val = false;
-	double level_x = 0.0;
+	double level_x = .0;
 
 	// compute width
-	// TODO optimize for multiple levels
+	// TODO validate > or <
 	for (int w = 1; w < 128 - 1; ++w) {
-		if (waveshape[chan][w] > level){
+		if (! reached_val && waveshape[chan][w] > level){
 			reached_val = true;
 			// TODO no interpolation for speed ?
-			level_x = level / (waveshape[chan][w] - waveshape[chan][w - 1]);
+			level_x = w - 1 + (level - waveshape[chan][w - 1]) / (waveshape[chan][w] - waveshape[chan][w - 1]);
+		}
+
+		if (reached_val && waveshape[chan][w] < level){
+			double level_x_down = w - 1 + (level - waveshape[chan][w - 1]) / (waveshape[chan][w] - waveshape[chan][w - 1]);
+			return level_x_down - level_x;
 		}
 	}
 
@@ -283,8 +288,6 @@ bool Spike::crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1,
 	bool down1 = IsFromRightWave(w1, waveshape[channel][w1], w1 + 1, waveshape[channel][w1 + 1], x1, y1);
 
 	for (int w = w1 + 1; w <= w2; ++w){
-		int xw = w;
-		//if (down1 ^ IsFromRightWave(w2, waveshape[channel][w], w + 1, waveshape[channel][w + 1], x2, y2))
 		if (down1 ^ !IsFromRightWave(x1, y1, x2, y2, w, waveshape[channel][w]))
 			return true;
 	}
@@ -319,7 +322,7 @@ void Spike::find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_t
   int tmbefsp = 7;
   int tmaftsp = 7;
 
-  int i,j,k,pmax,pm1,pm2,tma,tmb;
+  int i,j,pm1,pm2,tma,tmb;
   pm1=pm2=avb[0][ptm];
   for(i=0; i<num_channels_; i++) {
 	  for(j=ptm - tmbefsp; j < ptm; j++) {

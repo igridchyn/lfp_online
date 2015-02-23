@@ -43,7 +43,7 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 	// read additional files
 	files_list_.push_back(file_path_);
 	unsigned int nfiles = 1;
-	unsigned int total_size = boost::filesystem::file_size(file_path_);
+
 	while(true){
 		file_path_ = buf->config_->getString(std::string("bin.path.") + Utils::NUMBERS[nfiles + 1], "");
 		if (file_path_.size() == 0){
@@ -66,7 +66,7 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 
 	block_ = new unsigned char[chunk_size_ * nblock_];
 
-	buf->pipeline_status_ == PIPELINE_STATUS_READ_BIN;
+	buf->pipeline_status_ = PIPELINE_STATUS_READ_BIN;
 	buf->input_duration_ = totalAxonaPackages(files_list_);
 }
 
@@ -124,7 +124,7 @@ std::string BinFileReaderProcessor::axonaFileDurationFromNSampes(
 unsigned int BinFileReaderProcessor::totalAxonaPackages(
 		std::vector<std::string> file_list) {
 	unsigned int total_duration = 0;
-	for (int f = 0; f < file_list.size(); ++f) {
+	for (unsigned int f = 0; f < file_list.size(); ++f) {
 		total_duration += boost::filesystem::file_size(file_list[f]) * 3 / chunk_size_;
 	}
 	return total_duration;

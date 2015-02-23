@@ -24,7 +24,6 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 {
 		max_clust_.resize(buffer->tetr_info_->tetrodes_number);
 
-		int dum_ncomp;
 		for (int t = 0; t < buffer->tetr_info_->tetrodes_number; ++t) {
 			clu_streams_.push_back(new std::ifstream(clu_path_ + Utils::NUMBERS[tetrodes[t]]));
 			res_streams_.push_back(new std::ifstream(res_path_ + Utils::NUMBERS[tetrodes[t]]));
@@ -36,11 +35,11 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 }
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
-	for (int i = 0; i < clu_streams_.size(); ++i) {
+	for (size_t i = 0; i < clu_streams_.size(); ++i) {
 		clu_streams_[i]->close();
 	}
 
-	for (int i = 0; i < res_streams_.size(); ++i) {
+	for (size_t i = 0; i < res_streams_.size(); ++i) {
 		res_streams_[i]->close();
 	}
 }

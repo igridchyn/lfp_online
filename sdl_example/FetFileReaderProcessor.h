@@ -23,8 +23,6 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 	const unsigned int WINDOW_SIZE;
 
-	unsigned int num_files_with_spikes_ = 0;
-
 	std::vector<bool> file_over_;
 	std::vector<Spike *> last_spikies_;
 
@@ -38,11 +36,14 @@ class FetFileReaderProcessor: public LFPProcessor {
 	bool binary_ = false;
 
 	unsigned int report_rate_;
+
+	unsigned int num_files_with_spikes_ = 0;
+
 	unsigned int last_reported_ = 0;
 
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
-	int current_file_ = -1;
+	unsigned int current_file_ = 0;
 	unsigned int shift_ = 0;
 	std::vector<unsigned int> shifts_;
 

@@ -144,12 +144,11 @@ void SpikeDetectorProcessor::process()
                 continue;
             
             int threshold = thresholds_[channel];
-//            int threshold = (int)(43.491423979974343 * nstd_);
             
             int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
             
             // detection via threshold nstd * std
-            int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
+            unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
             if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)
             {
                 // printf("Spike: %d...\n", spike_pos);

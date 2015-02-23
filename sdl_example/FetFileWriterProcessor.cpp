@@ -34,8 +34,7 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 }
 
 FetFileWriterProcessor::~FetFileWriterProcessor() {
-	// TODO Auto-generated destructor stub
-	for (int i=0; i < fet_files_.size(); ++i){
+	for (unsigned int i=0; i < fet_files_.size(); ++i){
 		fet_files_[i]->close();
 
 		if (write_spk_){

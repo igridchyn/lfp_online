@@ -22,7 +22,7 @@ public:
     static const int WL_LENGTH = 22;
     static const int WS_LENGTH_ALIGNED = 32;
 
-    int pkg_id_;
+    unsigned int pkg_id_;
     int **waveshape = nullptr;
     int **waveshape_final = nullptr;
 

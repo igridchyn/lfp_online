@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c++0x -g
+CFLAGS = -std=c++0x -g -Wall
 LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
 	
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o
@@ -35,7 +35,7 @@ LFPBuffer.o: ../LFPBuffer.cpp ../LFPBuffer.h
 LFPPipeline.o: ../LFPPipeline.cpp ../LFPPipeline.h
 	${CC} ${CFLAGS} -c ../LFPPipeline.cpp
 	
-LFPProcessor.o: ../LFPProcessor.cpp ../LFPProcessor.h LFPBuffer.o
+LFPProcessor.o: ../LFPProcessor.cpp ../LFPProcessor.h LFPBuffer.o ../Spike.h
 	${CC} ${CFLAGS} -c ../LFPProcessor.cpp
 	
 LPTTriggerProcessor.o: ../LPTTriggerProcessor.cpp ../LPTTriggerProcessor.h
