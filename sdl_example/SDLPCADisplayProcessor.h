@@ -12,7 +12,7 @@
 #include "PolygonCluster.h"
 #include "SDLSingleWindowDisplay.h"
 
-class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
+class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     
     ColorPalette palette_;
     // TODO: display for multiple tetrodes with ability to switch
@@ -22,8 +22,6 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     unsigned int comp1_ = 0; // 0 - 1st channel, PC1;
     unsigned int comp2_ = 1; // 1 - 2nd channel, PC1;
     unsigned int nchan_;
-    // considered to be the same for all tetrodes
-    unsigned int num_pc_;
     
     // diplay non-assigned spikes
     bool display_unclassified_;
@@ -49,6 +47,9 @@ class SDLPCADisplayProcessor : virtual public SDLSingleWindowDisplay, virtual pu
     const int poly_save_;
     const int poly_load_;
     std::string poly_path_;
+
+    // considered to be the same for all tetrodes
+    unsigned int num_pc_;
 
     // beware: this using numbering from 0, while 0 means unknown cluster
     int selected_cluster1_ = -1;

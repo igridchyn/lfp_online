@@ -24,7 +24,7 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 {
 		max_clust_.resize(buffer->tetr_info_->tetrodes_number());
 
-		for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			clu_streams_.push_back(new std::ifstream(clu_path_ + Utils::NUMBERS[tetrodes[t]]));
 			res_streams_.push_back(new std::ifstream(res_path_ + Utils::NUMBERS[tetrodes[t]]));
 			// read number of clusters given in the beginning of the file
@@ -49,7 +49,7 @@ void CluReaderClusteringProcessor::process() {
 		// read from clu.{tetr} cluster number
 		Spike * spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 
-		int clust, res = 0;
+		unsigned int clust, res = 0;
 
 		while(res < spike->pkg_id_ && !clu_streams_[spike->tetrode_]->eof()){
 			*(clu_streams_[spike->tetrode_]) >> clust;

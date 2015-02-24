@@ -41,13 +41,15 @@ protected:
 
 public:
 	UserActionType action_type_;
-	PolygonCluster poly_clust_1_;
-	PolygonCluster poly_clust_2_;
-	// for projection actions
-	PolygonClusterProjection projection_;
 
 	int cluster_number_1_ = -1;
 	int cluster_number_2_ = -1;
+
+	PolygonCluster poly_clust_1_;
+	PolygonCluster poly_clust_2_;
+
+	// for projection actions
+	PolygonClusterProjection projection_;
 
 	const unsigned int id_;
 
@@ -74,6 +76,7 @@ public:
 	std::list<UserAction> action_list_;
 
 	// TODO make private
+	// TODO unsigned + UNKNOWN CLUSTER
 	int selected_cluster1_ = -1;
 	int selected_cluster2_ = -1;
 

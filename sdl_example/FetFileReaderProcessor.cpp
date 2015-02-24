@@ -184,7 +184,7 @@ void FetFileReaderProcessor::openNextFile() {
 		std::string extapp = binary_ ? "b" : "";
 
 		int dum_ncomp;
-		for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			std::string path = fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]];
 			if (!boost::filesystem::exists(path)){
 				Log(std::string("ERROR: ") + path + " doesn't exist or is not available!");
@@ -262,7 +262,7 @@ void FetFileReaderProcessor::process() {
 		int earliest_spike_tetrode_ = -1;
 		unsigned int earliest_spike_time_ = std::numeric_limits<unsigned int>::max();
 
-		for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			if (file_over_[t]){
 				continue;
 			}

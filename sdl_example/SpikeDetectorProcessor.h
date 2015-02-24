@@ -18,7 +18,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     long long filter_int_ [ 2 << 7 ];
     
     float filter[ 2 << 7];
-    int filter_len;
+    unsigned int filter_len;
     
     int last_processed_id;
 

@@ -29,19 +29,18 @@ public:
 	{}
 };
 
-class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor {
-    unsigned int& buf_pointer_;
+class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
     unsigned last_disp_pkg_id_ = 0;
     
     unsigned int targ_tetrode_ = 0;
 
     unsigned int tetrode_total_spikes_ = 0;
     
-    const unsigned int DISPLAY_RATE;
-    
+    float scale_;
+
 	unsigned int spike_plot_rate_;
 
-    float scale_;
+    const unsigned int DISPLAY_RATE;
 
     // TODO compute from window height / width
     const unsigned int x_mult_final_ = 32;
@@ -60,6 +59,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLSingleWindowDisplay, virt
 	// if true, final waveshape (16 points) used for PCA is displayed
 	// otherwise - reconstructed 4x upsampled ws
 	bool display_final_ = false;
+
+    unsigned int& buf_pointer_;
 
 	unsigned int selected_channel_ = 0;
 

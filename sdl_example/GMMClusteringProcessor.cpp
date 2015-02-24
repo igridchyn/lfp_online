@@ -30,7 +30,7 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     	std::cout << "Cluster weights: ";
     	const double EPS = 0.00001;
     	int ngauss = 0;
-    	for (int c = 0; c < gmm.Gaussians(); ++c) {
+    	for (size_t c = 0; c < gmm.Gaussians(); ++c) {
     		double w = gmm.Weights()(c);
     		std::cout << w << " ";
 
@@ -84,7 +84,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     
     const unsigned int ntetr =buf->tetr_info_->tetrodes_number();
         
-    for (int tetr=0; tetr<buf->tetr_info_->tetrodes_number(); ++tetr) {
+    for (size_t tetr=0; tetr<buf->tetr_info_->tetrodes_number(); ++tetr) {
     	unsigned int dimensionality = buffer->tetr_info_->channels_number(tetr) * num_princomp_;
 
         // more spikes will be collected while clustering happens
@@ -103,7 +103,7 @@ GMMClusteringProcessor::GMMClusteringProcessor(LFPBuffer *buf, const unsigned in
     // gmm_ = mlpack::gmm::GMM<> (gaussians, dimensionality_);
         
     if (load_clustering_){
-        for (int tetr=0; tetr < ntetr; ++tetr) {
+        for (unsigned int tetr=0; tetr < ntetr; ++tetr) {
             gmm_[tetr] = loadGMM((unsigned int)tetr, gmm_path_base);
             
             buffer->Log(std::string("Loaded GMM with ") + Utils::NUMBERS[gmm_[tetr].Gaussians()] + " clusters for tetrode " + Utils::NUMBERS[tetr] + "\n\n");
@@ -130,7 +130,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     int dimensionality = observations_train.n_rows;
     
     printf("# of observations = %u\n", observations_train.n_cols);
-    for (int nclust = 1; nclust <= max_clusters_; nclust += nclust_step_) {
+    for (unsigned int nclust = 1; nclust <= max_clusters_; nclust += nclust_step_) {
         mlpack::gmm::GMM<> gmmn(nclust, dimensionality);
 
         // PROFILING
@@ -179,7 +179,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     }
     
     printf("Cluster weights:");
-    for (int i=0; i < gmm_[tetr].Gaussians(); ++i) {
+    for (unsigned int i=0; i < gmm_[tetr].Gaussians(); ++i) {
         printf("\nprob %d = %f", i, gmm_[tetr].Weights()(i));
     }
     std::cout << "\n";
@@ -210,7 +210,7 @@ void GMMClusteringProcessor::process(){
             break;
         }
         
-        for(int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
+        for(unsigned int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
         	// TODO: disable OFB check in armadillo settings
         	if (observations_[tetr].n_cols <= total_observations_[tetr]){
         		observations_[tetr].resize(observations_[tetr].n_rows, observations_[tetr].n_cols * 2);
@@ -227,7 +227,7 @@ void GMMClusteringProcessor::process(){
                 // TODO: use submatrix of total observations
                 if (!(total_observations_[tetr] % rate_)){
 
-                	for(int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
+                	for(unsigned int fet=0; fet < buffer->feature_space_dims_[tetr]; ++fet){
                 		// TODO: disable OFB check in armadillo settings
                 		observations_train_[tetr](fet, spikes_collected_[tetr]) = (double)spike->pc[fet];
                 	}
@@ -277,7 +277,7 @@ void GMMClusteringProcessor::process(){
                 // 2nd level clustering if classification was called first time after model was built
                 if (first_class_after_clust){
                 	// re-cluster units with bad autocorrelation and high firing rate
-                	for (int clust = 0; clust < gmm_[tetr].Gaussians(); ++clust) {
+                	for (size_t clust = 0; clust < gmm_[tetr].Gaussians(); ++clust) {
                 		float clust_rate = buffer->SAMPLING_RATE / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
                 		if (clust_rate > 40){
                 			// 2nd iteration of clustering
@@ -288,7 +288,7 @@ void GMMClusteringProcessor::process(){
 
                 // TODO: assign labels to clusters; assign labels to future clusteres; redraw clusters
                 // don't draw unclassified
-                for (int i=0; i < labels_.size(); ++i){
+                for (size_t i=0; i < labels_.size(); ++i){
                     const size_t label = labels_[i];
                     obs_spikes_[tetr][i]->cluster_id_ = (int)label;
                     // done in Spike alignment (cheap operation anyway)
@@ -309,7 +309,7 @@ void GMMClusteringProcessor::process(){
 }
 
 void GMMClusteringProcessor::JoinGMMTasks(){
-    for(int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+    for(size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
         if(clustering_job_running_[t])
             clustering_jobs_[t]->join();
     }

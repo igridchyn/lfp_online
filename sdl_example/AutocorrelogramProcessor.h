@@ -21,13 +21,10 @@ enum AC_DISPLAY_MODE{
 	AC_DISPLAY_MODE_CC
 };
 
-class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual public SDLControlInputProcessor{
+class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
 
 	// TODO synchronize init accross all processors
     unsigned int display_tetrode_ = 0;
-
-    // whether to break on -1 cluster or just skip it
-    bool wait_clustering_;
 
     // pixel width of one AC bin
     const int BWIDTH = 2;
@@ -53,9 +50,11 @@ class AutocorrelogramProcessor : virtual public SDLSingleWindowDisplay, virtual 
     const int BIN_SIZE;
     const unsigned int NBINS;
 
-    UserContext& user_context_;
     //unsigned int last_processed_user_action_id_;
     UserAction const *last_user_action_;
+
+    // whether to break on -1 cluster or just skip it
+    bool wait_clustering_;
 
     double refractory_fraction_threshold_ = 0.01;
 

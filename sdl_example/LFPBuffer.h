@@ -228,7 +228,7 @@ public:
 
     // ??? for all arrays ?
     unsigned int buf_pos = BUF_HEAD_LEN;
-    int buf_pos_trig_ = BUF_HEAD_LEN;
+    unsigned int buf_pos_trig_ = BUF_HEAD_LEN;
 
     unsigned int last_pkg_id = 0;
     // for each tetrode
@@ -275,6 +275,9 @@ public:
 
 	int coord_shift_x_ = 0;
 	int coord_shift_y_ = 0;
+
+	const static unsigned int TETRODE_UNKNOWN = std::numeric_limits<unsigned int>::max();
+	const static unsigned int CLUSTER_UNKNOWN = std::numeric_limits<unsigned int>::max();
 
     //====================================================================================================
 

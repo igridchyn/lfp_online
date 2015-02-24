@@ -54,7 +54,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     
     filt_pos = buffer->HEADER_LEN;
     
-    for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+    for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
         buffer->last_spike_pos_[t] = - refractory_;
     }
     
@@ -73,12 +73,12 @@ void SpikeDetectorProcessor::process()
     // to start detection by threshold from this position after filtering + power computation
     // int det_pos = filt_pos;
     
-    for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+    for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
         
-        if (!buffer->is_valid_channel(channel))
+        if (!buffer->is_valid_channel(channel) || buffer->buf_pos < filter_len/2)
             continue;
         
-        for (int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
+        for (unsigned int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
             // filter with high-pass spike filter
             int filtered = 0;
             signal_type *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
@@ -86,7 +86,7 @@ void SpikeDetectorProcessor::process()
             // SSE implementation with 8-bit filter and signal
 
             int filtered_long = 0;
-            for (int j=0; j < filter_len; ++j, chan_sig_buf++) {
+            for (unsigned int j=0; j < filter_len; ++j, chan_sig_buf++) {
                 filtered_long += *(chan_sig_buf) * filter_int_[j];
             }
 
@@ -129,7 +129,7 @@ void SpikeDetectorProcessor::process()
         return;
     
     // TODO: do not estiamte every time
-    for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+    for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
         if (!buffer->is_valid_channel(channel))
             continue;
         
@@ -137,8 +137,8 @@ void SpikeDetectorProcessor::process()
         thresholds_[channel] = (int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
     }
 
-    for (int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
-        for (int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+    for (unsigned int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
+        for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
             
             if (!buffer->is_valid_channel(channel))
                 continue;

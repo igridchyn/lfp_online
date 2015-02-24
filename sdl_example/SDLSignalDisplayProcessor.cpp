@@ -12,7 +12,7 @@
 void SDLSignalDisplayProcessor::SetDisplayTetrode(const unsigned  int& display_tetrode){
     // TODO: configurableize
 
-	for (int c = 0; c < buffer->tetr_info_->channels_number(display_tetrode); ++c) {
+	for (unsigned int c = 0; c < buffer->tetr_info_->channels_number(display_tetrode); ++c) {
         displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode][c]);
     }
 }
@@ -32,9 +32,9 @@ std::string SDLSignalDisplayProcessor::name(){
 
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
 		const unsigned int& window_height, std::vector<unsigned int> displayed_channels)
-    : SDLControlInputProcessor(buffer)
+	: LFPProcessor(buffer)
+	, SDLControlInputProcessor(buffer)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
-	, LFPProcessor(buffer)
     , displayed_channels_(displayed_channels)
     , current_x(0)
     , last_disp_pos(0)
@@ -54,7 +54,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
     if (!buffer->tetr_info_->ContainsChannels(displayed_channels_)){
     	std::cout << "WARNING: requested channels are absent in channels config, displaying first tetrode channels...\n";
     	displayed_channels_.clear();
-    	for (int c = 0; c < buffer->tetr_info_->channels_number(0); ++c) {
+    	for (unsigned int c = 0; c < buffer->tetr_info_->channels_number(0); ++c) {
     		displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[0][c]);
 		}
     }
@@ -75,9 +75,9 @@ void SDLSignalDisplayProcessor::process(){
     
     // whether to display
     
-    for (int pos = last_disp_pos + plot_hor_scale; pos < buffer->buf_pos; pos += plot_hor_scale){
+    for (unsigned int pos = last_disp_pos + plot_hor_scale; pos < buffer->buf_pos; pos += plot_hor_scale){
         
-        for (int chani = 0; chani<displayed_channels_.size(); ++chani) {
+        for (size_t chani = 0; chani<displayed_channels_.size(); ++chani) {
             int channel = displayed_channels_[chani];
 
             int val = transform_to_y_coord(buffer->signal_buf[channel][pos]) + 40 * chani;
@@ -152,7 +152,7 @@ int SDLSignalDisplayProcessor::transform_to_y_coord(int voltage){
     // scale for plotting
     int val = voltage + SHIFT;
     val = val > 0 ? val / plot_scale : 1;
-    val = val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
+    val = (unsigned int)val < SCREEN_HEIGHT ? val : SCREEN_HEIGHT;
     
     return val;
 }
@@ -231,11 +231,11 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
 		if (display_tetrode_ < buffer->tetr_info_->tetrodes_number()){
 			displayed_channels_.clear();
 
-			for (int c = 0; c < buffer->tetr_info_->channels_number(display_tetrode_); ++c){
+			for (size_t c = 0; c < buffer->tetr_info_->channels_number(display_tetrode_); ++c){
 				displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode_][c]);
 			}
 
-			buffer->Log("Switch (LFP) to tetrode ", display_tetrode_);
+			buffer->Log("Switch (LFP) to tetrode ", (int)display_tetrode_);
 		}
     }
 }

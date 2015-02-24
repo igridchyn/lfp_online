@@ -19,7 +19,7 @@ std::string Utils::Converter::int2str(int a){
 // TODO: fix types
 std::vector<int> Utils::Math::GetRange(const unsigned int& from, const unsigned int& to){
     std::vector<int> range;
-    for (int i = 0; i < to-from+1; ++i) {
+    for (unsigned int i = 0; i < to-from+1; ++i) {
         range.push_back(from + i);
     }
     return range;
@@ -30,7 +30,7 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
     std::vector<int> merged;
     merged = a1;
     
-    for (int i = 0; i < a2.size(); ++i) {
+    for (size_t i = 0; i < a2.size(); ++i) {
         merged.push_back(a2[i]);
     }
     
@@ -38,7 +38,7 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
 }
 
 void Utils::Output::printIntArray(int *array, const unsigned int num_el){
-    for (int e = 0; e < num_el; ++e) {
+    for (unsigned int e = 0; e < num_el; ++e) {
         std::cout << array[e] << " ";
     }
     std::cout << "\n";

@@ -29,7 +29,6 @@ void SDLControlInputMetaProcessor::process(){
     }
     
     SDL_Event e;
-    bool quit = false;
 
     // SDL_PollEvent took 2/3 of runtime without limitations
     while( SDL_PollEvent( &e ) != 0 )
@@ -45,10 +44,7 @@ void SDLControlInputMetaProcessor::process(){
     	 }
 
         //User requests quit
-        if( e.type == SDL_QUIT ) {
-            quit = true;
-        }
-        else {
+        if( e.type != SDL_QUIT ){
             // check for control switch
             if( e.type == SDL_KEYDOWN ){
                 SDL_Keymod kmod = SDL_GetModState();
@@ -87,7 +83,7 @@ void SDLControlInputMetaProcessor::process(){
                     // switch tetrode
 
                 	int shift = (kmod & KMOD_LSHIFT) ? 10 : 0;
-                	int tetrode = -1;
+                	unsigned int tetrode = LFPBuffer::TETRODE_UNKNOWN;
                     
                     switch( e.key.keysym.sym ) {
                             // TODO: all tetrodes (10-16: numpad; 17-32: RALT)
@@ -123,7 +119,7 @@ void SDLControlInputMetaProcessor::process(){
                             break;
                     }
                     
-                    if (tetrode >= 0){
+                    if (tetrode != LFPBuffer::TETRODE_UNKNOWN){
                     	if (tetrode < buffer->tetr_info_->tetrodes_number()){
                     		SwitchDisplayTetrode(tetrode);
                     		buffer->Log(std::string("Switch displays to tetrode #") + Utils::NUMBERS[tetrode]);
@@ -158,14 +154,14 @@ SDLControlInputMetaProcessor::SDLControlInputMetaProcessor(LFPBuffer* buffer, st
 
 	Log("Constructor done");
 
-	for(int i = 0; i < control_processors_.size(); ++i){
+	for(size_t i = 0; i < control_processors_.size(); ++i){
 		SDLSingleWindowDisplay *cp_w = dynamic_cast<SDLSingleWindowDisplay*>(control_processors_[i]);
 		cp_by_win_id_[cp_w->GetWindowID()] = control_processors_[i];
 	}
 }
 
 void SDLControlInputMetaProcessor::SwitchDisplayTetrode(const unsigned int& display_tetrode){
-    for (int pi=0; pi < control_processors_.size(); ++pi) {
+    for (size_t pi=0; pi < control_processors_.size(); ++pi) {
         control_processors_[pi]->SetDisplayTetrode(display_tetrode);
     }
 }

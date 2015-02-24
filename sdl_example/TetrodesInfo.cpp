@@ -57,7 +57,7 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 
 	std::ifstream tconfig(config_path);
 
-	int tetrn = 0;
+	unsigned int tetrn = 0;
 	tconfig >> tetrn;
 
 	if (tetrn <= 0){
@@ -93,7 +93,7 @@ TetrodesInfo::~TetrodesInfo() {
 
 bool TetrodesInfo::ContainsChannel(const unsigned int& channel) {
 	for (unsigned int t = 0; t < tetrodes_number(); ++t) {
-		for (int c = 0; c < tetrode_channels[t].size(); ++c) {
+		for (size_t c = 0; c < tetrode_channels[t].size(); ++c) {
 			if (tetrode_channels[t][c] == channel)
 				return true;
 		}
@@ -103,7 +103,7 @@ bool TetrodesInfo::ContainsChannel(const unsigned int& channel) {
 }
 
 bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
-	for (int c = 0; c < channels.size(); ++c) {
+	for (size_t c = 0; c < channels.size(); ++c) {
 		if (!ContainsChannel(c))
 			return false;
 	}

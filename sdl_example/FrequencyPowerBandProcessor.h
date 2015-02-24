@@ -12,7 +12,7 @@
 
 class FrequencyPowerBandProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     const int FACTOR;
-    const int BUF_LEN;
+    const unsigned int BUF_LEN;
     const int ANAL_RATE;
 
     unsigned int last_performed_an = 0;

@@ -14,7 +14,7 @@
 template<class T>
 class SpikeValidator{
 protected:
-	const int BUF_HEAD_SIZE;
+    std::string name_;
 
     // taget buffer to be validated
     Spike **targ_buf_;
@@ -26,7 +26,8 @@ protected:
     int gt_data_shift_;
     int gt_pos_ = 0;
     
-    std::string name_;
+    const int BUF_HEAD_SIZE;
+
     bool pass_reported = false;
     
     virtual T get_feature(Spike *spike) = 0;

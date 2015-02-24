@@ -70,7 +70,7 @@ UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string tes
     , test_dir_(test_dir){
     // load ground-truth data of part of the signal - from text-files
     
-    const int CHANNEL = 8;
+//    const int CHANNEL = 8;
         
     // filtered signal
     // TODO configure inclusion
@@ -83,13 +83,13 @@ UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string tes
 
 void UnitTestingProcessor::process(){
     // validate arrays
-    for (int i=0; i < int_array_validators_.size(); ++i){
+    for (size_t i=0; i < int_array_validators_.size(); ++i){
         if (!int_array_validators_[i]->validate()){
             exit(1);
         }
     }
     
-    for (int i=0; i < int_spike_validators_.size(); ++i){
+    for (size_t i=0; i < int_spike_validators_.size(); ++i){
         if (!int_spike_validators_[i]->validate()){
             exit(1);
         }

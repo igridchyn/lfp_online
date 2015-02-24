@@ -57,7 +57,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			std::cout << "WARNING: parametric TPs used instead of loading estimates...\n";
 		}
 
-		for (int b = 0; b < NBINSX * NBINSY; ++b) {
+		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			// extract
 			trans_probs_[b] = tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
 
@@ -87,8 +87,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			trans_probs_[b] = arma::log(trans_probs_[b]);
 
 			// replace nans with large negative value
-			for (int dx = 0; dx < NEIGHB_SIZE; ++dx) {
-				for (int dy = 0; dy < NEIGHB_SIZE; ++dy) {
+			for (unsigned int dx = 0; dx < NEIGHB_SIZE; ++dx) {
+				for (unsigned int dy = 0; dy < NEIGHB_SIZE; ++dy) {
 					// WORKAROUND
 					if (isnan(trans_probs_[b](dx, dy))){ // || isinf(trans_probs_[b](dx, dy))){
 						trans_probs_[b](dx, dy) = -100000;
@@ -134,8 +134,8 @@ void TransProbEstimationProcessor::process() {
 		if (tmpy == 0)
 			yb = 0;
 
-		int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
-		int shift_coord_y = b_shift_y + (int)NEIGHB_SIZE / 2;
+		unsigned int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
+		unsigned int shift_coord_y = b_shift_y + (int)NEIGHB_SIZE / 2;
 
 		if (shift_coord_x >=0 && shift_coord_x < NEIGHB_SIZE && shift_coord_y >=0 && shift_coord_y < NEIGHB_SIZE){
 			trans_probs_[NBINSX * yb + xb](shift_coord_x, shift_coord_y) += 1;
@@ -150,7 +150,7 @@ void TransProbEstimationProcessor::process() {
 
 		arma::mat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
 
-		for (int b = 0; b < NBINSX * NBINSY; ++b) {
+		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			double psum = arma::sum(arma::sum(trans_probs_[b]));
 			trans_probs_[b] /= psum;
 			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) = trans_probs_[b];

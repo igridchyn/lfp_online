@@ -13,31 +13,29 @@
 #include "SDLSingleWindowDisplay.h"
 
 class SDLSignalDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
-    const int SCREEN_HEIGHT;
-    const int SCREEN_WIDTH;
-
     static const int DISP_FREQ = 30;
-    
-    // 11000
-    int SHIFT; // 1300
-    
-    float plot_scale; // 40 - 1
-    int plot_hor_scale; // controlled
-    
-    //
+
     std::vector<unsigned int> displayed_channels_;
-	int display_tetrode_;
+	unsigned int display_tetrode_;
     
     // previous displayed coordinate (y)
     int *prev_vals_ = nullptr;
     
     int transform_to_y_coord(int voltage);
     void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);
-    int current_x;
+    unsigned int current_x;
     
     // last disaplued position in buffer
     int last_disp_pos;
     
+    const unsigned int SCREEN_HEIGHT;
+    const unsigned int SCREEN_WIDTH;
+
+    int plot_hor_scale; // controlled
+    float plot_scale; // 40 - 1
+
+    int SHIFT;
+
     // number of unrendered signal samples (subject to threshold)
     int unrendered = 0;
     

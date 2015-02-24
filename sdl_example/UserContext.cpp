@@ -90,16 +90,16 @@ UserAction::UserAction(UserActionType action_type, int cluster_number_1,
 		PolygonCluster poly_clust_2)
 : action_type_(action_type)
 , cluster_number_1_(cluster_number_1)
-, poly_clust_1_(poly_clust_1)
 , cluster_number_2_(cluster_number2)
+, poly_clust_1_(poly_clust_1)
 , poly_clust_2_(poly_clust_2)
 , id_(++ last_id_)
 {
 }
 
 UserAction::UserAction(UserActionType action_type, int cluster_number)
-: cluster_number_1_(cluster_number)
-, action_type_(action_type)
+: action_type_(action_type)
+, cluster_number_1_(cluster_number)
 , id_(++ last_id_ )
 {
 }

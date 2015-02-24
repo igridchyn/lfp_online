@@ -15,16 +15,20 @@
 // TODO: create abstract clustering class
 class GMMClusteringProcessor : public LFPProcessor{
 //    unsigned int dimensionality_;
-	unsigned int num_princomp_;
 
+    unsigned int min_observations_;
     unsigned int rate_;
     unsigned int max_clusters_;
-    unsigned int nclust_step_;
-    int min_observations_;
     
     bool save_clustering_ = false;
     bool load_clustering_ = true;
     
+    const std::string gmm_path_basename_;
+
+	unsigned int num_princomp_;
+
+    unsigned int nclust_step_;
+
     // classify every .. spikes (to reduce computations overhead)
     static const int classification_rate_ = 1;
     
@@ -50,8 +54,7 @@ class GMMClusteringProcessor : public LFPProcessor{
     std::vector<bool> clustering_job_running_;
     
     mlpack::gmm::GMM<> fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
-    
-    const std::string gmm_path_basename_;
+
 
     void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode);
     mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename);

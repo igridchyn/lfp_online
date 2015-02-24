@@ -15,9 +15,9 @@ protected:
     const unsigned int window_width_;
     const unsigned int window_height_;
 
-    ColorPalette palette_;
+    std::string name_;
 
-	std::string name_;
+    ColorPalette palette_;
 
 	unsigned int text_stack_height_ = 0;
 

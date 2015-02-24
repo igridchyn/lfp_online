@@ -9,9 +9,9 @@
 #include "LFPProcessor.h"
 
 void WaveShapeReconstructionProcessor::construct_lookup_table(){
-    int nosm = 32;
+    unsigned int nosm = 32;
     
-    int i,j,k,l;
+    unsigned int k = 0, i = 0, j = 0, l = 0;
     double t,di,ns;
     sin_table= (double *) calloc(nosm*mul,sizeof(double));
     t_table= (double *) calloc(nosm*mul,sizeof(double));
@@ -65,8 +65,8 @@ void WaveShapeReconstructionProcessor::construct_lookup_table(){
 int WaveShapeReconstructionProcessor::optimized_value(int num_sampl,int *sampl,int h){
     /* assumes even num_sampl */
     int i,it;
-    double sz1,ns,sina,t;
-    ns = num_sampl; /* make it double! */
+    double sz1,sina,t;
+//    ns = num_sampl; /* make it double! */
     
     t = t_table[h];
     // only to see if t==it (integer time point)
@@ -89,7 +89,7 @@ void WaveShapeReconstructionProcessor::load_restore_one_spike(Spike *spike){
     
     // reconstruct using interpolation of mul-1 values in-between sampled ones
     for(int i=0,h=0;i<32;i++) {
-        for(int k=0;k<mul;k++,h++) {
+        for(unsigned int k=0;k<mul;k++,h++) {
             for(int j=0;j<spike->num_channels_;j++) {
                 rec_tmp_[j][i*mul+k]=optimized_value(32, spike->waveshape[j], h);
             }

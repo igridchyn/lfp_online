@@ -21,16 +21,16 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf)
 SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name,
 		const unsigned int& window_width,
     		const unsigned int& window_height)
-    : SDLControlInputProcessor(buf)
+	: LFPProcessor(buf)
+	, SDLControlInputProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
-	, LFPProcessor(buf)
 	, scale_(buf->config_->getInt("waveshapedisp.scale", 25))
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
 	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 1))
-	, display_final_(buffer->config_->getBool("waveshapedisp.final", false))
-	, buf_pointer_(buffer->spike_buf_pos_ws_disp_)
+	, display_final_(buf->config_->getBool("waveshapedisp.final", false))
+	, buf_pointer_(buf->spike_buf_pos_ws_disp_)
 {
-	for (int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+	for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 		cluster_cuts_.push_back(std::vector<std::vector<WaveshapeCut> >());
 		cluster_cuts_[t].resize(MAX_CLUST);
 	}
@@ -54,7 +54,7 @@ void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int cluster_id) {
 	if (cluster_id < 1)
 		return;
 
-	for (int cu = 0; cu < cluster_cuts_[targ_tetrode_][cluster_id].size(); ++cu) {
+	for (size_t cu = 0; cu < cluster_cuts_[targ_tetrode_][cluster_id].size(); ++cu) {
 		WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][cluster_id][cu];
 		DrawCross(2, cut.x1_, cut.y1_);
 		DrawCross(2, cut.x2_, cut.y2_);
@@ -110,6 +110,31 @@ void SDLWaveshapeDisplayProcessor::process() {
     		case UA_SELECT_CLUSTER2:
     			reinit();
     			break;
+
+    		case UA_NONE:
+    			break;
+
+    		case UA_CREATE_CLUSTER:
+    			break;
+
+    		case UA_MERGE_CLUSTERS:
+    			break;
+
+    		case UA_CUT_SPIKES:
+    			break;
+
+    		case UA_DELETE_CLUSTER:
+    			break;
+
+    			// TODO: show in which dimensions cluster has projections
+    		case UA_ADD_INCLUSIVE_PROJECTION:
+    			break;
+
+    		case UA_ADD_EXCLUSIVE_PROJECTION:
+    			break;
+
+    		case UA_REMOVE_PROJECTION:
+    			break;
     	}
     }
 
@@ -124,7 +149,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
-		if (spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 || (spike->cluster_id_ != disp_cluster_1_ && spike->cluster_id_ != disp_cluster_2_) || spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
+		if ((unsigned int)spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 || ((unsigned int)spike->cluster_id_ != disp_cluster_1_ && (unsigned int)spike->cluster_id_ != disp_cluster_2_) || spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
             buf_pointer_++;
             tetrode_total_spikes_ ++;
             continue;
@@ -133,7 +158,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 			// check if falls under any cluster cuts
 		// TODO make cuts checks optional
 		bool is_cut = false;
-		for(int c= 0; c < cluster_cuts_[targ_tetrode_][spike->cluster_id_].size(); ++c){
+		for(size_t c= 0; c < cluster_cuts_[targ_tetrode_][spike->cluster_id_].size(); ++c){
 			// TODO save cut with channel and transform
 
 			WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][spike->cluster_id_][c];
@@ -294,13 +319,13 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         				if (user_context_.selected_cluster2_ > 0)
         					cluster_cuts_[targ_tetrode_][user_context_.selected_cluster2_].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
 
-        				for (int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
+        				for (unsigned int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
         					Spike *spike = buffer->spike_buffer_[s];
 
         					if (spike == nullptr)
         						continue;
 
-        					if (spike->tetrode_ == targ_tetrode_ && user_context_.IsSelected(spike)){
+        					if ((unsigned int)spike->tetrode_ == targ_tetrode_ && user_context_.IsSelected(spike)){
         						if (display_final_){
         							if (spike->crossesWaveShapeFinal(selected_channel_, xw1, yw1, xw2, yw2)){
         								spike->cluster_id_ = 0;

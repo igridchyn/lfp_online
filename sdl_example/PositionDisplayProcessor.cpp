@@ -98,7 +98,7 @@ void PositionDisplayProcessor::process(){
         
         if (spike->pc == nullptr || (spike->cluster_id_ == -1) || !display_cluster_[spike->cluster_id_]) // && !display_unclassified_))
         {
-			if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_]) || !wait_clust_ && (spike->cluster_id_ == -1)){
+			if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_]) || (!wait_clust_ && (spike->cluster_id_ == -1))){
                 buffer->spike_buf_pos_draw_xy++;
                 continue;
             }
