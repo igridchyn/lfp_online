@@ -49,12 +49,12 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	trans_probs_.resize(NBINSX * NBINSY, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 
 	if (LOAD){
-		std::cout << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
+		buffer->log_string_stream_ << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
 		arma::mat tps;
 		tps.load(BASE_PATH + "tps.mat");
 
 		if (USE_PARAMETRIC){
-			std::cout << "WARNING: parametric TPs used instead of loading estimates...\n";
+			buffer->log_string_stream_ << "WARNING: parametric TPs used instead of loading estimates...\n";
 		}
 
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
@@ -101,7 +101,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 		}
 
 		buffer->tps_ = trans_probs_;
-		std::cout << "done\n";
+		buffer->log_string_stream_ << "done\n";
+		buffer->Log();
 	}
 }
 
@@ -146,7 +147,7 @@ void TransProbEstimationProcessor::process() {
 
 	// TODO configurable interval
 	if (buffer->last_pkg_id > SAMPLING_END_ && !saved && SAVE){
-		std::cout << "save tps...";
+		buffer->Log("save tps...");
 
 		arma::mat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
 
@@ -160,6 +161,6 @@ void TransProbEstimationProcessor::process() {
 
 		buffer->tps_ = trans_probs_;
 		saved = true;
-		std::cout << "done\n";
+		buffer->Log("done");
 	}
 }

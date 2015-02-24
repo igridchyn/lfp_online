@@ -12,6 +12,7 @@
 #include <set>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 #include "LFPOnline.h"
 
@@ -42,6 +43,10 @@ public:
 	std::vector<std::string> spike_files_;
 
 	std::string config_path_;
+
+	std::stringstream log_string_stream_;
+
+	void Log();
 
 	Config(std::string path);
 

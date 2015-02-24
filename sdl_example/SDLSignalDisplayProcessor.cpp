@@ -27,7 +27,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer)
 {}
 
 std::string SDLSignalDisplayProcessor::name(){
-	return "SDLSignalDisplayProcessor";
+	return "Signal Display";
 }
 
 SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int& window_width,
@@ -52,7 +52,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
 
     // check if lfp display channels is a subset of read channels
     if (!buffer->tetr_info_->ContainsChannels(displayed_channels_)){
-    	std::cout << "WARNING: requested channels are absent in channels config, displaying first tetrode channels...\n";
+    	buffer->Log("WARNING: requested channels are absent in channels config, displaying first tetrode channels...");
     	displayed_channels_.clear();
     	for (unsigned int c = 0; c < buffer->tetr_info_->channels_number(0); ++c) {
     		displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[0][c]);

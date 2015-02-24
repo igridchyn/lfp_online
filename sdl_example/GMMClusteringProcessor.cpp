@@ -27,12 +27,12 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     	std::vector<arma::mat> covs;
     	arma::vec weights;
 
-    	std::cout << "Cluster weights: ";
+    	buffer->log_string_stream_ << "Cluster weights: ";
     	const double EPS = 0.00001;
     	int ngauss = 0;
     	for (size_t c = 0; c < gmm.Gaussians(); ++c) {
     		double w = gmm.Weights()(c);
-    		std::cout << w << " ";
+    		buffer->log_string_stream_ << w << " ";
 
     		if (w > EPS){
     			ngauss ++;
@@ -42,7 +42,8 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     			weights(ngauss - 1) = w;
     		}
 		}
-    	std::cout << "\n";
+    	buffer->log_string_stream_ << "\n";
+    	buffer->Log();
 
     	gmm = mlpack::gmm::GMM<>(means, covs, weights);
     	buffer->Log(std::string("Number of clusters after filtering: ") + Utils::NUMBERS[gmm.Gaussians()]);
@@ -182,7 +183,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     for (unsigned int i=0; i < gmm_[tetr].Gaussians(); ++i) {
         printf("\nprob %d = %f", i, gmm_[tetr].Weights()(i));
     }
-    std::cout << "\n";
+    buffer->Log("");
 }
 
 void GMMClusteringProcessor::saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){
@@ -313,6 +314,6 @@ void GMMClusteringProcessor::JoinGMMTasks(){
         if(clustering_job_running_[t])
             clustering_jobs_[t]->join();
     }
-    std::cout << "All running GMM finished...\n";
+    buffer->Log("All running GMM finished...");
 }
 

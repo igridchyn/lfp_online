@@ -161,5 +161,5 @@ void LPTTriggerProcessor::process() {
 }
 
 std::string LPTTriggerProcessor::name() {
-	return "LPTTriggerProcessor";
+	return "LPT Trigger";
 }

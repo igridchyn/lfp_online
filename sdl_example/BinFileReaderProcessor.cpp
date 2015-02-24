@@ -29,7 +29,7 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 
 	if (file_path_.length() > 0){
 		if (!Utils::FS::FileExists(file_path_)){
-			std::cout << "File doesn't exist or is unavailable: " << file_path_ << "\n";
+			buffer->Log("File doesn't exist or is unavailable: " + file_path_);
 			exit(LFPONLINE_ERROR_BIN_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 		}
 		bin_file_ = fopen(file_path_.c_str(), "rb");
@@ -52,7 +52,7 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 		}
 
 		if (!Utils::FS::FileExists(file_path_)){
-			std::cout << "File doesn't exist or is unavailable: " << file_path_ << ". Exit\n";
+			buffer->Log("File doesn't exist or is unavailable: " + file_path_);
 			exit(LFPONLINE_ERROR_BIN_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 		}
 

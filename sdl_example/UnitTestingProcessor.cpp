@@ -167,5 +167,5 @@ int SpikeDetectionValidator::get_feature(Spike *spike){
 }
 
 std::string UnitTestingProcessor::name() {
-	return "UnitTesting";
+	return "Unit Testing";
 }

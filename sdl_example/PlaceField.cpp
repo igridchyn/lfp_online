@@ -21,26 +21,16 @@ void PlaceField::Load(const std::string path, arma::file_type ft){
 	place_field_.load(path, ft);
 }
 
-void PlaceField::AddSpike(Spike *spike){
+bool PlaceField::AddSpike(Spike *spike){
     int xb = (int)round(spike->x / bin_size_);
     int yb = (int)round(spike->y / bin_size_);
-    
-    // TODO: ? reconstruct ?? (in previous proc)
-    // unknown coord
-    if (spike->x == 1023 || spike->y == 1023){
-        return;
-    }
-    
-    // WORKAOURND
-    // TODO handle x/y overflow
-    if (xb >= NBINSX || yb >= NBINSY){
-    	// DEBUG
-    	std::cout << "overflow in x/y: " << xb << ", " << yb << "\n";
-    	return;
-    }
 
+    if (xb >= NBINSX || yb >= NBINSY){
+    	return false;
+    }
 
     place_field_(yb, xb) += 1;
+    return true;
     
     // normalizer - sum of all values to be added
     // TODO: cache vals
@@ -173,11 +163,6 @@ void PlaceField::CachePDF(PlaceField::PDFType pdf_type, const PlaceField& occupa
             for (int s = 1; s < MAX_SPIKES; ++s) {
                 logp += lambda > 0 ? log(lambda / s) : -1000000; // p(s) = exp(-lambda) * lambda^s / s!; log(p(s)/p(s-1)) = log(lambda/s)
                 pdf_cache_(r, c, s) = logp;
-
-                // DEBUG
-                if (lambda > 3){
-                	std::cout << logp << " ";
-                }
             }
         }
     }

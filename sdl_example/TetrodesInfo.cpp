@@ -53,16 +53,14 @@ TetrodesInfo* TetrodesInfo::GetMergedTetrodesInfo(const TetrodesInfo* ti1, const
 }
 
 TetrodesInfo::TetrodesInfo(std::string config_path) {
-	std::cout << "Read tetrodes configuration from " << config_path << "\n";
-
 	std::ifstream tconfig(config_path);
 
 	unsigned int tetrn = 0;
 	tconfig >> tetrn;
 
 	if (tetrn <= 0){
-		std::cout << "# of tetrodes should be positive! Terminating...\n";
-		exit(100);
+		status_ = TI_STATUS_BAD_TETRODES_NUMBER;
+		return;
 	}
 
 	tetrode_channels.resize(tetrn);
@@ -83,6 +81,8 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 		int abstetr = (int)floor(tetrode_channels[t][0] / 4);
 		tetrode_label_map_[abstetr] = t;
 	}
+
+	status_ = TI_STATUS_LOADED;
 }
 
 TetrodesInfo::TetrodesInfo() {

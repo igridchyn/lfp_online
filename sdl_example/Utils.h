@@ -21,7 +21,7 @@ public:
     
     class Output{
     public:
-        static void printIntArray(int *array, const unsigned int num_el);
+        static void printIntArray(int *array, const unsigned int num_el, std::ostream stream);
     };
     
     class FS{
@@ -34,11 +34,8 @@ public:
         // create directories at all levels up to the file specified in the argument
         static bool CreateDirectories(const std::string file_path){
             std::string  path_dir = file_path.substr(0, file_path.find_last_of('/'));
-            std::cout << "Create directory " << path_dir << "\n";
             
             if(!boost::filesystem::exists(path_dir)){
-                // TODO fix for Apple
-                
                 boost::filesystem::create_directories(path_dir);
             }
             

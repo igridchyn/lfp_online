@@ -18,7 +18,8 @@ void Config::read_processors(std::ifstream& fconf) {
 
 	int numproc;
 	fconf >> numproc;
-	std::cout << numproc << " processors to be used in the pipeline\n";
+	log_string_stream_ << numproc << " processors to be used in the pipeline\n";
+	Log();
 
 	std::string proc_name;
 	for (int p = 0; p < numproc; ++p) {
@@ -26,8 +27,8 @@ void Config::read_processors(std::ifstream& fconf) {
 		if (std::find(known_processors_.begin(), known_processors_.end(), proc_name) == known_processors_.end() &&
 				(proc_name[0]!='/' || proc_name[1]!='/' ||
 						std::find(known_processors_.begin(), known_processors_.end(), proc_name.substr(2, proc_name.length() - 2)) == known_processors_.end())){
-			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
-			log_ << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
+			log_string_stream_ << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
+			Log();
 			log_.close();
 			exit(LFPONLINE_ERROR_UNKNOWN_PROCESSOR);
 		}
@@ -82,7 +83,8 @@ Config::Config(std::string path) {
 	//	known_processors_.push_back(proc);	
 	//}
 
-	std::cout << "Read config file: " << path << "\n";
+	log_string_stream_ << "Read config file: " << path << "\n";
+	Log();
 
 	while(std::getline(fconf, line)){
 		if (line.length() == 0 || line[0] == '/')
@@ -122,7 +124,8 @@ Config::Config(std::string path) {
 			std::string value;
 			if (std::getline(ssline, value)){
 				params_[key] = value;
-				std::cout << " " << key << " = " << value << "\n";
+				log_string_stream_ << " " << key << " = " << value << "\n";
+				Log();
 
 				if (key == "lfpdisp.channels.number"){
 					// read lfp channel numbers to display
@@ -146,11 +149,13 @@ Config::Config(std::string path) {
 
 			}
 			else{
-				std::cout << "WARNING: unreadable config entry: " << line << "\n";
+				log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
+				Log();
 			}
 		}
 		else{
-			std::cout << "WARNING: unreadable config entry: " << line << "\n";
+			log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
+			Log();
 		}
 	}
 
@@ -159,12 +164,14 @@ Config::Config(std::string path) {
 
 bool Config::check_parameter(std::string name, bool exit_on_fail){
 	if (params_.find(name) == params_.end()){
-		std::cout << (exit_on_fail ? "ERROR" : "WARNING") << ": no parameter named " << name << "\n";
+		log_string_stream_ << (exit_on_fail ? "ERROR" : "WARNING") << ": no parameter named " << name << "\n";
 		if (exit_on_fail){
-			log_ << "ERROR: no parameter named " << name << "\n";
+			log_string_stream_ << "ERROR: no parameter named " << name << "\n";
+			Log();
 			log_.close();
 			exit(LFPONLINE_ERROR_MISSING_PARAMETER);
 		}else{
+			Log();
 			return false;
 		}
 	}
@@ -202,7 +209,8 @@ std::string Config::getString(std::string name) {
 void Config::checkUnused() {
 	for(std::map<std::string, std::string>::iterator iter = params_.begin(); iter != params_.end(); ++iter){
 		//if (requested_params_.find(iter->first) == requested_params_.end()){
-			std::cout << "WARNING: param " << iter->first << " read but not requested\n";
+		log_string_stream_ << "WARNING: param " << iter->first << " read but not requested\n";
+		Log();
 		//}
 	}
 }
@@ -211,7 +219,8 @@ int Config::getInt(std::string name, const int def_val) {
 	if (check_parameter(name, false))
 		return getInt(name);
 	else{
-		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		log_string_stream_ << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		Log();
 		return def_val;
 	}
 }
@@ -220,7 +229,8 @@ float Config::getFloat(std::string name, const float def_val) {
 	if (check_parameter(name, false))
 			return getFloat(name);
 	else{
-		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		log_string_stream_ << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		Log();
 		return def_val;
 	}
 }
@@ -229,7 +239,8 @@ bool Config::getBool(std::string name, bool def_val) {
 	if (check_parameter(name, false))
 		return getBool(name);
 	else{
-		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		log_string_stream_ << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		Log();
 		return def_val;
 	}
 }
@@ -238,7 +249,8 @@ std::string Config::getString(std::string name, std::string def_val) {
 	if (check_parameter(name, false))
 		return getString(name);
 	else{
-		std::cout << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		log_string_stream_ << "WARNING: using default value " << def_val << " for parameter " << name << "\n";
+		Log();
 		return def_val;
 	}
 }
@@ -274,6 +286,12 @@ std::string Config::getOutPath(std::string outname,
 
 Config::~Config() {
 	log_.close();
+}
+
+void Config::Log() {
+	log_ << log_string_stream_.str();
+	std::cout << log_string_stream_.str();
+	log_string_stream_.clear();
 }
 
 std::string Config::getAllParamsText() {

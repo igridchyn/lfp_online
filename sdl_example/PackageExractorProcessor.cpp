@@ -161,5 +161,5 @@ void PackageExractorProcessor::process(){
 }
 
 std::string PackageExractorProcessor::name() {
-	return "PackageExtractorProcessor";
+	return "Package Extractor";
 }

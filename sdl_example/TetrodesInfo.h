@@ -18,6 +18,12 @@
 #include <string.h>
 #include <string>
 
+enum TetrodesInfoStatus{
+	TI_STATUS_LOADED,
+	TI_STATUS_BAD_TETRODES_NUMBER,
+	TI_STATUS_UNKNOWN,
+};
+
 class TetrodesInfo{
 
 public:
@@ -37,6 +43,8 @@ public:
 	//	with -1 meaning tetrode is absent in the configuration
 	// ASSUMPTION: channels of the same tetrode have the same integer multiple of 4
 	std::vector<unsigned int> tetrode_label_map_;
+
+	TetrodesInfoStatus status_ = TI_STATUS_UNKNOWN;
 
     int number_of_channels(Spike* spike) const;
 

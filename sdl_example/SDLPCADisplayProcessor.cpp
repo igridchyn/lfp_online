@@ -381,7 +381,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				}
 			}
 			else{
-				std::cout << "Left button at " << e.button.x << ", " << e.button.y << "\n";
+				buffer->log_string_stream_ << "Left button at " << e.button.x << ", " << e.button.y << "\n";
+				buffer->Log();
 				if (!polygon_closed_){
 					polygon_x_.push_back((e.button.x - shift_x_) * scale_);
 					polygon_y_.push_back((e.button.y - shift_y_) * scale_);

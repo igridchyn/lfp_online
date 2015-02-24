@@ -142,7 +142,11 @@ void PlaceFieldProcessor::process(){
         unsigned int clust = spike->cluster_id_;
      
         if (spike->speed > SPEED_THOLD){
-            place_fields_[tetr][clust].AddSpike(spike);
+            bool spike_added = place_fields_[tetr][clust].AddSpike(spike);
+            if (!spike_added){
+            	buffer->log_string_stream_ << "Spike with coordinates " << spike->x << ", " << spike->y << " not added.\n";
+            	buffer->Log();
+            }
         }
         
         buffer->spike_buf_pos_pf_++;
@@ -374,7 +378,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 
     // DEBUG
     if (!(buffer->last_pkg_id % 20))
-    	std::cout << fr_cnt << " clsuters with FR > thold\n";
+    	buffer->Log("Clusters with FR > thold: ", fr_cnt);
 
     // normalize by sum to have probabilities
     const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));

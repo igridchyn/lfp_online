@@ -176,6 +176,8 @@ public:
     WaveShapeReconstructionProcessor(LFPBuffer* buffer);
     WaveShapeReconstructionProcessor(LFPBuffer* buffer, int mul);
     virtual void process();
+
+    virtual inline std::string name() { return "Waveshape Reconstruction"; }
 };
 
 //==========================================================================================

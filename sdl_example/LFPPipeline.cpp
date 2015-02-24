@@ -97,7 +97,6 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new BinFileReaderProcessor(buf));
 		}
 		else{
-			std::cout << "ERROR: Unknown processor: " << proc_name << ". Terminating...\n";
 			buf->Log(std::string("ERROR: Unknown processor: ") + proc_name + ". Terminating...");
 			exit(1);
 		}

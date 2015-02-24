@@ -37,6 +37,11 @@ void LFPBuffer::Reset(Config* config) {
 		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 
+	if (tetr_info_->status_ == TI_STATUS_BAD_TETRODES_NUMBER){
+		Log("Bad tetrodes nuber, exiting...");
+		exit(LFPONLINE_BAD_TETRODES_CONFIG);
+	}
+
 	// set dimensionalities for each number of channels per tetrode
 	std::vector<int> pc_per_chan;
 	pc_per_chan.push_back(0);
@@ -60,7 +65,12 @@ void LFPBuffer::Reset(Config* config) {
 	std::string tipath = config->getString("tetr.conf.path.0", config->getString("tetr.conf.path"));
 	int ticount = 1;
 	while (tiexists){
-		alt_tetr_infos_.push_back(new TetrodesInfo(tipath));
+		TetrodesInfo *new_ti = new TetrodesInfo(tipath);
+		if (new_ti -> status_ == TI_STATUS_BAD_TETRODES_NUMBER){
+			Log("Bad tetrodes nuber, exiting...");
+			exit(LFPONLINE_BAD_TETRODES_CONFIG);
+		}
+		alt_tetr_infos_.push_back(new_ti);
 		tipath = config_->getString(std::string("tetr.conf.path.") + Utils::NUMBERS[ticount], "");
 
 		if (tipath.length() == 0){
@@ -241,7 +251,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	buffer[16] = '-';
 	log_stream.open(config->getString("out.path.base") + log_path_prefix + buffer + ".txt", std::ios_base::app);
 
-	std::cout << "Created LOG\n";
+	Log("Created LOG");
 
 	// TODO !!! create buffer only for valid channels
     for (size_t c = 0; c < CHANNEL_NUM; ++c){
@@ -385,7 +395,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 
 		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 
-		std::cout << "Spike buffer rewind (at pos " << buf_pos <<  ")!\n";
+		Log("Spike buffer rewind at pos ", buf_pos);
 	}
 }
 
@@ -409,6 +419,21 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 	RemoveSpikesOutsideWindow(last_pkg_id);
 	// whether have at least synchrony.factor X average spikes at all tetrodes
 	return (high_synchrony_tetrode_spikes_ >= average_spikes_window * high_synchrony_factor_);
+}
+
+
+void LFPBuffer::Log() {
+	std::cout << log_string_stream_.str();
+	log_stream << log_string_stream_.str();
+	log_stream.flush();
+	log_string_stream_.clear();
+}
+
+void LFPBuffer::Log(std::string message, unsigned int num){
+	std::cout << message << num << "\n";
+	log_stream << message << num << "\n";
+	// TODO remove in release
+	log_stream.flush();
 }
 
 // TODO template
@@ -478,7 +503,8 @@ void LFPBuffer::ResetAC(const unsigned int& reset_tetrode) {
 void LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
 		const std::string msg, bool set_checkpoint) {
 	if (pkg_id == target_pkg_id_){
-		std::cout << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+		log_string_stream_ << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+		Log();
 		if (set_checkpoint){
 			checkpoint_ = clock();
 		}
@@ -488,7 +514,8 @@ void LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
 void LFPBuffer::CheckBufPosAndReportTime(const unsigned int& buf_pos,
 		const std::string msg) {
 	if (buf_pos == target_buf_pos_){
-		std::cout << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+		log_string_stream_ << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+		Log();
 	}
 }
 

@@ -37,9 +37,9 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
     return merged;
 }
 
-void Utils::Output::printIntArray(int *array, const unsigned int num_el){
+void Utils::Output::printIntArray(int *array, const unsigned int num_el, std::ostream stream){
     for (unsigned int e = 0; e < num_el; ++e) {
-        std::cout << array[e] << " ";
+    	stream << array[e] << " ";
     }
-    std::cout << "\n";
+    stream << "\n";
 }

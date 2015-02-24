@@ -29,7 +29,8 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 		swrs_[swrs_.size() - 1].push_back(e);
 	}
 
-	std::cout << "Read " << swrs_.size() << " SWRs.\n";
+	buffer->log_string_stream_ << "Read " << swrs_.size() << " SWRs.\n";
+	buffer->Log();
 	swr_stream.close();
 }
 

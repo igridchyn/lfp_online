@@ -49,7 +49,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 		}
 
 		unsigned int dur_sec = total_dur / buffer->SAMPLING_RATE;
-		std::cout << "Approximate duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
+		buffer->log_string_stream_ << "Approximate duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
+		buffer->Log();
 		buffer->input_duration_ = total_dur;
 	}
 
@@ -139,7 +140,8 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 	if (fet_stream.eof()){
 		num_files_with_spikes_ --;
-		std::cout << "Out of spikes in tetorde " << tetr << ", " << num_files_with_spikes_ << " files left\n";
+		buffer->log_string_stream_ << "Out of spikes in tetorde " << tetr << ", " << num_files_with_spikes_ << " files left\n";
+		buffer->Log();
 		file_over_[tetr] = true;
 	}
 
@@ -310,7 +312,8 @@ void FetFileReaderProcessor::process() {
 	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
 
 	if (last_spike_pkg_id - last_reported_ > report_rate_){
-		std::cout << "Loaded spikes for the first " << last_reported_ / report_rate_ * 5 << " minutes of recording...\n";
+		buffer->log_string_stream_ << "Loaded spikes for the first " << last_reported_ / report_rate_ * 5 << " minutes of recording...\n";
+		buffer->Log();
 		last_reported_ = last_spike_pkg_id;
 	}
 }

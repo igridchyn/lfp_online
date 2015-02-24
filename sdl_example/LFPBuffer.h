@@ -58,7 +58,8 @@ enum LFPONLINE__ERROR_CODES{
 	LFPONLINE_ERROR_FET_FILE_DOESNT_EXIST_OR_UNAVAILABLE,
 	LFPONLINE_ERROR_UNKNOWN_POS_BUFFER_POINTER,
 	LFPONLINE_WRONG_TETRODES_NUMBER,
-	LFPONLINE_BAD_ALLOC
+	LFPONLINE_BAD_ALLOC,
+	LFPONLINE_BAD_TETRODES_CONFIG
 };
 
 class SpatialInfo{
@@ -279,6 +280,8 @@ public:
 	const static unsigned int TETRODE_UNKNOWN = std::numeric_limits<unsigned int>::max();
 	const static unsigned int CLUSTER_UNKNOWN = std::numeric_limits<unsigned int>::max();
 
+	std::stringstream log_string_stream_;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);
@@ -300,8 +303,10 @@ public:
 
     void AddSpike(Spike *spike);
 
+    void Log();
     void Log(std::string message);
     void Log(std::string message, int num);
+    void Log(std::string message, unsigned int num);
     void Log(std::string message, size_t num);
     void Log(std::string message, double num);
 

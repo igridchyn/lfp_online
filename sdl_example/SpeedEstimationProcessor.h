@@ -20,7 +20,7 @@ public:
 
 	// LFPProcessor
 	virtual void process();
-	virtual inline std::string name() { return "Spped Estimator"; }
+	virtual inline std::string name() { return "Speed Estimator"; }
 };
 
 #endif /* SPEEDESTIMATIONPROCESSOR_H_ */

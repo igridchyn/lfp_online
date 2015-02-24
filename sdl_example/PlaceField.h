@@ -40,7 +40,7 @@ public:
     PlaceField(const arma::mat& mat, const double& sigma, const double& bin_size, const unsigned int& spread);
 
     // PlaceField doesn't know about its identity and doesn't check spikes
-    void AddSpike(Spike *spike);
+    bool AddSpike(Spike *spike);
     
     inline const double& operator()(unsigned int x, unsigned int y) const { return place_field_(x, y); }
     inline       double& operator()(unsigned int x, unsigned int y)       { return place_field_(x, y); }
