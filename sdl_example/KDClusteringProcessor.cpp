@@ -620,7 +620,9 @@ void KDClusteringProcessor::process(){
 				}
 			}
 
+			// TODO !!! general
 			ANNpoint pnt = annAllocPt(nfeat);
+
 			double dist;
 			int closest_ind;
 			// at this points all tetrodes have pfs !
@@ -665,6 +667,8 @@ void KDClusteringProcessor::process(){
 				// spike may be without speed (the last one) - but it's not crucial
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 			}
+
+			annDeallocPt(pnt);
 
 			// if have to wait until the speed estimate
 			if(WAIT_FOR_SPEED_EST && (unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE) >= buffer->pos_buf_pos_speed_est){

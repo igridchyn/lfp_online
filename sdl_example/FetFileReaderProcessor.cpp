@@ -159,7 +159,6 @@ void FetFileReaderProcessor::openNextFile() {
 	if (current_file_ < buffer->config_->spike_files_.size() - 1){
 		current_file_ ++;
 
-		// TODO !!! close previous files
 		int num_files_ = fet_streams_.size();
 		for (int i=0; i < num_files_; ++i){
 			fet_streams_[i]->close();
