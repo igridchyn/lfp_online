@@ -120,5 +120,5 @@ clean:
 	rm *.o
 	rm lfp_online
 	
-kde_estimator: LFPProcessor.o ../KDE_Estimator.cpp Config.o LFPBuffer.o UserContext.o PolygonCluster.o TetrodesInfo.o
-	${CC} ${CFLAGS} -lANN ../KDE_Estimator.cpp LFPProcessor.o Config.o LFPBuffer.o UserContext.o PolygonCluster.o TetrodesInfo.o ${LDFLAGS} -o kde_estimator
+kde_estimator: LFPProcessor.o ../KDE_Estimator.cpp Config.o LFPBuffer.o UserContext.o PolygonCluster.o TetrodesInfo.o Utils.o
+	${CC} ${CFLAGS} -lANN ../KDE_Estimator.cpp LFPProcessor.o Config.o LFPBuffer.o UserContext.o PolygonCluster.o TetrodesInfo.o Utils.o ${LDFLAGS} -o kde_estimator

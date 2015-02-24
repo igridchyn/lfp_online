@@ -66,7 +66,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			USE_HMM(getBool("kd.use.hmm")),
 			NBINSX(getInt("nbinsx")),
 			NBINSY(getInt("nbinsy")),
-			BIN_SIZE(getInt("bin.size")),
+			BIN_SIZE(getFloat("bin.size")),
 			HMM_NEIGHB_RAD(getInt("kd.hmm.neighb.rad")),
 			PREDICTION_DELAY(getInt("kd.prediction.delay")),
 			NN_K(getInt("kd.nn.k")),
@@ -885,8 +885,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	std::ostringstream  os;
 	const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 	os << kde_path_ << " " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " <<
-			MULT_INT << " " << BIN_SIZE << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
-			tetrode_sampling_rates_[tetr] + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << NN_EPS
+			MULT_INT  << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " <<
+			tetrode_sampling_rates_[tetr] + 1 << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " " << SAMPLING_DELAY << " " << BIN_SIZE << " " << NN_EPS
 			<< " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;
 	std::cout << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";
 

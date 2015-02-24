@@ -44,18 +44,14 @@ class KDClusteringProcessor: public LFPProcessor {
 	const unsigned int NBINSX, NBINSY;
 
 	// TODO float
-	const unsigned int BIN_SIZE;
+	const double BIN_SIZE;
 
 	const int HMM_NEIGHB_RAD;
 
 	const unsigned int PREDICTION_DELAY;
 
-	// TODO: parametrize (from main for a start)
 	const unsigned int NN_K ;
 	const unsigned int NN_K_COORDS;
-
-	// TODO: configurableize
-	const unsigned int DIM = 12;
 
 	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT;

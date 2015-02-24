@@ -22,7 +22,7 @@ int NN_K;
 int NN_K_COORDS;
 int N_FEAT;
 int MULT_INT;
-int BIN_SIZE;
+double BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
@@ -453,11 +453,12 @@ int main(int argc, char **argv){
 		std::cout << "Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
 		exit(1);
 	}
-	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &BIN_SIZE, &NBINSX, &NBINSY, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &NBINSX, &NBINSY, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
 
-	for(int p=0; p < 14; ++p){
+	for(int p=0; p < 13; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
 	}
+	BIN_SIZE = atof(argv[14]);
 	NN_EPS = atof(argv[15]);
 	SIGMA_X = atof(argv[16]);
 	SIGMA_A = atof(argv[17]);
@@ -636,8 +637,8 @@ int main(int argc, char **argv){
 	// pre-compute matrix of normalized bin centers
 	// ASSUMING xbin size == ybin size
 	for (int b = 0; b < std::max(NBINSX, NBINSY); ++b) {
-		coords_normalized(b, 0) = (int)((float)BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
-		coords_normalized(b, 1) = (int)((float)BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
+		coords_normalized(b, 0) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
+		coords_normalized(b, 1) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
 	std::cout << "t " << tetr << ": done coords_normalized\n";
 
