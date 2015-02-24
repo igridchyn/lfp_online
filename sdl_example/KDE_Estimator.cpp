@@ -82,13 +82,29 @@ ANNpointArray ann_points_coords;
 // TODO init
 int total_spikes;
 
+std::stringstream log_string_;
+std::ofstream log_;
+
 unsigned int NUSED = 0;
+
+
+void Log(std::string s){
+	log_ << "t" << tetr << ": " << s;
+	std::cout << "t" << tetr << ": " << s;
+}
+
+void Log(){
+	log_ << "t" << tetr << ": " << log_string_.str();
+	std::cout << "t" << tetr << ": " << log_string_.str();
+	log_string_.clear();
+	log_.flush();
+}
 
 class VertexNode{
 public:
+	std::vector<unsigned int> neighbour_ids_;
 	unsigned int id_;
 	VertexNode *next_, *previous_;
-	std::vector<unsigned int> neighbour_ids_;
 
 	const unsigned int Size() const {return neighbour_ids_.size();}
 	const bool operator<(const VertexNode& sample) const;
@@ -138,7 +154,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 		// create VertexNode structure
 		std::vector<unsigned int> neigb_ids;
-		for (int ne = 1; ne < NNEIGB; ++ne) {
+		for (unsigned int ne = 1; ne < NNEIGB; ++ne) {
 			if (dd[ne] > threshold){
 				break;
 			}
@@ -150,7 +166,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		nodes.push_back(VertexNode(n, neigb_ids));
 	}
 
-	std::cout << "t " << tetr << ": cached neighbours (vertex cover)\n";
+	Log(": cached neighbours (vertex cover)\n");
 
 	// optinally: make neiughbours of and lists in VertexNodes equal
 
@@ -161,17 +177,18 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		 node_by_id[nodes[n].id_] = &(nodes[n]);
 	 }
 
-	 std::cout << "t " << tetr << ": node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n";
-	 std::cout << "t " << tetr << ": node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n";
-	 std::cout << "t " << tetr << ": node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n";
-	 std::cout << "t " << tetr << ": node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n";
-	 std::cout << "t " << tetr << ": node with least neighbours: " << nodes[nodes.size() - 1].neighbour_ids_.size() << "\n";
+	 log_string_ << ": node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n\t";
+	 log_string_ << ": node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n\t";
+	 log_string_ << ": node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n\t";
+	 log_string_ << ": node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n\t";
+	 log_string_ << ": node with least neighbours: " << nodes[nodes.size() - 1].neighbour_ids_.size() << "\n";
+	 Log();
 
 	 // create sorted double-linked list
 	 head = &nodes[0];
 	 head->previous_ = nullptr;
 	 VertexNode *last = head;
-	 for (int n = 1; n < NPOITNS; ++n) {
+	 for (unsigned int n = 1; n < NPOITNS; ++n) {
 		 last->next_ = &nodes[n];
 		 nodes[n].previous_ = last;
 		 last = &nodes[n];
@@ -185,7 +202,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		used_ids_.push_back(head->id_);
 
 		// remove neighbours from map /	list and reduce neighbour counts of neighbours' neighbours
-		for (int i=0; i < head->neighbour_ids_.size(); ++i){
+		for (size_t i=0; i < head->neighbour_ids_.size(); ++i){
 			// remove and move down in the sorted list
 			const unsigned int neighb_id =head->neighbour_ids_[i];
 			VertexNode *const neighbour = node_by_id[neighb_id];
@@ -194,7 +211,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 				continue;
 
 			// remove from neighbour's list at each neighbour neighbour and move it down
-			for (int j = 0; j < neighbours_of[neighbour->id_].size(); ++j) {
+			for (size_t j = 0; j < neighbours_of[neighbour->id_].size(); ++j) {
 				unsigned int jthneighbid = neighbours_of[neighbour->id_][j];
 
 				if (jthneighbid == head->id_)
@@ -209,7 +226,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 				if (nn->neighbour_ids_.size() > 0){
 					std::remove(nn->neighbour_ids_.begin(), nn->neighbour_ids_.end(), neighbour->id_);
 				}else{
-					std::cout << "no neighbours!\n";
+					Log("no neighbours!\n");
 				}
 
 				//also remove NN from reverse neighbours list of 2nd order neighbours
@@ -271,7 +288,6 @@ VertexNode::VertexNode(const VertexNode& ref) {
 	neighbour_ids_ = ref.neighbour_ids_;
 }
 
-
 void cache_spike_and_bin_neighbours(){
 
 	// CACHE spikes with closest WS
@@ -305,7 +321,7 @@ void cache_spike_and_bin_neighbours(){
 				cache_xy_bin_spikes_dists_.push_back(dd);
 			}
 	}
-	std::cout << "Done (x_b, y_b) neighbours and distances caching\n";
+	Log("Done (x_b, y_b) neighbours and distances caching\n");
 }
 
 // compute value of joint distribution kernel for spike2 centered in spike1 with NORMALIZED (and converted to integer with high precision) coordinates x and y
@@ -450,7 +466,7 @@ int main(int argc, char **argv){
 //	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
 
 	if (argc != 22){
-		std::cout << "Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!";
+		Log("Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!");
 		exit(1);
 	}
 	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &NBINSX, &NBINSY, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
@@ -467,9 +483,9 @@ int main(int argc, char **argv){
 	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[20]);
 	BASE_PATH = argv[21];
 
-	std::cout << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
-
-	std::cout << "t " << tetr << ": " << "start KDE estimation\n";
+	log_string_ << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_string_ << "t " << tetr << ": " << "start KDE estimation\n";
+	Log();
 
 	// load trees, extract points, load mats
 	std::ifstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
@@ -481,8 +497,9 @@ int main(int argc, char **argv){
 	pos_buf.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
 	// DEBUG
-	std::cout << "t " << tetr << ": obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";
-	std::cout << "t " << tetr << ": pos " << pos_buf.n_rows << " X " << pos_buf.n_cols << "\n";
+	log_string_ << "t " << tetr << ": obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";
+	log_string_ << "t " << tetr << ": pos " << pos_buf.n_rows << " X " << pos_buf.n_cols << "\n";
+	Log();
 
 	total_spikes = obs_mat.n_rows;
 
@@ -509,20 +526,22 @@ int main(int argc, char **argv){
 	// Feature stds
 	std::vector<float> stds;
 	float avg_feat_std = .0f;
-	std::cout << "t " << tetr << ": std of features: ";
+	log_string_ << ": std of features: ";
 	for (int f = 0; f < N_FEAT; ++f) {
 		float stdf = arma::stddev(obs_mat.col(f));
-		std::cout << stdf << " ";
+		log_string_ << stdf << " ";
 		stds.push_back(stdf);
 		avg_feat_std += stdf;
 	}
-	std::cout << "\n";
+	log_string_ << "\n";
 	avg_feat_std /= N_FEAT;
+	Log();
 
 	float stdx = arma::stddev(obs_mat.col(N_FEAT));
 	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
-	std::cout << "t " << tetr << ": " << "std of x  = " << stdx << "\n";
-	std::cout << "t " << tetr << ": " << "std of y  = " << stdy << "\n";
+	log_string_ << "std of x  = " << stdx << "\n";
+	log_string_ << "std of y  = " << stdy << "\n";
+	Log();
 	// normalize coords to have the average feature std
 	for (int s = 0; s < total_spikes; ++s) {
 		// ... loss of precision 1) from rounding to int; 2) by dividing int on float
@@ -587,7 +606,8 @@ int main(int argc, char **argv){
 	// compute occupancy KDE - pi(x) from tracking position sampling
 	// overall tetrode average firing rate, spikes / s
 	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / double(BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
-	std::cout << "t " << tetr << ": Average firing rate: " << mu << "\n";
+	log_string_ << ": Average firing rate: " << mu << "\n";
+	Log();
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
 			double xc = BIN_SIZE * (0.5 + xb);
@@ -595,7 +615,7 @@ int main(int argc, char **argv){
 
 			double kde_sum = 0;
 			unsigned int npoints = pos_buf.n_cols;
-			for (int n = 0; n < pos_buf.n_cols; ++n) {
+			for (unsigned int n = 0; n < pos_buf.n_cols; ++n) {
 				double sum = 0;
 
 				double xdiff = (xc - pos_buf(0, n)) / stdx / SIGMA_XX;
@@ -613,7 +633,7 @@ int main(int argc, char **argv){
 			pix(xb, yb) = kde_sum;
 		}
 	}
-	std::cout << "t " << tetr << ": done pix\n";
+	Log(": done pix\n");
 
 	// compute generalized rate function lambda(x)
 	// TODO !!! uniform + parametrize
@@ -640,7 +660,7 @@ int main(int argc, char **argv){
 		coords_normalized(b, 0) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
 		coords_normalized(b, 1) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
-	std::cout << "t " << tetr << ": done coords_normalized\n";
+	Log(": done coords_normalized\n");
 
 	// prepare bin block neighbours cache - allocate
 	NBLOCKSX = NBINSX / BLOCK_SIZE + ((NBINSX % BLOCK_SIZE) ? 1 : 0);
@@ -653,15 +673,17 @@ int main(int argc, char **argv){
 
 	// reduce the tree by solving vertex cover
 	VertexCoverSolver ver_solv;
-	std::cout << "t " << tetr << ": run vertex cover solver with distance threshold = " <<  SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << "\n\t and # of neighbours limited to " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_string_ << "run vertex cover solver with distance threshold = " <<  SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << "\n\t and # of neighbours limited to " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	Log();
 	std::vector<unsigned int> used_ids_ = ver_solv.Reduce(*kdtree_, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB);// form new tree with only used points
-	std::cout << "t " << tetr << ": done vertex cover, # of points in reduced tree: " << used_ids_.size() << "\n";
+	log_string_ << "done vertex cover, # of points in reduced tree: " << used_ids_.size() << "\n";
+	Log();
 	NUSED = used_ids_.size();
 
 	// construct and save the reduced tree
 	ANNpointArray tree_points = kdtree_->thePoints();
 	ANNpointArray reduced_array = annAllocPts(used_ids_.size(), DIM);
-	for (int i=0; i < used_ids_.size(); ++i){
+	for (size_t i=0; i < used_ids_.size(); ++i){
 		for (int f=0; f < DIM; ++f){
 			reduced_array[i][f] = tree_points[used_ids_[i]][f];
 		}
@@ -677,13 +699,14 @@ int main(int argc, char **argv){
 	// compute p(a_i, x) for all spikes (as KDE of nearest neighbours)
 	time_t start = clock();
 	//for (int p = 0; p < total_spikes; ++p) {
-	for (int u=0; u < NUSED; ++u){
+	for (unsigned int u=0; u < NUSED; ++u){
 		int p = used_ids_[u];
 
 		// DEBUG
 		if (!(u % 1000)){
 			std::cout.precision(2);
-			std::cout << "t " << tetr << ": " << u << " out of  " << NUSED << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+			log_string_ << u << " out of  " << NUSED << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";
+			Log();
 			start = clock();
 		}
 
@@ -693,13 +716,14 @@ int main(int argc, char **argv){
 	// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
 	if (SAVE){
 		arma::mat laxs_tetr_(NBINSX, NBINSY * NUSED);
-		for (int s = 0; s < NUSED; ++s) {
+		for (unsigned int s = 0; s < NUSED; ++s) {
 			laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1) = lax[used_ids_[s]];
 		}
 		laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[tetr] + "_tetr.mat");
 	}
 
-	std::cout << "t " << tetr << ": FINISHED\n";
+	log_string_ << "FINISHED\n";
+	Log();
 
 	return 0;
 }
