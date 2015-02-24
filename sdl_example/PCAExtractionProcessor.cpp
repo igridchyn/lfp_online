@@ -288,7 +288,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     num_spikes = new unsigned int[buffer->tetr_info_->tetrodes_number()];
     pca_done_ = new bool[buffer->tetr_info_->tetrodes_number()];
     
-    for(int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+    for(size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
         num_spikes[t] = 0;
         pca_done_[t] = false;
     }
@@ -301,7 +301,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     stdf_ = new float*[nchan];
     
     corf_ = new float*[waveshape_samples_];
-    for (int w=0; w<waveshape_samples_; ++w) {
+    for (size_t w=0; w<waveshape_samples_; ++w) {
         corf_[w] = new float[waveshape_samples_];
         memset(corf_[w], 0, sizeof(float)*waveshape_samples_);
     }
@@ -311,7 +311,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     
     for (int c=0; c<nchan; ++c) {
         cor_[c] = new int*[waveshape_samples_];
-        for (int w=0; w<waveshape_samples_; ++w) {
+        for (size_t w=0; w<waveshape_samples_; ++w) {
             cor_[c][w] = new int[waveshape_samples_];
             memset(cor_[c][w], 0, sizeof(int)*waveshape_samples_);
         }
@@ -327,7 +327,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     pc_transform_ = new float**[nchan];
     for (int c=0;c<nchan; ++c) {
         pc_transform_[c] = new float*[num_pc_];
-        for (int pc=0; pc<num_pc_; ++pc) {
+        for (size_t pc=0; pc<num_pc_; ++pc) {
             pc_transform_[c][pc] = new float[waveshape_samples_];
             memset(pc_transform_[c][pc], 0, waveshape_samples_ * sizeof(float));
         }
@@ -337,8 +337,8 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     if (load_transform_){
         printf("Load PC available transforms...\n");
         
-        for (int i=0; i < buffer->tetr_info_->tetrodes_number(); ++i) {
-            for (int ci=0; ci < buffer->tetr_info_->channels_number(i); ++ci) {
+        for (size_t i=0; i < buffer->tetr_info_->tetrodes_number(); ++i) {
+            for (size_t ci=0; ci < buffer->tetr_info_->channels_number(i); ++ci) {
                 const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
                 std::string pca_path(pc_path_ + Utils::NUMBERS[chan] + ".txt");
                 if (!Utils::FS::FileExists(pca_path)){
@@ -348,8 +348,8 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
 
                 std::ifstream fpc(pca_path);
                 
-                for (int pc = 0; pc < num_pc_; ++pc) {
-                    for (int w = 0; w < waveshape_samples_; ++w) {
+                for (size_t pc = 0; pc < num_pc_; ++pc) {
+                    for (size_t w = 0; w < waveshape_samples_; ++w) {
                         fpc >> pc_transform_[chan][pc][w];
                     }
                 }
@@ -380,9 +380,9 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 
         for (int c=0; c < numchan; ++c) {
                 int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][c];
-                for (int pc=0; pc < num_pc_; ++pc) {
+                for (size_t pc=0; pc < num_pc_; ++pc) {
                     spike->pc[c * num_pc_ + pc] = 0;
-                    for (int w=0; w < waveshape_samples_; ++w) {
+                    for (size_t w=0; w < waveshape_samples_; ++w) {
                         // STANDARDIZED OR NOT
                         // spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
                         spike->pc[c * num_pc_ + pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w] / feature_scale_;
@@ -440,7 +440,7 @@ void PCAExtractionProcessor::process(){
             for (int chani = 0; chani < buffer->tetr_info_->number_of_channels(spike); ++chani) {
                 int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
                 
-                for (int w=0; w < waveshape_samples_; ++w) {
+                for (size_t w=0; w < waveshape_samples_; ++w) {
                     mean_[chan][w] += spike->waveshape_final[chani][w] / scale_;
                     sumsq_[chan][w] += spike->waveshape_final[chani][w] / scale_ * spike->waveshape_final[chani][w] / scale_;
                     
@@ -448,7 +448,7 @@ void PCAExtractionProcessor::process(){
 //                        // printf("Large amplitude at %d: %d!\n",spike->pkg_id_, spike->waveshape_final[chani][w]);
 //                    }
                     
-                    for (int w2=w; w2 < waveshape_samples_; ++w2) {
+                    for (size_t w2=w; w2 < waveshape_samples_; ++w2) {
                         cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2] / ( scale_ * scale_ );
                     }
                 }
@@ -468,7 +468,7 @@ void PCAExtractionProcessor::process(){
     
     // TODO: when to redo PCA?
     // TODO: tetrode-wise counting !!! and check
-    for (int tetr=0; tetr < buffer->tetr_info_->tetrodes_number(); ++tetr) {
+    for (size_t tetr=0; tetr < buffer->tetr_info_->tetrodes_number(); ++tetr) {
         if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
 
 //            std::cout << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
@@ -476,7 +476,7 @@ void PCAExtractionProcessor::process(){
 			ss << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
 			buffer->Log(ss.str());
 
-            for (int ci=0; ci < buffer->tetr_info_->channels_number(tetr); ++ci) {
+            for (size_t ci=0; ci < buffer->tetr_info_->channels_number(tetr); ++ci) {
                 int channel = buffer->tetr_info_->tetrode_channels[tetr][ci];
 //            }
 //            
@@ -487,9 +487,9 @@ void PCAExtractionProcessor::process(){
 //                }
                 
                 // copy cor and mean to float arrays
-                for (int w = 0; w < waveshape_samples_; ++w){
+                for (size_t w = 0; w < waveshape_samples_; ++w){
                     meanf_[w] = mean_[channel][w];
-                    for (int w2 = w; w2 < waveshape_samples_; ++w2){
+                    for (size_t w2 = w; w2 < waveshape_samples_; ++w2){
                         corf_[w][w2] = (float)cor_[channel][w][w2];
                         corf_[w2][w] = cor_[channel][w][w2];
                     }
@@ -525,9 +525,9 @@ void PCAExtractionProcessor::process(){
             pca_done_[tetr] = true;
             
             // get PCs for all past spikes
-            for (int s=0; s < *buf_ptr_ptr_; ++s) {
+            for (size_t s=0; s < *buf_ptr_ptr_; ++s) {
                 Spike *spike = buffer->spike_buffer_[s];
-                if (spike == nullptr || spike->discarded_ || spike->tetrode_ != tetr){
+                if (spike == nullptr || spike->discarded_ || (unsigned int)spike->tetrode_ != tetr){
                     continue;
                 }
                 

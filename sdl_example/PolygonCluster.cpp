@@ -14,7 +14,7 @@ PolygonCluster::PolygonCluster() {
 
 void PolygonCluster::Serialize(std::ofstream& file) {
 	file << projections_inclusive_.size() << "\n";
-	for (int i=0; i < projections_inclusive_.size(); ++i){
+	for (size_t i=0; i < projections_inclusive_.size(); ++i){
 		projections_inclusive_[i].Serialize(file);
 	}
 }
@@ -30,7 +30,7 @@ PolygonCluster::PolygonCluster(std::ifstream& file) {
 bool PolygonCluster::Contains(float x, float y) {
 	bool inclusive = false;
 
-	for (int p = 0; p < projections_inclusive_.size(); ++p) {
+	for (size_t p = 0; p < projections_inclusive_.size(); ++p) {
 		if (projections_inclusive_[p].Contains(x, y))
 			inclusive = true;
 			break;
@@ -39,7 +39,7 @@ bool PolygonCluster::Contains(float x, float y) {
 	if (!inclusive)
 		return false;
 
-	for (int p = 0; p < projections_exclusive_.size(); ++p) {
+	for (size_t p = 0; p < projections_exclusive_.size(); ++p) {
 			if (projections_exclusive_[p].Contains(x, y))
 				return false;
 		}
@@ -50,7 +50,7 @@ bool PolygonCluster::Contains(float x, float y) {
 bool PolygonCluster::Contains(Spike* spike, const unsigned int& nchan) {
 	bool inclusive = false;
 
-	for (int p=0; p < projections_inclusive_.size(); ++p){
+	for (size_t p=0; p < projections_inclusive_.size(); ++p){
 		int dim1 = projections_inclusive_[p].dim1_;
 		int dim2 = projections_inclusive_[p].dim2_;
 
@@ -65,7 +65,7 @@ bool PolygonCluster::Contains(Spike* spike, const unsigned int& nchan) {
 	if (!inclusive)
 		return false;
 
-	for (int p=0; p < projections_exclusive_.size(); ++p){
+	for (size_t p=0; p < projections_exclusive_.size(); ++p){
 		int dim1 = projections_exclusive_[p].dim1_;
 		int dim2 = projections_exclusive_[p].dim2_;
 
@@ -133,7 +133,6 @@ bool PolygonCluster::ContainsConvex(float x, float y) {
 	// TODO all projections
 
 	PolygonClusterProjection& pcp = projections_inclusive_[0];
-	int last = pcp.Size() - 1;
 
 	for(int v=1; v < pcp.Size(); ++v){
 		if (!IsFromRight(pcp.coords1_[v-1], pcp.coords2_[v-1], pcp.coords1_[v], pcp.coords2_[v], x, y)){
@@ -156,14 +155,15 @@ PolygonClusterProjection::PolygonClusterProjection(std::ifstream& file) {
 
 bool PolygonClusterProjection::Contains(float x, float y) {
 	// find the first edge s.t. point's y falls between edge's ends
-	int pivot = -1;
-	for(int i=1; i<coords1_.size();++i){
+	const unsigned int UNK = std::numeric_limits<unsigned int>::max();
+	unsigned int pivot = UNK;
+	for(size_t i=1; i<coords1_.size();++i){
 		if ( (coords2_[i] - y) * (coords2_[i-1] - y) < 0 ){
 			pivot = i;
 		}
 	}
 
-	if (pivot == -1)
+	if (pivot == UNK)
 		return false;
 
 	// pivot intersection x
@@ -174,7 +174,7 @@ bool PolygonClusterProjection::Contains(float x, float y) {
 
 	// count how many times the line to the left/right from the point crosses other edges
 	int ncross = 0;
-	for(int i=1; i<coords1_.size();++i){
+	for(size_t i=1; i<coords1_.size();++i){
 		// edge's y on one side of point's y
 		if ( (coords2_[i] - y) * (coords2_[i-1] - y) > 0 ){
 			continue;
@@ -215,9 +215,9 @@ PolygonClusterProjection::~PolygonClusterProjection() {
 }
 
 bool PolygonClusterProjection::IsCW() {
-	int nright = 0;
+	unsigned int nright = 0;
 
-	for (int c=0; c < coords1_.size()-2; ++c){
+	for (size_t c=0; c < coords1_.size()-2; ++c){
 		if (IsFromRight(coords1_[c], coords2_[c], coords1_[c + 1], coords2_[c + 1], coords1_[c + 2], coords2_[c + 2])){
 			nright ++;
 		}

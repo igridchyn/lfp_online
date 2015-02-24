@@ -40,7 +40,7 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 
 	std::map<std::string, unsigned int> processor_numbers;
 
-	for (int i = 0; i < processor_names.size(); ++i) {
+	for (size_t i = 0; i < processor_names.size(); ++i) {
 		std::string proc_name = processor_names[i];
 
 		if (proc_name == "Autocorrelogram"){
@@ -109,7 +109,7 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 LFPPipeline::~LFPPipeline(){
 	buf_->Log("Pipeline destructor called");
 
-	for (int i=0; i < processors.size(); ++i){
+	for (size_t i=0; i < processors.size(); ++i){
 		buf_->Log("Destroying processor #", i);
 		delete processors[i];
 	}
@@ -129,7 +129,7 @@ std::vector<SDLControlInputProcessor *> LFPPipeline::GetSDLControlInputProcessor
     // TODO: use vector
     std::vector<SDLControlInputProcessor *> control_processors;
     
-    for (int p=0; p<processors.size(); ++p) {
+    for (size_t p=0; p<processors.size(); ++p) {
         SDLControlInputProcessor *ciproc = dynamic_cast<SDLControlInputProcessor*>(processors[p]);
         if (ciproc != nullptr){
             control_processors.push_back(ciproc);

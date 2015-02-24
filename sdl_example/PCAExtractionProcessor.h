@@ -14,7 +14,6 @@
 class PCAExtractionProcessor : public LFPProcessor{
     // projection matrix
     float ***prm = nullptr;
-    const unsigned int min_samples_;
     
     void tred(float **a,int n,float d[],float e[]);
     void tqli(float d[],float e[],int n,float **z);
@@ -48,6 +47,8 @@ class PCAExtractionProcessor : public LFPProcessor{
     // number of waveshape samples
     unsigned int waveshape_samples_;
     
+    const unsigned int min_samples_;
+
     // transform matrices : from waveshape to PC
     // [channel][ws][pc]
     float ***pc_transform_;
@@ -56,9 +57,10 @@ class PCAExtractionProcessor : public LFPProcessor{
     // TODO: recalc PCA periodically using online estimators
 	bool *pca_done_ = nullptr;
 	unsigned int npcdone_ = 0;
-    
-    bool save_transform_ = false;
+
     bool load_transform_ = true;
+    bool save_transform_ = false;
+
     const std::string pc_path_;
     
     // for memory performance: cleanup waveshapes after getting the PCs

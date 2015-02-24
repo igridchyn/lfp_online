@@ -97,8 +97,8 @@ PlaceField PlaceField::Smooth(){
     
     // smooth place field
     // TODO: smoothing on the edge corners
-    for (int x=spread_; x < place_field_.n_cols-spread_; ++x) {
-        for (int y=spread_; y < place_field_.n_rows-spread_; ++y) {
+    for (size_t x=spread_; x < place_field_.n_cols-spread_; ++x) {
+        for (size_t y=spread_; y < place_field_.n_rows-spread_; ++y) {
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_; dy <= spread_; ++dy) {
                 	// TODO validate consistency of downstream usage
@@ -118,7 +118,7 @@ PlaceField PlaceField::Smooth(){
     // !!! TODO: account for different width / height of PF
     for (int b=0; b < spread_; ++b) {
         // on all four sides
-        for (int x=spread_; x < place_field_.n_cols-spread_; ++x) {
+        for (size_t x=spread_; x < place_field_.n_cols-spread_; ++x) {
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_ + b; dy <= spread_; ++dy) {
                     spf(b, x)        += place_field_(b, x + dx) * gauss(dy+spread_, dx+spread_);
@@ -164,8 +164,8 @@ PlaceField PlaceField::Smooth(){
 void PlaceField::CachePDF(PlaceField::PDFType pdf_type, const PlaceField& occupancy, const double& occupancy_factor){
     pdf_cache_ = arma::cube(place_field_.n_rows, place_field_.n_cols, MAX_SPIKES, arma::fill::zeros);
     
-    for (int r=0; r < place_field_.n_rows; ++r) {
-        for (int c=0; c < place_field_.n_cols; ++c) {
+    for (size_t r=0; r < place_field_.n_rows; ++r) {
+        for (size_t c=0; c < place_field_.n_cols; ++c) {
             const double& lambda = occupancy(r, c) > 0 ? (place_field_(r, c) / occupancy(r, c) * occupancy_factor) : 0;
             double logp = -lambda;
             pdf_cache_(r, c, 0) = logp;

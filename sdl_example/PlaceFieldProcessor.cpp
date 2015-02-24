@@ -34,9 +34,9 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number)
-: SDLControlInputProcessor(buf, processors_number)
+: LFPProcessor(buf, processors_number)
+, SDLControlInputProcessor(buf, processors_number)
 , SDLSingleWindowDisplay("pf", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
-, LFPProcessor(buf, processors_number)
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbinsx_(nbinsx)
@@ -81,8 +81,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
-    int xb = (int)round(x / bin_size_ - 0.5);
-    int yb = (int)round(y / bin_size_ - 0.5);
+    unsigned int xb = (unsigned int)round(x / bin_size_ - 0.5);
+    unsigned int yb = (unsigned int)round(y / bin_size_ - 0.5);
     
     // TODO: ? reconstruct ?? (in previous proc)
     // unknown coord
@@ -212,7 +212,7 @@ void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     // draw actual position tail
     // TODO parametrize
     unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
-    for (int pos = end - 100; pos < end; ++pos) {
+    for (unsigned int pos = end - 100; pos < end; ++pos) {
     	FillRect(buffer->positions_buf_[pos].x_pos() * binw / bin_size_, buffer->positions_buf_[pos].y_pos() * binh / bin_size_, 0, 2, 2);
     }
 
@@ -325,8 +325,8 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 //    	occupancy_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
     }
     
-    for (int t=0; t < place_fields_.size(); ++t) {
-        for (int c = 0; c < place_fields_[t].size(); ++c) {
+    for (size_t t=0; t < place_fields_.size(); ++t) {
+        for (size_t c = 0; c < place_fields_[t].size(); ++c) {
             place_fields_smoothed_[t][c] = place_fields_[t][c].Smooth();
 
             if (SAVE){
@@ -346,8 +346,8 @@ void PlaceFieldProcessor::cachePDF(){
 
 	// factor - number by which the
 
-    for (int t=0; t < place_fields_.size(); ++t) {
-        for (int c = 0; c < place_fields_[t].size(); ++c) {
+    for (size_t t=0; t < place_fields_.size(); ++t) {
+        for (size_t c = 0; c < place_fields_[t].size(); ++c) {
             // TODO: configurableize occupancy factor
             place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, factor);
         }
@@ -362,8 +362,8 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     // TODO: build cache in LFP buffer, configurableize
     arma::mat firing_rates(buffer->tetr_info_->tetrodes_number(), 40);
     int fr_cnt = 0;
-    for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-		for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
+    for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+		for (size_t cl = 0; cl < pop_vec[t].size(); ++cl) {
 			// TODO: configurableize sampling rate
 			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * buffer->SAMPLING_RATE;
 			if (firing_rates(t, cl) > RREDICTION_FIRING_RATE_THRESHOLD){
@@ -380,12 +380,12 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));
 
     unsigned int nclust = 0;
-    for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+    for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
         nclust += pop_vec[t].size();
     }
     
-    for (int r=0; r < reconstructed_position_.n_rows; ++r) {
-        for (int c=0; c < reconstructed_position_.n_cols; ++c) {
+    for (size_t r=0; r < reconstructed_position_.n_rows; ++r) {
+        for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
             
         	// apply occupancy threshold
         	if (occupancy_smoothed_(r, c)/occ_sum < 0.001){
@@ -394,8 +394,8 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
         	}
 
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
-            for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-                for (int cl = 0; cl < pop_vec[t].size(); ++cl) {
+            for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+                for (size_t cl = 0; cl < pop_vec[t].size(); ++cl) {
                 	if (firing_rates(t, cl) < RREDICTION_FIRING_RATE_THRESHOLD){
                 		continue;
                 	}
@@ -420,9 +420,9 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     // TODO: use last clustered spike pkg_id ???
     last_predicted_pkg_ = buffer->last_pkg_id;
 
-    double lpmax = -reconstructed_position_.min();
-    for (int r=0; r < reconstructed_position_.n_rows; ++r) {
-            for (int c=0; c < reconstructed_position_.n_cols; ++c) {
+//    double lpmax = -reconstructed_position_.min();
+    for (size_t r=0; r < reconstructed_position_.n_rows; ++r) {
+            for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
             	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c)/100);
 //            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
             }
@@ -430,7 +430,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 
     //  find the coordinates (and write to pos?)
     unsigned int rmax, cmax;
-    double pmax = reconstructed_position_.max(rmax, cmax);
+    reconstructed_position_.max(rmax, cmax);
 
     buffer->positions_buf_[buffer->pos_buf_pos_].x_small_LED_ = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
     buffer->positions_buf_[buffer->pos_buf_pos_].x_big_LED_ = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;

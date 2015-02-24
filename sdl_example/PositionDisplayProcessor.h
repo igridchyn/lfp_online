@@ -16,8 +16,6 @@
 class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     unsigned int target_tetrode_;
     std::vector<bool> display_cluster_;
-
-	bool wait_clust_;
     
     enum PosDisplayMode{
     	POS_DISPLAY_ALL,
@@ -29,6 +27,8 @@ class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtua
     const unsigned int TAIL_LENGTH;
     const bool WAIT_PREDICTION;
     const bool DISPLAY_PREDICTION;
+
+	bool wait_clust_;
 
     // whether speed estimattion should be used for display (e.g. colour of the track)
     bool estimate_speed_ = false;

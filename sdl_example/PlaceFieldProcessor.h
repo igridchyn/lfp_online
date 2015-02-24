@@ -22,9 +22,6 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     // unsigned int spike_buf_pos_;
     unsigned int pos_buf_pos_;
     
-    PlaceField occupancy_;
-    PlaceField occupancy_smoothed_;
-    
     std::vector<PlaceField> tetrode_spike_probs_;
 
     arma::mat reconstructed_position_;
@@ -32,20 +29,19 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     std::vector< std::vector< PlaceField > > place_fields_;
     std::vector< std::vector< PlaceField > > place_fields_smoothed_;
     
-    double bin_size_;
     double sigma_;
+    double bin_size_;
     unsigned int nbinsx_;
     unsigned int nbinsy_;
     double spread_;
     
+    PlaceField occupancy_;
+    PlaceField occupancy_smoothed_;
+
     unsigned int display_tetrode_ = 0;
-    
-    bool display_prediction_;
+
     bool pos_updated_ = false;
     unsigned int last_predicted_pkg_ = 0;
-
-    // every 100 ms
-    const unsigned int prediction_rate_;
     
     // TODO: improve
     // -1 = occupancy, -2 = reconstructed
@@ -63,6 +59,10 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     const unsigned int MIN_PKG_ID;
 
     const bool USE_PRIOR;
+
+    bool display_prediction_;
+
+    const unsigned int prediction_rate_;
 
     float POS_SAMPLING_RATE = 0.0;
     //================================

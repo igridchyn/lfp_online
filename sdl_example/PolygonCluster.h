@@ -21,8 +21,8 @@ enum PolygonClusterProjectionType{
 
 class PolygonClusterProjection{
 public:
-	int dim1_ = -1, dim2_ = -1;
 	std::vector<float> coords1_, coords2_;
+	int dim1_ = -1, dim2_ = -1;
 
 	inline int Size() {return coords1_.size(); }
 	PolygonClusterProjection(const std::vector<float> coords1, const std::vector<float> coords2, int dim1, int dim2);

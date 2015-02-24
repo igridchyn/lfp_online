@@ -227,7 +227,7 @@ public:
     int *power_buf[_CHANNEL_NUM];
 
     // ??? for all arrays ?
-    int buf_pos = BUF_HEAD_LEN;
+    unsigned int buf_pos = BUF_HEAD_LEN;
     int buf_pos_trig_ = BUF_HEAD_LEN;
 
     unsigned int last_pkg_id = 0;
@@ -238,7 +238,7 @@ public:
     int zero_level;
 
     unsigned char *chunk_ptr = nullptr;
-    int num_chunks;
+    unsigned int num_chunks;
 
     std::vector<OnlineEstimator<float, float> > powerEstimators_;
     OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];
@@ -299,6 +299,7 @@ public:
 
     void Log(std::string message);
     void Log(std::string message, int num);
+    void Log(std::string message, size_t num);
     void Log(std::string message, double num);
 
     const unsigned int& GetPosBufPointer(std::string name);

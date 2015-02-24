@@ -41,7 +41,7 @@ void PackageExractorProcessor::process(){
     
     // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
-        for (int c=0; c < buffer->CHANNEL_NUM; ++c){
+        for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c){
         	// TODO WAS INT ?
             memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(signal_type));
             memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(int));
@@ -63,7 +63,7 @@ void PackageExractorProcessor::process(){
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
     
 	// TODO !!!!!!!!! check pos in all packages
-    for (int c=0; c < buffer->num_chunks; ++c){
+    for (unsigned int c=0; c < buffer->num_chunks; ++c){
     	unsigned char *pos_chunk = buffer->chunk_ptr + c * buffer->CHUNK_SIZE;
 
     	char pos_flag = *((char*)pos_chunk + 3);
@@ -109,10 +109,10 @@ void PackageExractorProcessor::process(){
     	}
     }
     
-    for (int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
+    for (unsigned int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
         for (int block=0; block < 3; ++block) {
             short * sbin_ptr = (short*)bin_ptr;
-            for (int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
+            for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
                 // ??? is it necessary to order the channels?
                 // ??? filter directly the data in bin buffer? [for better performance]
                 
