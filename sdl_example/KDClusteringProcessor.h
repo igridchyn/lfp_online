@@ -152,7 +152,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	unsigned int PRED_WIN;
 	// dividable by PRED_WIN
-	unsigned int last_pred_pkg_id_ = 0;;
+	unsigned int last_pred_pkg_id_ = 0;
 	// last prediction probabilities
 	// TODO array of predictions if more than 1 window available
 	arma::mat last_pred_probs_;
@@ -206,6 +206,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::ofstream window_spike_counts_;
 
     
+	unsigned int last_hmm_reset_ = 0;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

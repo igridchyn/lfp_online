@@ -229,8 +229,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 	// TODO CONTROLLED reset, PARAMETRIZE
 	unsigned int prevmaxx = 0, prevmaxy = 0;
-	// TODO ! MAY NOT BE DIVIDABLE, count time since last reset instead
-	bool reset = !(buffer->last_preidction_window_ends_[processor_number_] % HMM_RESET_RATE);
+
+	bool reset = buffer->last_preidction_window_ends_[processor_number_] - last_hmm_reset_ > HMM_RESET_RATE;
 	if (reset){
 		// DEBUG
 		std::cout << "Reset HMM at " << buffer->last_preidction_window_ends_[processor_number_]  << "..\n";
@@ -243,6 +243,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		else{
 			hmm_prediction_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 		}
+
+		last_hmm_reset_ = buffer->last_preidction_window_ends_[processor_number_];
 	}
 
 	for (unsigned int xb = 0; xb < NBINSX; ++xb) {

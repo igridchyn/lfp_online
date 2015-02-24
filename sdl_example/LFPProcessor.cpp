@@ -318,7 +318,7 @@ void Spike::find_one_peak(int* ptmout, int peakp, int peakgit, int* ptmval) {
 void Spike::find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_time_2, float *intervalley)
 {
   int **avb = waveshape;
-  // TODO !! configurableize
+  // TODO configurableize
   int tmbefsp = 7;
   int tmaftsp = 7;
 
