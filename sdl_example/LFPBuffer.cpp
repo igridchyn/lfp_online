@@ -233,6 +233,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , LFP_BUF_LEN(config->getInt("buf.len", 1 << 11))
 , BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
 , high_synchrony_factor_(config->getFloat("high.synchrony.factor", 2.0f))
+, POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
 {
 	CH_MAP = new int[64]{8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55};
 
@@ -268,10 +269,16 @@ LFPBuffer::LFPBuffer(Config* config)
 
 	Log("Created LOG");
 
+    memset(signal_buf, 0, _CHANNEL_NUM * sizeof(signal_type*));
+    memset(filtered_signal_buf, 0, _CHANNEL_NUM * sizeof(int*));
+    memset(power_buf, 0, _CHANNEL_NUM * sizeof(int*));
+
     Reset(config);
 
     spike_buf_pos_clusts_.resize(100);
     last_preidction_window_ends_.resize(100);
+
+    positions_buf_ = new SpatialInfo[POS_BUF_LEN];
 }
 
 void LFPBuffer::ResetPopulationWindow(){
