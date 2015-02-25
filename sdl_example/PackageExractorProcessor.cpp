@@ -159,6 +159,8 @@ void PackageExractorProcessor::process(){
 	//Log("Package extraction done");
 
     // DEBUG - performance test
+    buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id - 2, Utils::Converter::int2str(buffer->last_pkg_id) + " pkg is reached, start clock\n", true);
+    buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id - 1, Utils::Converter::int2str(buffer->last_pkg_id) + " pkg is reached, start clock\n", true);
     buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id, Utils::Converter::int2str(buffer->last_pkg_id) + " pkg is reached, start clock\n", true);
 
     if (buffer->last_pkg_id - last_reported_ > report_rate_){

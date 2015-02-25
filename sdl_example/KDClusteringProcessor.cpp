@@ -376,8 +376,12 @@ void KDClusteringProcessor::process(){
 		}
 	}
 
+	// DEBUG
+	if (buffer->spike_buf_pos_unproc_ > 0)
+			buffer->CheckPkgIdAndReportTime(buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_, "Time from after package extraction until arrival in KD proc\n");
+
 	// need both speed and PCs
-	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0): MIN(buffer->spike_buf_pos_speed_, (unsigned int)std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0));
+	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_, 0): MIN(buffer->spike_buf_pos_speed_, (unsigned int)std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0));
 	while(spike_buf_pos_clust_ < limit){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
@@ -629,20 +633,22 @@ void KDClusteringProcessor::process(){
 			// at this points all tetrodes have pfs !
 			// TODO don't need speed (for prediction), can take more spikes
 
-			while(spike->pkg_id_ < last_pred_pkg_id_ + PRED_WIN && spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ - 1){
+			while(spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
+				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+
+				if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN)
+					break;
+
 				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
 
 				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_){
 					spike_buf_pos_clust_++;
-					// spike may be without speed (the last one) - but it's not crucial
-					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					continue;
 				}
 
 				// in the SWR regime - skip until the first spike in the SWR
 				if (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_){
 					spike_buf_pos_clust_++;
-					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					continue;
 				}
 
@@ -666,7 +672,7 @@ void KDClusteringProcessor::process(){
 
 				spike_buf_pos_clust_++;
 				// spike may be without speed (the last one) - but it's not crucial
-				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+
 			}
 
 			annDeallocPt(pnt);
