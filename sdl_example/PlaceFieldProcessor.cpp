@@ -187,6 +187,48 @@ void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode)
 void PlaceFieldProcessor::drawMat(const arma::mat& mat){
     const unsigned int binw = window_width_ / nbinsx_;
     const unsigned int binh = window_height_ / nbinsy_;
+
+    double max_val = 0;
+    for (unsigned int c = 0; c < mat.n_cols; ++c){
+        for (unsigned int r = 0; r < mat.n_rows; ++r){
+            double val = mat(r, c);
+            if (val > max_val && arma::is_finite(val))
+                max_val = val;
+        }
+    }
+
+    SDL_SetRenderTarget(renderer_, texture_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
+
+    for (unsigned int c = 0; c < mat.n_cols; ++c){
+        for (unsigned int r = 0; r < mat.n_rows; ++r){
+            unsigned int x = c * binw;
+            unsigned int y = r * binh;
+
+            unsigned int order = MIN(mat(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
+
+            FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
+        }
+    }
+
+    // draw actual position tail
+    // TODO parametrize
+    unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
+    for (unsigned int pos = end - 100; pos < end; ++pos) {
+    	FillRect(buffer->positions_buf_[pos].x_pos() * binw / bin_size_, buffer->positions_buf_[pos].y_pos() * binh / bin_size_, 0, 2, 2);
+    }
+
+    SDL_SetRenderTarget(renderer_, nullptr);
+    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+    SDL_RenderPresent(renderer_);
+}
+
+
+void PlaceFieldProcessor::drawMat(const arma::fmat& mat){
+    const unsigned int binw = window_width_ / nbinsx_;
+    const unsigned int binh = window_height_ / nbinsy_;
     
     double max_val = 0;
     for (unsigned int c = 0; c < mat.n_cols; ++c){

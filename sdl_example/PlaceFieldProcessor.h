@@ -67,7 +67,9 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     float POS_SAMPLING_RATE = 0.0;
     //================================
     
+    // TODO template
     void drawMat(const arma::mat& mat);
+    void drawMat(const arma::fmat& mat);
     
     void drawPlaceField();
     void drawOccupancy();

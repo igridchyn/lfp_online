@@ -253,12 +253,12 @@ public:
 
     OnlineEstimator<float, float>** ISIEstimators_;
 
-    arma::mat cluster_spike_counts_;
+    arma::fmat cluster_spike_counts_;
 
     // TODO !WORKAOURD! implement exchange through interface between processors
     // ? predictions buffer ?
     // in case there are few processors, using processors are responsible for resizing
-    std::vector<arma::mat> last_predictions_;
+    std::vector<arma::fmat> last_predictions_;
     std::vector<unsigned int> last_preidction_window_ends_;
 
     std::vector<arma::mat> tps_;

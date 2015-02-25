@@ -291,7 +291,7 @@ Config::~Config() {
 void Config::Log() {
 	log_ << log_string_stream_.str();
 	std::cout << log_string_stream_.str();
-	log_string_stream_.clear();
+	log_string_stream_.str(std::string());
 }
 
 std::string Config::getAllParamsText() {

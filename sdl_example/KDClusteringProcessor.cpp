@@ -26,7 +26,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	laxs_[t].reserve(NUSED);
 
 	// load binary combined matrix and extract individual l(a,x)
-	arma::mat laxs_tetr_(NBINSX, NBINSY * NUSED);
+	arma::fmat laxs_tetr_(NBINSX, NBINSY * NUSED);
 	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 	for (int s = 0; s < NUSED; ++s) {
 		laxs_[t].push_back(laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1));
@@ -123,8 +123,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	fitting_jobs_running_.resize(tetrn, false);
 
 	laxs_.resize(tetrn);
-	pxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
-	lxs_.resize(tetrn, arma::mat(NBINSX, NBINSY, arma::fill::zeros));
+	pxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
+	lxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 
 	for (unsigned int t = 0; t < tetrn; ++t) {
 		const unsigned int dim = buf->feature_space_dims_[t];
@@ -138,15 +138,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		}
 
 		// tmp
-		obs_mats_[t] = arma::mat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
+		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
 	}
 
 	pf_built_.resize(tetrn);
 
-	pix_log_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
-	pix_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	pix_log_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
+	pix_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
-	pos_pred_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	pos_pred_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 	if (LOAD){
 		// load occupancy
@@ -219,13 +219,13 @@ KDClusteringProcessor::~KDClusteringProcessor() {
 	// TODO Auto-generated destructor stub
 }
 
-const arma::mat& KDClusteringProcessor::GetPrediction() {
+const arma::fmat& KDClusteringProcessor::GetPrediction() {
 	return last_pred_probs_;
 }
 
 void KDClusteringProcessor::update_hmm_prediction() {
 	// old hmm_prediction + transition (without evidence)
-	arma::mat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
+	arma::fmat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
 	unsigned int prevmaxx = 0, prevmaxy = 0;
@@ -241,7 +241,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			hmm_prediction_ = pix_log_;
 		}
 		else{
-			hmm_prediction_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+			hmm_prediction_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 		}
 
 		last_hmm_reset_ = buffer->last_preidction_window_ends_[processor_number_];
@@ -353,7 +353,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 }
 
 void KDClusteringProcessor::reset_hmm() {
-	hmm_prediction_ = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+	hmm_prediction_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 	if (USE_PRIOR){
 		hmm_prediction_ = pix_log_;
 	}
@@ -367,6 +367,7 @@ void KDClusteringProcessor::process(){
 				buffer->log_string_stream_ << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number() << " finished... ";
 				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], buffer->feature_space_dims_[tetr]);
 				buffer->log_string_stream_ << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
+				buffer->Log();
 
 				fitting_jobs_running_[tetr] = true;
 				fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
@@ -800,7 +801,7 @@ void KDClusteringProcessor::process(){
 				}
 
 				// TODO: extract
-				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::mat(NBINSX, NBINSY, arma::fill::zeros);
+				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)

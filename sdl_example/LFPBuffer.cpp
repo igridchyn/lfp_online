@@ -83,7 +83,7 @@ void LFPBuffer::Reset(Config* config) {
 	ss << "Loaded " << ticount-1 << " alternative tetrode configurations...";
 	Log(ss.str());
 
-	cluster_spike_counts_ = arma::mat(tetr_info_->tetrodes_number(), 40, arma::fill::zeros);
+	cluster_spike_counts_ = arma::fmat(tetr_info_->tetrodes_number(), 40, arma::fill::zeros);
 	log_stream << "Buffer reset\n";
 	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number() << "\n";
 	log_stream << "INFO: set memory...";
@@ -432,7 +432,7 @@ void LFPBuffer::Log() {
 	std::cout << log_string_stream_.str();
 	log_stream << log_string_stream_.str();
 	log_stream.flush();
-	log_string_stream_.clear();
+	log_string_stream_.str(std::string());
 }
 
 void LFPBuffer::Log(std::string message, unsigned int num){

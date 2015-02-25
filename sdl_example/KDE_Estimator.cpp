@@ -64,14 +64,14 @@ std::vector<int *> cache_block_neighbs_;
 
 //spike_coords_int - computed; coords_normalized - computed; pos buf - copied from buffer->pos_buf and loaded
 arma::Mat<int> spike_coords_int, coords_normalized;
-arma::Mat<float> pos_buf;
+arma::fmat pos_buf;
 // this one is loaded
-arma::mat obs_mat;
+arma::fmat obs_mat;
 // these are created
 arma::mat px(NBINSX, NBINSY, arma::fill::zeros), lx(NBINSX, NBINSY, arma::fill::zeros),
 		pix(NBINSX, NBINSY, arma::fill::zeros), pix_log(NBINSX, NBINSY, arma::fill::zeros);
 
-std::vector<arma::mat> lax;
+std::vector<arma::fmat> lax;
 
 int **ann_points_int;
 
@@ -96,7 +96,7 @@ void Log(std::string s){
 void Log(){
 	log_ << "t" << tetr << ": " << log_string_.str();
 	std::cout << "t" << tetr << ": " << log_string_.str();
-	log_string_.clear();
+	log_string_.str(std::string());
 	log_.flush();
 }
 
@@ -345,7 +345,7 @@ long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 }
 
 void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma::mat& occupancy, const double& avg_firing_rate) {
-	arma::mat pf(NBINSX, NBINSY, arma::fill::zeros);
+	arma::fmat pf(NBINSX, NBINSY, arma::fill::zeros);
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
 
@@ -432,7 +432,7 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 	p_bin_spike[N_FEAT] = x_s;
 	p_bin_spike[N_FEAT + 1] = y_s;
 
-	double occ_min = pf.min();
+	float occ_min = pf.min();
 	// set min at low occupancy
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
@@ -484,7 +484,7 @@ int main(int argc, char **argv){
 	BASE_PATH = argv[21];
 
 	log_string_ << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
-	log_string_ << "start KDE estimation\n";
+	log_string_ << "\tstart KDE estimation\n";
 	Log();
 
 	// load trees, extract points, load mats
@@ -510,7 +510,7 @@ int main(int argc, char **argv){
 	lx = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 	pix = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 	pix_log = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
-	lax.resize(MIN_SPIKES,  arma::mat(NBINSX, NBINSY, arma::fill::zeros));
+	lax.resize(MIN_SPIKES,  arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 
 	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 	spike_coords_int = arma::Mat<int>(total_spikes, 2);
@@ -717,7 +717,7 @@ int main(int argc, char **argv){
 
 	// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
 	if (SAVE){
-		arma::mat laxs_tetr_(NBINSX, NBINSY * NUSED);
+		arma::fmat laxs_tetr_(NBINSX, NBINSY * NUSED);
 		for (unsigned int s = 0; s < NUSED; ++s) {
 			laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1) = lax[used_ids_[s]];
 		}

@@ -19,7 +19,7 @@
 class KDClusteringProcessor: public LFPProcessor {
 	// per tetrode
 	std::vector<unsigned int> total_spikes_;
-	std::vector<arma::mat> observations_;
+	std::vector<arma::fmat> observations_;
 	std::vector<std::vector<Spike *> > obs_spikes_;
 
 	const unsigned int MIN_SPIKES;
@@ -115,31 +115,31 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// p(a, x) for each point in the set ( ? + medians between nearest neighbours ?)
 	// !!! indexing should be the same as in obs_spikes_
-	std::vector<std::vector<arma::mat> > spike_place_fields_;
+	std::vector<std::vector<arma::fmat> > spike_place_fields_;
 
 	std::vector<bool> pf_built_;
 	unsigned int n_pf_built_ = 0;
 
 	// tmp - to estimate std
-	std::vector< arma::mat > obs_mats_;
+	std::vector< arma::fmat > obs_mats_;
 
 	std::vector<unsigned int> missed_spikes_;
 
 	// occupancy, spike occurance map, generalized firing rate
-	arma::mat pix_log_;
-	arma::mat pix_;
+	arma::fmat pix_log_;
+	arma::fmat pix_;
 
-	std::vector<arma::mat> pxs_;
-	std::vector<arma::mat> lxs_;
+	std::vector<arma::fmat> pxs_;
+	std::vector<arma::fmat> lxs_;
 
 
-	std::vector<std::vector<arma::mat> > laxs_;
+	std::vector<std::vector<arma::fmat> > laxs_;
 
 	std::vector<std::thread*> fitting_jobs_;
 	std::vector<bool> fitting_jobs_running_;
 
 	// build p(a_i, x)
-	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::mat& occupancy, const arma::Mat<int>& spike_coords_int);
+	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::fmat& occupancy, const arma::Mat<int>& spike_coords_int);
 	long long inline kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y, const arma::Mat<int>& spike_coords_int);
 
 	// TODO synchronize pix dumping
@@ -155,14 +155,14 @@ class KDClusteringProcessor: public LFPProcessor {
 	unsigned int last_pred_pkg_id_ = 0;
 	// last prediction probabilities
 	// TODO array of predictions if more than 1 window available
-	arma::mat last_pred_probs_;
+	arma::fmat last_pred_probs_;
 
 	// for current prediction window - reset after window is over
 	std::vector<bool> tetr_spiked_;
-	arma::mat pos_pred_;
+	arma::fmat pos_pred_;
 
 	// hmm prediction at last_pred_pkg_id_
-	arma::mat hmm_prediction_;
+	arma::fmat hmm_prediction_;
 
 	bool delay_reached_reported = false;
 	bool prediction_delay_reached_reported = false;
@@ -225,7 +225,7 @@ public:
 			const double sigma_x, const double sigma_a, const double sigma_xx);
 	virtual ~KDClusteringProcessor();
 
-	const arma::mat& GetPrediction();
+	const arma::fmat& GetPrediction();
 	void JoinKDETasks();
 
 	// LFPProcessor

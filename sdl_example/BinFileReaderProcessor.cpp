@@ -117,7 +117,7 @@ std::string BinFileReaderProcessor::axonaFilesDuration(
 std::string BinFileReaderProcessor::axonaFileDurationFromNSampes(
 	const unsigned int& nsamples) {
 	std::stringstream ss;
-	ss << nsamples / (buffer->SAMPLING_RATE * 60) << " min " <<  nsamples / (buffer->SAMPLING_RATE) % 60 << "sec @ " << buffer->SAMPLING_RATE << " samples / sec";
+	ss << nsamples / (buffer->SAMPLING_RATE * 60) << " min " <<  nsamples / (buffer->SAMPLING_RATE) % 60 << " sec @ " << buffer->SAMPLING_RATE << " samples / sec";
 	return ss.str();
 }
 
