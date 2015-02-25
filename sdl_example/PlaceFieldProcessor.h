@@ -68,8 +68,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     //================================
     
     // TODO template
-    void drawMat(const arma::mat& mat);
-    void drawMat(const arma::fmat& mat);
+    template <class T>
+    void drawMat(const arma::Mat<T>& mat);
     
     void drawPlaceField();
     void drawOccupancy();
