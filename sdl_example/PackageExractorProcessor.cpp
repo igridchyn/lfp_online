@@ -42,7 +42,10 @@ void PackageExractorProcessor::process(){
     // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c){
-        	// TODO WAS INT ?
+
+        	if (!buffer->is_valid_channel_[c])
+        		continue;
+
             memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(signal_type));
             memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(int));
         }
@@ -113,6 +116,10 @@ void PackageExractorProcessor::process(){
         for (int block=0; block < 3; ++block) {
             short * sbin_ptr = (short*)bin_ptr;
             for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
+
+            	if (!buffer->is_valid_channel_[buffer->CH_MAP_INV[c]])
+            		continue;
+
                 // ??? is it necessary to order the channels?
                 // ??? filter directly the data in bin buffer? [for better performance]
                 

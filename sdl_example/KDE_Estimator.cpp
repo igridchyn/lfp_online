@@ -483,8 +483,8 @@ int main(int argc, char **argv){
 	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[20]);
 	BASE_PATH = argv[21];
 
-	log_string_ << "t " << tetr << ": SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
-	log_string_ << "t " << tetr << ": " << "start KDE estimation\n";
+	log_string_ << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_string_ << "start KDE estimation\n";
 	Log();
 
 	// load trees, extract points, load mats
@@ -493,12 +493,14 @@ int main(int argc, char **argv){
 	kdstream.close();
 	ann_points_ = kdtree_->thePoints();
 
+	log_.open(BASE_PATH + "KDE_tetr_" + Utils::NUMBERS[tetr] + ".log");
+
 	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 	pos_buf.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
 	// DEBUG
-	log_string_ << "t " << tetr << ": obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";
-	log_string_ << "t " << tetr << ": pos " << pos_buf.n_rows << " X " << pos_buf.n_cols << "\n";
+	log_string_ << "obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";
+	log_string_ << "pos " << pos_buf.n_rows << " X " << pos_buf.n_cols << "\n";
 	Log();
 
 	total_spikes = obs_mat.n_rows;
@@ -526,7 +528,7 @@ int main(int argc, char **argv){
 	// Feature stds
 	std::vector<float> stds;
 	float avg_feat_std = .0f;
-	log_string_ << ": std of features: ";
+	log_string_ << "std of features: ";
 	for (int f = 0; f < N_FEAT; ++f) {
 		float stdf = arma::stddev(obs_mat.col(f));
 		log_string_ << stdf << " ";

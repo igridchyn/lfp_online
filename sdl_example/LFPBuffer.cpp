@@ -89,13 +89,7 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "INFO: set memory...";
 
 	for(size_t c=0; c < CHANNEL_NUM; ++c){
-	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(signal_type));
-	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
-	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
-	        if (powerEstimatorsMap_[c] != nullptr){
-	        	delete powerEstimatorsMap_[c];
-	        	powerEstimatorsMap_[c] = nullptr;
-	        }
+
 	}
 
 	log_stream << "done\n";
@@ -124,6 +118,27 @@ void LFPBuffer::Reset(Config* config) {
 
             tetr_info_->tetrode_by_channel[tetr_info_->tetrode_channels[tetr][ci]] = tetr;
         }
+    }
+
+    for (size_t c = 0; c < CHANNEL_NUM; ++c){
+    	if (signal_buf[c])
+    		delete signal_buf[c];
+
+    	if (filtered_signal_buf[c])
+    		delete filtered_signal_buf[c];
+
+    	if (power_buf[c])
+    		delete power_buf[c];
+
+    	if (is_valid_channel_[c]){
+    		signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];
+    		filtered_signal_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
+    		power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
+
+	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(signal_type));
+	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+    	}
     }
 
     population_vector_window_.clear();
@@ -252,15 +267,6 @@ LFPBuffer::LFPBuffer(Config* config)
 	log_stream.open(config->getString("out.path.base") + log_path_prefix + buffer + ".txt", std::ios_base::app);
 
 	Log("Created LOG");
-
-	// TODO !!! create buffer only for valid channels
-    for (size_t c = 0; c < CHANNEL_NUM; ++c){
-    	unsigned int WS_SHIFT = 100;
-    	signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];
-    	// + waveshape length
-    	filtered_signal_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
-    	power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
-    }
 
     Reset(config);
 

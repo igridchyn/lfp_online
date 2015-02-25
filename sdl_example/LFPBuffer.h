@@ -219,10 +219,11 @@ public:
     int pos_first_pkg_ = -1;
 
 private:
-    bool is_valid_channel_[_CHANNEL_NUM];
 	std::ofstream log_stream;
 
 public:
+    bool is_valid_channel_[_CHANNEL_NUM];
+
     signal_type *signal_buf[_CHANNEL_NUM];
     int *filtered_signal_buf[_CHANNEL_NUM];
     int *power_buf[_CHANNEL_NUM];
@@ -281,6 +282,8 @@ public:
 	const static unsigned int CLUSTER_UNKNOWN = std::numeric_limits<unsigned int>::max();
 
 	std::stringstream log_string_stream_;
+
+	unsigned int WS_SHIFT = 100;
 
     //====================================================================================================
 
