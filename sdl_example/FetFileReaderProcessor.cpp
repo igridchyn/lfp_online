@@ -102,8 +102,6 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		fet_stream.read((char*) &spike->power_, sizeof(float));
 	}
 
-
-	// TODO !!! read other features
 	spike->num_channels_ = chno;
 
 	if (read_spk_){

@@ -9,8 +9,6 @@
 #ifndef sdl_example_LFPBuffer_h
 #define sdl_example_LFPBuffer_h
 
-// TODO !!! dynamic
-#define _POS_BUF_SIZE 1<<20
 #define _CHANNEL_NUM 64
 
 #include <iostream>

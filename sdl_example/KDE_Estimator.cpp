@@ -520,11 +520,6 @@ int main(int argc, char **argv){
 		ann_points_int[d] = new int[DIM];
 	}
 
-	// ---
-	// NORMALIZE STDS
-	// TODO: !!! KDE / kd-tree search should be performed with the same std normalization !!!
-	// current: don't normalize feature covariances (as clustering is done in this way) but normalize x/y std to have the average feature std
-
 	// Feature stds
 	std::vector<float> stds;
 	float avg_feat_std = .0f;

@@ -301,7 +301,6 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
 
     Spike *stop = population_vector_stack_.front();
 
-    // TODO !!! prevent 0 spikes in the window !!!
     if (stop == nullptr){
     	return;
     }
@@ -326,7 +325,6 @@ void LFPBuffer::RemoveSpikesOutsideWindow(const unsigned int& right_border){
 
         stop = population_vector_stack_.front();
 
-        // TODO !!! see above
         if (stop == nullptr){
           	return;
         }

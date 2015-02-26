@@ -356,9 +356,7 @@ void Spike::set_peak_valley_features() {
 	find_valleys(peak_time, peak_value, &peak_to_valley_1_, &peak_to_valley_2_, &intervalley_);
 }
 
-// TODO !!! let pike know its representational dimensionality !!!
 const float& Spike::getFeature(const int& index) const {
-	// TODO !!! single linear array of features
 	if (index < num_channels_ * 3){
 		return pc[index];
 	}
@@ -367,7 +365,6 @@ const float& Spike::getFeature(const int& index) const {
 	}
 }
 
-// TODO !!! let pike know its representational dimensionality !!!
 float* Spike::getFeatureAddr(const int& index) {
 	if (index < num_channels_ * 3){
 		return pc + index;

@@ -126,6 +126,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	pxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 	lxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 
+	unsigned int max_dim = 0;
+
 	for (unsigned int t = 0; t < tetrn; ++t) {
 		const unsigned int dim = buf->feature_space_dims_[t];
 
@@ -139,6 +141,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 		// tmp
 		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
+
+		if (tetr_info_->channels_number(t) > max_dim)
+			max_dim = tetr_info_->channels_number(t);
 	}
 
 	pf_built_.resize(tetrn);
@@ -213,6 +218,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 	dec_bayesian_.open("dec_bay.txt");
 	window_spike_counts_.open("../out/window_spike_counts.txt");
+
+	pnt_ = annAllocPt(max_dim);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -325,8 +332,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			corry = buffer->positions_buf_[posind].y_pos();
 			dec_hmm << corrx << " " << corry << "\n";
 			unsigned int b = hmm_traj_[y * NBINSX + x][t];
-			// TODO !!! fix
-			// WORKAROUND - keep the previous position
+
 			if (b < NBINSX * NBINSY){
 				y = b / NBINSX;
 				x = b % NBINSX;
@@ -625,9 +631,6 @@ void KDClusteringProcessor::process(){
 				}
 			}
 
-			// TODO !!! general
-			ANNpoint pnt = annAllocPt(nfeat);
-
 			double dist;
 			int closest_ind;
 			// at this points all tetrodes have pfs !
@@ -655,7 +658,7 @@ void KDClusteringProcessor::process(){
 				tetr_spiked_[stetr] = true;
 
 				for(unsigned int fet=0; fet < nfeat; ++fet){
-					pnt[fet] = spike->pc[fet];
+					pnt_[fet] = spike->pc[fet];
 				}
 
 				last_window_n_spikes_ ++;
@@ -664,7 +667,7 @@ void KDClusteringProcessor::process(){
 //				time_t kds = clock();
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
 				// TODO : quantify dependence of prediction quality on the EPS
-				kdtrees_[stetr]->annkSearch(pnt, 1, &closest_ind, &dist, NN_EPS);
+				kdtrees_[stetr]->annkSearch(pnt_, 1, &closest_ind, &dist, NN_EPS);
 //				std::cout << "kd time = " << clock() - kds << "\n";
 
 				// add 'place field' of the spike with the closest wave shape
@@ -674,8 +677,6 @@ void KDClusteringProcessor::process(){
 				// spike may be without speed (the last one) - but it's not crucial
 
 			}
-
-			annDeallocPt(pnt);
 
 			// if have to wait until the speed estimate
 			if(WAIT_FOR_SPEED_EST && (unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE) >= buffer->pos_buf_pos_speed_est){
