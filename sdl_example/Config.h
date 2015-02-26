@@ -46,6 +46,9 @@ public:
 
 	std::stringstream log_string_stream_;
 
+	template<class T>
+	void ReadList(std::ifstream& file, std::vector<T>& list);
+
 	void Log();
 
 	Config(std::string path);

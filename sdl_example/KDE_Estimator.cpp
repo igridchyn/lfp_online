@@ -78,8 +78,7 @@ ANNpointArray ann_points_;
 ANNpointArray ax_points_;
 ANNpointArray ann_points_coords;
 
-// TODO init
-int total_spikes;
+int total_spikes = 0;
 
 std::stringstream log_string_;
 std::ofstream log_;

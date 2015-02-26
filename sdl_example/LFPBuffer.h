@@ -57,7 +57,9 @@ enum LFPONLINE__ERROR_CODES{
 	LFPONLINE_ERROR_UNKNOWN_POS_BUFFER_POINTER,
 	LFPONLINE_WRONG_TETRODES_NUMBER,
 	LFPONLINE_BAD_ALLOC,
-	LFPONLINE_BAD_TETRODES_CONFIG
+	LFPONLINE_BAD_TETRODES_CONFIG,
+	LFPONLINE_BUFFER_TOO_SHORT,
+	LFPONLINE_REQUESTING_INVALID_CHANNEL
 };
 
 class SpatialInfo{
@@ -116,11 +118,7 @@ public:
     const unsigned int SPIKE_BUF_LEN;
     const unsigned int SPIKE_BUF_HEAD_LEN;
 
-    //static const int LFP_BUF_LEN = 1 << 11; // 11 / 20
     const unsigned int LFP_BUF_LEN;
-    // TODO: large buffer now needed only for delayed spike registration
-    //      STORE WAVESHAPE with prev_spike
-//    static const int BUF_HEAD_LEN = 1 << 8; // 11
     const unsigned int BUF_HEAD_LEN;
 
     float high_synchrony_factor_;
@@ -189,7 +187,6 @@ public:
     unsigned int pos_buf_pos_ = 0;
     // the last displayed position
     unsigned int pos_buf_disp_pos_ = 0;
-    // TODO: ensure reset
     unsigned int pos_buf_spike_pos_ = 0;
     // last for which speed has been calculated
     unsigned int pos_buf_pos_spike_speed_ = 0;
@@ -198,9 +195,6 @@ public:
     // whl writer (within SpikeWriter)
     // TODO !!! rewind
     unsigned int pos_buf_pos_whl_writer_ = 0;
-
-    // TODO: GetNextSpike(const int& proc_id_) : return next unprocessed + increase counter
-    // TODO: INIT SPIKES instead of creating new /deleting
 
     // pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
     // initialized by GMM clustering processor

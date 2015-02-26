@@ -16,7 +16,6 @@ std::string Utils::Converter::int2str(int a){
     return s;
 }
 
-// TODO: fix types
 std::vector<int> Utils::Math::GetRange(const unsigned int& from, const unsigned int& to){
     std::vector<int> range;
     for (unsigned int i = 0; i < to-from+1; ++i) {
@@ -25,7 +24,6 @@ std::vector<int> Utils::Math::GetRange(const unsigned int& from, const unsigned 
     return range;
 }
 
-// TODO: fix types
 std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std::vector<int>& a2){
     std::vector<int> merged;
     merged = a1;

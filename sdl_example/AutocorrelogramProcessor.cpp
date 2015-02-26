@@ -20,6 +20,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Autocorrelogramms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
+, MAX_CLUST(buffer->config_->getInt("ac.max.clust", 30))
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true)){
 
@@ -335,14 +336,14 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	}
 
 	if (display_mode_ == AC_DISPLAY_MODE_AC){
-		if (user_context_.selected_cluster1_ >= 0){
+		if (user_context_.SelectedCluster1() >= 0){
 			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
-			drawClusterRect(user_context_.selected_cluster1_);
+			drawClusterRect(user_context_.SelectedCluster1());
 		}
 
-		if (user_context_.selected_cluster2_ >= 0){
+		if (user_context_.SelectedCluster2() >= 0){
 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-			drawClusterRect(user_context_.selected_cluster2_);
+			drawClusterRect(user_context_.SelectedCluster2());
 		}
 	}
 
@@ -362,7 +363,7 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			if (kmod & KMOD_LCTRL){
 				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
 				if (clun >= 0){
-					if (clun == user_context_.selected_cluster1_){
+					if (clun == user_context_.SelectedCluster1()){
 						user_context_.SelectCluster1(-1);
 					}
 					else{
@@ -375,7 +376,7 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			if (kmod & KMOD_LSHIFT){
 				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
 				if (clun >= 0){
-					if (clun == user_context_.selected_cluster2_){
+					if (clun == user_context_.SelectedCluster2()){
 						user_context_.SelectCluster2(-1);
 					}
 					else{

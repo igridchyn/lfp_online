@@ -44,7 +44,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const unsigned int NBINSX, NBINSY;
 
-	// TODO float
 	const double BIN_SIZE;
 
 	const int HMM_NEIGHB_RAD;
@@ -149,7 +148,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	void build_lax_and_tree_separate(const unsigned int tetr);
 
 	// to get the place fields
-	// TODO interface and implementation - OccupancyProvider
 	PlaceFieldProcessor *pfProc_;
 
 	unsigned int PRED_WIN;

@@ -91,8 +91,8 @@ void SDLWaveshapeDisplayProcessor::process() {
     SDL_SetRenderTarget(renderer_, texture_);
     const ColorPalette& colpal = ColorPalette::BrewerPalette12;
 
-    const unsigned int& disp_cluster_1_ = user_context_.selected_cluster1_;
-    const unsigned int& disp_cluster_2_ = user_context_.selected_cluster2_;
+    const unsigned int& disp_cluster_1_ = user_context_.SelectedCluster1();
+    const unsigned int& disp_cluster_2_ = user_context_.SelectedCluster2();
     
     while(user_context_.HasNewAction(last_ua_id_)){
     	const UserAction *ua = user_context_.GetNextAction(last_ua_id_);
@@ -151,8 +151,7 @@ void SDLWaveshapeDisplayProcessor::process() {
             continue;
         }
         
-			// check if falls under any cluster cuts
-		// TODO make cuts checks optional
+		// check if falls under any cluster cuts
 		bool is_cut = false;
 		for(size_t c= 0; c < cluster_cuts_[targ_tetrode_][spike->cluster_id_].size(); ++c){
 			// TODO save cut with channel and transform
@@ -278,8 +277,8 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             shift = 10;
         }
 
-        int& disp_cluster_1 = user_context_.selected_cluster1_;
-        int& disp_cluster_2 = user_context_.selected_cluster2_;
+        int disp_cluster_1 = user_context_.SelectedCluster1();
+        int disp_cluster_2 = user_context_.SelectedCluster2();
 
         switch( e.key.keysym.sym )
         {
@@ -310,10 +309,10 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
         				// add to cuts list to cut coming spikes
         				// TODO display cuts
-        				if (user_context_.selected_cluster1_ > 0)
-        					cluster_cuts_[targ_tetrode_][user_context_.selected_cluster1_].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
-        				if (user_context_.selected_cluster2_ > 0)
-        					cluster_cuts_[targ_tetrode_][user_context_.selected_cluster2_].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
+        				if (user_context_.SelectedCluster1() > 0)
+        					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster1()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
+        				if (user_context_.SelectedCluster2() > 0)
+        					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster2()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
 
         				for (unsigned int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
         					Spike *spike = buffer->spike_buffer_[s];
@@ -435,6 +434,13 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
             default:
                 need_redraw = false;
+        }
+
+        if (disp_cluster_1 != user_context_.SelectedCluster1()){
+        	user_context_.SelectCluster1(disp_cluster_1);
+        }
+        if (disp_cluster_2 != user_context_.SelectedCluster2()){
+        	user_context_.SelectCluster1(disp_cluster_2);
         }
     }
 

@@ -66,6 +66,10 @@ public:
 
 // ALL ACTIONS ARE PERFORMED FOR ACTIVE TETRODE !
 class UserContext {
+	// TODO unsigned + UNKNOWN CLUSTER
+	int selected_cluster1_ = -1;
+	int selected_cluster2_ = -1;
+
 public:
 	unsigned int active_tetrode_ = 0;
 
@@ -75,10 +79,8 @@ public:
 	// 		the same applies to un/re-doing : it is processed before new action can be introduced
 	std::list<UserAction> action_list_;
 
-	// TODO make private
-	// TODO unsigned + UNKNOWN CLUSTER
-	int selected_cluster1_ = -1;
-	int selected_cluster2_ = -1;
+	inline int SelectedCluster1() const { return selected_cluster1_; }
+	inline int SelectedCluster2() const { return selected_cluster2_; }
 
 	void SelectCluster1(const int& clu);
 	void SelectCluster2(const int& clu);

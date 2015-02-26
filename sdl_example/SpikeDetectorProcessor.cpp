@@ -66,9 +66,6 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 
 void SpikeDetectorProcessor::process()
 {
-    // for all channels
-    // TODO: parallelize
-    
     // printf("Spike detect...");
     
     // to start detection by threshold from this position after filtering + power computation
@@ -129,12 +126,10 @@ void SpikeDetectorProcessor::process()
     if (buffer->powerEstimators_[0].n_samples() < min_power_samples_)
         return;
     
-    // TODO: do not estiamte every time
     for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
         if (!buffer->is_valid_channel(channel)  || (buffer->last_pkg_id % DET_THOLD_CALC_RATE_))
             continue;
         
-        // TODO: make sure there's a single estimator for all channels of the tetrode
         thresholds_[channel] = (int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
     }
 

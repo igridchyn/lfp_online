@@ -75,7 +75,6 @@ Spike::Spike(int pkg_id, int tetrode)
 	extra_features_ = new float*[4] {&peak_to_valley_1_, &peak_to_valley_2_, &intervalley_, &power_};
 }
 
-// TODO finish implementation and use if deleting/ creating is too slow
 void Spike::init(int pkg_id, int tetrode) {
 	pkg_id_ = pkg_id;
 	tetrode_ = tetrode;
@@ -94,7 +93,6 @@ float Spike::getWidth(float level, int chan) {
 	for (int w = 1; w < 128 - 1; ++w) {
 		if (! reached_val && waveshape[chan][w] > level){
 			reached_val = true;
-			// TODO no interpolation for speed ?
 			level_x = w - 1 + (level - waveshape[chan][w - 1]) / (waveshape[chan][w] - waveshape[chan][w - 1]);
 		}
 
@@ -253,8 +251,6 @@ bool IsFromRightWave(float x1, float y1, float x2, float y2, float x3, float y3)
 }
 
 bool Spike::crossesWaveShapeFinal(unsigned int channel, int x1, int y1, int x2, int y2) {
-	// TODO pre-select channel ?
-	// TODO oob check ? (unlikely)
 
 	int w1 = floor(x1);
 	int w2 = floor(x2);

@@ -365,7 +365,6 @@ void KDClusteringProcessor::reset_hmm() {
 }
 
 void KDClusteringProcessor::process(){
-	// TODO make callback for pipeline data over event
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 		for (size_t tetr=0; tetr < tetr_info_->tetrodes_number(); ++tetr){
 			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr]){
@@ -630,9 +629,8 @@ void KDClusteringProcessor::process(){
 
 			double dist;
 			int closest_ind;
-			// at this points all tetrodes have pfs !
-			// TODO don't need speed (for prediction), can take more spikes
 
+			// at this points all tetrodes have pfs !
 			while(spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 
@@ -702,7 +700,7 @@ void KDClusteringProcessor::process(){
 				unsigned int mx = 0,my = 0;
 				pos_pred_.max(mx, my);
 				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
-				// TODO extract to get pos
+
 				// !!! WORKAROUND
 				SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
 				if (pose.x_big_LED_ == buffer->pos_unknown_){
@@ -804,7 +802,7 @@ void KDClusteringProcessor::process(){
 					buffer->Log();
 				}
 
-				// TODO: extract
+				// TODO ? WHY for every tetrode ?
 				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...

@@ -21,8 +21,6 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     	gmm.Load(gmm_file_name);
     	gmm_fitted_[tetrode] = true;
 
-    	// TODO: filter out tiny clusters after clustering
-
     	std::vector<arma::vec> means;
     	std::vector<arma::mat> covs;
     	arma::vec weights;

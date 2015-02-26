@@ -87,19 +87,15 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     if (x == buffer->pos_unknown_ || y == buffer->pos_unknown_){
         return;
     }
- 
-    // WORKAROUND
-    // TODO handle x/y overflow
+
     if (xb >= nbinsx_ || yb >= nbinsy_){
-    	std::stringstream ss;
-    	ss << "WARNING: overflow x/y: " << xb << ", " << yb;
-    	Log(ss.str());
+    	buffer->log_string_stream_ << "WARNING: overflow x/y: " << xb << ", " << yb;
+    	buffer->Log();
     	return;
     }
 
     occupancy_(yb, xb) += 1.f;
     
-    // !!! smoothed later
     // normalizer
 //    double norm = .0f;
 //    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.Width(), xb+spread_); ++xba){

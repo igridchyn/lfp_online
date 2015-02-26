@@ -30,9 +30,8 @@ void SpeedEstimationProcessor::process(){
 		if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS && bx != buffer->pos_unknown_ && buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].valid){
 			float dx = bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].x_pos();
 			float dy = by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].y_pos();
-			// TODO: make internal
+
 			buffer->speedEstimator_->push(sqrt(dx * dx + dy * dy));
-			// TODO: float / scale ?
 			buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ = buffer->speedEstimator_->get_mean_estimate();
 			//            std::cout << "speed= " << buffer->speedEstimator_->get_mean_estimate() << "\n";
 

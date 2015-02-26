@@ -39,6 +39,8 @@ void Config::read_processors(std::ifstream& fconf) {
 	log_.flush();
 }
 
+
+
 Config::Config(std::string path) {
 	config_path_ = path;
 
@@ -96,25 +98,17 @@ Config::Config(std::string path) {
 		}
 
 		if (line == std::string("tetrodes")){
-			int ntetr, tetr;
-			fconf >> ntetr;
-			for (int t = 0; t < ntetr; ++t) {
-				fconf >> tetr;
-				tetrodes.push_back(tetr);
-			}
+			ReadList(fconf, tetrodes);
 			continue;
 		}
 
-		// TODO : function for reading int list
-		// numbers in the list found in tetrodes config
 		if (line == std::string("synchrony")){
-			int ntetr, tetr;
-			fconf >> ntetr;
-			for (int t = 0; t < ntetr; ++t) {
-				fconf >> tetr;
-				synchrony_tetrodes_.push_back(tetr);
-			}
+			ReadList<unsigned int>(fconf, synchrony_tetrodes_);
 			continue;
+		}
+
+		if (line == std::string("lfpdisp.channels")){
+			ReadList<unsigned int>(fconf, lfp_disp_channels_);
 		}
 
 		std::istringstream ssline(line);
@@ -127,16 +121,6 @@ Config::Config(std::string path) {
 				log_string_stream_ << " " << key << " = " << value << "\n";
 				Log();
 
-				if (key == "lfpdisp.channels.number"){
-					// read lfp channel numbers to display
-					int nchan = atoi(value.c_str());
-					int chan;
-					for (int ch = 0; ch < nchan; ++ch) {
-						fconf >> chan;
-						lfp_disp_channels_.push_back(chan);
-					}
-				}
-
 				if (key == "spike.reader.files.number"){
 					int nfiles = atoi(value.c_str());
 					for (int i=0; i < nfiles; ++i){
@@ -146,7 +130,6 @@ Config::Config(std::string path) {
 						}
 					}
 				}
-
 			}
 			else{
 				log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
@@ -302,4 +285,15 @@ std::string Config::getAllParamsText() {
 	}
 
 	return ss.str();
+}
+
+template<class T>
+void Config::ReadList(std::ifstream& file, std::vector<T>& list) {
+	int nentry;
+	T entry;
+	file >> nentry;
+	for (int t = 0; t < nentry; ++t) {
+		file >> entry;
+		list.push_back(entry);
+	}
 }

@@ -45,7 +45,7 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
 
     std::vector<std::vector<std::list<unsigned int> > > spike_times_lists_;
 
-    static const unsigned int MAX_CLUST = 30;
+    const unsigned int MAX_CLUST;
 
     const int BIN_SIZE;
     const unsigned int NBINS;

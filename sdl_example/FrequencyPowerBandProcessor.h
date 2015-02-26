@@ -18,6 +18,8 @@ class FrequencyPowerBandProcessor : virtual public SDLControlInputProcessor, vir
     unsigned int last_performed_an = 0;
     unsigned int channel_ = 0;
 
+    const unsigned int SCALE;
+
 public:
     FrequencyPowerBandProcessor(LFPBuffer *buf);
     FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name, const unsigned int window_width, const unsigned int window_height);

@@ -119,17 +119,13 @@ void PackageExractorProcessor::process(){
             	if (!buffer->is_valid_channel_[buffer->CH_MAP_INV[c]])
             		continue;
 
-                // ??? is it necessary to order the channels?
-                // ??? filter directly the data in bin buffer? [for better performance]
-                
                 // !!!??? +1 to make similar to *.dat
             	// TODO cut to char after PCA computation only ???
             	// TODO validate OOB ?
-            	// TODO find efficient solution without using define
 #ifdef CHAR_SIGNAL
-                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = ((*(sbin_ptr) + 1) / 256);
+                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = (*(sbin_ptr) + 1) / 256;
 #else
-                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = (*(sbin_ptr) + 1);
+                 buffer->signal_buf[buffer->CH_MAP_INV[c]][buffer->buf_pos + chunk*3 + block] = *(sbin_ptr) + 1;
 #endif
 				// MAPPING TEST
 				//buffer->signal_buf[c][buffer->buf_pos + chunk * 3 + block] = *(sbin_ptr)+1;

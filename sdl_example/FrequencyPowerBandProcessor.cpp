@@ -18,14 +18,25 @@ FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf)
 
  FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf, std::string window_name,
 		 const unsigned int window_width, const unsigned int window_height)
- 	 	 : LFPProcessor(buf)
- 	 	 , SDLControlInputProcessor(buf)
-	 	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
-		 , FACTOR(buf->config_->getInt("freqpow.factor"))
-		 , BUF_LEN(buf->config_->getInt("freqpow.factor") * buf->SAMPLING_RATE)
-		 , ANAL_RATE(buf->config_->getInt("freqpow.anal.rate.frac") * buf->config_->getFloat("freqpow.anal.rate.frac"))
- 	 	 , channel_(buf->config_->getInt("freqpow.channel", 0))
-		 {}
+	 : LFPProcessor(buf)
+	 , SDLControlInputProcessor(buf)
+	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
+	 , FACTOR(buf->config_->getInt("freqpow.factor"))
+	 , BUF_LEN(buf->config_->getInt("freqpow.factor") * buf->SAMPLING_RATE)
+	 , ANAL_RATE(buf->config_->getFloat("freqpow.anal.rate.frac") * buf->config_->getInt("sampling.rate"))
+	 , channel_(buf->config_->getInt("freqpow.channel", 0))
+	 , SCALE(buf->config_->getInt("freqpow.scale", 1000000))
+{
+	 if (BUF_LEN > buffer->LFP_BUF_LEN){
+		 Log("ERROR: Buffer length for Frequency power band estimation is larger than the LFP buffer!");
+		 exit(LFPONLINE_BUFFER_TOO_SHORT);
+	 }
+
+	 if (!buffer->is_valid_channel_[channel_]){
+		 Log("ERROR: requested channel is not present in the tetrode config");
+		 exit(LFPONLINE_REQUESTING_INVALID_CHANNEL);
+	 }
+}
 
 // http://arma.sourceforge.net/docs.html#fft
 void FrequencyPowerBandProcessor::process(){
@@ -42,7 +53,7 @@ void FrequencyPowerBandProcessor::process(){
     }
     
     arma::cx_mat freq_pow;
-    // TODO: online !!!
+
     freq_pow = arma::fft(X);
     
     // DEBUG
@@ -64,7 +75,7 @@ void FrequencyPowerBandProcessor::process(){
     SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
     int prevy = 0;
     for (int i=FACTOR/2; i < 200 * FACTOR; i+=FACTOR/2){
-        float mag = 0;
+        double mag = 0;
         
         for (int d=-FACTOR/2; d<=FACTOR/2; ++d) {
             int j = i + d;
@@ -72,7 +83,7 @@ void FrequencyPowerBandProcessor::process(){
         }
         mag /= FACTOR + 1 - (FACTOR % 2);
         
-        int y = window_height_ * (1-mag/(100000000));
+        int y = window_height_ * (1-mag/SCALE);
         SDL_RenderDrawLine(renderer_, 2*i, prevy, 2*i+4, y);
         prevy = y;
     }

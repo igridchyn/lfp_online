@@ -42,7 +42,7 @@ public:
     int num_channels_ = -1;
 
     // workaround ? - has to be checked in every processor
-    // TODO: list of spikes or new buffer
+    // TODO: list of spikes or new buffer or shift after discarding
     bool discarded_ = false;
 
     // for next processors to know whether they can process this spike
