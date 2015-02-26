@@ -16,7 +16,6 @@
 // it is assumed that fraction of spikes discaeded after initial power threshold + refractory detection is negligible
 
 // object size:
-// TODO : reduce size AMAP
 class Spike{
 public:
     static const int WL_LENGTH = 22;
@@ -49,7 +48,6 @@ public:
     bool aligned_ = false;
 
     // coordinates
-    // TODO: set to nan ?
     float x = nanf(""), y = nanf("");
     float speed = nanf("");
 

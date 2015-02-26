@@ -45,7 +45,6 @@ void PositionDisplayProcessor::process(){
     const int rend_freq = 5;
     bool render = false;
     
-    // TODO: small lag due to speed computation delay
 //    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
     while (buffer->pos_buf_disp_pos_ < pos_buf_pointer_limit_) {
 

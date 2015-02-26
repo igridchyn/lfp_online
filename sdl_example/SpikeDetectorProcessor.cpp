@@ -25,16 +25,12 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer)
 		){
 	filt_pos = buffer->BUF_HEAD_LEN;
 	det_pos = buffer->BUF_HEAD_LEN;
-
-	coord_unknown = buffer->config_->getInt("pos.unknown");
 }
 
 SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory)
 : LFPProcessor(buffer)
-,last_processed_id(0)
 , nstd_(nstd)
 , refractory_(refractory)
-, REFR_LEN(buffer->SAMPLING_RATE/1000)
 , min_power_samples_(buffer->config_->getInt("spike.detection.min.power.samples", 20000))
 , DET_THOLD_CALC_RATE_(buffer->config_->getInt("spike.detection.thold.rate", 1))
 {
@@ -122,7 +118,6 @@ void SpikeDetectorProcessor::process()
         filt_pos = buffer->HEADER_LEN;
     
     // DETECT only after enough samples for power estimation
-    // TODO parametrize
     if (buffer->powerEstimators_[0].n_samples() < min_power_samples_)
         return;
     
@@ -170,9 +165,8 @@ void SpikeDetectorProcessor::process()
                 	spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
                 }
                 else{
-                	// TODO read unknown pos
-                	spike->x = coord_unknown;
-                	spike->y = coord_unknown;
+                	spike->x = buffer->pos_unknown_;
+                	spike->y = buffer->pos_unknown_;
                 }
             }
         }

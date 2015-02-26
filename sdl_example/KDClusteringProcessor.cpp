@@ -661,7 +661,6 @@ void KDClusteringProcessor::process(){
 				// PROFILE
 //				time_t kds = clock();
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
-				// TODO : quantify dependence of prediction quality on the EPS
 				kdtrees_[stetr]->annkSearch(pnt_, 1, &closest_ind, &dist, NN_EPS);
 //				std::cout << "kd time = " << clock() - kds << "\n";
 

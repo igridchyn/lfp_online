@@ -102,7 +102,6 @@ void UnitTestingProcessor::process(){
 //    	Log("Stop execution at pkg: ", (int)STOP_PKG);
 //    	Log("Running time (sec.): ", (double)run_time / CLOCKS_PER_SEC);
 //    	Log("==================================================================================");
-//    	// TODO stop signalling mechanism, no rude exit
 //    	exit(10);
 //    }
 
@@ -112,7 +111,6 @@ void UnitTestingProcessor::process(){
        	Log("Stop execution at spike: ", (int)STOP_SPK);
        	Log("Running time (sec.): ", (double)run_time / CLOCKS_PER_SEC);
        	Log("==================================================================================");
-       	// TODO stop signalling mechanism, no rude exit
        	exit(10);
        }
 }

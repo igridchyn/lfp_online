@@ -180,8 +180,6 @@ public:
 
     // POSITION BUFFER
     // TODO rewind ??? [max = 8h]
-    //const int POS_BUF_SIZE = 1 << 20;
-    // 4 coords, pkg_id and speed magnitude
     SpatialInfo *positions_buf_;
     // main poiter - where the next position will be put
     unsigned int pos_buf_pos_ = 0;

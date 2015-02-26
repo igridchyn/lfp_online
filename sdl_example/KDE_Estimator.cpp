@@ -271,7 +271,6 @@ const bool VertexNode::operator <(const VertexNode& sample) const{
 VertexNode& VertexNode::operator =(VertexNode&& ref) {
 	id_ = ref.id_;
 	// to be used only while sorting !
-	// TODO throw if not null ?
 	next_ = nullptr;
 	previous_ = nullptr;
 	neighbour_ids_ = ref.neighbour_ids_;

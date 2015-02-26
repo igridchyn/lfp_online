@@ -234,7 +234,6 @@ void LFPProcessor::Log(std::string message, double num) {
 }
 
 // if point (x3, y3) is to the right from vector (x1, y2)->(x2, y2)
-// TODO reuse from Polygon cluster
 bool IsFromRightWave(float x1, float y1, float x2, float y2, float x3, float y3){
 
 	// edge vector rotated 90 clock-wise

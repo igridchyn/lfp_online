@@ -89,7 +89,6 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 }
 
 void SDLPCADisplayProcessor::process(){
-    // TODO: parametrize displayed channels and pc numbers
     bool render = false;
 
     SDL_SetRenderTarget(renderer_, texture_);
@@ -105,7 +104,6 @@ void SDLPCADisplayProcessor::process(){
             continue;
         }
 
-        // TODO don't update at every spike
         // TODO take channel with the spike peak (save if not available)
         double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 
@@ -245,7 +243,6 @@ void SDLPCADisplayProcessor::process(){
         	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
 
-		// TODO parametrize
 		// too slow, don't display during load
 		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 			ResetTextStack();

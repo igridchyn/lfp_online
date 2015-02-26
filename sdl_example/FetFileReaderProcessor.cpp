@@ -29,7 +29,6 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 
 	if (buffer->config_->spike_files_.size() == 0){
 		Log("ERROR: 0 spike files in the list");
-		// TODO replace all exits with throwing exceptions
 		exit(LFPONLINE_ERROR_SPIKE_FILES_LIST_EMPTY);
 	}
 
@@ -122,12 +121,6 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		}
 	}
 
-	// TODO: read position
-//	int dummy;
-//	for (int d=0; d < 4; ++d) {
-//		fet_stream >> dummy;
-//	}
-
 	int stime;
 	if (!binary_){
 		fet_stream >> stime;
@@ -218,7 +211,6 @@ void FetFileReaderProcessor::openNextFile() {
 }
 
 void FetFileReaderProcessor::process() {
-	// TODO: sampling rate ? - how defined ? by external loop ?
 	int last_spike_pkg_id = last_pkg_id_;
 
 	if (num_files_with_spikes_ == 0){

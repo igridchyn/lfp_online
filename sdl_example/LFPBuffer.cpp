@@ -345,7 +345,6 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 
     population_vector_stack_.push(spike);
 
-    // TODO separate processors for ISI estimation
     if (ISIEstimators_ != nullptr){
     	ISIEstimators_[spike->tetrode_]->push((spike->pkg_id_ - previous_spikes_pkg_ids_[spike->tetrode_]) / (float)SAMPLING_RATE);
 
@@ -448,36 +447,30 @@ void LFPBuffer::Log() {
 void LFPBuffer::Log(std::string message, unsigned int num){
 	std::cout << message << num << "\n";
 	log_stream << message << num << "\n";
-	// TODO remove in release
 	log_stream.flush();
 }
 
-// TODO template
 void LFPBuffer::Log(std::string message, int num) {
 	std::cout << message << num << "\n";
 	log_stream << message << num << "\n";
-	// TODO remove in release
 	log_stream.flush();
 }
 
 void LFPBuffer::Log(std::string message, size_t num) {
 	std::cout << message << num << "\n";
 	log_stream << message << num << "\n";
-	// TODO remove in release
 	log_stream.flush();
 }
 
 void LFPBuffer::Log(std::string message, double num) {
 	std::cout << message << num << "\n";
 	log_stream << message << num << "\n";
-	// TODO remove in release
 	log_stream.flush();
 }
 
 void LFPBuffer::Log(std::string message) {
 	std::cout << message << "\n";
 	log_stream << message << "\n";
-	// TODO remove in release
 	log_stream.flush();
 }
 

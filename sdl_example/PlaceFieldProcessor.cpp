@@ -209,7 +209,6 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
     }
 
     // draw actual position tail
-    // TODO parametrize
     unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
     for (unsigned int pos = end - 100; pos < end; ++pos) {
     	FillRect(buffer->positions_buf_[pos].x_pos() * binw / bin_size_, buffer->positions_buf_[pos].y_pos() * binh / bin_size_, 0, 2, 2);
@@ -257,7 +256,6 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         		exit(0);
         		break;
             case SDLK_1:
-            	// TODO: remove workaround
             	display_prediction_ = false;
                 display_cluster_ = 1 + shift;
                 break;

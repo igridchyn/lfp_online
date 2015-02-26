@@ -23,7 +23,6 @@ enum UserActionType{
 	UA_CUT_SPIKES,
 	UA_DELETE_CLUSTER,
 
-	// TODO: show in which dimensions cluster has projections
 	UA_ADD_INCLUSIVE_PROJECTION,
 	UA_ADD_EXCLUSIVE_PROJECTION,
 	UA_REMOVE_PROJECTION

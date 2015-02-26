@@ -183,10 +183,8 @@ void WaveShapeReconstructionProcessor::process(){
             }
         }
         
-        // TODO parametrize
         spike->set_peak_valley_features();
 
-        // TODO separate cleanup of final and intermediate extended
         if (cleanup_ws_){
         	for(int i=0;i<spike->num_channels_;i++) {
         		delete spike->waveshape[i];

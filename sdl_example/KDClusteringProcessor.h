@@ -143,7 +143,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	void build_pax_(const unsigned int tetr, const unsigned int spikei, const arma::fmat& occupancy, const arma::Mat<int>& spike_coords_int);
 	long long inline kern_H_ax_(const unsigned int spikei1, const unsigned int spikei2, const unsigned int tetr, const int& x, const int& y, const arma::Mat<int>& spike_coords_int);
 
-	// TODO synchronize pix dumping
 	void build_lax_and_tree(const unsigned int tetr);
 	void build_lax_and_tree_separate(const unsigned int tetr);
 

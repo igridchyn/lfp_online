@@ -23,7 +23,6 @@ enum AC_DISPLAY_MODE{
 
 class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
 
-	// TODO synchronize init accross all processors
     unsigned int display_tetrode_ = 0;
 
     // pixel width of one AC bin
@@ -45,9 +44,8 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
 
     std::vector<std::vector<std::list<unsigned int> > > spike_times_lists_;
 
-    const unsigned int MAX_CLUST;
-
     const int BIN_SIZE;
+    const unsigned int MAX_CLUST;
     const unsigned int NBINS;
 
     //unsigned int last_processed_user_action_id_;

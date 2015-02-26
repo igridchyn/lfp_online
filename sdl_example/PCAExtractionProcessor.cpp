@@ -421,7 +421,6 @@ void saveArray(std::string path, float ** array, const unsigned int& dim1, const
 // CURRENT POLICY: wait for sufficien amount of spikes, cluster, assign clusters for past and future spikes
 // TODO: update
 void PCAExtractionProcessor::process(){
-    // TODO: review logic
     // CURRENT LOGIC: PCA is computed once after required number of spikes has been collected,
     //  computed for all spikes and all new-coming
     
@@ -465,8 +464,6 @@ void PCAExtractionProcessor::process(){
         (*buf_ptr_ptr_)++;
     }
     
-    // TODO: when to redo PCA?
-    // TODO: tetrode-wise counting !!! and check
     for (size_t tetr=0; tetr < buffer->tetr_info_->tetrodes_number(); ++tetr) {
         if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
 
@@ -502,7 +499,6 @@ void PCAExtractionProcessor::process(){
                 
                 // SAVE PC transform
                 if (save_transform_){
-                	// TODO parametrize waveshape dimension
                 	std::string save_path = pc_path_ + Utils::NUMBERS[channel] + std::string(".txt");
                     saveArray(save_path, pc_transform_[channel], num_pc_, waveshape_samples_);
                     buffer->Log(std::string("Saved PC transform for tetrode ") + Utils::NUMBERS[tetr] + " to " + save_path);
