@@ -131,7 +131,6 @@ unsigned int BinFileReaderProcessor::totalAxonaPackages(
 }
 
 BinFileReaderProcessor::~BinFileReaderProcessor() {
-	// TODO Auto-generated destructor stub
 	fclose(bin_file_);
 	delete[] block_;
 }

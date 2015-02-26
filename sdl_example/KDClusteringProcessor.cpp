@@ -223,7 +223,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
-	// TODO Auto-generated destructor stub
 }
 
 const arma::fmat& KDClusteringProcessor::GetPrediction() {
@@ -440,7 +439,6 @@ void KDClusteringProcessor::process(){
 					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY);
 					std::stringstream ss;
 					ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
-					// TODO configrableize expected session duration
 					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
@@ -577,7 +575,6 @@ void KDClusteringProcessor::process(){
 			}
 
 			// also rewind SWRs
-			// TODO configurableize
 			while (swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][2] < PREDICTION_DELAY){
 				swr_pointer_ ++;
 			}
@@ -695,8 +692,8 @@ void KDClusteringProcessor::process(){
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
 
 				for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+					// TODO ? subtract even if did not spike
 					if (tetr_spiked_[t]){
-						// TODO: depricated LX_WEIGHT, was introduced only for debugging purposes
 						pos_pred_ -= DE_SEC  * lxs_[t];
 					}
 				}
@@ -837,10 +834,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	obs_mats_[tetr].clear();
 	delete kdtrees_[tetr];
 
-	// create pos_buf and dump (first count points),
-	// TODO cut matrix later
+	// create pos_buf and dump (first count points)
 	unsigned int npoints = 0;
-	// TODO sparse sampling
 	arma::Mat<float> pos_buf(2, buffer->pos_buf_pos_);
 	unsigned int pos_interval = 0;
 	int nskip = 0;
@@ -850,7 +845,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		}
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if ( buffer->positions_buf_[n].x_small_LED_ == 1023 || buffer->positions_buf_[n].x_big_LED_ == 1023 || buffer->positions_buf_[n].x_big_LED_ < 0 || buffer->positions_buf_[n].x_small_LED_ < 0 || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
+		if ( buffer->positions_buf_[n].x_small_LED_ == buffer->pos_unknown_ || buffer->positions_buf_[n].x_big_LED_ == buffer->pos_unknown_  || buffer->positions_buf_[n].x_big_LED_ < 0 || buffer->positions_buf_[n].x_small_LED_ < 0 || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			continue;
 		}
 
@@ -915,8 +910,9 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 
 	pf_built_[tetr] = true;
 
-	// TODO competitive
+	kde_mutex_.lock();
 	n_pf_built_ ++;
+	kde_mutex_.unlock();
 
 	if (n_pf_built_ == tetr_info_->tetrodes_number()){
 		Log("KDE at all tetrodes done, exiting...\n");

@@ -8,11 +8,10 @@
 #include "BufferPointer.h"
 
 BufferPointer::BufferPointer() {
-	// TODO Auto-generated constructor stub
 
 }
 
 BufferPointer::~BufferPointer() {
-	// TODO Auto-generated destructor stub
+
 }
 

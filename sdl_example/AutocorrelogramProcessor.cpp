@@ -193,8 +193,6 @@ void AutocorrelogramProcessor::process(){
 				continue;
 			}
 
-			// 2 ms bins
-			// TODO: configurable bitrate
 			unsigned int bin = (stime - *si) / (BIN_SIZE );
 			if (bin >= NBINS || bin < 0){
 				continue;

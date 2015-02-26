@@ -180,7 +180,6 @@ void WaveShapeReconstructionProcessor::process(){
             for(int j=0;j<16;j++) {
                 // TODO: calclulate density, shift
                 spike->waveshape_final[i][j] = spike->waveshape[i][peak_time-32+j*4];
-                // eigpoi[j]=avb[i][ptm-eis_kk+j*eisk];
             }
         }
         

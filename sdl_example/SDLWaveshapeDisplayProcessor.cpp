@@ -85,10 +85,6 @@ void SDLWaveshapeDisplayProcessor::process() {
     // POINTER ??? : after rewind preserve last valid position -> will allow autonomous pointer rewind (restarting from the beginning)
     //  depend on object properties (don't exceed main pointer), not on the previous pointer !!!
     // TODO: implement idea above; workaround: rewind if target pointer less than
-    // TODO ??? why is this needed
-//    if (buf_pointer_ > buffer->spike_buf_no_rec){
-//        buf_pointer_ = buffer->BUF_HEAD_LEN;
-//    }
     
     int last_pkg_id = 0;
     

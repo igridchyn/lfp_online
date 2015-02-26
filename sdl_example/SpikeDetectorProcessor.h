@@ -44,6 +44,8 @@ class SpikeDetectorProcessor : public LFPProcessor{
     int coord_unknown = 0;
     const unsigned int min_power_samples_;
 
+    const unsigned int DET_THOLD_CALC_RATE_;
+
 public:
     SpikeDetectorProcessor(LFPBuffer* buffer);
     SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory);

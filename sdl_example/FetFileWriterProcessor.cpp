@@ -10,7 +10,6 @@
 FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 :LFPProcessor(buf)
 {
-	// TODO Auto-generated constructor stub
 	std::string path_base = buf->config_->getOutPath("spike.writer.path.base");
 	write_spk_ = buf->config_->getBool("spike.writer.spk.write");
 	binary_ = buf->config_->getBool("spike.writer.binary", false);
@@ -68,12 +67,11 @@ void FetFileWriterProcessor::process() {
 			continue;
 		}
 
-		// TODO !!!! write the same value
 		for(int f=0; f < 16; ++f){
 			if (binary_)
 				fet_file.write((char*)spike->getFeatureAddr(f), sizeof(float));
 			else
-				fet_file << (int)round(spike->getFeature(f)) << " ";
+				fet_file << spike->getFeature(f) << " ";
 		}
 
 		if (binary_)

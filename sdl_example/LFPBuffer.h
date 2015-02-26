@@ -73,7 +73,7 @@ public:
 	bool valid = false;
 
 public:
-	// TODO cache pos ???
+
 	float x_pos();
 	float y_pos();
 };
@@ -126,6 +126,7 @@ public:
     float high_synchrony_factor_;
 
     const unsigned int POS_BUF_LEN;
+    unsigned int POS_BUF_HEAD_LEN = 0;
 
 	int *CH_MAP; // = { 8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55 };
 
@@ -285,6 +286,8 @@ public:
 	std::stringstream log_string_stream_;
 
 	unsigned int WS_SHIFT = 100;
+
+	const unsigned int SPEED_ESTIMATOR_WINDOW_;
 
     //====================================================================================================
 

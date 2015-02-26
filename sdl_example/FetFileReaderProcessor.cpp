@@ -290,7 +290,7 @@ void FetFileReaderProcessor::process() {
 		while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike->pkg_id_ && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
 			buffer->pos_buf_spike_pos_++;
 		}
-		// TODO: average of two LED coords
+
 		if (buffer->pos_buf_spike_pos_ > 0){
 			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
 			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
@@ -303,7 +303,6 @@ void FetFileReaderProcessor::process() {
 	buffer->spike_buf_pos_unproc_ = buffer->spike_buf_pos;
 	last_pkg_id_ = last_spike_pkg_id;
 
-	// TODO: check for conflict with other processors
 	buffer->last_pkg_id = last_pkg_id_;
 
 	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);

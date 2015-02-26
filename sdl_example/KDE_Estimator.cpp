@@ -26,7 +26,6 @@ double BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
-// !!! TODO analyze effect carefully
 const unsigned int BLOCK_SIZE = 3;
 int NBLOCKSX;
 int NBLOCKSY;
@@ -296,10 +295,8 @@ void cache_spike_and_bin_neighbours(){
 	// cache spike neighbours
 	ANNpointArray ann_points_ws = kdtree_->thePoints();
 	for (int s = 0; s < total_spikes; ++s) {
-		// TODO alloc mat ?
 		ANNidx *nn_idx = new ANNidx[NN_CACHE];
 		ANNdist *dd = new ANNdist[NN_CACHE];
-		// TODO relax EPS ?
 		kdtree_->annkSearch(ann_points_ws[s], NN_CACHE, nn_idx, dd, NN_EPS);
 		cache_sim_spikes_.push_back(nn_idx);
 		cache_sim_spikes_dists_.push_back(dd);
@@ -447,13 +444,6 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 //	double pfsum = arma::sum(arma::sum(pfexp));
 //	pfexp /= pfsum;
 //	pf = arma::log(pfexp);
-
-	// TODO configurableize saving of individual spikes
-//	if (SAVE){
-//		std::string save_path = BASE_PATH + Utils::NUMBERS[tetr] + "_" + Utils::Converter::int2str((int)spikei) + ".mat";
-//		pf.save(save_path, arma::raw_ascii);
-//		std::cout << save_path << "\n";
-//	}
 
 	lax[spikei] = pf;
 }

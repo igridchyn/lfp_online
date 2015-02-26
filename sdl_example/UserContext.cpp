@@ -10,7 +10,6 @@
 unsigned int UserAction::last_id_ = 0;
 
 UserContext::UserContext() {
-	// TODO Auto-generated constructor stub
 }
 
 void UserContext::SelectCluster1(const int& clu) {
@@ -73,7 +72,6 @@ void UserContext::AddInclusiveProjection(PolygonClusterProjection proj) {
 }
 
 UserContext::~UserContext() {
-	// TODO Auto-generated destructor stub
 }
 
 UserAction::UserAction(UserActionType action_type, int cluster_number,

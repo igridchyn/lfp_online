@@ -130,13 +130,14 @@ PolygonCluster::PolygonCluster(const PolygonClusterProjection& proj) {
 
 bool PolygonCluster::ContainsConvex(float x, float y) {
 	// TODO cash edge vectors
-	// TODO all projections
 
-	PolygonClusterProjection& pcp = projections_inclusive_[0];
+	for (size_t p = 0; p < projections_inclusive_.size(); ++p){
+		PolygonClusterProjection& pcp = projections_inclusive_[p];
 
-	for(int v=1; v < pcp.Size(); ++v){
-		if (!IsFromRight(pcp.coords1_[v-1], pcp.coords2_[v-1], pcp.coords1_[v], pcp.coords2_[v], x, y)){
-			return false;
+		for(int v=1; v < pcp.Size(); ++v){
+			if (!IsFromRight(pcp.coords1_[v-1], pcp.coords2_[v-1], pcp.coords1_[v], pcp.coords2_[v], x, y)){
+				return false;
+			}
 		}
 	}
 

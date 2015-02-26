@@ -113,7 +113,7 @@ void TransProbEstimationProcessor::process() {
 	// TODO delay
 
 	while(pos_buf_ptr_ < buffer->pos_buf_pos_){
-		if (buffer->positions_buf_[pos_buf_ptr_].x_big_LED_ == 1023 || buffer->positions_buf_[pos_buf_ptr_ - STEP].x_big_LED_ == 1023){
+		if (buffer->positions_buf_[pos_buf_ptr_].x_big_LED_ == buffer->pos_unknown_ || buffer->positions_buf_[pos_buf_ptr_ - STEP].x_big_LED_ == buffer->pos_unknown_){
 			pos_buf_ptr_ ++;
 			continue;
 		}

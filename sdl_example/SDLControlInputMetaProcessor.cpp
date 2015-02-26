@@ -86,7 +86,6 @@ void SDLControlInputMetaProcessor::process(){
                 	unsigned int tetrode = LFPBuffer::TETRODE_UNKNOWN;
                     
                     switch( e.key.keysym.sym ) {
-                            // TODO: all tetrodes (10-16: numpad; 17-32: RALT)
                         case SDLK_0:
                             tetrode = 0 + shift;
                             break;

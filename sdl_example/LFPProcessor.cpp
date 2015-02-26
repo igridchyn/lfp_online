@@ -86,8 +86,6 @@ float Spike::getWidth(float level, int chan) {
 		return 0;
 
 	// find first crossing
-	// TODO ??? limit ???
-
 	bool reached_val = false;
 	double level_x = .0;
 
@@ -341,14 +339,12 @@ void Spike::find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_t
 	  }
   }
 
-  // TODO : configurable
   peak_to_valley_1_ = (ptv - pm1) / 2;
   peak_to_valley_2_ = (ptv - pm2) / 2;
   intervalley_ = (tma - tmb) * 200;
 }
 
 void Spike::set_peak_valley_features() {
-	// TODO configurable
 	int peak_time, peak_value;
 
 	// TODO parametrize

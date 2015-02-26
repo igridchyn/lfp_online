@@ -12,7 +12,6 @@
 #include "mlpack/methods/gmm/gmm.hpp"
 #include <thread>
 
-// TODO: create abstract clustering class
 class GMMClusteringProcessor : public LFPProcessor{
 //    unsigned int dimensionality_;
 

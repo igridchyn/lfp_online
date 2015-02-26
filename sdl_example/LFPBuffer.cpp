@@ -99,8 +99,7 @@ void LFPBuffer::Reset(Config* config) {
 		powerEstimators_.push_back(OnlineEstimator<float, float>(config->getInt("spike.detection.min.power.samples", 500000)));
 	}
 
-    // TODO: configurableize
-    speedEstimator_ = new OnlineEstimator<float, float>(16);
+    speedEstimator_ = new OnlineEstimator<float, float>(SPEED_ESTIMATOR_WINDOW_);
 	log_stream << "done\n";
 
     memset(is_valid_channel_, 0, CHANNEL_NUM);
@@ -173,7 +172,6 @@ void LFPBuffer::Reset(Config* config) {
 		is_high_synchrony_tetrode_[config_->synchrony_tetrodes_[t]] =  true;
 	}
 
-	// TODO check if all members are properly being reset
 	high_synchrony_tetrode_spikes_ = 0;
 
 	user_context_.Init(tetr_info_->tetrodes_number());
@@ -234,6 +232,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
 , high_synchrony_factor_(config->getFloat("high.synchrony.factor", 2.0f))
 , POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
+, SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 {
 	CH_MAP = new int[64]{8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55};
 
@@ -279,6 +278,7 @@ LFPBuffer::LFPBuffer(Config* config)
     last_preidction_window_ends_.resize(100);
 
     positions_buf_ = new SpatialInfo[POS_BUF_LEN];
+    POS_BUF_HEAD_LEN = POS_BUF_LEN / 10;
 }
 
 void LFPBuffer::ResetPopulationWindow(){
@@ -371,6 +371,11 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 
 
 void LFPBuffer::AddSpike(Spike* spike) {
+	if (spike_buffer_[spike_buf_pos] != nullptr){
+		delete spike_buffer_[spike_buf_pos];
+		spike_buffer_[spike_buf_pos] = nullptr;
+	}
+
 	spike_buffer_[spike_buf_pos] = spike;
 	spike_buf_pos++;
 

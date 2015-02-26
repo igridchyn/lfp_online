@@ -13,6 +13,7 @@
 #include <armadillo>
 #include <ANN/ANN.h>
 #include <thread>
+#include <mutex>
 #include <fstream>
 #include <map>
 
@@ -118,6 +119,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<std::vector<arma::fmat> > spike_place_fields_;
 
 	std::vector<bool> pf_built_;
+	std::mutex kde_mutex_;
 	unsigned int n_pf_built_ = 0;
 
 	// tmp - to estimate std
@@ -154,7 +156,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	// dividable by PRED_WIN
 	unsigned int last_pred_pkg_id_ = 0;
 	// last prediction probabilities
-	// TODO array of predictions if more than 1 window available
 	arma::fmat last_pred_probs_;
 
 	// for current prediction window - reset after window is over

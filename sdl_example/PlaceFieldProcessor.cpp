@@ -53,13 +53,12 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , display_prediction_(buf->config_->getBool("pf.display.prediction"))
 , prediction_rate_(buf->config_->getInt("pf.prediction.rate"))
 , POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)){
-    const unsigned int& tetrn = buf->tetr_info_->tetrodes_number();
+    const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
     const unsigned int MAX_CLUST = 30;
     
     place_fields_.resize(tetrn);
     place_fields_smoothed_.resize(tetrn);
     
-    // TODO: ???
     for (size_t t=0; t < tetrn; ++t) {
         for (size_t c=0; c < MAX_CLUST; ++c) {
             place_fields_[t].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
@@ -84,7 +83,6 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     unsigned int xb = (unsigned int)round(x / bin_size_ - 0.5);
     unsigned int yb = (unsigned int)round(y / bin_size_ - 0.5);
     
-    // TODO: ? reconstruct ?? (in previous proc)
     // unknown coord
     if (x == buffer->pos_unknown_ || y == buffer->pos_unknown_){
         return;
@@ -353,7 +351,6 @@ void PlaceFieldProcessor::cachePDF(){
 
     for (size_t t=0; t < place_fields_.size(); ++t) {
         for (size_t c = 0; c < place_fields_[t].size(); ++c) {
-            // TODO: configurableize occupancy factor
             place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, factor);
         }
     }
@@ -369,7 +366,6 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     int fr_cnt = 0;
     for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 		for (size_t cl = 0; cl < pop_vec[t].size(); ++cl) {
-			// TODO: configurableize sampling rate
 			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * buffer->SAMPLING_RATE;
 			if (firing_rates(t, cl) > RREDICTION_FIRING_RATE_THRESHOLD){
 				fr_cnt ++;

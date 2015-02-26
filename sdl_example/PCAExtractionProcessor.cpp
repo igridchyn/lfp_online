@@ -462,7 +462,6 @@ void PCAExtractionProcessor::process(){
         }
         
         num_spikes[spike->tetrode_]++;
-        // TODO: account for buffer rewind
         (*buf_ptr_ptr_)++;
     }
     

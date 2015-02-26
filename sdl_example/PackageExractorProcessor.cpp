@@ -65,7 +65,6 @@ void PackageExractorProcessor::process(){
     
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
     
-	// TODO !!!!!!!!! check pos in all packages
     for (unsigned int c=0; c < buffer->num_chunks; ++c){
     	unsigned char *pos_chunk = buffer->chunk_ptr + c * buffer->CHUNK_SIZE;
 

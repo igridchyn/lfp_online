@@ -36,6 +36,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 , refractory_(refractory)
 , REFR_LEN(buffer->SAMPLING_RATE/1000)
 , min_power_samples_(buffer->config_->getInt("spike.detection.min.power.samples", 20000))
+, DET_THOLD_CALC_RATE_(buffer->config_->getInt("spike.detection.thold.rate", 1))
 {
     // load spike filter
     std::ifstream filter_stream;
@@ -130,7 +131,7 @@ void SpikeDetectorProcessor::process()
     
     // TODO: do not estiamte every time
     for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
-        if (!buffer->is_valid_channel(channel))
+        if (!buffer->is_valid_channel(channel)  || (buffer->last_pkg_id % DET_THOLD_CALC_RATE_))
             continue;
         
         // TODO: make sure there's a single estimator for all channels of the tetrode
@@ -155,13 +156,7 @@ void SpikeDetectorProcessor::process()
                 // printf("%d ", spike_pos);
                 
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
-                // TODO: reinit
-				if (buffer->spike_buffer_[buffer->spike_buf_pos] != nullptr){
-					delete buffer->spike_buffer_[buffer->spike_buf_pos];
-					buffer->spike_buffer_[buffer->spike_buf_pos] = nullptr;
-				}
-                
-                // TODO: delete old spikes or reuse the structure
+
                 Spike *spike = new Spike(spike_pos + 1, tetrode);
                 buffer->AddSpike(spike);
                 
@@ -174,7 +169,7 @@ void SpikeDetectorProcessor::process()
                 while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
                     buffer->pos_buf_spike_pos_++;
                 }
-                // TODO: average of two LED coords
+
                 if (buffer->pos_buf_spike_pos_ > 0){
                 	spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
                 	spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
