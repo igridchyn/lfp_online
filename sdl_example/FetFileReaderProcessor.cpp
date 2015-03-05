@@ -267,6 +267,7 @@ void FetFileReaderProcessor::process() {
 		// add the earliest spike to the buffer and
 		// UPDATE pkg_id to inuclude the shift
 		buffer->AddSpike(last_spikies_[earliest_spike_tetrode_]);
+		buffer->UpdateWindowVector(last_spikies_[earliest_spike_tetrode_]);
 		last_spike_pkg_id = earliest_spike_time_;
 
 		// advance with the corresponding file reading and check for the end of file [change flag + cache = number of available files]
