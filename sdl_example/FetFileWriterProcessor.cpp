@@ -67,7 +67,10 @@ void FetFileWriterProcessor::process() {
 			continue;
 		}
 
-		for(int f=0; f < 16; ++f){
+		const unsigned int fetn = buffer->feature_space_dims_[spike->tetrode_];
+
+		// TODO customize extra-features
+		for(unsigned int f=0; f < fetn + 4; ++f){
 			if (binary_)
 				fet_file.write((char*)spike->getFeatureAddr(f), sizeof(float));
 			else

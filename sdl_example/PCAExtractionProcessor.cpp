@@ -355,11 +355,15 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
                 }
                 
                 pca_done_[i] = true;
-                npcdone_ ++;
                 fpc.close();
             }
+
+            if (pca_done_[i]){
+            	npcdone_ ++;
+            }
+
             // TODO handle cases when some channel PC transforms are missing
-            npcdone_ -= buffer->tetr_info_->channels_number(i) - 1;
+//            npcdone_ -= buffer->tetr_info_->channels_number(i) - 1;
         }
     }
 
@@ -368,6 +372,8 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
     	buf_ptr_ptr_ = &(buffer->spike_buf_pos_unproc_);
     }
     else{
+    	buffer->log_string_stream_ << npcdone_<< " PC transforms loaded out of " <<  buffer->tetr_info_->tetrodes_number() << "\n";
+    	buffer->Log();
     	buf_ptr_ptr_ = &(buffer->spike_buf_pos_featext_collected_);
     }
 }

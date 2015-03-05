@@ -147,7 +147,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 }
 
 void FetFileReaderProcessor::openNextFile() {
-	if (current_file_ < buffer->config_->spike_files_.size() - 1){
+	if (current_file_ < (int)buffer->config_->spike_files_.size() - 1){
 		current_file_ ++;
 
 		int num_files_ = fet_streams_.size();
@@ -214,7 +214,7 @@ void FetFileReaderProcessor::process() {
 	int last_spike_pkg_id = last_pkg_id_;
 
 	if (num_files_with_spikes_ == 0){
-		if (current_file_ < buffer->config_->spike_files_.size() - 1){
+		if (current_file_ < (int)buffer->config_->spike_files_.size() - 1){
 			shifts_.push_back(last_pkg_id_);
 			shift_ = last_pkg_id_;
 			Log(std::string("Out of spikes in file ") +  buffer->config_->spike_files_[current_file_]);

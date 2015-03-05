@@ -79,8 +79,6 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 
     points_ = new SDL_Point[1000000];
 
-    // TODO !!! parametrize
-    const unsigned int MAX_CLUST = 30;
     spikes_to_draw_.resize(MAX_CLUST);
     for (unsigned int c = 0; c < MAX_CLUST; ++c) {
     	spikes_to_draw_[c] = new SDL_Point[spikes_draw_freq_];
@@ -609,7 +607,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         if (comp1_ != old_comp1 || comp2_ != old_comp2){
         	// TODO parametrize
-        	for (int i=0; i < 40; ++i){
+        	for (unsigned int i=0; i < MAX_CLUST; ++i){
         		spikes_counts_[i] = 0;
         	}
         }

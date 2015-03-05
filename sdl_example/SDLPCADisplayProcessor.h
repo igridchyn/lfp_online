@@ -75,6 +75,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
     std::vector<SDL_Point *> spikes_to_draw_;
     std::vector<unsigned int> spikes_counts_;
 
+    const unsigned int MAX_CLUST = 40;
+
     void save_polygon_clusters();
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }

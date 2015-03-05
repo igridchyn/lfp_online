@@ -273,7 +273,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         SDL_Keymod kmod = SDL_GetModState();
         
         int shift = 0;
-        if (kmod && KMOD_LSHIFT){
+        if (kmod & KMOD_LSHIFT){
             shift = 10;
         }
 
