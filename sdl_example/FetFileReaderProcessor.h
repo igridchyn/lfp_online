@@ -44,7 +44,7 @@ class FetFileReaderProcessor: public LFPProcessor {
 	Spike* readSpikeFromFile(const unsigned int tetr);
 
 	int current_file_ = -1;
-	unsigned int shift_ = 0;
+	int shift_ = 0;
 	std::vector<unsigned int> shifts_;
 
 	double FET_SCALING;

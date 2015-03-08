@@ -176,6 +176,7 @@ void FetFileReaderProcessor::openNextFile() {
 		std::string extapp = binary_ ? "b" : "";
 
 		int dum_ncomp;
+		unsigned int min_pkg_id = std::numeric_limits<unsigned int>::max();
 		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			std::string path = fet_path_base_ + "fet" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]];
 			if (!boost::filesystem::exists(path)){
@@ -204,9 +205,21 @@ void FetFileReaderProcessor::openNextFile() {
 				tspike = readSpikeFromFile(t);
 			}
 			last_spikies_.push_back(tspike);
+
+			if (tspike != nullptr && tspike->pkg_id_ < min_pkg_id){
+				min_pkg_id = tspike->pkg_id_;
+			}
 		}
 
 		buffer->pipeline_status_ = PIPELINE_STATUS_READ_FET;
+
+		if (current_file_ == 0 && min_pkg_id > buffer->SAMPLING_RATE){
+			Log("Warning: spikes in the first files start from ", min_pkg_id);
+//			shift_ = - min_pkg_id;
+//			for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+//				last_spikies_[t]->pkg_id_ += shift_;
+//			}
+		}
 	}
 }
 
