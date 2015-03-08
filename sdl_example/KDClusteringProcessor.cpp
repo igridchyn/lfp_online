@@ -143,7 +143,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
 
 		if (tetr_info_->channels_number(t) > max_dim)
-			max_dim = tetr_info_->channels_number(t);
+			max_dim = buffer->feature_space_dims_[t];
 	}
 
 	pf_built_.resize(tetrn);
@@ -409,13 +409,13 @@ void KDClusteringProcessor::process(){
 		}
 
 		// wait for enough spikes to estimate the firing rate; beware of the rewind after estimating the FRs
-		if (spike->pkg_id_ < FR_ESTIMATE_DELAY && !LOAD && (tetrode_sampling_rates_.size() == 0)){
+		if (spike->pkg_id_ < FR_ESTIMATE_DELAY && !LOAD && (tetrode_sampling_rates_.empty())){
 			spike_buf_pos_clust_ ++;
 			continue;
 		}
 
 		// estimate firing rates => spike sampling rates if model has not been loaded
-		if (tetrode_sampling_rates_.size() == 0 && !LOAD){
+		if (tetrode_sampling_rates_.empty() && spike->pkg_id_ > FR_ESTIMATE_DELAY){
 			std::stringstream ss;
 			ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
 			Log(ss.str());
@@ -424,13 +424,12 @@ void KDClusteringProcessor::process(){
 			std::vector<unsigned int> spike_numbers_;
 			spike_numbers_.resize(tetr_info_->tetrodes_number());
 			// TODO which pointer ?
-			for (unsigned int i=0; i < buffer->spike_buf_pos_speed_; ++i){
+			for (unsigned int i=0; i < (WAIT_FOR_SPEED_EST ? buffer->spike_buf_pos_speed_ : buffer->spike_buf_pos_unproc_); ++i){
 				Spike *spike = buffer->spike_buffer_[i];
-				if (spike == NULL || spike->discarded_ || spike->speed < SPEED_THOLD){
+				if (spike == nullptr || spike->discarded_ || spike->speed < SPEED_THOLD){
 					continue;
 				}
 
-				// TODO convert tetrode number
 				spike_numbers_[spike->tetrode_] ++;
 			}
 
@@ -443,14 +442,19 @@ void KDClusteringProcessor::process(){
 					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
 					ss << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 					Log(ss.str());
+
+					buffer->fr_estimated_ = true;
+					buffer->fr_estimates_.push_back(firing_rate);
 			}
 
 			// REWIND TO THE FIRST SPIKE AFTER SAMPLING DELAY
-			Log("Rewind the pointer to the last spike after the sampling delay");
-			Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
-			while ((spike == NULL || spike->pkg_id_ > SAMPLING_DELAY) && (spike_buf_pos_clust_ > 0)){
-				spike_buf_pos_clust_ --;
-				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+			if (!LOAD){
+				Log("Rewind the pointer to the last spike after the sampling delay");
+				Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+				while ((spike == NULL || spike->pkg_id_ > SAMPLING_DELAY) && (spike_buf_pos_clust_ > 0)){
+					spike_buf_pos_clust_ --;
+					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+				}
 			}
 		}
 
