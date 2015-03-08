@@ -432,8 +432,26 @@ bool LFPBuffer::IsHighSynchrony() {
 
 bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 	RemoveSpikesOutsideWindow(last_pkg_id);
+
+	if (fr_estimates_.empty())
+		return false;
+
+//	int nhigh = 0;
+//	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t){
+//		if (population_vector_window_[config_->synchrony_tetrodes_[t]][0] > POP_VEC_WIN_LEN * fr_estimates_[config_->synchrony_tetrodes_[t]] / 1000.0 * high_synchrony_factor_){
+//			nhigh ++;
+//		}
+//	}
+//	return nhigh > 6;
+
+	// TODO !!! cache
+	double sync_spikes_window_ = .0;
+	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+		sync_spikes_window_ += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0;
+	}
+
 	// whether have at least synchrony.factor X average spikes at all tetrodes
-	return (high_synchrony_tetrode_spikes_ >= average_spikes_window * high_synchrony_factor_);
+	return (high_synchrony_tetrode_spikes_ >= sync_spikes_window_ * high_synchrony_factor_);
 }
 
 

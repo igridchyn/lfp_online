@@ -281,6 +281,10 @@ public:
 
 	const unsigned int SPEED_ESTIMATOR_WINDOW_;
 
+	bool fr_estimated_ = false;
+	std::vector<double> fr_estimates_;
+//	double synchrony_tetrodes_firing_rate_ = .0;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);
