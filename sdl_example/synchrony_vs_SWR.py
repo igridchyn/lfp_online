@@ -48,8 +48,8 @@ for syn in syns:
 	if swrp > swrpstart:
 		swrp -= 1
 
-print errs
-print len(errs), ' coinciding events within ', '%.2f ms' % (max_dist/24.0), ' from ', 'BEG' if SWI==0 else 'PEAK' if SWI==1 else 'END'
+# print errs
+print len(errs), ' coinciding events within ', '%.2f ms' % (max_dist/24.0), ' from ', 'BEG' if SWI==0 else 'PEAK' if SWI==1 else 'END (', '%.2f %%' % (len(errs)/float(len(swrs))*100.0)
 print 'Median error: %.2f +- %.2f'% (np.median(errs)/24.0, np.std(errs)/24.0)
 
 n, bins, patches = P.hist([err/24.0 for err in errs], 30, normed=0, histtype='stepfilled')
