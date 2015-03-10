@@ -17,7 +17,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, trigger_start_delay_(buffer->config_->getInt("lpt.trigger.start.delay") * buffer->SAMPLING_RATE)
 	, dominance_confidence_threshold_(buffer->config_->getFloat("lpt.trigger.confidence.threshold", 0.01))
 	, sync_max_duration_(buffer->config_->getInt("lpt.trigger.sync.max.duration", 0))
-	, spike_buf_limit_ptr_(buffer->spike_buf_pos)
+	, spike_buf_limit_ptr_(buffer->spike_buf_pos_unproc_)
 {
 	Log("Constructor start");
 
@@ -26,15 +26,6 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	std::string ttpath = "/tmp/tt";
 	Log("Write trigger timestamps to " + ttpath);
 	timestamp_log_.open(ttpath);
-
-	// trigger type-specific initialization
-	switch(trigger_type_){
-		case LPTTriggerType::EnvironmentDominance:
-			spike_buf_limit_ptr_ = buffer->spike_buf_pos_unproc_;
-			break;
-		default:
-			break;
-	}
 
 #ifdef _WIN32
 	//Opendriver();
@@ -280,7 +271,7 @@ void LPTTriggerProcessor::process() {
 						// prediction has to be evaluated for newly created event first before continuing
 						break_cycle_ = true;
 						// to predict ASAP: cause to review the spike
-						buffer->spike_buf_pos_clusts_[0] --;
+//						buffer->spike_buf_pos_clusts_[0] --;
 						break;
 					}
 				}

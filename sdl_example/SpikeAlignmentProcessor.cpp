@@ -153,7 +153,7 @@ void SpikeAlignmentProcessor::process(){
     // mark all spikes with last pkg_id beyond their refractory as aligned to be available for further processing
     // before the next spike at their tetrode arrives
     for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-    	if (prev_spike_[t] != nullptr && last_spike_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD){
+    	if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD){
     		prev_spike_[t]->aligned_ = true;
     	}
 	}

@@ -265,7 +265,7 @@ public:
 	// DEBUG
 	// for performance evaluation
 	time_t checkpoint_ = 0;
-	unsigned int target_pkg_id_ = 12049131;
+	unsigned int target_pkg_id_ = 128227;
 	unsigned int target_buf_pos_ = 7543;
 
 	int coord_shift_x_ = 0;
@@ -319,7 +319,7 @@ public:
     void ResetAC(const unsigned int& reset_tetrode);
 
     // DEBUG
-    void CheckPkgIdAndReportTime(const unsigned int& pkg_id, const std::string msg, bool set_checkpoint = false);
+    bool CheckPkgIdAndReportTime(const unsigned int& pkg_id, const std::string msg, bool set_checkpoint = false);
     void CheckBufPosAndReportTime(const unsigned int& buf_pos, const std::string msg);
 };
 

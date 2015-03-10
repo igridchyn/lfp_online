@@ -528,7 +528,7 @@ void LFPBuffer::ResetAC(const unsigned int& reset_tetrode) {
 	ResetAC(reset_tetrode, -1);
 }
 
-void LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
+bool LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
 		const std::string msg, bool set_checkpoint) {
 	if (pkg_id == target_pkg_id_){
 		log_string_stream_ << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
@@ -536,7 +536,9 @@ void LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
 		if (set_checkpoint){
 			checkpoint_ = clock();
 		}
+		return true;
 	}
+	return false;
 }
 
 void LFPBuffer::CheckBufPosAndReportTime(const unsigned int& buf_pos,

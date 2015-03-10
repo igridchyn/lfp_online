@@ -150,6 +150,9 @@ void SpikeDetectorProcessor::process()
                 Spike *spike = new Spike(spike_pos + 1, tetrode);
                 buffer->AddSpike(spike);
                 
+                // DEBUG
+                buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
+
                 // DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
 //                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
                 
