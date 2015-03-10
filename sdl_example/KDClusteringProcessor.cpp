@@ -92,7 +92,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			DUMP_SPEED_THOLD(buf->config_->getFloat("kd.dump.speed.thold", .0)),
 			WAIT_FOR_SPEED_EST(getBool("kd.wait.speed")),
 			RUN_KDE_ON_MIN_COLLECTED(getBool("kd.run.on.min")),
-            kde_path_(buf->config_->getString("kd.path", "./kde_estimator")){
+            kde_path_(buf->config_->getString("kd.path", "./kde_estimator")),
+            continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false))
+		{
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -215,11 +217,15 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	}
 
 	buffer->last_predictions_.resize(processor_number_ + 1);
+	// initialize prediction in the buffer
+	buffer->last_predictions_[processor_number] = pos_pred_;
 
 	dec_bayesian_.open("dec_bay.txt");
 	window_spike_counts_.open("../out/window_spike_counts.txt");
 
 	pnt_ = annAllocPt(max_dim);
+
+	last_spike_pkg_ids_by_tetrode_.resize(tetr_info_->tetrodes_number(), 0);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -354,7 +360,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// DEBUG
 //	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
-	buffer->last_predictions_[processor_number_] = arma::exp(hmm_prediction_.t() / 200);
+	buffer->last_predictions_[processor_number_] = arma::exp(hmm_prediction_ / 200);
 }
 
 void KDClusteringProcessor::reset_hmm() {
@@ -614,6 +620,13 @@ void KDClusteringProcessor::process(){
 
 					// reset HMM
 					reset_hmm();
+
+					// for continuous prediction - adjustment be the generalized firing rate
+					for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+						last_spike_pkg_ids_by_tetrode_[t] =  buffer->swrs_[swr_pointer_][0];
+					}
+
+					pos_pred_.zeros();
 				}
 
 				// end SWR regime if the SWR is over
@@ -671,6 +684,20 @@ void KDClusteringProcessor::process(){
 				// add 'place field' of the spike with the closest wave shape
 				pos_pred_ += laxs_[stetr][closest_ind];
 
+				// TODO: from window start if the spike was first
+				if (continuous_prediction_){
+					// from last spike at the current tetrode
+					// TODO !!! configurable factor
+					const double DE_SEC = (spike->pkg_id_ - last_spike_pkg_ids_by_tetrode_[stetr]) / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
+					// !!! TODO !!!
+					pos_pred_ -= DE_SEC  * lxs_[stetr];
+
+					// TODO !!! make a reference for speed
+					buffer->last_predictions_[processor_number_] = pos_pred_;
+				}
+
+				last_spike_pkg_ids_by_tetrode_[stetr] = spike->pkg_id_;
+
 				spike_buf_pos_clust_++;
 				// spike may be without speed (the last one) - but it's not crucial
 
@@ -690,12 +717,15 @@ void KDClusteringProcessor::process(){
 
 				// edges of the window
 				// account for the increase in the firing rate during high synchrony with additional factor
+				// TODO !!! configurable factor
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
 
-				for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-					// TODO ? subtract even if did not spike
-					if (tetr_spiked_[t]){
-						pos_pred_ -= DE_SEC  * lxs_[t];
+				if (!continuous_prediction_){
+					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+						// TODO ? subtract even if did not spike
+						if (tetr_spiked_[t]){
+							pos_pred_ -= DE_SEC  * lxs_[t];
+						}
 					}
 				}
 
@@ -781,7 +811,7 @@ void KDClusteringProcessor::process(){
 				pos_pred_ = arma::exp(pos_pred_ / 50);
 
 				// updated in HMM
-				buffer->last_predictions_[processor_number_] = pos_pred_.t();
+				buffer->last_predictions_[processor_number_] = pos_pred_;
 				buffer->last_preidction_window_ends_[processor_number_] = last_pred_pkg_id_ + PRED_WIN;
 
 				// DEBUG

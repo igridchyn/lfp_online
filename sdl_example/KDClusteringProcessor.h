@@ -207,6 +207,11 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	double *pnt_;
 
+	// continuously support a prediction matrix from window start until last spike
+	const bool continuous_prediction_ = false;
+	// pointers to previous spikes in each of the tetrodes
+	std::vector<unsigned int> last_spike_pkg_ids_by_tetrode_;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 
