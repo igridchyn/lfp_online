@@ -694,6 +694,9 @@ void KDClusteringProcessor::process(){
 
 					// TODO !!! make a reference for speed
 					buffer->last_predictions_[processor_number_] = pos_pred_;
+
+					// DEBUG
+					buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Prediction ready\n");
 				}
 
 				last_spike_pkg_ids_by_tetrode_[stetr] = spike->pkg_id_;

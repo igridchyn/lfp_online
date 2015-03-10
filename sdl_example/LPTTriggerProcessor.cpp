@@ -212,6 +212,10 @@ void LPTTriggerProcessor::process() {
 							events_inhibited_timeout_ ++;
 
 							setHigh();
+
+							// DEBUG
+							buffer->CheckPkgIdAndReportTime(buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_, "INHIBITION started\n");
+
 						} else {
 							events_allowed_timeout_ ++;
 

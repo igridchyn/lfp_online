@@ -283,6 +283,9 @@ void FetFileReaderProcessor::process() {
 		buffer->UpdateWindowVector(last_spikies_[earliest_spike_tetrode_]);
 		last_spike_pkg_id = earliest_spike_time_;
 
+		// DEBUG
+		buffer->CheckPkgIdAndReportTime(earliest_spike_time_, "Spike 12049131 read\n", true);
+
 		// advance with the corresponding file reading and check for the end of file [change flag + cache = number of available files]
 		Spike *spike = readSpikeFromFile(earliest_spike_tetrode_);
 		if (spike == nullptr)
