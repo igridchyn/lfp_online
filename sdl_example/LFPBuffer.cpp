@@ -436,6 +436,7 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 	if (fr_estimates_.empty())
 		return false;
 
+	// TETRODE-WISE increase + # of synchronous tetrodes
 //	int nhigh = 0;
 //	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t){
 //		if (population_vector_window_[config_->synchrony_tetrodes_[t]][0] > POP_VEC_WIN_LEN * fr_estimates_[config_->synchrony_tetrodes_[t]] / 1000.0 * high_synchrony_factor_){

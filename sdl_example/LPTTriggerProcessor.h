@@ -17,6 +17,8 @@
 
 enum LPTTriggerType{
 	HighSynchronyTrigger,
+	EnvironmentDominance,
+
 	DoubleThresholdCrossing,
 	RegularFalshes
 };
@@ -48,6 +50,23 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	std::ofstream timestamp_log_;
 
+	double dominance_confidence_threshold_ = .0;
+	// pointer to SWR / synchrony events
+	unsigned int swr_ptr_ = 0;
+	unsigned int sync_min_duration_ = std::numeric_limits<unsigned int>::max();
+	unsigned int sync_max_duration_ = 0;
+
+	// depends on the strategy
+	unsigned int & spike_buf_limit_ptr_;
+
+	unsigned int last_synchrony_ = 0;
+
+	// STATS
+	unsigned int events_inhibited_thold_ = 0;
+	unsigned int events_inhibited_timeout_ = 0;
+	unsigned int events_allowed_thold_ = 0;
+	unsigned int events_allowed_timeout_ = 0;
+
 #ifdef _WIN32
 	typedef void(__stdcall *lpOut32)(short, short);
 	typedef short(__stdcall *lpInp32)(short);
@@ -68,6 +87,8 @@ public:
 	// LFPProcessor
 	virtual std::string name();
 	virtual void process();
+
+	inline double environment_dominance_confidence_();
 };
 
 #endif /* LPTTRIGGERPROCESSOR_H_ */
