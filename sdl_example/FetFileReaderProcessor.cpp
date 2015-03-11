@@ -280,8 +280,27 @@ void FetFileReaderProcessor::process() {
 		// add the earliest spike to the buffer and
 		// UPDATE pkg_id to inuclude the shift
 		buffer->AddSpike(last_spikies_[earliest_spike_tetrode_]);
-		buffer->UpdateWindowVector(last_spikies_[earliest_spike_tetrode_]);
 		last_spike_pkg_id = earliest_spike_time_;
+
+        // SHUFFLING - exchanges last spike with random in the buffer
+//		if (last_pkg_id_ > 12000000){
+//			srand(clock());
+//			Spike *rspike = nullptr;
+//			unsigned int rand_ind = 0;
+//			while (rspike == nullptr || rspike->tetrode_ != earliest_spike_tetrode_){
+//				int rnd = rand();
+//				rand_ind = ((long long)rnd * (long long)buffer->spike_buf_pos) / RAND_MAX;
+//				rspike = buffer->spike_buffer_[rand_ind];
+//			}
+//			last_spikies_[earliest_spike_tetrode_]->pkg_id_ = rspike->pkg_id_;
+//			rspike->pkg_id_ = earliest_spike_time_;
+//			// exchange in the buffer
+//			buffer->spike_buffer_[rand_ind] = last_spikies_[earliest_spike_tetrode_];
+//			buffer->spike_buffer_[buffer->spike_buf_pos - 1] = rspike;
+//			last_spikies_[earliest_spike_tetrode_] = rspike;
+//		}
+
+		buffer->UpdateWindowVector(last_spikies_[earliest_spike_tetrode_]);
 
 		// DEBUG
 		buffer->CheckPkgIdAndReportTime(earliest_spike_time_, "Spike 12049131 read\n", true);
