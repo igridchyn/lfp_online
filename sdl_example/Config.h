@@ -70,6 +70,8 @@ public:
 	virtual ~Config();
 
 	std::string getAllParamsText();
+
+	std::string evaluate_variables(std::string key, std::string value);
 };
 
 #endif /* CONFIG_H_ */

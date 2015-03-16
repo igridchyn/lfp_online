@@ -117,6 +117,9 @@ Config::Config(std::string path) {
 		if (std::getline(ssline, key, '=')){
 			std::string value;
 			if (std::getline(ssline, value)){
+				// look for variables
+				value = evaluate_variables(key, value);
+
 				params_[key] = value;
 				log_string_stream_ << " " << key << " = " << value << "\n";
 				Log();
@@ -126,7 +129,7 @@ Config::Config(std::string path) {
 					for (int i=0; i < nfiles; ++i){
 						std::getline(fconf, line);
 						if (line[0] != '/' || line[1] != '\''){
-							spike_files_.push_back(line);
+							spike_files_.push_back(evaluate_variables("spike.reader.files", line));
 						}
 					}
 				}
@@ -296,4 +299,27 @@ void Config::ReadList(std::ifstream& file, std::vector<T>& list) {
 		file >> entry;
 		list.push_back(entry);
 	}
+}
+
+std::string Config::evaluate_variables(std::string key, std::string value) {
+	while (value.find('$') != std::string::npos && value.find('{') != std::string::npos){
+		int pstart = value.find('$');
+
+		if(value.find('}') == std::string::npos){
+			log_string_stream_ << "ERROR: Cannot find closing of variable name for parameter " << key;
+			Log();
+			exit(1);
+		}
+
+		std::string parname = value.substr(pstart + 2, value.find('}') -pstart - 2);
+		if (params_.find(parname) == params_.end()){
+			log_string_stream_ << "ERROR: variable " << parname << " is not defined before parameter " << key;
+			Log();
+			exit(1);
+		}
+
+		value = value.substr(0, pstart) + params_[parname] + value.substr(value.find('}') + 1, value.size() - value.find('}') - 1);
+	}
+
+	return value;
 }
