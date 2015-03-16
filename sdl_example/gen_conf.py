@@ -1,13 +1,17 @@
-conf = open('regaa_jc118_all.conf', 'w')
+from sys import argv
 
-el = 0
+conf = open(argv[1], 'w')
 
-ypos = 70
+# staring electrode
+el = 40
+
+# starting pos, 70 for 32 channels, 300 for 16 channels per screen
+ypos = 300
 # between channels
 dy = 25
-# between tetrodes
-dyt = 40
-skip = [1]
+# between tetrodes, 40 for 32 channels per screen, 80 for 16 channels
+dyt = 80
+skip = []
 nel = 4
 
 conf.write("""regaa2.0
@@ -18,12 +22,12 @@ conf.write("""regaa2.0
 50
 10
 1
-31
+16
 """)
 
 col = 0
 
-for i in range(el, el + 32):
+for i in range(el, el + 16):
 	if i in skip:
 		continue
 	conf.write(str(i) + ' 0 ' + str(ypos) + ' 0.005 ' + str(col) + '\n')
