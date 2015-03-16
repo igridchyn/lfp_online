@@ -247,6 +247,7 @@ void AutocorrelogramProcessor::process(){
 	}
 }
 
+// center if the cluster autocorrelograms
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
 	return ((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 1);
 }
@@ -286,9 +287,9 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 
 int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
 		const unsigned int& y) {
-	int cx = (x - 30) / ((BWIDTH + 1) * NBINS + 15);
+	int cx = (x - (BWIDTH + 1) * NBINS) / ((BWIDTH + 1) * NBINS * 2 + 15);
 	int cy = y / ypix_;
-	return cy * XCLUST + cx;
+	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx;
 }
 
 void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
