@@ -64,6 +64,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 				for(unsigned int t=0; t < ntetr; ++t){
 					unsigned int nclust = 0;
 					fpoly >> nclust;
+					polygon_clusters_[t].clear();
 					for (unsigned int c=0; c < nclust; ++c){
 						polygon_clusters_[t].push_back(PolygonCluster(fpoly));
 					}
