@@ -475,11 +475,13 @@ void LFPBuffer::Log(std::string message, int num) {
 	log_stream.flush();
 }
 
+# ifndef _WIN32
 void LFPBuffer::Log(std::string message, size_t num) {
 	std::cout << message << num << "\n";
 	log_stream << message << num << "\n";
 	log_stream.flush();
 }
+#endif
 
 void LFPBuffer::Log(std::string message, double num) {
 	std::cout << message << num << "\n";

@@ -2,6 +2,9 @@
 #include <vector>
 #include <math.h>
 #include <boost/filesystem.hpp>
+#ifdef _WIN32
+	#define M_PI 3.14159265358979323846
+#endif
 
 class Utils{
 public:

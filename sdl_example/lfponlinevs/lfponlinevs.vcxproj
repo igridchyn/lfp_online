@@ -104,15 +104,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Igor\soft\lfp_online\third\SDL2_ttf-2.0.12\include;../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DLL_EXPORTS;LFP_ONLINE_LIB_EXPORT;ARMA_USE_LAPACK;ARMA_USE_BLAS;WIN32;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;libxml2.lib;libxml2_a.lib;cbia.lib.blas.dyn.rel.x86.12.lib;cbia.lib.lapack.dyn.rel.x86.12.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../third\cbia.lib.lapack.dyn.rel.x86.12\;../../third\libxml2-2.7.8.win32\lib\;c:\local\boost_1_56_0_32\lib32-msvc-12.0\;../../sdl_lpt_vs\lib\x86\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2_ttf.lib;SDL2.lib;libxml2.lib;libxml2_a.lib;cbia.lib.blas.dyn.rel.x86.12.lib;cbia.lib.lapack.dyn.rel.x86.12.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Igor\soft\lfp_online\third\SDL2_ttf-2.0.12\lib\x86;../../third\cbia.lib.lapack.dyn.rel.x86.12\;../../third\libxml2-2.7.8.win32\lib\;c:\local\boost_1_56_0_32\lib32-msvc-12.0\;../../sdl_lpt_vs\lib\x86\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,9 +154,11 @@
     <ClCompile Include="..\..\third\mlpack-1.0.9\src\mlpack\core\util\timers.cpp" />
     <ClCompile Include="..\..\third\mlpack-1.0.9\src\mlpack\core\util\version.cpp" />
     <ClCompile Include="..\AutocorrelogramProcessor.cpp" />
+    <ClCompile Include="..\BinFileReaderProcessor.cpp" />
     <ClCompile Include="..\CluReaderClusteringProcessor.cpp" />
     <ClCompile Include="..\Config.cpp" />
     <ClCompile Include="..\FetFileReaderProcessor.cpp" />
+    <ClCompile Include="..\FetFileWriterProcessor.cpp" />
     <ClCompile Include="..\FrequencyPowerBandProcessor.cpp" />
     <ClCompile Include="..\GMMClusteringProcessor.cpp" />
     <ClCompile Include="..\inpout32.cpp" />
@@ -173,7 +175,6 @@
     <ClCompile Include="..\PlaceFieldProcessor.cpp" />
     <ClCompile Include="..\PolygonCluster.cpp" />
     <ClCompile Include="..\PositionDisplayProcessor.cpp" />
-    <ClCompile Include="..\PositionReconstructionProcessor.cpp" />
     <ClCompile Include="..\SDLControlInputMetaProcessor.cpp" />
     <ClCompile Include="..\SDLPCADisplayProcessor.cpp" />
     <ClCompile Include="..\SDLSignalDisplayProcessor.cpp" />
@@ -186,6 +187,9 @@
     <ClCompile Include="..\SwReaderProcessor.cpp" />
     <ClCompile Include="..\TetrodesInfo.cpp" />
     <ClCompile Include="..\TransProbEstimationProcessor.cpp" />
+    <ClCompile Include="..\UnitTestingProcessor.cpp" />
+    <ClCompile Include="..\UserContext.cpp" />
+    <ClCompile Include="..\Utils.cpp" />
     <ClCompile Include="..\WaveshapeReconstructionProcessor.cpp" />
     <ClCompile Include="..\WhlFileReaderProcessor.cpp" />
   </ItemGroup>
@@ -200,9 +204,11 @@
     <ClInclude Include="..\..\third\ann_1.1.2\src\pr_queue.h" />
     <ClInclude Include="..\..\third\ann_1.1.2\src\pr_queue_k.h" />
     <ClInclude Include="..\AutocorrelogramProcessor.h" />
+    <ClInclude Include="..\BinFileReaderProcessor.h" />
     <ClInclude Include="..\CluReaderClusteringProcessor.h" />
     <ClInclude Include="..\Config.h" />
     <ClInclude Include="..\FetFileReaderProcessor.h" />
+    <ClInclude Include="..\FetFileWriterProcessor.h" />
     <ClInclude Include="..\GMMClusteringProcessor.h" />
     <ClInclude Include="..\inpout32.h" />
     <ClInclude Include="..\KDClusteringProcessor.h" />
@@ -217,7 +223,6 @@
     <ClInclude Include="..\PlaceFieldProcessor.h" />
     <ClInclude Include="..\PolygonCluster.h" />
     <ClInclude Include="..\PositionDisplayProcessor.h" />
-    <ClInclude Include="..\PositionReconstructionProcessor.h" />
     <ClInclude Include="..\SDLPCADisplayProcessor.h" />
     <ClInclude Include="..\SDLSignalDisplayProcessor.h" />
     <ClInclude Include="..\SDLWaveshapeDisplayProcessor.h" />
@@ -228,6 +233,9 @@
     <ClInclude Include="..\SwReaderProcessor.h" />
     <ClInclude Include="..\TetrodesInfo.h" />
     <ClInclude Include="..\TransProbEstimationProcessor.h" />
+    <ClInclude Include="..\UnitTestingProcessor.h" />
+    <ClInclude Include="..\UserContext.h" />
+    <ClInclude Include="..\Utils.h" />
     <ClInclude Include="..\WhlFileReaderProcessor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

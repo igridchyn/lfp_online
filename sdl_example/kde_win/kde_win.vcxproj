@@ -56,15 +56,44 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../third\ann_1.1.2\include\;../../third\armadillo-4.320.0\include\;c:\local\boost_1_56_0_32\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>c:\local\boost_1_56_0_32\lib32-msvc-12.0\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\third\ann_1.1.2\src\ANN.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\bd_fix_rad_search.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\bd_pr_search.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\bd_search.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\bd_tree.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\brute.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_dump.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_fix_rad_search.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_pr_search.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_search.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_split.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_tree.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\kd_util.cpp" />
+    <ClCompile Include="..\..\third\ann_1.1.2\src\perf.cpp" />
     <ClCompile Include="..\KDE_Estimator.cpp" />
+    <ClCompile Include="..\Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\third\ann_1.1.2\src\bd_tree.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\kd_fix_rad_search.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\kd_pr_search.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\kd_search.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\kd_split.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\kd_tree.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\kd_util.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\pr_queue.h" />
+    <ClInclude Include="..\..\third\ann_1.1.2\src\pr_queue_k.h" />
+    <ClInclude Include="..\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

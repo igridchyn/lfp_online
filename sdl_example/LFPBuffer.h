@@ -271,8 +271,8 @@ public:
 	int coord_shift_x_ = 0;
 	int coord_shift_y_ = 0;
 
-	const static unsigned int TETRODE_UNKNOWN = std::numeric_limits<unsigned int>::max();
-	const static unsigned int CLUSTER_UNKNOWN = std::numeric_limits<unsigned int>::max();
+	static const unsigned int TETRODE_UNKNOWN = 1000000;
+	static const unsigned int CLUSTER_UNKNOWN = 1000000;
 
 	std::stringstream log_string_stream_;
 
@@ -309,7 +309,9 @@ public:
     void Log(std::string message);
     void Log(std::string message, int num);
     void Log(std::string message, unsigned int num);
+#ifndef _WIN32
     void Log(std::string message, size_t num);
+#endif
     void Log(std::string message, double num);
 
     const unsigned int& GetPosBufPointer(std::string name);
