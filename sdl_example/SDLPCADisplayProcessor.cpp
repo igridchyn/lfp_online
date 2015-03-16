@@ -90,7 +90,9 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 void SDLPCADisplayProcessor::process(){
     bool render = false;
 
-    SDL_SetRenderTarget(renderer_, texture_);
+    if (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_){
+    	SDL_SetRenderTarget(renderer_, texture_);
+    }
 
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
@@ -98,13 +100,13 @@ void SDLPCADisplayProcessor::process(){
 
 		// TODO !!! no nullptr spikes, report and prevent by architecture (e.g. rewind to start level)
         // TODO add filtering by power threshold capability
-        if (spike == nullptr || spike->tetrode_ != target_tetrode_ ){
+        if (spike == nullptr){
             buffer->spike_buf_no_disp_pca++;
             continue;
         }
 
-        // TODO take channel with the spike peak (save if not available)
-        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+        // TODO !!! take channel with the spike peak (save if not available)
+        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[spike->tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 
         if (abs(spike->power_) < power_thold){
         	buffer->spike_buf_no_disp_pca++;
@@ -130,16 +132,21 @@ void SDLPCADisplayProcessor::process(){
         // polygon cluster
         // TODO use scaled coordinates
         if (spike->cluster_id_ == -1){
-        	for (size_t i=0; i < polygon_clusters_[target_tetrode_].size(); ++i){
+        	for (size_t i=0; i < polygon_clusters_[spike->tetrode_].size(); ++i){
         		// TODO use other dimensions if cluster has the other one
 
         		// TODO !!! incapsulate after linearizing PC
-        		int contains = polygon_clusters_[target_tetrode_][i].Contains(spike, nchan_);
+        		int contains = polygon_clusters_[spike->tetrode_][i].Contains(spike, nchan_);
         		if (contains){
         			spike->cluster_id_ = i;
         		}
 
         	}
+        }
+
+        if (spike->tetrode_ != target_tetrode_){
+        	buffer->spike_buf_no_disp_pca++;
+        	continue;
         }
 
         // TODO ??? don't display artifacts and unknown with the same color
