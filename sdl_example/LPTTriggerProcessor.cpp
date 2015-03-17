@@ -18,14 +18,26 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, dominance_confidence_threshold_(buffer->config_->getFloat("lpt.trigger.confidence.threshold", 0.01))
 	, sync_max_duration_(buffer->config_->getInt("lpt.trigger.sync.max.duration", 0))
 	, spike_buf_limit_ptr_(buffer->spike_buf_pos_unproc_)
+	, pulse_length_(buffer->config_->getInt("lpt.trigger.pulse.length"))
 {
 	Log("Constructor start");
 
 	// TODO : read from config
 	trigger_type_ = LPTTriggerType::EnvironmentDominance;
-	std::string ttpath = "/tmp/tt";
+	std::string ttpath = buffer->config_->getString("lpt.trigger.ttpath");
 	Log("Write trigger timestamps to " + ttpath);
 	timestamp_log_.open(ttpath);
+
+	std::string target = buffer->config_->getString("lpt.trigger.target", std::string("spikes"));
+	if (target == std::string("spikes")){
+		trigger_target_ =  LPTTriggerTarget::LPTTargetSpikes;
+	} else if (target == std::string("lfp")) {
+		trigger_target_ = LPTTriggerTarget::LPTTargetLFP;
+		trigger_type_ = LPTTriggerType::DoubleThresholdCrossing;
+	} else {
+		Log("Unknown LPT trigger target. Exit");
+		exit(1345);
+	}
 
 #ifdef _WIN32
 	//Opendriver();
@@ -108,20 +120,22 @@ void LPTTriggerProcessor::process() {
 		Log(ss.str());
 	}
 
+	int thold = 30;
+
 	switch(trigger_target_){
 	case LPTTriggerTarget::LPTTargetLFP:
 		while(buffer->buf_pos_trig_ < buffer->buf_pos){
 
 			switch(trigger_type_){
 			case DoubleThresholdCrossing:
-				if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] > 0 &&
-						buffer->signal_buf[channel_][buffer->buf_pos_trig_] < 0)
+				if ((buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] + thold) *
+						(buffer->signal_buf[channel_][buffer->buf_pos_trig_] + thold) <= 0 &&
+						buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_)
 				{
-					setLow();
-				}
-				if (buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] < -2400 &&
-						buffer->signal_buf[channel_][buffer->buf_pos_trig_] > -2400)
-				{
+					Log("High at ", buffer->last_pkg_id);
+					last_trigger_time_ = buffer->last_pkg_id;
+					timestamp_log_ << last_trigger_time_ << "\n";
+					timestamp_log_.flush();
 					setHigh();
 				}
 				break;
