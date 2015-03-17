@@ -23,7 +23,8 @@ typedef short t_bin;
 #ifdef _WIN32
 	//std::string cpath("../Res/signal_display_win_bin.conf");
 	// std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
-		std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\spike_display_jc140_win.conf)");
+		//std::string cpath(R"(../Res/spike_dump_win.conf)");
+		std::string cpath(R"(../Res/spike_display_win.conf)");
 	Config *config = new Config(cpath);
 	//config->Init();
 #elif defined(__APPLE__)
