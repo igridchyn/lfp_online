@@ -317,6 +317,7 @@ void Spike::find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_t
 
   int i,j,pm1,pm2,tma,tmb;
   pm1=pm2=avb[0][ptm];
+  tma=tmb=ptm;
   for(i=0; i<num_channels_; i++) {
 	  for(j=ptm - tmbefsp; j < ptm; j++) {
 		  if (j<0) continue;
@@ -347,20 +348,20 @@ void Spike::set_peak_valley_features() {
 	find_valleys(peak_time, peak_value, &peak_to_valley_1_, &peak_to_valley_2_, &intervalley_);
 }
 
-const float& Spike::getFeature(const int& index) const {
-	if (index < num_channels_ * 3){
+const float& Spike::getFeature(const unsigned int& index) const {
+	if (index < num_channels_ * num_pc_){
 		return pc[index];
 	}
 	else{
-		return *(extra_features_[index - num_channels_ * 3]);
+		return *(extra_features_[index - num_channels_ * num_pc_]);
 	}
 }
 
-float* Spike::getFeatureAddr(const int& index) {
-	if (index < num_channels_ * 3){
+float* Spike::getFeatureAddr(const unsigned int& index) {
+	if (index < num_channels_ * num_pc_){
 		return pc + index;
 	}
 	else{
-		return extra_features_[index - num_channels_ * 3];
+		return extra_features_[index - num_channels_ * num_pc_];
 	}
 }

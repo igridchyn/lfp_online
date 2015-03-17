@@ -54,6 +54,8 @@ public:
     // number of channel with the peak
     unsigned char peak_chan_ = 255;
 
+    unsigned int num_pc_ = 0;
+
     Spike(int pkg_id, int tetrode);
     // to optimize for speed spike objects in buffer are reinitialized instead of deleting and creating new
     void init(int pkg_id, int tetrode);
@@ -66,8 +68,8 @@ public:
     void find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_time_2, float *intervalley);
     void set_peak_valley_features();
 
-    const float& getFeature(const int& index) const;
-    float* getFeatureAddr(const int& index);
+    const float& getFeature(const unsigned int& index) const;
+    float* getFeatureAddr(const unsigned int& index);
 
     ~Spike();
 };
