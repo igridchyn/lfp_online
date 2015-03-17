@@ -44,7 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs/;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../third\SDL2_ttf-2.0.12\include;../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs/;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -63,6 +63,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>D:\Igor\soft\lfp_online\third\SDL2_ttf-2.0.12\include;../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs/;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ARMA_USE_LAPACK;ARMA_USE_BLAS;WIN32;DLL_EXPORTS;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/LARGEADDRESSAWARE:YES %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -70,6 +71,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../../third\cbia.lib.lapack.dyn.rel.x86.12\;../../third\libxml2-2.7.8.win32\lib\;c:\local\boost_1_56_0_32\lib32-msvc-12.0\;../../sdl_lpt_vs\lib\x86\;d:\Igor\soft\lfp_online\sdl_example\lfponlinevs\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>lfponlinevs.lib;SDL2.lib;libxml2.lib;libxml2_a.lib;cbia.lib.blas.dyn.rel.x86.12.lib;cbia.lib.lapack.dyn.rel.x86.12.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/LARGEADDRESSAWARE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
