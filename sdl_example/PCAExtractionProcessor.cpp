@@ -392,6 +392,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 					// STANDARDIZED OR NOT
 					// spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
 					spike->pc[c * num_pc_ + pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w] / feature_scale_;
+					spike->num_pc_ = num_pc_;
 				}
 			}
 			if (cleanup_ws_){
@@ -471,7 +472,7 @@ void PCAExtractionProcessor::process(){
     }
     
     for (size_t tetr=0; tetr < buffer->tetr_info_->tetrodes_number(); ++tetr) {
-        if (num_spikes[tetr] >= min_samples_ && !pca_done_[tetr]){
+        if ((num_spikes[tetr] >= min_samples_ || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER) && !pca_done_[tetr]){
 
 //            std::cout << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
 			std::stringstream ss;

@@ -88,6 +88,8 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		fet_stream.read((char*)spike->pc, fetn * sizeof(float));
 	}
 
+	spike->num_pc_ = fetn / chno;
+
 	if (!binary_){
 		fet_stream >> spike->peak_to_valley_1_;
 		fet_stream >> spike->peak_to_valley_2_;
