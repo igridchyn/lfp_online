@@ -614,6 +614,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         }
 
         if (comp1_ != old_comp1 || comp2_ != old_comp2){
+        	// TODO : flexibility
+        	if (comp1_ >= num_pc_ * nchan_ + 4){
+        		comp1_ = old_comp1;
+        	}
+
+        	if (comp2_ >= num_pc_ * nchan_ + 4){
+        		comp2_ = old_comp2;
+        	}
+
         	// TODO parametrize
         	for (unsigned int i=0; i < MAX_CLUST; ++i){
         		spikes_counts_[i] = 0;

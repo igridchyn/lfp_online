@@ -1,4 +1,4 @@
-conf = open('regaa_jc118_all.conf', 'w')
+conf = open('regaa_jc140_all.conf', 'w')
 
 el = 0
 
@@ -7,7 +7,7 @@ ypos = 70
 dy = 25
 # between tetrodes
 dyt = 40
-skip = [5]
+skip = []
 nel = 4
 
 conf.write("""regaa2.0
@@ -18,22 +18,25 @@ conf.write("""regaa2.0
 50
 10
 1
-28
+24
 """)
 
 col = 0
 
-for i in range(5,  61, 2):
+chlist = range(0,  32, 2)
+chlist.extend(range(40, 56, 2))
+
+for i in chlist:
 	if i in skip:
 		j = i + 1
 	else:
 		j = i
 
-	col= (j - 1) / 4
+	col = j / 4
 
 	conf.write(str(j) + ' 0 ' + str(ypos) + ' 0.005 ' + str(col) + '\n')
 
-	if not ((j+1) % nel):
+	if not ((j-2) % nel):
 		ypos += dyt
 	else:
 		ypos += dy
