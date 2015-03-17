@@ -68,7 +68,11 @@ unsigned int SDLSingleWindowDisplay::GetWindowID() {
 
 void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y) {
 	TTF_Init();
+#ifndef _WIN32
 	TTF_Font *font = TTF_OpenFont("FreeSerif.ttf", 15);
+#else
+	TTF_Font *font = TTF_OpenFont("../Res/FORTE.TTF", 15);
+#endif
 	SDL_Color color = { 255, 255, 255 };
 	SDL_Surface * surface = TTF_RenderText_Solid(font, text.c_str(), color);
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer_,  surface);

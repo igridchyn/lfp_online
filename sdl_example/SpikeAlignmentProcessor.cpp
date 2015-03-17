@@ -10,9 +10,6 @@
 
 
 void SpikeAlignmentProcessor::process(){
-	//
-	int last_spike_pkg_id = 0;
-
     // try to populate unpopulated spikes -
     while (buffer->spike_buf_nows_pos < buffer->spike_buf_pos &&
            buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
@@ -147,13 +144,14 @@ void SpikeAlignmentProcessor::process(){
 		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until end of temporal shift check in SpikeAlign\n");
 
         buffer-> spike_buf_nows_pos++;
-        last_spike_pkg_id = spike->pkg_id_;
     }
 
     // mark all spikes with last pkg_id beyond their refractory as aligned to be available for further processing
     // before the next spike at their tetrode arrives
     for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-    	if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD){
+		// WORKAROUND:
+		// last condition - to protect from acessing spikes long ago that could have been deleted
+		if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD && buffer->last_pkg_id - prev_spike_pos_[t] < buffer->SAMPLING_RATE){
     		prev_spike_[t]->aligned_ = true;
     	}
 	}

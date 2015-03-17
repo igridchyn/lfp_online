@@ -9,6 +9,12 @@
 #include "OnlineEstimator.cpp"
 #include "time.h"
 
+#ifdef _WIN32
+	#define DATEFORMAT "%Y-%m-%d_%H-%M-%S"
+#else
+	#define DATEFORMAT "%F_%T"
+#endif
+
 void LFPBuffer::Reset(Config* config) {
 	if (config_)
 		delete config_;
@@ -261,10 +267,11 @@ LFPBuffer::LFPBuffer(Config* config)
 	char buffer [80];
 	time (&rawtime);
 	timeinfo = localtime (&rawtime);
-	strftime (buffer, 80, "%F_%T", timeinfo);
+	strftime (buffer, 80, DATEFORMAT, timeinfo);
 	buffer[13] = '-';
 	buffer[16] = '-';
-	log_stream.open(config->getString("out.path.base") + log_path_prefix + buffer + ".txt", std::ios_base::app);
+	std::string logpath = config->getString("out.path.base") + log_path_prefix + buffer + ".txt";
+	log_stream.open(logpath, std::ios_base::app);
 
 	Log("Created LOG");
 
