@@ -128,8 +128,8 @@ void LPTTriggerProcessor::process() {
 
 			switch(trigger_type_){
 			case DoubleThresholdCrossing:
-				if ((buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] + thold) *
-						(buffer->signal_buf[channel_][buffer->buf_pos_trig_] + thold) <= 0 &&
+				if ((buffer->signal_buf[channel_][buffer->buf_pos_trig_ - 1] + thold) > 0 &&
+						(buffer->signal_buf[channel_][buffer->buf_pos_trig_] + thold) < 0 &&
 						buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_)
 				{
 					Log("High at ", buffer->last_pkg_id);
