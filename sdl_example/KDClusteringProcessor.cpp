@@ -151,13 +151,11 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	pf_built_.resize(tetrn);
 
 	pix_log_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
-	pix_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 	pos_pred_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 	if (LOAD){
 		// load occupancy
-		pix_.load(BASE_PATH + "pix.mat");
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
 		std::vector<std::thread*> load_threads;

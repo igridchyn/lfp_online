@@ -128,7 +128,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// occupancy, spike occurance map, generalized firing rate
 	arma::fmat pix_log_;
-	arma::fmat pix_;
 
 	std::vector<arma::fmat> pxs_;
 	std::vector<arma::fmat> lxs_;
