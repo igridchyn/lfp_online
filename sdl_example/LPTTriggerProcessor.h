@@ -33,7 +33,7 @@ class LPTTriggerProcessor: public LFPProcessor {
 	LPTTriggerType trigger_type_;
 	LPTTriggerTarget trigger_target_ = LPTTriggerTarget::LPTTargetSpikes;
 
-	short iPort = 0xE050;
+	short iPort = 0xD050;
 
 	bool LPT_is_high_ = false;
 	void setHigh();
