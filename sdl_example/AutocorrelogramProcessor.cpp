@@ -249,7 +249,7 @@ void AutocorrelogramProcessor::process(){
 
 // center if the cluster autocorrelograms
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
-	return ((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 1);
+	return ((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 0.5);
 }
 
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {
@@ -287,8 +287,11 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 
 int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
 		const unsigned int& y) {
-	int cx = (x - (BWIDTH + 1) * NBINS) / ((BWIDTH + 1) * NBINS * 2 + 15);
+	int cx = round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
+
+	std::cout << cx << " " << cy << "\n";
+
 	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx;
 }
 
