@@ -115,7 +115,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	obs_spikes_.resize(tetrn);
 	knn_cache_.resize(tetrn);
 	spike_place_fields_.resize(tetrn);
-	ann_points_int_.resize(tetrn);
+	// ann_points_int_.resize(tetrn);
 	obs_mats_.resize(tetrn);
 	missed_spikes_.resize(tetrn);
 
@@ -136,10 +136,10 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		ann_points_[t] = annAllocPts(MIN_SPIKES * 2, dim);
 		spike_place_fields_[t].reserve(MIN_SPIKES * 2);
 
-		ann_points_int_[t] = new int*[MIN_SPIKES * 2];
-		for (unsigned int d = 0; d < MIN_SPIKES * 2; ++d) {
-			ann_points_int_[t][d] = new int[dim];
-		}
+		//ann_points_int_[t] = new int*[MIN_SPIKES * 2];
+		//for (unsigned int d = 0; d < MIN_SPIKES * 2; ++d) {
+		//	ann_points_int_[t][d] = new int[dim];
+		//}
 
 		// tmp
 		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
@@ -525,7 +525,7 @@ void KDClusteringProcessor::process(){
 					ann_points_[tetr][total_spikes_[tetr]][fet] = spike->pc[fet];
 
 					// save integer with increased precision for integer KDE operations
-					ann_points_int_[tetr][total_spikes_[tetr]][fet] = (int)round(spike->pc[fet] * MULT_INT);
+					//ann_points_int_[tetr][total_spikes_[tetr]][fet] = (int)round(spike->pc[fet] * MULT_INT);
 
 					// set from the obs_mats after computing the coordinates normalizing factor
 //					spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
