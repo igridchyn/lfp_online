@@ -293,6 +293,16 @@ LFPBuffer::LFPBuffer(Config* config)
     spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool(4, 16, SPIKE_BUF_LEN);
 }
 
+LinearArrayPool::LinearArrayPool(unsigned int dim, unsigned int pool_size)
+	: dim_(dim)
+	, pool_size_(pool_size) {
+	array_ = new int [dim * pool_size];
+
+	for (unsigned int s=0; s < pool_size_; ++s){
+		pool_.push(array_ + dim * s);
+	}
+}
+
 PseudoMultidimensionalArrayPool::PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size)
 	: dim1_(dim1)
 	, dim2_(dim2)

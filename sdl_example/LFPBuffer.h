@@ -80,7 +80,31 @@ public:
 	float y_pos();
 };
 
-class PseudoMultidimensionalArrayPool{
+template <class T>
+class QueueInterface{
+protected:
+	std::queue<T> pool_;
+
+public:
+
+	virtual bool Empty() { return pool_.empty(); }
+	virtual T GetMemoryPtr() { T mem = pool_.front(); pool_.pop(); return mem; }
+	virtual void MemoryFreed(T mem) { pool_.push(mem); }
+
+	// TODO !!! implement
+	virtual ~QueueInterface() {};
+};
+
+class LinearArrayPool : public virtual QueueInterface<int*>{
+	int *array_;
+	unsigned int dim_;
+	unsigned int pool_size_;
+
+public:
+	LinearArrayPool(unsigned int dim, unsigned int pool_size);
+};
+
+class PseudoMultidimensionalArrayPool : public virtual QueueInterface<int**>{
 	int *array_;
 	int **array_rows_;
 
@@ -88,14 +112,8 @@ class PseudoMultidimensionalArrayPool{
 	unsigned int dim2_;
 	unsigned int pool_size_;
 
-	std::queue<int**>	pool_;
-
 public:
 	PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size);
-
-	inline bool Empty() { return pool_.empty(); }
-	inline int **GetMemoryPtr() { int ** mem = pool_.front(); pool_.pop(); return mem; }
-	inline void MemoryFreed(int ** mem) { pool_.push(mem); }
 };
 
 class LFPONLINEAPI LFPBuffer{
