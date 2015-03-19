@@ -80,6 +80,24 @@ public:
 	float y_pos();
 };
 
+class PseudoMultidimensionalArrayPool{
+	int *array_;
+	int **array_rows_;
+
+	unsigned int dim1_;
+	unsigned int dim2_;
+	unsigned int pool_size_;
+
+	std::queue<int**>	pool_;
+
+public:
+	PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size);
+
+	inline bool Empty() { return pool_.empty(); }
+	inline int **GetMemoryPtr() { int ** mem = pool_.front(); pool_.pop(); return mem; }
+	inline void MemoryFreed(int ** mem) { pool_.push(mem); }
+};
+
 class LFPONLINEAPI LFPBuffer{
 
 public:
@@ -284,6 +302,8 @@ public:
 	std::vector<double> fr_estimates_;
 //	double synchrony_tetrodes_firing_rate_ = .0;
 
+	PseudoMultidimensionalArrayPool *spikes_ws_pool_;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);
@@ -323,6 +343,9 @@ public:
     // DEBUG
     bool CheckPkgIdAndReportTime(const unsigned int& pkg_id, const std::string msg, bool set_checkpoint = false);
     void CheckBufPosAndReportTime(const unsigned int& buf_pos, const std::string msg);
+
+    void AllocateWaveshapeMemory(Spike* spike);
+    void FreeWaveshapeMemory(Spike* spike);
 };
 
 //==========================================================================================

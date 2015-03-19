@@ -19,14 +19,15 @@ void SpikeAlignmentProcessor::process(){
 		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in SpikeAlign \n");
 
         int num_of_ch = buffer->tetr_info_->channels_number(spike->tetrode_);
-        spike->waveshape = new int*[num_of_ch];
+        buffer->AllocateWaveshapeMemory(spike);
+//        spike->waveshape = new int*[num_of_ch];
         spike->num_channels_ = num_of_ch;
         
         int tetrode = spike->tetrode_;
         
         for (int ch=0; ch < num_of_ch; ++ch){
             // for reconstructed ws
-            spike->waveshape[ch] = new int[128];
+//            spike->waveshape[ch] = new int[128];
             memset(spike->waveshape[ch], 0, sizeof(int)*128);
             
             // copy signal for the channel from buffer to spike object

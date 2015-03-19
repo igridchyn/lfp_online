@@ -186,12 +186,13 @@ void WaveShapeReconstructionProcessor::process(){
         spike->set_peak_valley_features();
 
         if (cleanup_ws_){
+        	buffer->FreeWaveshapeMemory(spike);
         	for(int i=0;i<spike->num_channels_;i++) {
-        		delete spike->waveshape[i];
-        		spike->waveshape[i] = nullptr;
+//        		delete spike->waveshape[i];
+//        		spike->waveshape[i] = nullptr;
         	}
-        	delete spike->waveshape;
-        	spike->waveshape = nullptr;
+//        	delete spike->waveshape;
+//        	spike->waveshape = nullptr;
         }
 
         // DEBUG
