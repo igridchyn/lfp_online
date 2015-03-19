@@ -108,7 +108,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// for integer computations with increased precision (multiplier = MULT_INT)
 	// TODO change to mat
-	std::vector< int **  > ann_points_int_;
+	//std::vector< int **  > ann_points_int_;
 
 	// knn in the train set [tetrode][point]
 	std::vector<std::vector<ANNidx*> > knn_cache_;
