@@ -174,9 +174,10 @@ void WaveShapeReconstructionProcessor::process(){
         
         // form final waveshape
 
-        spike->waveshape_final = new int*[spike->num_channels_];
+        buffer->AllocateFinalWaveshapeMemory(spike);
+//        spike->waveshape_final = new int*[spike->num_channels_];
         for(int i=0;i<spike->num_channels_;i++) {
-            spike->waveshape_final[i] = new int[16];
+//            spike->waveshape_final[i] = new int[16];
             for(int j=0;j<16;j++) {
                 // TODO: calclulate density, shift
                 spike->waveshape_final[i][j] = spike->waveshape[i][peak_time-32+j*4];

@@ -395,14 +395,15 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 					spike->num_pc_ = num_pc_;
 				}
 			}
-			if (cleanup_ws_){
-				delete spike->waveshape_final[c];
-				spike->waveshape_final[c] = nullptr;
-			}
+//			if (cleanup_ws_){
+//				delete spike->waveshape_final[c];
+//				spike->waveshape_final[c] = nullptr;
+//			}
         }
         if (cleanup_ws_){
-        	delete spike->waveshape_final;
-        	spike->waveshape_final = nullptr;
+        	buffer->FreeFinalWaveshapeMemory(spike);
+//        	delete spike->waveshape_final;
+//        	spike->waveshape_final = nullptr;
         }
     }
     

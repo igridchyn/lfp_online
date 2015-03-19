@@ -289,8 +289,8 @@ LFPBuffer::LFPBuffer(Config* config)
 
     // allocate memory for waveshapes
     // TODO : allocate according to channels number tetrode-wise
-    // TODO !!! make sure not misused - assign memory inside buffer, also spike exchange operations etc.
     spikes_ws_pool_ = new PseudoMultidimensionalArrayPool(4, 128, SPIKE_BUF_LEN);
+    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool(4, 16, SPIKE_BUF_LEN);
 }
 
 PseudoMultidimensionalArrayPool::PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size)
@@ -603,6 +603,7 @@ float SpatialInfo::y_pos() {
 	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
 }
 
+// TODO extract code
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
 	if (spike->waveshape != nullptr){
 		throw std::string("ERROR: Spike waveshape is not 0 during request for memory");
@@ -623,4 +624,26 @@ void LFPBuffer::FreeWaveshapeMemory(Spike* spike) {
 
 	spikes_ws_pool_->MemoryFreed(spike->waveshape);
 	spike->waveshape = nullptr;
+}
+
+void LFPBuffer::AllocateFinalWaveshapeMemory(Spike* spike) {
+	if (spike->waveshape_final != nullptr){
+		throw std::string("ERROR: Spike waveshape is not 0 during request for memory");
+	}
+
+	if (spikes_ws_final_pool_->Empty()){
+		throw std::string("ERROR: no memory for waveshapes in the pool");
+	}
+
+	int **ws_ptr = spikes_ws_final_pool_->GetMemoryPtr();
+
+	spike->waveshape_final = ws_ptr;
+}
+
+void LFPBuffer::FreeFinalWaveshapeMemory(Spike* spike) {
+	if (spike->waveshape_final == nullptr)
+		return;
+
+	spikes_ws_final_pool_->MemoryFreed(spike->waveshape_final);
+	spike->waveshape_final = nullptr;
 }

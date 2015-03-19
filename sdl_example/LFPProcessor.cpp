@@ -113,8 +113,8 @@ Spike::~Spike() {
 //		if (waveshape && waveshape[c])
 //		delete[] waveshape[c];
 
-		if (waveshape_final && waveshape_final[c])
-			delete[] waveshape_final[c];
+//		if (waveshape_final && waveshape_final[c])
+//			delete[] waveshape_final[c];
 	}
 
 	if (pc)
@@ -123,8 +123,8 @@ Spike::~Spike() {
 //	if (waveshape)
 //		delete[] waveshape;
 
-	if (waveshape_final)
-		delete[] waveshape_final;
+//	if (waveshape_final)
+//		delete[] waveshape_final;
 
 	delete[] extra_features_;
 }

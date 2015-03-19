@@ -303,6 +303,7 @@ public:
 //	double synchrony_tetrodes_firing_rate_ = .0;
 
 	PseudoMultidimensionalArrayPool *spikes_ws_pool_;
+	PseudoMultidimensionalArrayPool *spikes_ws_final_pool_;
 
     //====================================================================================================
 
@@ -346,6 +347,9 @@ public:
 
     void AllocateWaveshapeMemory(Spike* spike);
     void FreeWaveshapeMemory(Spike* spike);
+
+    void AllocateFinalWaveshapeMemory(Spike* spike);
+    void FreeFinalWaveshapeMemory(Spike* spike);
 };
 
 //==========================================================================================
