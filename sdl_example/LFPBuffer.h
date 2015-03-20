@@ -96,8 +96,9 @@ public:
 };
 
 // TODO !!! destructors
-class LinearArrayPool : public virtual QueueInterface<float*>{
-	float *array_;
+template <class T>
+class LinearArrayPool : public virtual QueueInterface<T*>{
+	T *array_;
 	unsigned int dim_;
 	unsigned int pool_size_;
 
@@ -323,7 +324,8 @@ public:
 
 	PseudoMultidimensionalArrayPool *spikes_ws_pool_;
 	PseudoMultidimensionalArrayPool *spikes_ws_final_pool_;
-	LinearArrayPool *spike_features_pool_;
+	LinearArrayPool<float> *spike_features_pool_;
+	LinearArrayPool<float *> *spike_extra_features_ptr_pool_;
 
     //====================================================================================================
 
@@ -366,6 +368,12 @@ public:
     void CheckBufPosAndReportTime(const unsigned int& buf_pos, const std::string msg);
 
     // TODO !!! unviersal intreface - tempalte-based
+
+    template <class T>
+    void AllocatePoolMemory(T **ponter, QueueInterface<T*> *queue);
+    template <class T>
+    void FreetPoolMemory(T **ponter, QueueInterface<T*> *queue);
+
     void AllocateWaveshapeMemory(Spike* spike);
     void FreeWaveshapeMemory(Spike* spike);
 
@@ -374,7 +382,33 @@ public:
 
     void AllocateFeaturesMemory(Spike* spike);
     void FreeFeaturesMemory(Spike* spike);
+
+    void AllocateExtraFeaturePointerMemory(Spike *spike);
+    void FreeExtraFeaturePointerMemory(Spike *spike);
 };
+
+template<class T>
+inline void LFPBuffer::AllocatePoolMemory(T** pointer,
+		QueueInterface<T*>* queue) {
+	if (*pointer != nullptr){
+		throw std::string("ERROR: pointer requesting memory is non-zero");
+	}
+
+	if (queue->Empty()){
+		throw std::string("ERROR: pool empty");
+	}
+
+	*pointer = queue->GetMemoryPtr();
+}
+
+template<class T>
+inline void LFPBuffer::FreetPoolMemory(T** pointer, QueueInterface<T*>* queue) {
+	if (*pointer == nullptr)
+		return;
+
+	queue->MemoryFreed(*pointer);
+	*pointer = nullptr;
+}
 
 //==========================================================================================
 

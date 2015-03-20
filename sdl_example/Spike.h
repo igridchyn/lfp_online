@@ -32,7 +32,9 @@ public:
     float intervalley_ = 0;
     // power of a filter at the peak
     float power_ = 0;
-    float **extra_features_;
+
+    // TODO !!! have one linear array, only users should know about features meaning
+    float **extra_features_ = nullptr;
 
     int cluster_id_ = -1;
 
@@ -70,6 +72,8 @@ public:
 
     const float& getFeature(const unsigned int& index) const;
     float* getFeatureAddr(const unsigned int& index);
+
+    void assignExtraFeaturePointers();
 
     ~Spike();
 };

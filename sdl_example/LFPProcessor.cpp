@@ -72,7 +72,7 @@ Spike::Spike(int pkg_id, int tetrode)
     : pkg_id_(pkg_id)
     , tetrode_(tetrode)
 {
-	extra_features_ = new float*[4] {&peak_to_valley_1_, &peak_to_valley_2_, &intervalley_, &power_};
+//	extra_features_ = new float*[4] {&peak_to_valley_1_, &peak_to_valley_2_, &intervalley_, &power_};
 }
 
 void Spike::init(int pkg_id, int tetrode) {
@@ -126,7 +126,7 @@ Spike::~Spike() {
 //	if (waveshape_final)
 //		delete[] waveshape_final;
 
-	delete[] extra_features_;
+//	delete[] extra_features_;
 }
 
 // !!! TODO: INTRODUCE PALETTE WITH LARGER NUMBER OF COLOURS (but categorical)
@@ -364,4 +364,11 @@ float* Spike::getFeatureAddr(const unsigned int& index) {
 	else{
 		return extra_features_[index - num_channels_ * num_pc_];
 	}
+}
+
+void Spike::assignExtraFeaturePointers() {
+	extra_features_[0] = &peak_to_valley_1_;
+	extra_features_[1] = &peak_to_valley_2_;
+	extra_features_[2] = &intervalley_;
+	extra_features_[3] = &power_;
 }
