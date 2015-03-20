@@ -382,7 +382,8 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
     int numchan = buffer->tetr_info_->number_of_channels(spike);
 
     if (spike->pc == nullptr){
-        spike->pc = new float[numchan * num_pc_];
+    	buffer->AllocateFeaturesMemory(spike);
+//        spike->pc = new float[numchan * num_pc_];
 
         for (int c=0; c < numchan; ++c) {
             int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][c];

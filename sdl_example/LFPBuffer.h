@@ -95,8 +95,9 @@ public:
 	virtual ~QueueInterface() {};
 };
 
-class LinearArrayPool : public virtual QueueInterface<int*>{
-	int *array_;
+// TODO !!! destructors
+class LinearArrayPool : public virtual QueueInterface<float*>{
+	float *array_;
 	unsigned int dim_;
 	unsigned int pool_size_;
 
@@ -322,6 +323,7 @@ public:
 
 	PseudoMultidimensionalArrayPool *spikes_ws_pool_;
 	PseudoMultidimensionalArrayPool *spikes_ws_final_pool_;
+	LinearArrayPool *spike_features_pool_;
 
     //====================================================================================================
 
@@ -363,11 +365,15 @@ public:
     bool CheckPkgIdAndReportTime(const unsigned int& pkg_id, const std::string msg, bool set_checkpoint = false);
     void CheckBufPosAndReportTime(const unsigned int& buf_pos, const std::string msg);
 
+    // TODO !!! unviersal intreface - tempalte-based
     void AllocateWaveshapeMemory(Spike* spike);
     void FreeWaveshapeMemory(Spike* spike);
 
     void AllocateFinalWaveshapeMemory(Spike* spike);
     void FreeFinalWaveshapeMemory(Spike* spike);
+
+    void AllocateFeaturesMemory(Spike* spike);
+    void FreeFeaturesMemory(Spike* spike);
 };
 
 //==========================================================================================

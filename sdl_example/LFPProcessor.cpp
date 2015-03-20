@@ -109,16 +109,16 @@ float Spike::getWidth(float level, int chan) {
 }
 
 Spike::~Spike() {
-	for (int c = 0; c < num_channels_; ++c) {
+//	for (int c = 0; c < num_channels_; ++c) {
 //		if (waveshape && waveshape[c])
 //		delete[] waveshape[c];
 
 //		if (waveshape_final && waveshape_final[c])
 //			delete[] waveshape_final[c];
-	}
+//	}
 
-	if (pc)
-		delete[] pc;
+//	if (pc)
+//		delete[] pc;
 
 //	if (waveshape)
 //		delete[] waveshape;

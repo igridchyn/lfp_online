@@ -54,7 +54,7 @@ void FetFileWriterProcessor::process() {
 			continue;
 		}
 
-		if (spike->pc == NULL){
+		if (spike->pc == nullptr){
 			return;
 		}
 

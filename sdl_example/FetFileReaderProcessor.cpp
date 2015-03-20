@@ -73,7 +73,8 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 	const unsigned int fetn = buffer->feature_space_dims_[tetr];
 
-	spike->pc = new float[fetn];
+	buffer->AllocateFeaturesMemory(spike);
+//	spike->pc = new float[fetn];
 	spike->num_channels_ = chno;
 
 	std::ifstream& fet_stream = *(fet_streams_[tetr]);

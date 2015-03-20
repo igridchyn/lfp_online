@@ -291,12 +291,15 @@ LFPBuffer::LFPBuffer(Config* config)
     // TODO : allocate according to channels number tetrode-wise
     spikes_ws_pool_ = new PseudoMultidimensionalArrayPool(4, 128, SPIKE_BUF_LEN);
     spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool(4, 16, SPIKE_BUF_LEN);
+    // TODO !!!! use maximum dimension
+    // TODO !!!!!! pools with dynamic size for each unmber of features
+    spike_features_pool_ = new LinearArrayPool(12, SPIKE_BUF_LEN);
 }
 
 LinearArrayPool::LinearArrayPool(unsigned int dim, unsigned int pool_size)
 	: dim_(dim)
 	, pool_size_(pool_size) {
-	array_ = new int [dim * pool_size];
+	array_ = new float [dim * pool_size];
 
 	for (unsigned int s=0; s < pool_size_; ++s){
 		pool_.push(array_ + dim * s);
@@ -410,6 +413,8 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 void LFPBuffer::AddSpike(Spike* spike) {
 	if (spike_buffer_[spike_buf_pos] != nullptr){
 		FreeWaveshapeMemory(spike_buffer_[spike_buf_pos]);
+		FreeFinalWaveshapeMemory(spike_buffer_[spike_buf_pos]);
+		FreeFeaturesMemory(spike_buffer_[spike_buf_pos]);
 		delete spike_buffer_[spike_buf_pos];
 		spike_buffer_[spike_buf_pos] = nullptr;
 	}
@@ -656,4 +661,21 @@ void LFPBuffer::FreeFinalWaveshapeMemory(Spike* spike) {
 
 	spikes_ws_final_pool_->MemoryFreed(spike->waveshape_final);
 	spike->waveshape_final = nullptr;
+}
+
+void LFPBuffer::AllocateFeaturesMemory(Spike* spike) {
+	if (spike->pc != nullptr){
+		throw std::string("ERROR: already allocated or not initialized with nullptr");
+	}
+
+	spike->pc = spike_features_pool_->GetMemoryPtr();
+}
+
+void LFPBuffer::FreeFeaturesMemory(Spike* spike) {
+	if (spike->pc == nullptr){
+		return;
+	}
+
+	spike_features_pool_->MemoryFreed(spike->pc);
+	spike->pc = nullptr;
 }
