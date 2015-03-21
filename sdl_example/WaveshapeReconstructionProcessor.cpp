@@ -155,6 +155,8 @@ void WaveShapeReconstructionProcessor::process(){
         }
         
         if (spike->discarded_){
+			// TODO !!! free when discarded
+			buffer->FreeWaveshapeMemory(spike);
             buffer->spike_buf_no_rec++;
             continue;
         }
@@ -188,10 +190,10 @@ void WaveShapeReconstructionProcessor::process(){
 
         if (cleanup_ws_){
         	buffer->FreeWaveshapeMemory(spike);
-        	for(int i=0;i<spike->num_channels_;i++) {
+        	//for(int i=0;i<spike->num_channels_;i++) {
 //        		delete spike->waveshape[i];
 //        		spike->waveshape[i] = nullptr;
-        	}
+        	//}
 //        	delete spike->waveshape;
 //        	spike->waveshape = nullptr;
         }
