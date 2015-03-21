@@ -141,14 +141,14 @@ DWORD attributes, HANDLE templ )
 			  
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
-				 //MessageBoxW(0, fileext, L"Creating BIN W!", 0);
+				 //MessageBoxW(0, filename, L"Creating BIN W!", 0);
 				 if (check_bin > 2){
 					if(pipeline){
 						delete pipeline;
 						delete buf;
 					}
 				 
-					Config *config = new Config("c:/Users/data/igor/code/sdl_example/sdl_example/Res/signal_display_win.conf");
+					Config *config = new Config("d:/Igor/soft/lfp_online/sdl_example/Res/delay_test_win.conf");
 					buf = new LFPBuffer(config);
 					pipeline = new LFPPipeline(buf);
 				 }
@@ -205,15 +205,16 @@ nNumberOfBytesToWrite,
 		  
           /* are dacq writng to a .BIN file? */
           if ((h_BIN_FILE != (HANDLE) NULL) && (hFile == h_BIN_FILE)) {
-						int nsamples = nNumberOfBytesToWrite / 432;
-						
-						// buf->log_stream << "write " << nsamples << " packages ...\\n";
-						
-						if (nsamples > 0){
-							buf->chunk_ptr = (unsigned char*)lpBuffer;//block;
-							buf->num_chunks = nsamples;
-							pipeline->process(NULL);
-						}
+			int nsamples = nNumberOfBytesToWrite / 432;
+			
+			// buf->log_stream << "write " << nsamples << " packages ...\\n";
+			
+			if (nsamples > 0){
+				buf->chunk_ptr = (unsigned char*)lpBuffer;//block;
+				buf->num_chunks = nsamples;
+				pipeline->process();
+			}
+			retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 
 		 }  else /* not USB packet, just proxy */{
 				retval = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);

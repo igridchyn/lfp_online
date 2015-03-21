@@ -80,7 +80,9 @@
       <AdditionalDependencies>SDL2_ttf.lib;SDL2.lib;libxml2.lib;libxml2_a.lib;cbia.lib.blas.dyn.rel.x86.12.lib;cbia.lib.lapack.dyn.rel.x86.12.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Console</SubSystem>
-      <AdditionalOptions>/LARGEADDRESSAWARE %(AdditionalOptions)</AdditionalOptions>
+      <HeapCommitSize>
+      </HeapCommitSize>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -106,7 +108,6 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../../third\SDL2_ttf-2.0.12\include;../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DLL_EXPORTS;LFP_ONLINE_LIB_EXPORT;ARMA_USE_LAPACK;ARMA_USE_BLAS;WIN32;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/LARGEADDRESSAWARE:YES %(AdditionalOptions)</AdditionalOptions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
