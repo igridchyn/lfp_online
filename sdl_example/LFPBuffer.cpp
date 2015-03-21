@@ -239,6 +239,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , high_synchrony_factor_(config->getFloat("high.synchrony.factor", 2.0f))
 , POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
+, spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
 {
 	CH_MAP = new int[64]{8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55};
 
@@ -289,11 +290,11 @@ LFPBuffer::LFPBuffer(Config* config)
 
     // allocate memory for waveshapes
     // TODO : allocate according to channels number tetrode-wise
-    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool(4, 128, SPIKE_BUF_LEN);
+    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool(4, 128, spike_waveshape_pool_size_);
     spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool(4, 16, SPIKE_BUF_LEN);
     // TODO !!!! use maximum dimension
     // TODO !!!!!! pools with dynamic size for each unmber of features
-    spike_features_pool_ = new LinearArrayPool<float>(12, SPIKE_BUF_LEN);
+    spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN);
     spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN);
 }
 

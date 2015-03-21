@@ -327,6 +327,8 @@ public:
 	LinearArrayPool<float> *spike_features_pool_;
 	LinearArrayPool<float *> *spike_extra_features_ptr_pool_;
 
+	const unsigned int spike_waveshape_pool_size_;
+
     //====================================================================================================
 
     LFPBuffer(Config* config);
