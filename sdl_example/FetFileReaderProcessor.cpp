@@ -53,6 +53,10 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 		buffer->input_duration_ = total_dur;
 	}
 
+	for (unsigned int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+		last_spikies_.push_back(new Spike(0, 0));
+	}
+
 	openNextFile();
 }
 
@@ -64,7 +68,8 @@ FetFileReaderProcessor::~FetFileReaderProcessor() {
 
 // returns nullptr if spike time < 0
 Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
-	Spike *spike = new Spike(0, 0);
+	Spike *spike = last_spikies_[tetr]; //new Spike(0, 0);
+	spike->init(0, 0);
 
 	spike->tetrode_ = tetr;
 	spike->cluster_id_ = -1;
@@ -74,6 +79,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	const unsigned int fetn = buffer->feature_space_dims_[tetr];
 
 	buffer->AllocateFeaturesMemory(spike);
+	buffer->AllocateExtraFeaturePointerMemory(spike);
 //	spike->pc = new float[fetn];
 	spike->num_channels_ = chno;
 
@@ -107,11 +113,13 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	spike->num_channels_ = chno;
 
 	if (read_spk_){
+		buffer->AllocateWaveshapeMemory(spike);
+
 		std::ifstream& spk_stream = *(spk_streams_[tetr]);
-		spike->waveshape = new int*[chno];
+//		spike->waveshape = new int*[chno];
 
 		for (int c=0; c < chno; ++c){
-			spike->waveshape[c] = new int[128];
+//			spike->waveshape[c] = new int[128];
 
 			if (!binary_){
 				for (int w=0; w < 128; ++w){
@@ -207,7 +215,7 @@ void FetFileReaderProcessor::openNextFile() {
 			while(tspike == nullptr && !file_over_[t]){
 				tspike = readSpikeFromFile(t);
 			}
-			last_spikies_.push_back(tspike);
+			last_spikies_[t] = tspike;
 
 			if (tspike != nullptr && tspike->pkg_id_ < min_pkg_id){
 				min_pkg_id = tspike->pkg_id_;
@@ -280,9 +288,17 @@ void FetFileReaderProcessor::process() {
 			}
 		}
 
+		Spike *bspike = buffer->spike_buffer_[buffer->spike_buf_pos];
+		Spike *nspike = last_spikies_[earliest_spike_tetrode_];
+		*bspike = *nspike;
+		nspike->pc = nullptr;
+		nspike->waveshape = nullptr;
+		nspike->extra_features_ = nullptr;
+		bspike->assignExtraFeaturePointers();
+
 		// add the earliest spike to the buffer and
 		// UPDATE pkg_id to inuclude the shift
-		buffer->AddSpike(last_spikies_[earliest_spike_tetrode_]);
+		buffer->AddSpike(bspike);
 		last_spike_pkg_id = earliest_spike_time_;
 
         // SHUFFLING - exchanges last spike with random in the buffer
@@ -303,7 +319,7 @@ void FetFileReaderProcessor::process() {
 //			last_spikies_[earliest_spike_tetrode_] = rspike;
 //		}
 
-		buffer->UpdateWindowVector(last_spikies_[earliest_spike_tetrode_]);
+		buffer->UpdateWindowVector(bspike);
 
 		// DEBUG
 		buffer->CheckPkgIdAndReportTime(earliest_spike_time_, "Spike 12049131 read\n", true);

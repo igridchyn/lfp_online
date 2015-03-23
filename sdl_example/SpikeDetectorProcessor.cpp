@@ -151,6 +151,9 @@ void SpikeDetectorProcessor::process()
                 buffer->FreeFeaturesMemory(spike);
                 buffer->FreeWaveshapeMemory(spike);
                 buffer->FreeFinalWaveshapeMemory(spike);
+                if (!spike->extra_features_){
+                	buffer->AllocateExtraFeaturePointerMemory(spike);
+                }
                 spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
                 buffer->AddSpike(spike);
                 

@@ -300,7 +300,7 @@ LFPBuffer::LFPBuffer(Config* config)
     spike_pool_ = new Spike[SPIKE_BUF_LEN];
     for (unsigned int s=0; s < SPIKE_BUF_LEN; ++s){
     	spike_buffer_[s] = spike_pool_ + s;
-    	AllocateExtraFeaturePointerMemory(spike_pool_ + s);
+//    	AllocateExtraFeaturePointerMemory(spike_pool_ + s);
     }
 }
 
