@@ -136,10 +136,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		ann_points_[t] = annAllocPts(MIN_SPIKES * 2, dim);
 		spike_place_fields_[t].reserve(MIN_SPIKES * 2);
 
-		//ann_points_int_[t] = new int*[MIN_SPIKES * 2];
-		//for (unsigned int d = 0; d < MIN_SPIKES * 2; ++d) {
-		//	ann_points_int_[t][d] = new int[dim];
-		//}
+		obs_spikes_.reserve(MIN_SPIKES * 2);
 
 		// tmp
 		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
