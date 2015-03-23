@@ -62,7 +62,7 @@ void WaveShapeReconstructionProcessor::construct_lookup_table(){
     
 }
 
-int WaveShapeReconstructionProcessor::optimized_value(int num_sampl,int *sampl,int h){
+ws_type WaveShapeReconstructionProcessor::optimized_value(int num_sampl, ws_type *sampl,int h){
     /* assumes even num_sampl */
     int i,it;
     double sz1,sina,t;
@@ -98,7 +98,7 @@ void WaveShapeReconstructionProcessor::load_restore_one_spike(Spike *spike){
     
     // copy from temporary array to spike object array
     for(int chan = 0; chan < spike->num_channels_; ++chan){
-        memcpy(spike->waveshape[chan], rec_tmp_[chan], 128*sizeof(int));
+        memcpy(spike->waveshape[chan], rec_tmp_[chan], 128*sizeof(ws_type));
     }
 }
 

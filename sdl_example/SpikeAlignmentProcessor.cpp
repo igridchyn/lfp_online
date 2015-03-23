@@ -28,12 +28,12 @@ void SpikeAlignmentProcessor::process(){
         for (int ch=0; ch < num_of_ch; ++ch){
             // for reconstructed ws
 //            spike->waveshape[ch] = new int[128];
-            memset(spike->waveshape[ch], 0, sizeof(int)*128);
+            memset(spike->waveshape[ch], 0, sizeof(ws_type)*128);
             
             // copy signal for the channel from buffer to spike object
             //memcpy(spike->waveshape[ch], buffer->signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2, Spike::WL_LENGTH * sizeof(int));
             
-            memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2 - 1, Spike::WL_LENGTH * sizeof(int));
+            memcpy(spike->waveshape[ch], buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[spike->tetrode_][ch]] + buffer->buf_pos - (buffer->last_pkg_id - spike->pkg_id_) - Spike::WL_LENGTH / 2 - 1, Spike::WL_LENGTH * sizeof(ws_type));
             
             
             // DEBUG
@@ -46,7 +46,7 @@ void SpikeAlignmentProcessor::process(){
         }
         
         // find max value in the given range
-        int max_val = spike->waveshape[0][0];
+        ws_type max_val = spike->waveshape[0][0];
         int peak_time=0;
         int max_chan = 0;
         
@@ -103,7 +103,7 @@ void SpikeAlignmentProcessor::process(){
             		memcpy(prev_spike_[tetrode]->waveshape[ch],
             				buffer->filtered_signal_buf[buffer->tetr_info_->tetrode_channels[prev_spike_[tetrode]->tetrode_][ch]]
             				                            + buf_start_shift,
-            				                            Spike::WS_LENGTH_ALIGNED * sizeof(int));
+            				                            Spike::WS_LENGTH_ALIGNED * sizeof(ws_type));
 
             		// DEBUG
             		int buf_start_shift = buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode])

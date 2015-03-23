@@ -127,7 +127,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 				}
 			}
 			else{
-				spk_stream.read((char*)spike->waveshape[c], 128 * sizeof(float));
+				spk_stream.read((char*)spike->waveshape[c], 128 * sizeof(ws_type));
 			}
 		}
 	}

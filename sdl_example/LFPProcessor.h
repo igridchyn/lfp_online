@@ -163,11 +163,11 @@ class WaveShapeReconstructionProcessor : public LFPProcessor{
     double **sztable = nullptr;
     
     void construct_lookup_table();
-    int optimized_value(int num_sampl,int *sampl,int h);
+    ws_type optimized_value(int num_sampl,ws_type *sampl,int h);
     void load_restore_one_spike(Spike *spike);
     void find_one_peak(Spike* spike, int *ptmout,int peakp,int peakgit,int *ptmval);
     
-    int rec_tmp_[64][128];
+    ws_type rec_tmp_[64][128];
     
     // cleanup waveshape after reconstruction
     bool cleanup_ws_ = false;

@@ -88,7 +88,7 @@ void FetFileWriterProcessor::process() {
 			// TODO parametrize
 			for (int c=0; c < spike->num_channels_; ++c){
 				if (binary_)
-					spk_file.write((char*)spike->waveshape[c], 128 * sizeof(int));
+					spk_file.write((char*)spike->waveshape[c], 128 * sizeof(ws_type));
 				else{
 					for (int w=0; w < 128; ++w ){
 						spk_file << spike->waveshape[c][w] << " ";

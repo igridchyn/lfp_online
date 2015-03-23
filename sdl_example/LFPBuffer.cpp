@@ -137,11 +137,11 @@ void LFPBuffer::Reset(Config* config) {
 
     	if (is_valid_channel_[c]){
     		signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];
-    		filtered_signal_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
+    		filtered_signal_buf[c] = new ws_type[LFP_BUF_LEN + WS_SHIFT];
     		power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
 
 	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(signal_type));
-	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(ws_type));
 	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
     	}
     }
@@ -277,7 +277,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	Log("Created LOG");
 
     memset(signal_buf, 0, _CHANNEL_NUM * sizeof(signal_type*));
-    memset(filtered_signal_buf, 0, _CHANNEL_NUM * sizeof(int*));
+    memset(filtered_signal_buf, 0, _CHANNEL_NUM * sizeof(ws_type*));
     memset(power_buf, 0, _CHANNEL_NUM * sizeof(int*));
 
     Reset(config);
@@ -290,8 +290,8 @@ LFPBuffer::LFPBuffer(Config* config)
 
     // allocate memory for waveshapes
     // TODO : allocate according to channels number tetrode-wise
-    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool(4, 128, spike_waveshape_pool_size_);
-    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool(4, 16, SPIKE_BUF_LEN);
+    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
+    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN);
     // TODO !!!! use maximum dimension
     // TODO !!!!!! pools with dynamic size for each unmber of features
     spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN);
@@ -316,21 +316,22 @@ LinearArrayPool<T>::LinearArrayPool(unsigned int dim, unsigned int pool_size)
 	}
 }
 
-PseudoMultidimensionalArrayPool::PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size)
-	: QueueInterface<int**>(pool_size)
+template<class T>
+PseudoMultidimensionalArrayPool<T>::PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size)
+	: QueueInterface<T**>(pool_size)
 	, dim1_(dim1)
 	, dim2_(dim2)
 	, pool_size_(pool_size)
 
 {
-	array_ = new int [dim2_ * dim1_ * pool_size_];
-	array_rows_ = new int*[dim1_ * pool_size_];
+	array_ = new T [dim2_ * dim1_ * pool_size_];
+	array_rows_ = new T*[dim1_ * pool_size_];
     for (unsigned int s=0; s < dim1_ * pool_size_; ++s){
     	array_rows_[s] = array_ + s * dim2_;
     }
 
     for (unsigned int s=0; s < pool_size; ++s){
-    	MemoryFreed(array_rows_ + dim1_ * s);
+    	this->MemoryFreed(array_rows_ + dim1_ * s);
     }
 }
 
@@ -635,11 +636,11 @@ float SpatialInfo::y_pos() {
 
 // TODO extract code
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
-	AllocatePoolMemory<int*>(&spike->waveshape, spikes_ws_pool_);
+	AllocatePoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
 }
 
 void LFPBuffer::FreeWaveshapeMemory(Spike* spike) {
-	FreetPoolMemory<int*>(&spike->waveshape, spikes_ws_pool_);
+	FreetPoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
 }
 
 void LFPBuffer::AllocateFinalWaveshapeMemory(Spike* spike) {

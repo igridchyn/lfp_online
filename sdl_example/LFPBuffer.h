@@ -111,9 +111,10 @@ public:
 	LinearArrayPool(unsigned int dim, unsigned int pool_size);
 };
 
-class PseudoMultidimensionalArrayPool : public virtual QueueInterface<int**>{
-	int *array_;
-	int **array_rows_;
+template<class T>
+class PseudoMultidimensionalArrayPool : public virtual QueueInterface<T**>{
+	T *array_;
+	T **array_rows_;
 
 	unsigned int dim1_;
 	unsigned int dim2_;
@@ -263,7 +264,7 @@ public:
     bool is_valid_channel_[_CHANNEL_NUM];
 
     signal_type *signal_buf[_CHANNEL_NUM];
-    int *filtered_signal_buf[_CHANNEL_NUM];
+    ws_type *filtered_signal_buf[_CHANNEL_NUM];
     int *power_buf[_CHANNEL_NUM];
 
     // ??? for all arrays ?
@@ -329,8 +330,8 @@ public:
 	std::vector<double> fr_estimates_;
 //	double synchrony_tetrodes_firing_rate_ = .0;
 
-	PseudoMultidimensionalArrayPool *spikes_ws_pool_;
-	PseudoMultidimensionalArrayPool *spikes_ws_final_pool_;
+	PseudoMultidimensionalArrayPool<ws_type> *spikes_ws_pool_;
+	PseudoMultidimensionalArrayPool<int> *spikes_ws_final_pool_;
 	LinearArrayPool<float> *spike_features_pool_;
 	LinearArrayPool<float *> *spike_extra_features_ptr_pool_;
 

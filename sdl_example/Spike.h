@@ -15,6 +15,8 @@
 // spike identification is based on unique number assigned to each detected spike
 // it is assumed that fraction of spikes discaeded after initial power threshold + refractory detection is negligible
 
+typedef short ws_type ;
+
 // object size:
 class Spike{
 public:
@@ -22,7 +24,7 @@ public:
     static const int WS_LENGTH_ALIGNED = 32;
 
     unsigned int pkg_id_ = 0;
-    int **waveshape = nullptr;
+    ws_type **waveshape = nullptr;
     int **waveshape_final = nullptr;
 
     // FEATURES
