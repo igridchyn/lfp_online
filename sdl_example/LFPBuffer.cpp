@@ -296,6 +296,12 @@ LFPBuffer::LFPBuffer(Config* config)
     // TODO !!!!!! pools with dynamic size for each unmber of features
     spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN);
     spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN);
+
+    spike_pool_ = new Spike[SPIKE_BUF_LEN];
+    for (unsigned int s=0; s < SPIKE_BUF_LEN; ++s){
+    	spike_buffer_[s] = spike_pool_ + s;
+    	AllocateExtraFeaturePointerMemory(spike_pool_ + s);
+    }
 }
 
 template <class T>
@@ -417,19 +423,19 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 
 
 void LFPBuffer::AddSpike(Spike* spike) {
-	if (spike_buffer_[spike_buf_pos] != nullptr){
-		FreeWaveshapeMemory(spike_buffer_[spike_buf_pos]);
-		FreeFinalWaveshapeMemory(spike_buffer_[spike_buf_pos]);
-		FreeFeaturesMemory(spike_buffer_[spike_buf_pos]);
-		FreeExtraFeaturePointerMemory(spike_buffer_[spike_buf_pos]);
-		delete spike_buffer_[spike_buf_pos];
-		spike_buffer_[spike_buf_pos] = nullptr;
-	}
+	// the spike is re-initialized rather than deleted and created again
+//	if (spike_buffer_[spike_buf_pos] != nullptr){
+//		FreeWaveshapeMemory(spike_buffer_[spike_buf_pos]);
+//		FreeFinalWaveshapeMemory(spike_buffer_[spike_buf_pos]);
+//		FreeFeaturesMemory(spike_buffer_[spike_buf_pos]);
+//		FreeExtraFeaturePointerMemory(spike_buffer_[spike_buf_pos]);
+//		delete spike_buffer_[spike_buf_pos];
+//		spike_buffer_[spike_buf_pos] = nullptr;
+//	}
 
-	spike_buffer_[spike_buf_pos] = spike;
+	// the re-initialized spike is already there
+	// spike_buffer_[spike_buf_pos] = spike;
 	spike_buf_pos++;
-
-	AllocateExtraFeaturePointerMemory(spike);
 
 	// check if rewind is requried
 	if (spike_buf_pos == SPIKE_BUF_LEN - 1){

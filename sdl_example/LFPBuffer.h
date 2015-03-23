@@ -178,6 +178,8 @@ public:
     // alternative tetrode infos (e.g. for other models)
     std::vector<TetrodesInfo *> alt_tetr_infos_;
 
+    Spike *spike_pool_ = nullptr;
+
     // spikes buffer and POINTERS [all have to be reset at buffer rewind]
     Spike* *spike_buffer_ = nullptr;
     // position, at which next spike will be put

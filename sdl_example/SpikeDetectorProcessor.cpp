@@ -147,7 +147,11 @@ void SpikeDetectorProcessor::process()
                 
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
 
-                Spike *spike = new Spike(spike_pos + 1, tetrode);
+                Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos];
+                buffer->FreeFeaturesMemory(spike);
+                buffer->FreeWaveshapeMemory(spike);
+                buffer->FreeFinalWaveshapeMemory(spike);
+                spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
                 buffer->AddSpike(spike);
                 
                 // DEBUG
