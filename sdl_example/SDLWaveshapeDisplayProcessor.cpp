@@ -145,7 +145,9 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // !!! PLOTTING EVERY N-th spike
         // TODO: plot only one cluster [switch !!!]
-		if ((unsigned int)spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 || ((unsigned int)spike->cluster_id_ != disp_cluster_1_ && (unsigned int)spike->cluster_id_ != disp_cluster_2_) || spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
+		if ((unsigned int)spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 ||
+				((unsigned int)spike->cluster_id_ != disp_cluster_1_ && (unsigned int)spike->cluster_id_ != disp_cluster_2_) ||
+				spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
             buf_pointer_++;
             tetrode_total_spikes_ ++;
             continue;

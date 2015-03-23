@@ -83,15 +83,20 @@ public:
 template <class T>
 class QueueInterface{
 protected:
-	std::queue<T> pool_;
+	T* pool_ = nullptr;
+	unsigned int pool_size_ = 0;
+	unsigned int free_pos_ = 0;
+	unsigned int alloc_pos_ = 0;
 
 public:
 
-	virtual bool Empty() { return pool_.empty(); }
-	virtual T GetMemoryPtr() { T mem = pool_.front(); pool_.pop(); return mem; }
-	virtual void MemoryFreed(T mem) { pool_.push(mem); }
+	virtual bool Empty() { return free_pos_ == alloc_pos_; }
+	// TODO !!! check alloc < free
+	virtual T GetMemoryPtr() { T mem = pool_[alloc_pos_]; alloc_pos_ = (alloc_pos_ + 1) % pool_size_; return mem; }
+	virtual void MemoryFreed(T mem) { pool_[free_pos_] = mem; free_pos_ = (free_pos_ + 1) % pool_size_; }
 
 	// TODO !!! implement
+	QueueInterface(const unsigned int pool_size);
 	virtual ~QueueInterface() {};
 };
 
@@ -410,6 +415,13 @@ inline void LFPBuffer::FreetPoolMemory(T** pointer, QueueInterface<T*>* queue) {
 
 	queue->MemoryFreed(*pointer);
 	*pointer = nullptr;
+}
+
+template<class T>
+inline QueueInterface<T>::QueueInterface(const unsigned int pool_size)
+	: pool_size_(pool_size + 1){
+	// 1 dummy element to distinguish completely full and empty pool
+	pool_ = new T[pool_size + 1];
 }
 
 //==========================================================================================

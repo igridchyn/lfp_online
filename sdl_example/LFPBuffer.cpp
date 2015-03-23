@@ -300,19 +300,22 @@ LFPBuffer::LFPBuffer(Config* config)
 
 template <class T>
 LinearArrayPool<T>::LinearArrayPool(unsigned int dim, unsigned int pool_size)
-	: dim_(dim)
+	: QueueInterface<T*>(pool_size)
+	, dim_(dim)
 	, pool_size_(pool_size) {
 	array_ = new T [dim * pool_size];
 
 	for (unsigned int s=0; s < pool_size_; ++s){
-		this->pool_.push(array_ + dim * s);
+		this->MemoryFreed(array_ + dim * s);
 	}
 }
 
 PseudoMultidimensionalArrayPool::PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2, unsigned int pool_size)
-	: dim1_(dim1)
+	: QueueInterface<int**>(pool_size)
+	, dim1_(dim1)
 	, dim2_(dim2)
 	, pool_size_(pool_size)
+
 {
 	array_ = new int [dim2_ * dim1_ * pool_size_];
 	array_rows_ = new int*[dim1_ * pool_size_];
@@ -321,7 +324,7 @@ PseudoMultidimensionalArrayPool::PseudoMultidimensionalArrayPool(unsigned int di
     }
 
     for (unsigned int s=0; s < pool_size; ++s){
-    	pool_.push(array_rows_ + dim1_ * s);
+    	MemoryFreed(array_rows_ + dim1_ * s);
     }
 }
 
