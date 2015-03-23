@@ -21,7 +21,7 @@ public:
     static const int WL_LENGTH = 22;
     static const int WS_LENGTH_ALIGNED = 32;
 
-    unsigned int pkg_id_;
+    unsigned int pkg_id_ = 0;
     int **waveshape = nullptr;
     int **waveshape_final = nullptr;
 
@@ -57,6 +57,8 @@ public:
     unsigned char peak_chan_ = 255;
 
     unsigned int num_pc_ = 0;
+
+    Spike();
 
     Spike(int pkg_id, int tetrode);
     // to optimize for speed spike objects in buffer are reinitialized instead of deleting and creating new

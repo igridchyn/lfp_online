@@ -76,8 +76,22 @@ Spike::Spike(int pkg_id, int tetrode)
 }
 
 void Spike::init(int pkg_id, int tetrode) {
+	// initial values reset (instead of the array memory, which is managed by processors and buffer
+
 	pkg_id_ = pkg_id;
 	tetrode_ = tetrode;
+
+	peak_to_valley_1_ = peak_to_valley_2_ = intervalley_ = power_ = .0f;
+	cluster_id_ = num_channels_ = -1;
+
+	discarded_ = false;
+	aligned_ = false;
+
+	x =y = speed = nanf("");
+
+	peak_chan_ = 255;
+
+	num_pc_ = 0;
 }
 
 float Spike::getWidth(float level, int chan) {
@@ -371,4 +385,7 @@ void Spike::assignExtraFeaturePointers() {
 	extra_features_[1] = &peak_to_valley_2_;
 	extra_features_[2] = &intervalley_;
 	extra_features_[3] = &power_;
+}
+
+Spike::Spike() {
 }
