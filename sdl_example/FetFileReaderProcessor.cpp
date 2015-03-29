@@ -265,7 +265,7 @@ void FetFileReaderProcessor::process() {
 	unsigned int last_pos_pkg_id = last_pkg_id_;
 	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
 		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
-		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->x_big_LED_ >> pos_entry->pkg_id_;
+		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_;
 
 		buffer->pos_buf_pos_ ++;
 		last_pos_pkg_id = pos_entry->pkg_id_;
