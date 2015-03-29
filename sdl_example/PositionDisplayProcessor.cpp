@@ -109,6 +109,10 @@ void PositionDisplayProcessor::process(){
         // TODO: use spike position for display
         FillRect(spike->x, spike->y, spike->cluster_id_);
         buffer->spike_buf_pos_draw_xy++;
+
+        if (!(buffer->spike_buf_pos_draw_xy % (rend_freq * 10))){
+			render = true;
+        }
     }
     
     if (render){
@@ -181,8 +185,7 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         }
         
         if (need_reset){
-        	// TODO: find tail pos for spike buffer
-            buffer->spike_buf_pos_draw_xy = buffer->SPIKE_BUF_HEAD_LEN;
+            buffer->spike_buf_pos_draw_xy = 0;
             buffer->pos_buf_disp_pos_ =  (disp_mode_ == POS_DISPLAY_ALL) ? 0 : buffer->pos_buf_pos_ - TAIL_LENGTH;
             ReinitScreen();
         }
@@ -192,5 +195,5 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
 void PositionDisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
     target_tetrode_ = display_tetrode;
-    buffer->spike_buf_pos_draw_xy = buffer->SPIKE_BUF_HEAD_LEN;
+    buffer->spike_buf_pos_draw_xy = 0;
 }
