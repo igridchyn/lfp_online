@@ -43,8 +43,13 @@ void LFPBuffer::Reset(Config* config) {
 		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
 
+	if (tetr_info_->tetrodes_number() != config_->tetrodes.size() &&  config_->tetrodes.size() > 0){
+		Log("ERROR: Tetrodes list in main config does not correspond to the information in tetrodes config.");
+		exit(LFPONLINE_BAD_TETRODES_CONFIG);
+	}
+
 	if (tetr_info_->status_ == TI_STATUS_BAD_TETRODES_NUMBER){
-		Log("Bad tetrodes nuber, exiting...");
+		Log("ERROR: Bad tetrodes nuber, exiting...");
 		exit(LFPONLINE_BAD_TETRODES_CONFIG);
 	}
 

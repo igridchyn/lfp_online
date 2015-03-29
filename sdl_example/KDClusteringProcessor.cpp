@@ -386,7 +386,7 @@ void KDClusteringProcessor::process(){
 			buffer->CheckPkgIdAndReportTime(buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_, "Time from after package extraction until arrival in KD proc\n");
 
 	// need both speed and PCs
-	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_, 0): MIN(buffer->spike_buf_pos_speed_, (unsigned int)std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0));
+	unsigned int limit = LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_, 0): (WAIT_FOR_SPEED_EST ? MIN(buffer->spike_buf_pos_speed_, (unsigned int)std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0)) : (unsigned int)std::max<int>(buffer->spike_buf_pos_unproc_ - 1, 0)));
 	while(spike_buf_pos_clust_ < limit){
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
@@ -395,18 +395,6 @@ void KDClusteringProcessor::process(){
 		if (tetr == TetrodesInfo::INVALID_TETRODE){
 			spike_buf_pos_clust_ ++;
 			continue;
-		}
-
-		// wait until place fields are stabilized
-		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
-			spike_buf_pos_clust_ ++;
-			continue;
-		}
-
-		// DEBUG
-		if (!delay_reached_reported && !LOAD){
-			delay_reached_reported = true;
-			Log("Sampling delay over : ", SAMPLING_DELAY);
 		}
 
 		// wait for enough spikes to estimate the firing rate; beware of the rewind after estimating the FRs
@@ -457,6 +445,18 @@ void KDClusteringProcessor::process(){
 					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 				}
 			}
+		}
+
+		// wait until place fields are stabilized
+		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
+			spike_buf_pos_clust_ ++;
+			continue;
+		}
+
+		// DEBUG
+		if (!delay_reached_reported && !LOAD){
+			delay_reached_reported = true;
+			Log("Sampling delay over : ", SAMPLING_DELAY);
 		}
 
 		if (spike->speed < SPEED_THOLD || spike->discarded_){
@@ -851,6 +851,11 @@ void KDClusteringProcessor::process(){
 }
 
 void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr) {
+	if (total_spikes_[tetr] == 0){
+		Log("No spikes collected for KDE. Exiting. Tetrode = ", tetr);
+		exit(53246);
+	}
+
 	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
 	kdstream.close();
