@@ -22,8 +22,20 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 {
 	Log("Constructor start");
 
-	// TODO : read from config
-	trigger_type_ = LPTTriggerType::EnvironmentDominance;
+	std::string trigger_type_string = buffer->config_->getString("lpt.trigger.type", "regular");
+	if (trigger_type_string == "dominance"){
+		trigger_type_ = LPTTriggerType::EnvironmentDominance;
+	} else if (trigger_type_string == "synchrony"){
+		trigger_type_ = LPTTriggerType::HighSynchronyTrigger;
+	} else if (trigger_type_string == "regular"){
+		trigger_type_ = LPTTriggerType::RegularFalshes;
+	} else if (trigger_type_string == "threshold"){
+		trigger_type_ = LPTTriggerType::DoubleThresholdCrossing;
+	} else {
+		Log("Invalid trigger type. Allowed values are: dominance / synchrony / threshold / regular");
+		exit(29875);
+	}
+
 	std::string ttpath = buffer->config_->getString("lpt.trigger.ttpath");
 	Log("Write trigger timestamps to " + ttpath);
 	timestamp_log_.open(ttpath);
@@ -181,11 +193,13 @@ void LPTTriggerProcessor::process() {
 
 			case LPTTriggerType::HighSynchronyTrigger:
 				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
-					timestamp_log_ << (int)round((last_trigger_time_) * 20 / 24.0) << "\n";
+//					timestamp_log_ << (int)round((last_trigger_time_) * 20 / 24.0) << "\n";
+					timestamp_log_ << (int)round((last_trigger_time_)) << "\n";
 					timestamp_log_.flush();
 
 					setHigh();
 				}
+				buffer->spike_buf_pos_lpt_ ++;
 				break;
 
 			case LPTTriggerType::EnvironmentDominance:
