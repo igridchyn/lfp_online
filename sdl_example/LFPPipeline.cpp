@@ -33,6 +33,7 @@
 #include "FetFileWriterProcessor.h"
 #include "PackageExtractorProcessor.h"
 #include "BinFileReaderProcessor.h"
+#include "FiringRateEstimatorProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
@@ -95,6 +96,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new FetFileWriterProcessor(buf));
 		} else if (proc_name == "BinFileReader"){
 			processors.push_back(new BinFileReaderProcessor(buf));
+		} else if(proc_name == "FiringRateEstimator"){
+			processors.push_back(new FiringRateEstimatorProcessor(buf));
 		}
 		else{
 			buf->Log(std::string("ERROR: Unknown processor: ") + proc_name + ". Terminating...");

@@ -77,6 +77,7 @@ Config::Config(std::string path) {
 	known_processors_.push_back("LPTTrigger");
 	known_processors_.push_back("FetFileWriter");
 	known_processors_.push_back("BinFileReader");
+	known_processors_.push_back("FiringRateEstimator");
 
 
 	//for (size_t i = 0; i < NPROC; i++)
