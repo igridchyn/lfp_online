@@ -49,6 +49,7 @@ public:
     virtual void process_SDL_control_input(const SDL_Event& e);
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
 
+    void draw_circle(int n_cx, int n_cy, int radius);
 };
 
 #endif /* defined(__sdl_example__PositionDisplayProcessor__) */

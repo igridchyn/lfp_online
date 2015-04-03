@@ -42,6 +42,74 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
     
 }
 
+void PositionDisplayProcessor::draw_circle(int n_cx, int n_cy, int radius)
+{
+    // if the first pixel in the screen is represented by (0,0) (which is in sdl)
+    // remember that the beginning of the circle is not in the middle of the pixel
+    // but to the left-top from it:
+
+    double error = (double)-radius;
+    double x = (double)radius -0.5;
+    double y = (double)0.5;
+    double cx = n_cx - 0.5;
+    double cy = n_cy - 0.5;
+
+    SDL_Point *circ_points = new SDL_Point[100000];
+
+    unsigned int npoints = 0;
+    while (x >= y)
+    {
+    	circ_points[npoints].x = (int)(cx + x);
+		circ_points[npoints++].y = (int)(cy + y);
+
+		circ_points[npoints].x = (int)(cx + y);
+		circ_points[npoints++].y = (int)(cy + x);
+
+        if (x != 0)
+        {
+        	circ_points[npoints].x = (int)(cx - x);
+        	circ_points[npoints++].y = (int)(cy + y);
+
+        	circ_points[npoints].x = (int)(cx + y);
+        	circ_points[npoints++].y = (int)(cy - x);
+        }
+
+        if (y != 0)
+        {
+        	circ_points[npoints].x = (int)(cx + x);
+        	circ_points[npoints++].y = (int)(cy - y);
+
+        	circ_points[npoints].x = (int)(cx - y);
+        	circ_points[npoints++].y = (int)(cy + x);
+        }
+
+        if (x != 0 && y != 0)
+        {
+        	circ_points[npoints].x = (int)(cx - x);
+        	circ_points[npoints++].y = (int)(cy - y);
+
+        	circ_points[npoints].x = (int)(cx - y);
+        	circ_points[npoints++].y = (int)(cy - x);
+        }
+
+        error += y;
+        ++y;
+        error += y;
+
+        if (error >= 0)
+        {
+            --x;
+            error -= x;
+            error -= x;
+        }
+
+        npoints ++;
+    }
+
+    SDL_RenderDrawPoints(renderer_, circ_points, npoints);
+    delete[] circ_points;
+}
+
 void PositionDisplayProcessor::process(){
     const int rend_freq = 5;
     bool render = false;
@@ -117,6 +185,11 @@ void PositionDisplayProcessor::process(){
     }
     
     if (render){
+    	SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
+    	// draw_circle(245, 283, 230);
+    	draw_circle(164, 188, 158);
+    	draw_circle(529, 185, 158);
+
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
         SDL_RenderPresent(renderer_);
@@ -193,6 +266,7 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             SDL_SetRenderTarget(renderer_, nullptr);
             // without copying only part is displayed AND only before redrawing
             SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+
             SDL_RenderPresent(renderer_);
             SDL_SetRenderTarget(renderer_, texture_);
         }
