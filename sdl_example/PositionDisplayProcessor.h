@@ -34,6 +34,8 @@ class PositionDisplayProcessor : virtual public SDLControlInputProcessor, virtua
     bool estimate_speed_ = false;
     const unsigned int& pos_buf_pointer_limit_;
 
+    float scale_ = 1.f;
+
 public:
     PositionDisplayProcessor(LFPBuffer *buf);
     PositionDisplayProcessor(LFPBuffer *buf, std::string window_name, const unsigned int& window_width,

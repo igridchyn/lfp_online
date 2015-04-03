@@ -28,6 +28,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, DISPLAY_PREDICTION(buf->config_->getBool("posdisp.display.prediction"))
 	, wait_clust_(buf->config_->getBool("posdisp.wait.clust", false))
 	, pos_buf_pointer_limit_(buf->GetPosBufPointer(buf->config_->getString("posdisp.pointer.limit", "pos")))
+	, scale_(buf->config_->getFloat("posdisp.scale", 1.0f))
 {
 	std::string pos_buf_name = buf->config_->getString("posdisp.pointer.limit", "pos");
 	if (pos_buf_name == buf->pos_buf_pointer_names_.POS_BUF_SPEED_EST){
@@ -53,8 +54,8 @@ void PositionDisplayProcessor::process(){
     		break;
     	}
 
-        float x = buffer->positions_buf_[buffer->pos_buf_disp_pos_].x_pos();
-        float y = buffer->positions_buf_[buffer->pos_buf_disp_pos_].y_pos();
+        float x = buffer->positions_buf_[buffer->pos_buf_disp_pos_].x_pos() * scale_;
+        float y = buffer->positions_buf_[buffer->pos_buf_disp_pos_].y_pos() * scale_;
         
         const unsigned int imm_level = estimate_speed_ ? 150 : 80;
         unsigned int grey_level = imm_level;
@@ -75,8 +76,8 @@ void PositionDisplayProcessor::process(){
 
         // display predicted position
         if (DISPLAY_PREDICTION){
-			float predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1].x_pos();
-			float predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1].y_pos();
+			float predx = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1].x_pos() * scale_;
+			float predy = buffer->positions_buf_[buffer->pos_buf_disp_pos_ - 1].y_pos() * scale_;
 			if (predx > 0 && predy > 0){
 				SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
 	//        	SDL_RenderDrawPoint(renderer_, predx, predy);
@@ -107,7 +108,7 @@ void PositionDisplayProcessor::process(){
         }
         
         // TODO: use spike position for display
-        FillRect(spike->x, spike->y, spike->cluster_id_);
+        FillRect(spike->x * scale_, spike->y * scale_, spike->cluster_id_);
         buffer->spike_buf_pos_draw_xy++;
 
         if (!(buffer->spike_buf_pos_draw_xy % (rend_freq * 10))){
@@ -187,7 +188,13 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         if (need_reset){
             buffer->spike_buf_pos_draw_xy = 0;
             buffer->pos_buf_disp_pos_ =  (disp_mode_ == POS_DISPLAY_ALL) ? 0 : buffer->pos_buf_pos_ - TAIL_LENGTH;
+
             ReinitScreen();
+            SDL_SetRenderTarget(renderer_, nullptr);
+            // without copying only part is displayed AND only before redrawing
+            SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+            SDL_RenderPresent(renderer_);
+            SDL_SetRenderTarget(renderer_, texture_);
         }
     }
     

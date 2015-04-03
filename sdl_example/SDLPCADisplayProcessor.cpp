@@ -299,6 +299,7 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 	fpoly.close();
 }
 
+// TODO ???!!!
 void SDLPCADisplayProcessor::reset_spike_pointer(){
 	if (buffer->spike_buffer_[10] == nullptr)
 		buffer->spike_buf_no_disp_pca = buffer->SPIKE_BUF_HEAD_LEN;
@@ -638,11 +639,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != nullptr)
                 time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 
-                // TODO: EXTRACT
-                SDL_SetRenderTarget(renderer_, texture_);
-                SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-                SDL_RenderClear(renderer_);
-                SDL_RenderPresent(renderer_);
+                ReinitScreen();
             }
 }
 
