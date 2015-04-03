@@ -163,6 +163,7 @@
     <ClCompile Include="..\Config.cpp" />
     <ClCompile Include="..\FetFileReaderProcessor.cpp" />
     <ClCompile Include="..\FetFileWriterProcessor.cpp" />
+    <ClCompile Include="..\FiringRateEstimatorProcessor.cpp" />
     <ClCompile Include="..\FrequencyPowerBandProcessor.cpp" />
     <ClCompile Include="..\GMMClusteringProcessor.cpp" />
     <ClCompile Include="..\inpout32.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="..\Config.h" />
     <ClInclude Include="..\FetFileReaderProcessor.h" />
     <ClInclude Include="..\FetFileWriterProcessor.h" />
+    <ClInclude Include="..\FiringRateEstimatorProcessor.h" />
     <ClInclude Include="..\GMMClusteringProcessor.h" />
     <ClInclude Include="..\inpout32.h" />
     <ClInclude Include="..\KDClusteringProcessor.h" />
