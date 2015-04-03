@@ -127,7 +127,7 @@ public:
 class LFPONLINEAPI LFPBuffer{
 
 public:
-	LFPPipelineStatus pipeline_status_;
+	LFPPipelineStatus pipeline_status_ = PIPELINE_STATUS_ONLINE;
 
 	// TODO use instead of string literals
 	class POS_BUF_POINTER_NAMES{

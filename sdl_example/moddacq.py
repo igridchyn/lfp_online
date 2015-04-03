@@ -148,7 +148,7 @@ DWORD attributes, HANDLE templ )
 						delete buf;
 					}
 				 
-					Config *config = new Config("d:/Igor/soft/lfp_online/sdl_example/Res/delay_test_win.conf");
+					Config *config = new Config("d:/Igor/soft/lfp_online/sdl_example/Res/online.conf");
 					buf = new LFPBuffer(config);
 					pipeline = new LFPPipeline(buf);
 				 }

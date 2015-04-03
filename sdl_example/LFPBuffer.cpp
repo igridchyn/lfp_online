@@ -192,6 +192,9 @@ LFPBuffer::~LFPBuffer(){
 	Log("Buffer destructor called");
 
 	for (size_t s = 0; s < SPIKE_BUF_LEN; ++s) {
+		// DEBUG
+		// TODO remove
+		Log("Delete spike #", s);
 		if (spike_buffer_[s] != nullptr)
 			delete spike_buffer_[s];
 	}
@@ -207,10 +210,6 @@ LFPBuffer::~LFPBuffer(){
 		delete[] filtered_signal_buf[c];
 		delete[] power_buf[c];
 	}
-
-	Log("Buffer destructor: delete tetrode info");
-	if (tetr_info_)
-			delete tetr_info_;
 
 	Log("Buffer destructor: delete speed estimator");
 	delete speedEstimator_;
@@ -229,6 +228,10 @@ LFPBuffer::~LFPBuffer(){
 
 	 Log("Buffer destructor: delete high synchrony tetrodes info");
 	 delete[] is_high_synchrony_tetrode_;
+
+	Log("Buffer destructor: delete tetrode info");
+	if (tetr_info_)
+		delete tetr_info_;
 
 	Log("Buffer destructor finished");
 }
