@@ -96,6 +96,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
             continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false))
 		{
 
+	Log("Construction started");
+
 	PRED_WIN = THETA_PRED_WIN;
 
 	// load proper tetrode info
@@ -124,12 +126,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	fitting_jobs_.resize(tetrn, nullptr);
 	fitting_jobs_running_.resize(tetrn, false);
 
+	Log("Allocate distributino matrices");
 	laxs_.resize(tetrn);
 	pxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 	lxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 
 	unsigned int max_dim = 0;
 
+	Log("Allocate observation arrays");
 	for (unsigned int t = 0; t < tetrn; ++t) {
 		const unsigned int dim = buf->feature_space_dims_[t];
 
@@ -190,7 +194,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 				<< NN_K << " "<< NN_K_COORDS << " "
 				<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINSX << " " << NBINSY << " " << BIN_SIZE << "\n";
 		fparams.close();
-		buffer->Log(std::string("Running params written to") + parpath);
+		Log(std::string("Running params written to") + parpath);
 
 		// save all params together with the model directory
 		std::string all_params = buffer->config_->getAllParamsText();
@@ -221,6 +225,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	pnt_ = annAllocPt(max_dim);
 
 	last_spike_pkg_ids_by_tetrode_.resize(tetr_info_->tetrodes_number(), 0);
+
+	Log("Construction ready");
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
