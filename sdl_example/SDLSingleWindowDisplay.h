@@ -7,6 +7,8 @@
 #include "LFPProcessor.h"
 
 class SDLSingleWindowDisplay{
+	friend class SDLControlInputMetaProcessor;
+
 protected:
     SDL_Window *window_ = nullptr;
 	SDL_Renderer *renderer_ = nullptr;

@@ -76,7 +76,26 @@ void SDLControlInputMetaProcessor::process(){
                     
                     continue;
                 }
-                
+
+                if (kmod & KMOD_LCTRL){
+                	switch( e.key.keysym.sym ){
+
+                	case SDLK_r:
+                		// raise all windows
+                		for (unsigned int p=0; p < control_processors_.size(); ++p){
+                			SDLSingleWindowDisplay *disp = dynamic_cast<SDLSingleWindowDisplay*>(control_processors_[p]);
+                			if (disp != nullptr){
+                				SDL_RaiseWindow(disp->window_);
+                			}
+                		}
+                		break;
+
+
+                	default:
+                		break;
+                	}
+                }
+
                 if (kmod & KMOD_LALT) {
                     // switch tetrode
 
