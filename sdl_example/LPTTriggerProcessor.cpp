@@ -144,11 +144,11 @@ void LPTTriggerProcessor::process() {
 						(buffer->signal_buf[channel_][buffer->buf_pos_trig_] + thold) < 0 &&
 						buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_)
 				{
+					setHigh();
 					Log("High at ", buffer->last_pkg_id);
 					last_trigger_time_ = buffer->last_pkg_id;
 					timestamp_log_ << last_trigger_time_ << "\n";
 					timestamp_log_.flush();
-					setHigh();
 				}
 				break;
 			case RegularFalshes:
@@ -194,10 +194,9 @@ void LPTTriggerProcessor::process() {
 			case LPTTriggerType::HighSynchronyTrigger:
 				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
 //					timestamp_log_ << (int)round((last_trigger_time_) * 20 / 24.0) << "\n";
+					setHigh();
 					timestamp_log_ << (int)round((last_trigger_time_)) << "\n";
 					timestamp_log_.flush();
-
-					setHigh();
 				}
 				buffer->spike_buf_pos_lpt_ ++;
 				break;
