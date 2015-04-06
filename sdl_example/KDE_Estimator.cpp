@@ -590,7 +590,7 @@ int main(int argc, char **argv){
 
 	// compute occupancy KDE - pi(x) from tracking position sampling
 	// overall tetrode average firing rate, spikes / s
-	double mu = MIN_SPIKES * SAMPLING_RATE * BUFFER_SAMPLING_RATE / double(BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
+	double mu = (double)MIN_SPIKES * (double)SAMPLING_RATE * (double)BUFFER_SAMPLING_RATE / double(BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
 	log_string_ << ": Average firing rate: " << mu << "\n";
 	Log();
 	for (int xb = 0; xb < NBINSX; ++xb) {
