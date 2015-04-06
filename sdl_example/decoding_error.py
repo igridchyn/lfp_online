@@ -58,7 +58,8 @@ for line in f:
 
 	gtxb=round((gtx-bsize/2.0)/bsize)
 	gtyb=round((gty-bsize/2.0)/bsize)
-	occmap[gtyb, gtxb] += 1
+	# print gtyb, gtxb
+	occmap[min(gtyb, nbins-1), min(gtxb, 2*nbins-1)] += 1
 
 	xpb = round((px-bsize/2)/bsize)
 	ypb = round((py-bsize/2)/bsize)
