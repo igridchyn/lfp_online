@@ -15,6 +15,30 @@ void SpikeAlignmentProcessor::process(){
            buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_nows_pos];
 
+        // check if there are not too many spikes in the noise removal queue and signal noise if yes
+        while (!noise_detection_queue_.empty()){
+        	Spike *front = noise_detection_queue_.front();
+        	if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
+        		noise_detection_queue_.pop();
+        	}else{
+        		break;
+        	}
+        }
+        noise_detection_queue_.push(spike);
+        // TODO: keep pointer to last spike assigned as noise to repeat the assignment
+        if (noise_detection_queue_.size() > NNOISE){
+        	last_noise_pkg_id_ = spike->pkg_id_;
+        	unsigned int noise_ptr = buffer->spike_buf_nows_pos;
+        	while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
+        		buffer->spike_buffer_[noise_ptr]->discarded_ = true;
+        		noise_ptr--;
+        	}
+
+        	 buffer-> spike_buf_nows_pos++;
+        	 spike->discarded_ = true;
+        	 continue;
+        }
+
 		// DEBUG
 		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in SpikeAlign \n");
 
@@ -171,4 +195,6 @@ SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
     memset(prev_spike_, 0, sizeof(Spike*)*tetr_num);
 
 	buffer->Log("SpikeAlignmentProcessor created");
+
+//	noise_stream_.open("/tmp/ns");
 }

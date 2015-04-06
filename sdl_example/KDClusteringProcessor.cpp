@@ -451,6 +451,7 @@ void KDClusteringProcessor::process(){
 					spike_buf_pos_clust_ --;
 					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 				}
+				Log("   .. until pos ", spike_buf_pos_clust_);
 			}
 		}
 

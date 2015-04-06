@@ -146,6 +146,12 @@ class SpikeAlignmentProcessor : public LFPProcessor{
     
     const unsigned int REFRACTORY_PERIOD;
 
+    const unsigned int NOISE_WIN = 5;
+    std::queue<Spike*> noise_detection_queue_;
+    const unsigned int NNOISE = 10;
+    std::ofstream noise_stream_;
+    unsigned int last_noise_pkg_id_ = 0;
+
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer);
     virtual void process();
