@@ -267,13 +267,14 @@ void FetFileReaderProcessor::process() {
 //	}
 
 	// read pos from whl
-	unsigned int last_pos_pkg_id = last_pkg_id_;
-	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE - pos_sampling_rate_ && !whl_file_->eof()){
+//	unsigned int last_pos_pkg_id = last_pkg_id_;
+	while(read_whl_ && last_pkg_id_ + WINDOW_SIZE > pos_sampling_rate_ && last_pos_pkg_id_ < last_pkg_id_ + WINDOW_SIZE - pos_sampling_rate_ && !whl_file_->eof()){
 		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
 		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_;
+		pos_entry->valid = true;
 
 		buffer->pos_buf_pos_ ++;
-		last_pos_pkg_id = pos_entry->pkg_id_;
+		last_pos_pkg_id_ = pos_entry->pkg_id_;
 		// TODO !!! rewind
 	}
 

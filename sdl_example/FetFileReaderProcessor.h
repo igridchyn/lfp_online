@@ -51,6 +51,8 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 	const unsigned int pos_sampling_rate_;
 
+	unsigned int last_pos_pkg_id_ = 0;
+
 	void openNextFile();
 
 public:
