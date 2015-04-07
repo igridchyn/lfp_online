@@ -23,7 +23,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , binary_(buffer->config_->getBool("spike.reader.binary", false))
 , report_rate_(buffer->SAMPLING_RATE * 60 * 5)
 , num_files_with_spikes_(buffer->tetr_info_->tetrodes_number())
-, FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0)){
+, FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
+, pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate")){
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
 
@@ -33,7 +34,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	}
 
 	// estimate duration of all files together
-	// TODO: implement for binary as well
+	// TODO: !!! implement for binary as well
 	unsigned long total_dur = 0;
 	if (!binary_){
 		for (unsigned int f=0; f < buffer->config_->spike_files_.size(); ++f){
@@ -51,6 +52,10 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 		buffer->log_string_stream_ << "Approximate duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
 		buffer->Log();
 		buffer->input_duration_ = total_dur;
+	}else{
+
+		buffer->input_duration_ = 35 * 60 * 24000;
+		Log("WARNING: DURATION FOR BIINARY NOT IMPLEMENTED");
 	}
 
 	for (unsigned int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t){
@@ -263,7 +268,7 @@ void FetFileReaderProcessor::process() {
 
 	// read pos from whl
 	unsigned int last_pos_pkg_id = last_pkg_id_;
-	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE && !whl_file_->eof()){
+	while(read_whl_ && last_pos_pkg_id < last_pkg_id_ + WINDOW_SIZE - pos_sampling_rate_ && !whl_file_->eof()){
 		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
 		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_;
 

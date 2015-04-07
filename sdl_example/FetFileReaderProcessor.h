@@ -49,6 +49,8 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 	double FET_SCALING;
 
+	const unsigned int pos_sampling_rate_;
+
 	void openNextFile();
 
 public:
