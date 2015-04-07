@@ -914,6 +914,12 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		npoints++;
 	}
 	Log("Skipped due to speed: ", nskip);
+
+	if (npoints == 0){
+		Log("ERROR: number of position samples == 0");
+		exit(91824);
+	}
+
 	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
