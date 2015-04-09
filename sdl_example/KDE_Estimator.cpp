@@ -532,6 +532,8 @@ int main(int argc, char **argv){
 	avg_feat_std /= N_FEAT;
 	Log();
 
+	Log("WARNING: features will be standardized\n");
+
 	float stdx = arma::stddev(obs_mat.col(N_FEAT));
 	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
 	log_string_ << "std of x  = " << stdx << "\n";
@@ -547,7 +549,7 @@ int main(int argc, char **argv){
 		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
 
 		for (int f = 0; f < N_FEAT; ++f) {
-			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT); // * avg_feat_std / stds[f];
+			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT) / stds[f];
 		}
 	}
 
@@ -558,7 +560,7 @@ int main(int argc, char **argv){
 	ax_points_ = annAllocPts(MIN_SPIKES, DIM + 2);
 	for (int s = 0; s < total_spikes; ++s) {
 		for (int f = 0; f < N_FEAT; ++f) {
-			ax_points_[s][f] = obs_mat(s, f) / SIGMA_A * MULT_INT; // * avg_feat_std / stds[f];
+			ax_points_[s][f] = obs_mat(s, f) / SIGMA_A * MULT_INT / stds[f];
 		}
 
 		ax_points_[s][N_FEAT] = obs_mat(s, N_FEAT) / SIGMA_X * MULT_INT * avg_feat_std / stdx;
