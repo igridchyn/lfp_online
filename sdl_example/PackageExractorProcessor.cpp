@@ -22,6 +22,12 @@ PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
 void PackageExractorProcessor::process(){
 	//Log("Extract package...");
 
+//	if (skip_next_pkg_){
+//		skip_next_pkg_ = false;
+//		return;
+//	}
+//	skip_next_pkg_ = true;
+
     // IDLE processing, waiting for user input
     if (buffer->chunk_ptr == nullptr){
 //		buffer->Log("PEXTR: zero pointer, return");
@@ -65,6 +71,7 @@ void PackageExractorProcessor::process(){
     
     unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
     
+    // read pos
     for (unsigned int c=0; c < buffer->num_chunks; ++c){
     	unsigned char *pos_chunk = buffer->chunk_ptr + c * buffer->CHUNK_SIZE;
 
@@ -112,7 +119,7 @@ void PackageExractorProcessor::process(){
     }
     
     for (unsigned int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
-        for (int block=0; block < 3; ++block) {
+    	for (int block=0; block < 3; ++block) {
             short * sbin_ptr = (short*)bin_ptr;
             for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
 

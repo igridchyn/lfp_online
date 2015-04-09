@@ -20,6 +20,8 @@ class PackageExractorProcessor : public LFPProcessor{
 	bool skip_next_pos_ = false;
 	bool read_pos_;
 
+	bool skip_next_pkg_ = false;
+
 public:
 	virtual std::string name();
     virtual void process();
