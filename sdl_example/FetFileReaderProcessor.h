@@ -53,6 +53,8 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 	unsigned int last_pos_pkg_id_ = 0;
 
+	bool exit_on_over_ = false;
+
 	void openNextFile();
 
 public:

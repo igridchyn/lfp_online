@@ -24,7 +24,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , report_rate_(buffer->SAMPLING_RATE * 60 * 5)
 , num_files_with_spikes_(buffer->tetr_info_->tetrodes_number())
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
-, pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate")){
+, pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
+, exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false)){
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
 
@@ -256,6 +257,10 @@ void FetFileReaderProcessor::process() {
 				Log(ss.str());
 			}
 			buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
+			if (exit_on_over_){
+				Log("Exit on FileReader input over");
+				exit(0);
+			}
 			return;
 		}
 	}
