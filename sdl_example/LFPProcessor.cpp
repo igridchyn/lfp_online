@@ -43,31 +43,6 @@ void usleep(__int64 usec)
 
 // ============================================================================================================
 
-void FileOutputProcessor::process(){
-    while (buffer->spike_buf_pos_out < buffer->spike_buf_pos_unproc_){
-        Spike* spike = buffer->spike_buffer_[buffer->spike_buf_pos_out];
-        if (spike->discarded_){
-            buffer->spike_buf_pos_out++;
-            continue;
-        }
-        
-        for(int c=0;c<4;++c){
-            for(int w=0; w<16; ++w){
-                fprintf(f_, "%d ", spike->waveshape_final[c][w]);
-            }
-            fprintf(f_, "\n");
-        }
-        
-        buffer->spike_buf_pos_out++;
-    }
-}
-
-FileOutputProcessor::~FileOutputProcessor(){
-    fclose(f_);
-}
-
-// ============================================================================================================
-
 Spike::Spike(int pkg_id, int tetrode)
     : pkg_id_(pkg_id)
     , tetrode_(tetrode)
@@ -123,6 +98,7 @@ float Spike::getWidth(float level, int chan) {
 }
 
 Spike::~Spike() {
+//	std::cout << "Spike destroyed\n";
 //	for (int c = 0; c < num_channels_; ++c) {
 //		if (waveshape && waveshape[c])
 //		delete[] waveshape[c];

@@ -186,11 +186,6 @@ SDLControlInputProcessor::SDLControlInputProcessor(LFPBuffer *buf, const unsigne
 : LFPProcessor(buf, processor_number)
 , user_context_(buf->user_context_){ }
 
-FileOutputProcessor::FileOutputProcessor(LFPBuffer* buf)
-: LFPProcessor(buf){
-    f_ = fopen("/Users/igridchyn/Dropbox/IST_Austria/Csicsvari/Data Processing/spike_detection/cpp/cppout.txt", "w");
-}
-
 
 std::string SDLControlInputMetaProcessor::name() {
 	return "SDLControlInputMetaProcessor";

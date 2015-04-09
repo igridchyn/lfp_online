@@ -186,16 +186,6 @@ public:
     virtual inline std::string name() { return "Waveshape Reconstruction"; }
 };
 
-//==========================================================================================
-
-class FileOutputProcessor : public LFPProcessor{
-    FILE *f_ = nullptr;
-    
-public:
-    FileOutputProcessor(LFPBuffer* buf);
-    virtual void process();
-    ~FileOutputProcessor();
-};
 
 //==========================================================================================
 

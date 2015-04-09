@@ -262,6 +262,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	}
 
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
+	tmp_spike_buf_ = new Spike*[SPIKE_BUF_HEAD_LEN];
 
 	std::string log_path_prefix = config->getString("log.path.prefix", "lfponline_LOG_");
 
@@ -310,6 +311,10 @@ LFPBuffer::LFPBuffer(Config* config)
     	spike_buffer_[s] = spike_pool_ + s;
 //    	AllocateExtraFeaturePointerMemory(spike_pool_ + s);
     }
+
+    //DEBUG
+    head_start_ = spike_buffer_[0];
+    tail_start_ = spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN];
 }
 
 template <class T>
@@ -447,8 +452,19 @@ void LFPBuffer::AddSpike(Spike* spike) {
 	spike_buf_pos++;
 
 	// check if rewind is requried
-	if (spike_buf_pos == SPIKE_BUF_LEN - 1){
-		memcpy(spike_buffer_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+	if (spike_buf_pos == SPIKE_BUF_LEN){
+
+		// DEBUG
+		if (head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN] ||
+				tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]){
+			Log("Buffer abused!");
+		}
+
+		// exchange head and tail
+		memcpy(tmp_spike_buf_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+		memcpy(spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, spike_buffer_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+		memcpy(spike_buffer_, tmp_spike_buf_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+
 		//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
 		//                    	delete spike_buffer_[del_spike];
 		//                    	spike_buffer_[del_spike] = nullptr;
@@ -476,9 +492,9 @@ void LFPBuffer::AddSpike(Spike* spike) {
 			spike_buf_pos_clusts_[i] -= std::min(shift_new_start, (int)spike_buf_pos_clusts_[i]);
 		}
 
-		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
+		Log("Spike buffer rewind at pos ", spike_buf_pos);
 
-		Log("Spike buffer rewind at pos ", buf_pos);
+		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 	}
 }
 
