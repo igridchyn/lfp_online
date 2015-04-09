@@ -31,7 +31,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	for (int s = 0; s < NUSED; ++s) {
 		laxs_[t].push_back(laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1));
 
-		if (!(s % 1000))
+		if (!(s % 300))
 			laxs_[t][laxs_[t].size() - 1].save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(s) + ".tmp", arma::raw_ascii);
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");

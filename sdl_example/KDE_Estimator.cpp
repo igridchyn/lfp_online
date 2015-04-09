@@ -205,7 +205,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		neighbours_count_.push_back(node_by_id[i]->neighbour_ids_.size());
 	}
 
-	while (head != nullptr ){ // && neighbours_count_[head->id_] > 0){
+	while (head != nullptr && neighbours_count_[head->id_] > 0){
 		// if already invalidated, move on
 		if (node_by_id[head->id_] == nullptr){
 			head = head->next_;
