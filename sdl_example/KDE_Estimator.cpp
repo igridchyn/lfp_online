@@ -130,8 +130,6 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 	VertexNode *head;
 	std::map<unsigned int, VertexNode *> node_by_id;
-	// nodes having an index node in their neighbours lists [because due to approximate neighbour search it can be asymmetric]
-	std::vector< std::vector< unsigned int > > neighbours_of;
 	// create map (for removing neighbours), vector (for sorting) and list (for supporting sorting order)
 	std::vector<VertexNode> nodes;
 
@@ -142,8 +140,6 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 	ANNpointArray tree_points = full_tree.thePoints();
 
 	const unsigned int NPOITNS = full_tree.nPoints();
-
-	neighbours_of.resize(NPOITNS);
 
 	// create Vertex Nodex for each spike
 	for (unsigned int n = 0; n < NPOITNS; ++n) {
@@ -158,15 +154,24 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 			}
 
 			neigb_ids.push_back((unsigned int)nn_idx[ne]);
-			neighbours_of[nn_idx[ne]].push_back(n);
 		}
 
 		nodes.push_back(VertexNode(n, neigb_ids));
 	}
 
-	Log(": cached neighbours (vertex cover)\n");
+	Log(": make neighbourship symmetric\n");
 
-	// optinally: make neiughbours of and lists in VertexNodes equal
+	 // make symmetric distance relations
+	 for (unsigned int n = 0; n < NPOITNS; ++n) {
+		 VertexNode &vn = nodes[n];
+		 for (unsigned int ni = 0; ni < vn.neighbour_ids_.size(); ++ni) {
+			 if (std::find(nodes[vn.neighbour_ids_[ni]].neighbour_ids_.begin(), nodes[vn.neighbour_ids_[ni]].neighbour_ids_.end(), n) == nodes[vn.neighbour_ids_[ni]].neighbour_ids_.end()){
+				 nodes[vn.neighbour_ids_[ni]].neighbour_ids_.push_back(n);
+			 }
+		 }
+	 }
+
+	 Log(": cached neighbours (vertex cover)\n");
 
 	// sort them by number of neighbours less than thold
 	 std::sort(nodes.begin(), nodes.end());
@@ -195,47 +200,51 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 	// while list is not empty, choose node with largest number of neighbours and remove it and it's neighborus from list and map
 	std::vector<unsigned int> used_ids_;
-	while (head != nullptr ){ // && head->neighbour_ids_.size() > 0){
+	std::vector<int> neighbours_count_;
+	for (unsigned int i=0; i < NPOITNS; ++i){
+		neighbours_count_.push_back(node_by_id[i]->neighbour_ids_.size());
+	}
+
+	while (head != nullptr ){ // && neighbours_count_[head->id_] > 0){
+		// if already invalidated, move on
+		if (node_by_id[head->id_] == nullptr){
+			head = head->next_;
+			continue;
+		}
+
 		// add one with most neighbours to the list of active nodes (to build PFs from)
 		used_ids_.push_back(head->id_);
 
 		// remove neighbours from map /	list and reduce neighbour counts of neighbours' neighbours
 		for (size_t i=0; i < head->neighbour_ids_.size(); ++i){
 			// remove and move down in the sorted list
-			const unsigned int neighb_id =head->neighbour_ids_[i];
+			const unsigned int neighb_id = head->neighbour_ids_[i];
 			VertexNode *const neighbour = node_by_id[neighb_id];
 
 			if (neighbour == nullptr)
 				continue;
 
-			// remove from neighbour's list at each neighbour neighbour and move it down
-			for (size_t j = 0; j < neighbours_of[neighbour->id_].size(); ++j) {
-				unsigned int jthneighbid = neighbours_of[neighbour->id_][j];
+			// reduce neighbour's neighbour count and move it down
+			for (size_t j = 0; j < neighbour->neighbour_ids_.size(); ++j) {
+				unsigned int jthneighbid = neighbour->neighbour_ids_[j];
 
 				if (jthneighbid == head->id_)
 					continue;
 
 				VertexNode *nn = node_by_id[jthneighbid];
 
+				// if has been removed from consideration
 				if (nn == nullptr)
 					continue;
 
-				// TODO don't remove, just have the number of active neighbour nodes
-				if (nn->neighbour_ids_.size() > 0){
-					std::remove(nn->neighbour_ids_.begin(), nn->neighbour_ids_.end(), neighbour->id_);
-				}else{
-					Log("no neighbours!\n");
-				}
-
-				//also remove NN from reverse neighbours list of 2nd order neighbours
-				std::remove(neighbours_of[jthneighbid].begin(), neighbours_of[jthneighbid].end(), neighb_id);
+				neighbours_count_[jthneighbid] --;
 
 				// move down in the list to support the sorted order
-				while (nn->next_ !=0 && nn->Size() < nn->next_->Size()){
+				while (nn->next_ !=nullptr && neighbours_count_[nn->id_] > 0 && neighbours_count_[nn->id_] < neighbours_count_[nn->next_->id_]){
 					VertexNode *tmp = nn->next_;
 					nn->next_ = tmp->next_;
 					nn->previous_->next_ = tmp;
-					tmp->next_ = neighbour;
+					tmp->next_ = nn;
 					tmp->previous_ = nn->previous_;
 					nn->previous_ = tmp;
 					nn->next_->previous_ = nn;
@@ -249,9 +258,8 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 			if (node_by_id[neighbour->id_]->next_ != nullptr)
 				node_by_id[neighbour->id_]->next_->previous_ = node_by_id[neighbour->id_]->previous_;
 
+			// invalidate neighbour
 			node_by_id[neighbour->id_] = nullptr;
-
-			neighbours_of[neighbour->id_].clear();
 		}
 
 		// move to next node with most neighbours
@@ -260,6 +268,8 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 	delete[] nn_idx;
 	delete[] dd;
+
+	Log("Finished reduce\n");
 
 	return used_ids_;
 }
