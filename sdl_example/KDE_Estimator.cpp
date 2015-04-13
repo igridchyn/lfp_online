@@ -141,6 +141,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 	const unsigned int NPOITNS = full_tree.nPoints();
 
+	time_t start = clock();
 	// create Vertex Nodex for each spike
 	for (unsigned int n = 0; n < NPOITNS; ++n) {
 		// find neighbours
@@ -158,6 +159,9 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 
 		nodes.push_back(VertexNode(n, neigb_ids));
 	}
+	time_t end = clock();
+	log_string_ << "Found all neighbours in " << (end - start) / CLOCKS_PER_SEC << " sec.\n";
+	Log();
 
 	Log(": make neighbourship symmetric\n");
 
@@ -171,7 +175,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		 }
 	 }
 
-	 Log(": cached neighbours (vertex cover)\n");
+	 Log(": sort by number of neighbours\n");
 
 	// sort them by number of neighbours less than thold
 	 std::sort(nodes.begin(), nodes.end());
