@@ -184,7 +184,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		 node_by_id[nodes[n].id_] = &(nodes[n]);
 	 }
 
-	 log_string_ << ": node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n\t";
+	 	 log_string_ << ": node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n\t";
 	 log_string_ << ": node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n\t";
 	 log_string_ << ": node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n\t";
 	 log_string_ << ": node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n\t";
@@ -553,7 +553,7 @@ int main(int argc, char **argv){
 		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
 
 		for (int f = 0; f < N_FEAT; ++f) {
-			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT) / stds[f];
+			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT / stds[f] );
 		}
 	}
 

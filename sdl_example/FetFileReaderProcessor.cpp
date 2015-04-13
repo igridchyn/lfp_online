@@ -55,7 +55,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 		buffer->input_duration_ = total_dur;
 	}else{
 
-		buffer->input_duration_ = 35 * 60 * 24000;
+		buffer->input_duration_ = 10.75 * 60 * 24000;
 		Log("WARNING: DURATION FOR BIINARY NOT IMPLEMENTED");
 	}
 
