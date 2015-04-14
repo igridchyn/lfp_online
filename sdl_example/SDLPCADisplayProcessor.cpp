@@ -252,7 +252,7 @@ void SDLPCADisplayProcessor::process(){
 		// too slow, don't display during load
 		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 			ResetTextStack();
-			TextOut(std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_]);
+			TextOut(std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_ + 1]);
 		}
 		double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 		std::stringstream ss;
@@ -473,7 +473,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
 
         	// polygon operations
-        	case SDLK_a:{
+        	case SDLK_s:{
         		addCluster();
         		need_redraw = false;
         		break;
@@ -522,7 +522,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         		break;
 
-        	case SDLK_s:
+        	case SDLK_a:
         		if (kmod & KMOD_LSHIFT){
         			save_polygon_clusters();
         		}
