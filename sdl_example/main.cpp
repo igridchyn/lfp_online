@@ -23,9 +23,39 @@ typedef short t_bin;
 #ifdef _WIN32
 	//std::string cpath("../Res/signal_display_win_bin.conf");
 	// std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
-		//std::string cpath(R"(../Res/spike_dump_win.conf)");
+
+		// 1) dump spikes
+		// std::string cpath(R"(../Res/spike_dump_win.conf)");
+		// 2) diplay
 		std::string cpath(R"(../Res/spike_display_win.conf)");
-	Config *config = new Config(cpath);
+
+		//std::string cpath(R"(../Res/delay_test_win.conf)");
+		//std::string cpath(R"(../Res/spike_detection_build_model_jc118_1003_8l_shift_WIN.conf)");
+		//std::string cpath(R"(../Res/decoding_online_jc118_1003_shift_WIN.conf)");
+		//std::string cpath(R"(../Res/trigger_jc140_win.conf)");
+		//std::string cpath(R"(../Res/spike_detection_build_model_jc140_WIN.conf)");
+		//std::string cpath(R"(../Res/decoding_online_jc140_win.conf)");
+
+		//system("d:/Igor/soft/lfp_online/sdl_example/lfponlinevs/Release/kde_win.exe");
+
+		Config *config = nullptr;
+
+		if (argc > 1){
+			size_t convertedChars = 0;
+			size_t origsize = wcslen(argv[1]) + 1;
+			const size_t newsize = origsize*2;
+			char *nstring = new char[newsize];
+			wcstombs_s(&convertedChars, nstring, newsize, argv[1], _TRUNCATE);
+
+			config = new Config(nstring);
+
+			std::cout << "Read config: " << nstring << "\n";
+		}
+		else {
+			config = new Config(cpath);
+		}
+
+	
 	//config->Init();
 #elif defined(__APPLE__)
     // square wave signal - for delay and stability testing
