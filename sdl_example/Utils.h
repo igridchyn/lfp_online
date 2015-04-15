@@ -13,6 +13,9 @@ public:
     class Converter{
     public:
         static std::string int2str(int a);
+#if _WIN32
+        static char* WstringToCstring(wchar_t *wstring);
+#endif
     };
     
     class Math{

@@ -16,6 +16,17 @@ std::string Utils::Converter::int2str(int a){
     return s;
 }
 
+#if _WIN32
+char* Utils::Converter::WstringToCstring(wchar_t *wstring){
+	size_t convertedChars = 0;
+	size_t origsize = wcslen(wstring) + 1;
+	const size_t newsize = origsize*2;
+	char *nstring = new char[newsize];
+	wcstombs_s(&convertedChars, nstring, newsize, wstring, _TRUNCATE);
+	return nstring;
+}
+#endif
+
 std::vector<int> Utils::Math::GetRange(const unsigned int& from, const unsigned int& to){
     std::vector<int> range;
     for (unsigned int i = 0; i < to-from+1; ++i) {

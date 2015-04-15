@@ -41,13 +41,17 @@ typedef short t_bin;
 		Config *config = nullptr;
 
 		if (argc > 1){
-			size_t convertedChars = 0;
-			size_t origsize = wcslen(argv[1]) + 1;
-			const size_t newsize = origsize*2;
-			char *nstring = new char[newsize];
-			wcstombs_s(&convertedChars, nstring, newsize, argv[1], _TRUNCATE);
+			char *nstring = Utils::Converter::WstringToCstring(argv[1]);
 
-			config = new Config(nstring);
+			if (argc > 2){
+				char **params = new char*[argc - 2];
+				for (int p=0; p < argc - 2; ++p){
+					params[p] = Utils::Converter::WstringToCstring(argv[p + 2]);
+				}
+				config = new Config(nstring, argc - 2, params);
+			}else{
+				config = new Config(nstring);
+			}
 
 			std::cout << "Read config: " << nstring << "\n";
 		}
@@ -71,7 +75,7 @@ typedef short t_bin;
     Config *config = nullptr;
 
     if (argc > 1){
-    	config = new Config(argv[1], argc - 1, argv + 1);
+    	config = new Config(argv[1], argc - 2, argv + 2);
     } else {
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
