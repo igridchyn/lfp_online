@@ -51,7 +51,7 @@ public:
 
 	void Log();
 
-	Config(std::string path);
+	Config(std::string path, unsigned int nparams = 0, char **params = nullptr);
 
 	int getInt(std::string name);
 	int getInt(std::string name, const int def_val);
@@ -72,6 +72,8 @@ public:
 	std::string getAllParamsText();
 
 	std::string evaluate_variables(std::string key, std::string value);
+
+	void parse_line(std::ifstream& fconf, std::string line);
 };
 
 #endif /* CONFIG_H_ */

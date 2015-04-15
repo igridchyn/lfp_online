@@ -71,9 +71,9 @@ typedef short t_bin;
     Config *config = nullptr;
 
     if (argc > 1){
-    	config = new Config(argv[1]);
+    	config = new Config(argv[1], argc - 1, argv + 1);
     } else {
-//	Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
+//		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
 //    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
     	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
@@ -85,15 +85,15 @@ typedef short t_bin;
 //    	config = new Config("../Res/spike_detection_build_model_jc140.conf");
 //    	config = new Config("../Res/decoding_online_jc140.conf");
 
-//    Config *config = new Config("../Res/spike_dump_128.conf");
-//      Config *config = new Config("../Res/spike_display_128.conf");
+//    	config = new Config("../Res/spike_dump_128.conf");
+//      config = new Config("../Res/spike_display_128.conf");
 
-//	Config *config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
-//	Config *config = new Config("../Res/decoding_jc118_1003_env1_2x.cz`onf"); // shifted map
-//	Config *config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
+//		config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
+//		config = new Config("../Res/decoding_jc118_1003_env1_2x.cz`onf"); // shifted map
+//		config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 
-//	Config *config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
-//	Config *config = new Config("../Res/spike_detection_jc118_1003_3l.conf");
+//		*config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
+//		config = new Config("../Res/spike_detection_jc118_1003_3l.conf");
 
     }
 

@@ -41,7 +41,7 @@ void Config::read_processors(std::ifstream& fconf) {
 
 
 
-Config::Config(std::string path) {
+Config::Config(std::string path, unsigned int nparams, char **params) {
 	config_path_ = path;
 
 	std::ifstream fconf(path);
@@ -79,6 +79,12 @@ Config::Config(std::string path) {
 	known_processors_.push_back("BinFileReader");
 	known_processors_.push_back("FiringRateEstimator");
 
+	for (unsigned int i = 0; i < nparams; ++i){
+		std::string paramline(params[i]);
+		log_string_stream_ << "OVERRIDE: " << paramline << "\n";
+		Log();
+		parse_line(fconf, paramline);
+	}
 
 	//for (size_t i = 0; i < NPROC; i++)
 	//{
@@ -110,40 +116,10 @@ Config::Config(std::string path) {
 
 		if (line == std::string("lfpdisp.channels")){
 			ReadList<unsigned int>(fconf, lfp_disp_channels_);
+			continue;
 		}
 
-		std::istringstream ssline(line);
-
-		std::string key;
-		if (std::getline(ssline, key, '=')){
-			std::string value;
-			if (std::getline(ssline, value)){
-				// look for variables
-				value = evaluate_variables(key, value);
-
-				params_[key] = value;
-				log_string_stream_ << " " << key << " = " << value << "\n";
-				Log();
-
-				if (key == "spike.reader.files.number"){
-					int nfiles = atoi(value.c_str());
-					for (int i=0; i < nfiles; ++i){
-						std::getline(fconf, line);
-						if (line[0] != '/' || line[1] != '\''){
-							spike_files_.push_back(evaluate_variables("spike.reader.files", line));
-						}
-					}
-				}
-			}
-			else{
-				log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
-				Log();
-			}
-		}
-		else{
-			log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
-			Log();
-		}
+		parse_line(fconf, line);
 	}
 
 	fconf.close();
@@ -323,4 +299,46 @@ std::string Config::evaluate_variables(std::string key, std::string value) {
 	}
 
 	return value;
+}
+
+void Config::parse_line(std::ifstream& fconf, std::string line) {
+	std::istringstream ssline(line);
+
+	std::string key;
+	if (std::getline(ssline, key, '=')){
+		std::string value;
+		if (std::getline(ssline, value)){
+			// look for variables
+			value = evaluate_variables(key, value);
+
+			if (params_.find(key) != params_.end()){
+				log_string_stream_ << "WARNING: IGNORE REPEATED ENTRY OF " << key << "\n";
+				log_string_stream_ << "  the first provided value was: " << value << "\n";
+				Log();
+				return;
+			}
+
+			params_[key] = value;
+			log_string_stream_ << " " << key << " = " << value << "\n";
+			Log();
+
+			if (key == "spike.reader.files.number"){
+				int nfiles = atoi(value.c_str());
+				for (int i=0; i < nfiles; ++i){
+					std::getline(fconf, line);
+					if (line[0] != '/' || line[1] != '\''){
+						spike_files_.push_back(evaluate_variables("spike.reader.files", line));
+					}
+				}
+			}
+		}
+		else{
+			log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
+			Log();
+		}
+	}
+	else{
+		log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
+		Log();
+	}
 }
