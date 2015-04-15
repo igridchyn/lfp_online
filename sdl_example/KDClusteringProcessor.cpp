@@ -93,7 +93,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			WAIT_FOR_SPEED_EST(getBool("kd.wait.speed")),
 			RUN_KDE_ON_MIN_COLLECTED(getBool("kd.run.on.min")),
             kde_path_(buf->config_->getString("kd.path", "./kde_estimator")),
-            continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false))
+            continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false)),
+            neighb_num_(buf->config_->getInt("kd.neighb.num", 1))
 		{
 
 	Log("Construction started");
@@ -114,10 +115,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
 	total_spikes_.resize(tetrn);
-	obs_spikes_.resize(tetrn);
 	knn_cache_.resize(tetrn);
 	spike_place_fields_.resize(tetrn);
-	// ann_points_int_.resize(tetrn);
 	obs_mats_.resize(tetrn);
 	missed_spikes_.resize(tetrn);
 
@@ -139,8 +138,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 		ann_points_[t] = annAllocPts(MIN_SPIKES * 2, dim);
 		spike_place_fields_[t].reserve(MIN_SPIKES * 2);
-
-		obs_spikes_.reserve(MIN_SPIKES * 2);
 
 		// tmp
 		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
@@ -227,6 +224,13 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	last_spike_pkg_ids_by_tetrode_.resize(tetr_info_->tetrodes_number(), 0);
 
 	Log("Construction ready");
+
+	// DEBUG
+//	skipped_spikes_.resize(tetr_info_->tetrodes_number(), 0);
+//	debug_.open("debug.txt");
+
+	neighbour_dists_.resize(neighb_num_);
+	neighbour_inds_.resize(neighb_num_);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -417,12 +421,32 @@ void KDClusteringProcessor::process(){
 			Log(ss.str());
 
 			// estimate firing rates
-			std::vector<unsigned int> spike_numbers_;
+			std::vector<unsigned int> spike_numbers_, spikes_discarded_, spikes_slow_;
 			spike_numbers_.resize(tetr_info_->tetrodes_number());
+			spikes_slow_.resize(tetr_info_->tetrodes_number());
+			spikes_discarded_.resize(tetr_info_->tetrodes_number());
 			// TODO which pointer ?
-			for (unsigned int i=0; i < (WAIT_FOR_SPEED_EST ? buffer->spike_buf_pos_speed_ : buffer->spike_buf_pos_unproc_); ++i){
+			const unsigned int frest_pos = (WAIT_FOR_SPEED_EST ? buffer->spike_buf_pos_speed_ : buffer->spike_buf_pos_unproc_);
+			Log("Estimate FR from spikes in buffer until position ", frest_pos);
+			for (unsigned int i=0; i < frest_pos; ++i){
 				Spike *spike = buffer->spike_buffer_[i];
-				if (spike == nullptr || spike->discarded_ || spike->speed < SPEED_THOLD){
+				if (spike->discarded_){
+					spikes_discarded_[spike->tetrode_] ++;
+					continue;
+				}
+
+				if (spike->speed < SPEED_THOLD){
+
+					// DEBUG
+//					if (spike->tetrode_ == 0){
+//						std::cout << spike->pkg_id_ << " ";
+//					}
+
+					spikes_slow_[spike->tetrode_] ++;
+					continue;
+				}
+
+				if (spike == nullptr || !spike->aligned_){
 					continue;
 				}
 
@@ -432,7 +456,9 @@ void KDClusteringProcessor::process(){
 			for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
 					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY);
 					std::stringstream ss;
-					ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec\n";
+					ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec (" << spike_numbers_[t] << " spikes)\n";
+					ss << "   with " << spikes_discarded_[t] << " spikes DISCARDED\n";
+					ss << "   with " << spikes_slow_[t] << " spikes SLOW\n";
 					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
@@ -468,6 +494,10 @@ void KDClusteringProcessor::process(){
 		}
 
 		if (spike->speed < SPEED_THOLD || spike->discarded_){
+			// DEBUG
+//			if (spike->speed < SPEED_THOLD && !spike->discarded_)
+//				skipped_spikes_[spike->tetrode_] ++;
+
 			spike_buf_pos_clust_ ++;
 			continue;
 		}
@@ -523,20 +553,15 @@ void KDClusteringProcessor::process(){
 				}
 				missed_spikes_[tetr] = 0;
 
-				obs_spikes_[tetr].push_back(spike);
+				// DEBUG
+//				if (tetr == 0){
+//					debug_ << spike->pkg_id_ << "\n";
+//					debug_.flush();
+//				}
 
 				// copy features and coords to ann_points_int and obs_mats
 				for(unsigned int fet=0; fet < nfeat; ++fet){
 					ann_points_[tetr][total_spikes_[tetr]][fet] = spike->pc[fet];
-
-					// save integer with increased precision for integer KDE operations
-					//ann_points_int_[tetr][total_spikes_[tetr]][fet] = (int)round(spike->pc[fet] * MULT_INT);
-
-					// set from the obs_mats after computing the coordinates normalizing factor
-//					spike_coords_int_[tetr](total_spikes_[tetr], 0) = (int)round(spike->x * MULT_INT);
-//					spike_coords_int_[tetr](total_spikes_[tetr], 1) = (int)round(spike->y * MULT_INT);
-
-					// tmp: for stats
 					obs_mats_[tetr](total_spikes_[tetr], fet) = spike->pc[fet];
 				}
 
@@ -545,8 +570,8 @@ void KDClusteringProcessor::process(){
 					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
 				}
 				else{
-					obs_mats_[tetr](total_spikes_[tetr], nfeat) = 1023;
-					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 1023;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat) = buffer->pos_unknown_;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = buffer->pos_unknown_;
 				}
 
 				total_spikes_[tetr] ++;
@@ -647,9 +672,6 @@ void KDClusteringProcessor::process(){
 				}
 			}
 
-			double dist;
-			int closest_ind;
-
 			// at this points all tetrodes have pfs !
 			while(spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
@@ -670,6 +692,10 @@ void KDClusteringProcessor::process(){
 					continue;
 				}
 
+				// DEBUG
+//				if (spike->tetrode_ == 0)
+//					debug_ << spike->pkg_id_ << "\n";
+
 				tetr_spiked_[stetr] = true;
 
 				for(unsigned int fet=0; fet < nfeat; ++fet){
@@ -681,11 +707,17 @@ void KDClusteringProcessor::process(){
 				// PROFILE
 //				time_t kds = clock();
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
-				kdtrees_[stetr]->annkSearch(pnt_, 1, &closest_ind, &dist, NN_EPS);
+				kdtrees_[stetr]->annkSearch(pnt_, neighb_num_ , &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
 //				std::cout << "kd time = " << clock() - kds << "\n";
 
 				// add 'place field' of the spike with the closest wave shape
-				pos_pred_ += laxs_[stetr][closest_ind];
+				if (neighb_num_ > 1){
+					for (unsigned int i=0; i < neighb_num_ ; ++i){
+							pos_pred_ += 1/float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
+					}
+				}else{
+					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
+				}
 
 				// TODO: from window start if the spike was first
 				if (continuous_prediction_){
@@ -862,7 +894,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	if (total_spikes_[tetr] == 0){
 		Log("ERROR: No spikes collected for KDE. Exiting. Tetrode = ", tetr);
 		// because this is the child thread
-		exit(0);
+		exit(564879);
 	}
 
 	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
@@ -913,7 +945,11 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
 		npoints++;
 	}
+
+	// DEBUG
 	Log("Skipped due to speed: ", nskip);
+	Log("Tetrode: ", tetr);
+//	Log("Skipped due to speed according to counter: ", skipped_spikes_[tetr]);
 
 	if (npoints == 0){
 		Log("ERROR: number of position samples == 0");
@@ -936,6 +972,14 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		Log("Due to interval usage, calling KDE with ", (int)last_pkg_id);
 		Log("	while the real last_pkg_id is ", (int)buffer->last_pkg_id);
 	}
+
+	// find last pkg id for each tetrode
+	unsigned int tspikepos = buffer->spike_buf_pos - 1;
+	while (tspikepos > 0 && (buffer->spike_buffer_[tspikepos] == nullptr || buffer->spike_buffer_[tspikepos]->tetrode_ != (int)tetr)){
+		tspikepos --;
+	}
+	if (tspikepos > 0 && buffer->spike_buffer_[tspikepos] != nullptr)
+		last_pkg_id = buffer->spike_buffer_[tspikepos]->pkg_id_;
 
 	/// buuild commandline to start kde_estimator
 	std::ostringstream  os;

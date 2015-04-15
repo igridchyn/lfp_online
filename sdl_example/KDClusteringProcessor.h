@@ -21,7 +21,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	// per tetrode
 	std::vector<unsigned int> total_spikes_;
 	std::vector<arma::fmat> observations_;
-	std::vector<std::vector<Spike *> > obs_spikes_;
 
 	const unsigned int MIN_SPIKES;
 
@@ -210,6 +209,14 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool continuous_prediction_ = false;
 	// pointers to previous spikes in each of the tetrodes
 	std::vector<unsigned int> last_spike_pkg_ids_by_tetrode_;
+
+	unsigned int neighb_num_ = 1;
+	std::vector<int> neighbour_inds_;
+	std::vector<double> neighbour_dists_;
+
+	// DEBUG
+//	std::vector<int> skipped_spikes_;
+//	std::ofstream debug_;
 
 	void update_hmm_prediction();
 	void reset_hmm();
