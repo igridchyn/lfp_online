@@ -53,10 +53,6 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 		buffer->log_string_stream_ << "Approximate duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
 		buffer->Log();
 		buffer->input_duration_ = total_dur;
-	}else{
-
-		buffer->input_duration_ = 10.75 * 60 * 24000;
-		Log("WARNING: DURATION FOR BIINARY NOT IMPLEMENTED");
 	}
 
 	for (unsigned int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t){
@@ -64,6 +60,28 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	}
 
 	openNextFile();
+
+	// find out duration from first spike file in binary case
+	if (binary_){
+		// TODO sum up dirations of multiple files
+		const unsigned int fetn = buffer->feature_space_dims_[0];
+		float *tmpf = new float[fetn + 4];
+		int stime;
+
+		while (!fet_streams_[0]->eof()){
+			fet_streams_[0]->read((char*)tmpf, (fetn + 4) * sizeof(float));
+			fet_streams_[0]->read((char*)&stime, sizeof(int));
+		}
+
+		fet_streams_[0]->clear();
+		fet_streams_[0]->seekg(0, std::ios::beg);
+
+		buffer->input_duration_ = stime;
+		Log("WARNING: ONLY FIRST INPUT FILE DURATION IS PROVIDED");
+		unsigned int dur_sec = stime / buffer->SAMPLING_RATE;
+		buffer->log_string_stream_ << name() << ": Input duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
+		buffer->Log();
+	}
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
@@ -255,6 +273,9 @@ void FetFileReaderProcessor::process() {
 				std::stringstream ss;
 				ss << "End of input files, file duration: " << last_pkg_id_ / buffer->SAMPLING_RATE / 60 << " min " << (last_pkg_id_ / buffer->SAMPLING_RATE) % 60 << " sec \n";
 				Log(ss.str());
+
+				// DEBUG
+				Log("Last pos pkg id: ", buffer->positions_buf_[buffer->pos_buf_pos_ - 2].pkg_id_);
 			}
 			buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 			if (exit_on_over_){
@@ -275,8 +296,7 @@ void FetFileReaderProcessor::process() {
 //	unsigned int last_pos_pkg_id = last_pkg_id_;
 	while(read_whl_ && last_pkg_id_ + WINDOW_SIZE > pos_sampling_rate_ && last_pos_pkg_id_ < last_pkg_id_ + WINDOW_SIZE - pos_sampling_rate_ && !whl_file_->eof()){
 		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
-		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_;
-		pos_entry->valid = true;
+		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_ >> pos_entry->valid;
 
 		buffer->pos_buf_pos_ ++;
 		last_pos_pkg_id_ = pos_entry->pkg_id_;
