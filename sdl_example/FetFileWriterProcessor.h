@@ -21,6 +21,8 @@ class FetFileWriterProcessor : public virtual LFPProcessor {
 	bool write_spk_;
 	bool binary_ = false;
 
+	bool streams_flushed_after_input_over_ = false;
+
 public:
 	FetFileWriterProcessor(LFPBuffer *buf);
 	virtual ~FetFileWriterProcessor();

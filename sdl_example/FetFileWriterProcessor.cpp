@@ -34,18 +34,43 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 
 FetFileWriterProcessor::~FetFileWriterProcessor() {
 	for (unsigned int i=0; i < fet_files_.size(); ++i){
+		fet_files_[i]->flush();
 		fet_files_[i]->close();
 
 		if (write_spk_){
+			spk_files_[i]->flush();
 			spk_files_[i]->close();
 		}
 	}
 
+	whl_file_->flush();
 	whl_file_->close();
 }
 
 void FetFileWriterProcessor::process() {
-	while(buffer->spike_buf_pos_fet_writer_ < buffer->spike_buf_pos_unproc_){
+	// TODO flush only once
+	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER && !streams_flushed_after_input_over_){
+		for (unsigned int i=0; i < fet_files_.size(); ++i){
+			fet_files_[i]->flush();
+
+			if (write_spk_){
+				spk_files_[i]->flush();
+			}
+		}
+
+		whl_file_->flush();
+
+		streams_flushed_after_input_over_ = true;
+	}
+
+	// write whl
+	while(buffer->pos_buf_pos_whl_writer_ < buffer->pos_buf_pos_){
+		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
+		(*whl_file_) << pos_rec.x_small_LED_ << " " << pos_rec.y_small_LED_ << " " << pos_rec.x_big_LED_ << " " << pos_rec.y_big_LED_ << " " << pos_rec.pkg_id_ << " " << pos_rec.valid << "\n";
+		buffer->pos_buf_pos_whl_writer_++;
+	}
+
+	while(buffer->spike_buf_pos_fet_writer_ < buffer->spike_buf_pos_speed_){
 
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_fet_writer_];
 
@@ -62,10 +87,6 @@ void FetFileWriterProcessor::process() {
 
 		const int& tetrode = spike->tetrode_;
 		std::ofstream& fet_file = *(fet_files_[tetrode]);
-
-		if (spike->discarded_){
-			continue;
-		}
 
 		const unsigned int fetn = buffer->feature_space_dims_[spike->tetrode_];
 
@@ -104,12 +125,5 @@ void FetFileWriterProcessor::process() {
 	if (!whl_start_written_ && buffer->pos_first_pkg_ >= 0){
 		(*whl_file_) << buffer->pos_first_pkg_ << "\n";
 		whl_start_written_ = true;
-	}
-
-	// write fet
-	while(buffer->pos_buf_pos_whl_writer_ < buffer->pos_buf_pos_){
-		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
-		(*whl_file_) << pos_rec.x_small_LED_ << " " << pos_rec.y_small_LED_ << " " << pos_rec.x_big_LED_ << " " << pos_rec.y_big_LED_ << " " << pos_rec.pkg_id_ << "\n";
-		buffer->pos_buf_pos_whl_writer_++;
 	}
 }

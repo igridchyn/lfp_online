@@ -35,6 +35,13 @@ void SpeedEstimationProcessor::process(){
 			buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ = buffer->speedEstimator_->get_mean_estimate();
 			//            std::cout << "speed= " << buffer->speedEstimator_->get_mean_estimate() << "\n";
 
+			// DEBUG
+//			if (buffer->pos_buf_pos_speed_est >= 1970 && buffer->pos_buf_pos_speed_est <= 1990){
+//				std::cout << "instant dx/dy: " << dx << " " << dy << " bx/by:" << bx << " " << by << " pkg id of bx/by: "
+//						<< buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS].pkg_id_ <<
+//						", pos_buf_pos_speed_est: " << buffer->pos_buf_pos_speed_est << "\n";
+//			}
+
 			// update spike speed
 			// TODO: independent on previous operation ?
 			unsigned int known_speed_pkg_id = buffer->positions_buf_[buffer->pos_buf_pos_speed_est].pkg_id_;
@@ -59,6 +66,14 @@ void SpeedEstimationProcessor::process(){
 				//                std::cout << "Spike speed " << spike->speed << "\n";
 
 				dump_ << spike->x << " " << spike->y << " " << spike->speed << "\n";
+
+				// DEBUG
+//				if (spike->pkg_id_ == 951386){
+//					std::cout << "\nTEST SPIKE: " << spike->speed << " " << buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_].speed_
+//					<< " " << buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ << " " << buffer->pos_buf_pos_speed_est
+//					<< " " << buffer->pos_buf_pos_ << " " << buffer->spike_buf_pos_speed_ << " "
+//					<< buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_].pkg_id_ <<  "\n";
+//				}
 
 				buffer->spike_buf_pos_speed_ ++;
 			}
