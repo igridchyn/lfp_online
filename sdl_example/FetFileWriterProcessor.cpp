@@ -121,9 +121,4 @@ void FetFileWriterProcessor::process() {
 				spk_file << "\n";
 		}
 	}
-
-	if (!whl_start_written_ && buffer->pos_first_pkg_ >= 0){
-		(*whl_file_) << buffer->pos_first_pkg_ << "\n";
-		whl_start_written_ = true;
-	}
 }

@@ -77,10 +77,6 @@ void PackageExractorProcessor::process(){
 
     	char pos_flag = *((char*)pos_chunk + 3);
     	if (pos_flag != '1'){
-    		if (buffer->pos_first_pkg_ == -1){
-    			buffer->pos_first_pkg_ = buffer->last_pkg_id + c;
-    		}
-
     		// extract position
     		unsigned short bx = *((unsigned short*)(pos_chunk + 16));
     		unsigned short by = *((unsigned short*)(pos_chunk + 18));
