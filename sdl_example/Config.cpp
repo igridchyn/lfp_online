@@ -251,9 +251,10 @@ Config::~Config() {
 	log_.close();
 }
 
-void Config::Log() {
+void Config::Log(bool nocout) {
 	log_ << log_string_stream_.str();
-	std::cout << log_string_stream_.str();
+	if (!nocout)
+		std::cout << log_string_stream_.str();
 	log_string_stream_.str(std::string());
 }
 
@@ -320,7 +321,7 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 
 			params_[key] = value;
 			log_string_stream_ << " " << key << " = " << value << "\n";
-			Log();
+			Log(true);
 
 			if (key == "spike.reader.files.number"){
 				int nfiles = atoi(value.c_str());

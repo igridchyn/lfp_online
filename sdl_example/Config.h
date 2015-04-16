@@ -49,7 +49,7 @@ public:
 	template<class T>
 	void ReadList(std::ifstream& file, std::vector<T>& list);
 
-	void Log();
+	void Log(bool nocout = false);
 
 	Config(std::string path, unsigned int nparams = 0, char **params = nullptr);
 
