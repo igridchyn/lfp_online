@@ -134,7 +134,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 	std::vector<VertexNode> nodes;
 
 	// TODO !!! CHECK
-	const double NN_EPS = 0.1; // 0.01
+	const double NN_EPS = 0.1;
 	ANNidx *nn_idx = new ANNidx[NNEIGB];
 	ANNdist *dd = new ANNdist[NNEIGB];
 	ANNpointArray tree_points = full_tree.thePoints();
