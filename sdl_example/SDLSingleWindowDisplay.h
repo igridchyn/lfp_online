@@ -21,6 +21,7 @@ protected:
 
     ColorPalette palette_;
 
+    unsigned int text_stack_width_ = 0;
 	unsigned int text_stack_height_ = 0;
 
     virtual void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
@@ -28,8 +29,8 @@ protected:
 
     // TEXT
     virtual void ResetTextStack();
-    virtual void TextOut(std::string text, int x, int y);
-    virtual void TextOut(std::string text);
+    virtual void TextOut(std::string text, int x, int y, int color = 0xFFFFFF, bool shift = true);
+    virtual void TextOut(std::string text, int col = 0xFFFFFF, bool shift = true);
 
     // Graphics
     virtual void DrawCross(int w, int x, int y);

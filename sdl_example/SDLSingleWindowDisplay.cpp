@@ -66,14 +66,14 @@ unsigned int SDLSingleWindowDisplay::GetWindowID() {
 }
 
 
-void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y) {
+void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y, int col, bool shift) {
 	TTF_Init();
 #ifndef _WIN32
 	TTF_Font *font = TTF_OpenFont("FreeSerif.ttf", 15);
 #else
 	TTF_Font *font = TTF_OpenFont("../Res/FORTE.TTF", 15);
 #endif
-	SDL_Color color = { 255, 255, 255 };
+	SDL_Color color = { ColorPalette::getColorR(col), ColorPalette::getColorG(col), ColorPalette::getColorB(col) };
 	SDL_Surface * surface = TTF_RenderText_Solid(font, text.c_str(), color);
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer_,  surface);
 	int texW = 0;
@@ -84,11 +84,16 @@ void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y) {
 	TTF_CloseFont(font);
 	TTF_Quit();
 
-	text_stack_height_ += texH;
+	text_stack_width_ += texW;
+
+	if (shift){
+		text_stack_height_ += texH;
+		text_stack_width_ = 0;
+	}
 }
 
-void SDLSingleWindowDisplay::TextOut(std::string text) {
-	TextOut(text, 0, text_stack_height_);
+void SDLSingleWindowDisplay::TextOut(std::string text, int col, bool shift) {
+	TextOut(text, text_stack_width_, text_stack_height_, col, shift);
 }
 
 void SDLSingleWindowDisplay::DrawCross(int w, int x, int y) {

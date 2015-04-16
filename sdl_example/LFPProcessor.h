@@ -56,6 +56,10 @@ public:
     static const ColorPalette BrewerPalette12;
     static const ColorPalette MatlabJet256;
     
+    static inline int getColorR(int color) { return (color & 0xFF0000) >> 16; }
+    static inline int getColorG(int color){ return (color & 0x00FF00) >> 8; }
+    static inline int getColorB(int color) { return color & 0x0000FF; }
+
     inline const int& NumColors() const { return num_colors_; }
 };
 
