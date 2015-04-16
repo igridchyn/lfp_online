@@ -255,9 +255,6 @@ public:
     std::vector<std::vector<unsigned int>> swrs_;
     std::vector<int> swr_pointers_;
 
-    // to be initialized when first pos package is detected
-    int pos_first_pkg_ = -1;
-
 private:
 	std::ofstream log_stream;
 

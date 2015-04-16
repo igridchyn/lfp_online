@@ -79,8 +79,8 @@ typedef short t_bin;
     } else {
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
-//    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
-    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
+    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
+//    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 //    	config = new Config("../Res/spike_display_jc118_1003.conf");
 //    	config = new Config("../Res/spike_dump.conf");
 //    	config = new Config("../Res/spike_display.conf");

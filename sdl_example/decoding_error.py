@@ -150,9 +150,9 @@ def gradient_descent():
 		pvals = parbest[:]
 #============================================================================================================
 if len(argv) > 3:
-	flog = open('log_opt.txt', 'a')i
+	flog = open('log_opt.txt', 'a')
 	dt = datetime.now()
-	flog.write('OPTIMIZATION SESSION: ' str(dt) + '\n')
+	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
 	
 
