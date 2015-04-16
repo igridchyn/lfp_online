@@ -85,6 +85,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     	spikes_to_draw_[c] = new SDL_Point[spikes_draw_freq_];
 	}
     spikes_counts_.resize(MAX_CLUST);
+
+    display_cluster_.resize(MAX_CLUST, true);
 }
 
 void SDLPCADisplayProcessor::process(){
@@ -151,6 +153,11 @@ void SDLPCADisplayProcessor::process(){
 
         // TODO ??? don't display artifacts and unknown with the same color
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
+
+        if (! display_cluster_[cid]){
+        	buffer->spike_buf_no_disp_pca++;
+        	continue;
+        }
 
         // if not online, collect and draw in batches
         if (buffer->pipeline_status_ != PIPELINE_STATUS_ONLINE){
@@ -252,7 +259,12 @@ void SDLPCADisplayProcessor::process(){
 		// too slow, don't display during load
 		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 			ResetTextStack();
-			TextOut(std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_ + 1]);
+			std::string text = std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_ + 1] + "( channels:";
+			for (int c=0; c < buffer->tetr_info_->channels_number(target_tetrode_); ++c){
+				text += std::string(" ") + Utils::Converter::int2str((int)buffer->tetr_info_->tetrode_channels[target_tetrode_][c]);
+			}
+			text += ")";
+			TextOut(text);
 		}
 		double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 		std::stringstream ss;
@@ -447,6 +459,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         unsigned int old_comp1 = comp1_;
         unsigned int old_comp2 = comp2_;
 
+        bool kp_pressed_ = false;
+
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
@@ -563,33 +577,43 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 break;
             case SDLK_KP_1:
                 comp2_ = 1 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_2:
                 comp2_ = 2 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_3:
                 comp2_ = 3 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_4:
                 comp2_ = 4 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_5:
                 comp2_ = 5 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_6:
                 comp2_ = 6 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_7:
                 comp2_ = 7;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_8:
                 comp2_ = 8;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_9:
                 comp2_ = 9;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_0:
                 comp2_ = 0 + shift;
+                kp_pressed_ = true;
                 break;
             case SDLK_KP_MINUS:
             	scale_ *= 1.1;
@@ -612,6 +636,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             default:
                 need_redraw = false;
 
+        }
+
+        if (kp_pressed_ && (kmod & KMOD_RALT)){
+        	display_cluster_[comp2_] = ! display_cluster_[comp2_];
+        	comp2_ = old_comp2;
+        	need_redraw = true;
         }
 
         if (comp1_ != old_comp1 || comp2_ != old_comp2){

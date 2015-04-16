@@ -95,6 +95,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 
 	SDL_Point *points_;
 
+	std::vector<bool> display_cluster_;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
