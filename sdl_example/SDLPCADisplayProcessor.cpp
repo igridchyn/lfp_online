@@ -29,7 +29,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , SDLControlInputProcessor(buffer)
 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 // paired qualitative brewer palette
-, palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928})
+, palette_(24, new int[24]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928,
+	0xD69EB3, 0x4FA884, 0xE2AF5A, 0x63D05C, 0xCB6AC9, 0xB34A4C, 0xBDEF3F, 0xAFAF30, 0xFA82A6, 0x9A6D6A, 0xBFBFC9, 0xE18958})
 , target_tetrode_(target_tetrode)
 , display_unclassified_(display_unclassified)
 , scale_(scale)
@@ -164,14 +165,14 @@ void SDLPCADisplayProcessor::process(){
         	spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
         }
         else{
-        	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
+        	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
         	SDL_RenderDrawPoint(renderer_, x, y);
         }
 
         // check if spike batch has to be drawn
         if (spikes_counts_[cid] >= spikes_draw_freq_)
         {
-        	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid),255);
+        	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
         	SDL_RenderDrawPoints(renderer_, &spikes_to_draw_[cid][0], spikes_counts_[cid]);
         	spikes_counts_[cid] = 0;
         }
@@ -179,7 +180,7 @@ void SDLPCADisplayProcessor::process(){
         // display refractory spike
         if (refractory_display_cluster_ >= 0 && spike->cluster_id_ == refractory_display_cluster_){
         	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
-				SDL_SetRenderDrawColor(renderer_, 255, 0, 0,255);
+				SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
 				// red = 5
 				DrawCross(3, x, y, 5);
         	}
@@ -265,6 +266,12 @@ void SDLPCADisplayProcessor::process(){
 			}
 			text += ")";
 			TextOut(text);
+
+			// cluster numbers
+			for (int c=1; c < 20; ++c){
+				if (display_cluster_[c])
+					TextOut(std::string(Utils::NUMBERS[c]) + " ", palette_.getColor(c), false);
+			}
 		}
 		double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 		std::stringstream ss;
