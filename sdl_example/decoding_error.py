@@ -4,7 +4,7 @@ import os, time
 import numpy as np
 import pylab as P
 from subprocess import call, Popen
-from datetime import *
+import datetime
 
 def decoding_errors():
 	print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
@@ -151,7 +151,7 @@ def gradient_descent():
 #============================================================================================================
 if len(argv) > 3:
 	flog = open('log_opt.txt', 'a')
-	dt = datetime.now()
+	dt = datetime.datetime.now()
 	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
 	

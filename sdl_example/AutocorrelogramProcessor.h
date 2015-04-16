@@ -32,6 +32,8 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     // number of clusters in one row
     // TODO define from window width
     const int XCLUST = 8;
+    const int XCLUST_CC = 6;
+    const int YCLUST_CC = 5;
     // height of the plot in pixels
     const unsigned int ypix_ = 100;
 
@@ -60,6 +62,9 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     bool reset_mode_ = false;
     unsigned int reset_mode_end_ = 0;
     unsigned int reset_cluster_ = -1;
+
+    unsigned int shift_xx_x_ = 0;
+    unsigned int shift_xx_y_ = 0;
 
     unsigned int getCCXShift(const unsigned int& clust1, const unsigned int& clust2);
     unsigned int getCCYShift(const unsigned int& clust1, const unsigned int& clust2);

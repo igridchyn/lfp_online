@@ -259,16 +259,17 @@ unsigned int AutocorrelogramProcessor::getYShift(int clust) {
 
 unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1,
 		const unsigned int& clust2) {
-	// TODO !!! dont use XCLUST, implement paging ??? [XCLU_SHIFT, YCLU_SHIFT, controlled by arrows and controllable by arros]
+	// TODO below
 	// 	+ set corresponding when a pair is chosen
 	//  + cluster select
 	// 	+ miniaturized preview (with 1-sized bins without interval)
-	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * ((clust1 - 2) % XCLUST) + (CC_BWIDTH + 1) * NBINS;
+	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * (((int)clust1) % XCLUST_CC) + (CC_BWIDTH + 1) * NBINS;
 }
 
 unsigned int AutocorrelogramProcessor::getCCYShift(const unsigned int& clust1,
 		const unsigned int& clust2) {
-	return (clust2 - 1) * ypix_ + 100;
+	unsigned int shift = (((int)clust2 % YCLUST_CC)) * ypix_ + 100;
+	return shift;
 }
 
 
@@ -300,8 +301,8 @@ void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
 		plotAC(tetrode, cluster);
 	}
 	else{
-		for (int c = 0; c < cluster; ++c){
-			plotCC(tetrode, cluster, c);
+		for (int c = 0; c < std::min<int>(YCLUST_CC, MAX_CLUST - shift_xx_y_ * YCLUST_CC); ++c){
+			plotCC(tetrode, cluster + shift_xx_x_ * XCLUST_CC, c + shift_xx_y_ * YCLUST_CC);
 		}
 	}
 }
@@ -334,8 +335,8 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 	SDL_RenderClear(renderer_);
 	//SDL_RenderPresent(renderer_);
-
-	for (unsigned int c=0; c < MAX_CLUST; ++c) {
+	int limit = (display_mode_ == AC_DISPLAY_MODE_AC ? (unsigned int)XCLUST : (std::min<int>(XCLUST_CC, (int)MAX_CLUST - XCLUST_CC * shift_xx_x_)));
+	for (int c=0; c < limit; ++c) {
 		plotACorCCs(display_tetrode_, c);
 	}
 
@@ -427,10 +428,31 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 
 			break;
 
+		case SDLK_RIGHT:
+			shift_xx_x_ += 1;
+			SetDisplayTetrode(display_tetrode_);
+			break;
+
+		case SDLK_LEFT:
+			if(shift_xx_x_ > 0)
+				shift_xx_x_ -= 1;
+			SetDisplayTetrode(display_tetrode_);
+			break;
+
+		case SDLK_UP:
+			if(shift_xx_y_ > 0)
+				shift_xx_y_ -= 1;
+			SetDisplayTetrode(display_tetrode_);
+			break;
+
+		case SDLK_DOWN:
+			shift_xx_y_ ++;
+			SetDisplayTetrode(display_tetrode_);
+			break;
+
 		default:
 			break;
 		}
-
 	}
 }
 
