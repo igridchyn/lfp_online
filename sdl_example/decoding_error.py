@@ -3,6 +3,7 @@ from sys import argv
 import os, time
 import numpy as np
 import pylab as P
+from subprocess import call, Popen
 
 def decoding_errors():
 	print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
@@ -74,6 +75,81 @@ def decoding_errors():
 			classcorr += 1
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)
+#========================================================================================================
+def run_model_and_decoding(pnames, pvals):
+	parstring = ['./lfp_online']
+	parstring.append(argv[3])
+	for p in range(0, len(pnames)):
+		parstring.append(pnames[p] + '=' + str(pvals[p]) + ' ')
+	
+	# run model build
+	print 'Start model build with params ', parstring
+	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
+	subp.wait()
+	# run decoding
+	parstring[1] = argv[4]
+	print 'Start decoding with params ', parstring
+	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
+	subp.wait()
+
+#========================================================================================================
+def log(s):
+	print s
+	flog.write(s + '\n')
+
+#========================================================================================================
+
+# read param names, starting values and steps
+pnames=[]
+pvals=[]
+psteps=[]
+fpar = open(argv[2])
+pnum = int(fpar.readline())
+for p in range(0, pnum):
+	pnames.append(fpar.readline()[:-1])
+	pvals.append(float(fpar.readline()))
+	psteps.append(float(fpar.readline()))
+
+print 'Optimize params: ', pnames
+print os.getcwd()
+# exit(0)
+
+flog = open('log_opt.txt', 'a')
+
+parbest = []
+precbest = 0
+errthold = 25
+errbest = 0
+prevbest = -1
+# iteratively find new best set of parameters while have improvement
+while precbest > prevbest:
+	prevbest = precbest
+	for p in range(0, pnum):
+		# run with changed p-th param (+/-)
+		for dp in (-psteps[p], psteps[p]):
+			pvals[p] += dp
+			run_model_and_decoding(pnames, pvals)
+			sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
+			mederr = np.median(np.array(errs))
+			classprec = classcorr * 100 / classn
+
+			log('Done estimation for params ' + str(pvals))
+			log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
+
+			if classprec > precbest and mederr < errthold:
+				print 'New BEST!'
+				precbest = classprec
+				parbest = pvals[:]
+				errbest = mederr
+
+			# return old param value
+			pvals[p] -= dp
+
+	log('Iteration over, new best params: ' + str(parbest))
+	log('BEST Med. error / classification error: %.2f / %.1f%%' %(errbest, precbest))
+
+	pvals = parbest[:]
+#============================================================================================================
 
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 
