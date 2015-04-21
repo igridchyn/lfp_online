@@ -193,6 +193,44 @@ public:
 
 //==========================================================================================
 
+class BinaryPopulationClassifierProcessor : public LFPProcessor{
+
+public:
+	// list of clusters to be used
+	std::vector<std::vector<unsigned int> > clusters_used_;
+	// whether cluster should be used for decoding - duplicates previous for efficiency
+	std::vector< std::vector<bool> > use_cluster_;
+
+
+	// distribution of number of spikes in window
+	// [env][tetr][cluster][count]
+	std::vector<std::vector<std::vector< std::vector<unsigned int> > > > spike_count_stats_;
+	// number of spikes in current window
+	// [tetr][cluster]
+	std::vector< std::vector<unsigned int> > instant_counts_;
+
+	const unsigned int WINDOW = 2400;
+	const unsigned SAMPLE_END = 22.6 * 60 * 24000;
+	float speed_limit_ = 2.0;
+	const unsigned int MAX_CLUST = 50;
+	const unsigned int MAX_SPIKE_COUNT = 20;
+
+	// threshold to define in which environment is current window
+	const unsigned int ENV_THOLD = 43 * 4;
+	unsigned int last_pkg_id_ = 0;
+
+	// -1 => still unknown
+	int current_environment_ = 0;
+
+	bool distribution_reported_ = false;
+
+public:
+	BinaryPopulationClassifierProcessor(LFPBuffer *buf);
+	virtual ~BinaryPopulationClassifierProcessor() {}
+
+	virtual void process();
+	virtual inline std::string name() { return "Binary Population Classifier"; }
+};
 
 
 

@@ -98,6 +98,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new BinFileReaderProcessor(buf));
 		} else if(proc_name == "FiringRateEstimator"){
 			processors.push_back(new FiringRateEstimatorProcessor(buf));
+		} else if (proc_name == "BinaryPopulationClassifier"){
+			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
 		}
 		else{
 			buf->Log(std::string("ERROR: Unknown processor: ") + proc_name + ". Terminating...");

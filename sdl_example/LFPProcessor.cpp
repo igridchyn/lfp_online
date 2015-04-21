@@ -366,3 +366,103 @@ void Spike::assignExtraFeaturePointers() {
 
 Spike::Spike() {
 }
+
+BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
+		LFPBuffer* buf)
+: LFPProcessor(buf)
+{
+	spike_count_stats_.resize(2);
+
+	for (unsigned int e=0; e < 2; ++e){
+		spike_count_stats_[e].resize(buf->tetr_info_->tetrodes_number());
+
+		if (e == 0)
+			instant_counts_.resize(buf->tetr_info_->tetrodes_number());
+
+		use_cluster_.resize(buf->tetr_info_->tetrodes_number());
+		clusters_used_.resize(buf->tetr_info_->tetrodes_number());
+
+		for (unsigned int t=0; t < buf->tetr_info_->tetrodes_number(); ++t){
+			spike_count_stats_[e][t].resize(MAX_CLUST);
+
+			if (e == 0){
+				instant_counts_[t].resize(MAX_CLUST);
+				use_cluster_[t].resize(MAX_CLUST);
+			}
+
+			for (unsigned int c=0; c < MAX_CLUST; ++c){
+				spike_count_stats_[e][t][c].resize(MAX_SPIKE_COUNT);
+			}
+		}
+	}
+
+	unsigned int apos = 0;
+	std::vector<unsigned int>& disc = buf->config_->discriminators_;
+	while (apos < disc.size()){
+		unsigned int t = disc[apos++];
+		unsigned int nclu = disc[apos++];
+		for (unsigned int c = 0; c < nclu; ++c){
+			unsigned int clu = disc[apos++];
+			use_cluster_[t][clu] = true;
+			clusters_used_[t].push_back(clu);
+		}
+	}
+}
+
+void BinaryPopulationClassifierProcessor::process() {
+	while(buffer->spike_buf_pos_binary_classifier_  < std::min<unsigned int>(buffer->spike_buf_pos_speed_, buffer->spike_buf_no_disp_pca)){
+		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_binary_classifier_];
+
+		if (spike == nullptr || spike->discarded_ || spike->cluster_id_ <= 0 ||
+				spike->speed < speed_limit_ || !use_cluster_[spike->tetrode_][spike->cluster_id_]){
+			buffer->spike_buf_pos_binary_classifier_ ++;
+			continue;
+		}
+
+		if (spike->pkg_id_ > last_pkg_id_ + WINDOW){
+			// update statistics and reset counters if environment is known
+			if (current_environment_ >= 0){
+				for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+					for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
+						spike_count_stats_[current_environment_][t][clusters_used_[t][c]][ instant_counts_[t][clusters_used_[t][c]] ] ++;
+						instant_counts_[t][clusters_used_[t][c]] = 0;
+					}
+				}
+			}
+
+			last_pkg_id_ = last_pkg_id_ + WINDOW;
+
+			if (spike->x < 1000)
+				current_environment_ = spike->x < 172 ? 0 : 1;
+			else
+				current_environment_ = -1;
+		}
+
+		if (current_environment_ == -1 && spike->x < 1000)
+			current_environment_ = spike->x < 172 ? 0 : 1;
+
+		instant_counts_[spike->tetrode_][spike->cluster_id_] ++;
+
+		if (spike->pkg_id_ > SAMPLE_END && !distribution_reported_){
+			Log("Report environment-wise spike count distributions");
+			// report distribution of spike counts
+			for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+				Log("Tetrode ", t);
+				for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
+					Log("Cluster ", clusters_used_[t][c]);
+					for(unsigned int env=0; env < 2; ++env){
+						unsigned int sc = 0;
+						Log("Environment ", env);
+						while ((spike_count_stats_[env][t][c][sc] > 0 || sc < 3) && sc < MAX_SPIKE_COUNT){
+							Log(" ", spike_count_stats_[env][t][clusters_used_[t][c]][sc++]);
+						}
+					}
+				}
+			}
+
+			distribution_reported_ = true;
+		}
+
+		buffer->spike_buf_pos_binary_classifier_ ++;
+	}
+}
