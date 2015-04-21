@@ -29,6 +29,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, wait_clust_(buf->config_->getBool("posdisp.wait.clust", false))
 	, pos_buf_pointer_limit_(buf->GetPosBufPointer(buf->config_->getString("posdisp.pointer.limit", "pos")))
 	, scale_(buf->config_->getFloat("posdisp.scale", 1.0f))
+	, speed_limit_(buf->config_->getFloat("posdisp.speed.limit", .0f))
 {
 	std::string pos_buf_name = buf->config_->getString("posdisp.pointer.limit", "pos");
 	if (pos_buf_name == buf->pos_buf_pointer_names_.POS_BUF_SPEED_EST){
@@ -114,6 +115,10 @@ void PositionDisplayProcessor::process(){
     const int rend_freq = 5;
     bool render = false;
     
+    if (buffer->pipeline_status_ != PIPELINE_STATUS_INPUT_OVER){
+    	return;
+    }
+
 //    while (buffer->pos_buf_disp_pos_ < buffer->pos_buf_pos_) {
     while (buffer->pos_buf_disp_pos_ < pos_buf_pointer_limit_) {
 
@@ -155,7 +160,7 @@ void PositionDisplayProcessor::process(){
     }
     
     // display spikes on a target tetrode
-    while (buffer->spike_buf_pos_draw_xy < buffer->spike_buf_pos_unproc_) {
+    while (buffer->spike_buf_pos_draw_xy < buffer->spike_buf_pos_speed_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_draw_xy];
         // wait until cluster is assigned
         
@@ -164,18 +169,12 @@ void PositionDisplayProcessor::process(){
             continue;
         }
         
-        if (spike->pc == nullptr || (spike->cluster_id_ == -1) || !display_cluster_[spike->cluster_id_]) // && !display_unclassified_))
-        {
-			if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_]) || (!wait_clust_ && (spike->cluster_id_ == -1))){
-                buffer->spike_buf_pos_draw_xy++;
-                continue;
-            }
-            else{
-                break;
-            }
+        if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_])
+        		|| (!wait_clust_ && (spike->cluster_id_ == -1)) || spike->speed < speed_limit_ || isnan(spike->speed)){
+        	buffer->spike_buf_pos_draw_xy++;
+        	continue;
         }
-        
-        // TODO: use spike position for display
+
         FillRect(spike->x * scale_, spike->y * scale_, spike->cluster_id_);
         buffer->spike_buf_pos_draw_xy++;
 
@@ -188,7 +187,7 @@ void PositionDisplayProcessor::process(){
     	SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
     	// draw_circle(245, 283, 230);
     	draw_circle(164, 188, 158);
-    	draw_circle(529, 185, 158);
+    	draw_circle(508, 185, 158);
 
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
