@@ -219,6 +219,8 @@ void FetFileReaderProcessor::openNextFile() {
 				exit(LFPONLINE_ERROR_FET_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 			}
 
+			Log(std::string("Open file: ") + path);
+
 			fet_streams_.push_back(new std::ifstream(path, binary_ ? std::ofstream::binary : std::ofstream::in));
 			if (read_spk_){
 				spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));

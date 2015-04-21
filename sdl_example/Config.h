@@ -40,6 +40,8 @@ public:
 
 	std::vector<unsigned int> synchrony_tetrodes_;
 
+	std::vector<unsigned int> discriminators_;
+
 	std::vector<std::string> spike_files_;
 
 	std::string config_path_;

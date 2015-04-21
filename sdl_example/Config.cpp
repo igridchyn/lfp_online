@@ -78,6 +78,7 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 	known_processors_.push_back("FetFileWriter");
 	known_processors_.push_back("BinFileReader");
 	known_processors_.push_back("FiringRateEstimator");
+	known_processors_.push_back("BinaryPopulationClassifier");
 
 	for (unsigned int i = 0; i < nparams; ++i){
 		std::string paramline(params[i]);
@@ -116,6 +117,11 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 
 		if (line == std::string("lfpdisp.channels")){
 			ReadList<unsigned int>(fconf, lfp_disp_channels_);
+			continue;
+		}
+
+		if (line == std::string("discriminators")){
+			ReadList<unsigned int>(fconf, discriminators_);
 			continue;
 		}
 
