@@ -134,7 +134,7 @@ void SDLPCADisplayProcessor::process(){
 
         // polygon cluster
         // TODO use scaled coordinates
-        if (spike->cluster_id_ == -1){
+        if (spike->cluster_id_ == -1 && need_clust_check_){
         	for (size_t i=0; i < polygon_clusters_[spike->tetrode_].size(); ++i){
         		// TODO use other dimensions if cluster has the other one
 
@@ -447,11 +447,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 //		std::cout << e.wheel.y << "\n";
 		scale_ *= pow(1.1, e.wheel.y);
 		need_redraw = true;
+		need_clust_check_ = false;
 	}
 
     if( e.type == SDL_KEYDOWN )
     {
     	need_redraw = true;
+    	need_clust_check_ = false;
 
         // select clusters from 10 to 29
         int shift = 0;
