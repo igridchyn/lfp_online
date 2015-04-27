@@ -3,11 +3,13 @@
 //  sdl_example
 //
 //  Created by Igor Gridchyn on 04/06/14.
-//  Copyright (c) 2014 Igor Gridchyn. All rights reserved.
+//  Copyright (c) 2014 Jozsef Csicsvari, Igor Gridchyn. All rights reserved.
 //
 
 #ifndef sdl_example_SpikeDetectorProcessor_h
 #define sdl_example_SpikeDetectorProcessor_h
+
+#include <mutex>
 
 class SpikeDetectorProcessor : public LFPProcessor{
     
@@ -32,6 +34,8 @@ class SpikeDetectorProcessor : public LFPProcessor{
     const unsigned int min_power_samples_;
 
     const unsigned int DET_THOLD_CALC_RATE_;
+
+    std::mutex spike_add_mtx_;
 
 public:
     SpikeDetectorProcessor(LFPBuffer* buffer);

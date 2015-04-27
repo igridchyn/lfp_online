@@ -147,7 +147,11 @@ void SpikeDetectorProcessor::process()
                 
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
 
+                spike_add_mtx_.lock();
                 Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos];
+                buffer->AddSpike(spike);
+                spike_add_mtx_.unlock();
+
                 buffer->FreeFeaturesMemory(spike);
                 buffer->FreeWaveshapeMemory(spike);
                 buffer->FreeFinalWaveshapeMemory(spike);
@@ -155,7 +159,6 @@ void SpikeDetectorProcessor::process()
                 	buffer->AllocateExtraFeaturePointerMemory(spike);
                 }
                 spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
-                buffer->AddSpike(spike);
                 
                 // DEBUG
                 buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
