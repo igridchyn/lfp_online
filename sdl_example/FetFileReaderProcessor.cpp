@@ -276,7 +276,9 @@ void FetFileReaderProcessor::process() {
 				Log(ss.str());
 
 				// DEBUG
-				Log("Last pos pkg id: ", buffer->positions_buf_[buffer->pos_buf_pos_ - 2].pkg_id_);
+				if (buffer->pos_buf_pos_ >= 2){
+					Log("Last pos pkg id: ", buffer->positions_buf_[buffer->pos_buf_pos_ - 2].pkg_id_);
+				}
 			}
 			buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 			if (exit_on_over_){
