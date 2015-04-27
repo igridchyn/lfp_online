@@ -124,6 +124,10 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 			ReadList<unsigned int>(fconf, discriminators_);
 			continue;
 		}
+		if (line == std::string("parallel")){
+			ReadList<unsigned int>(fconf, parallel_);
+			continue;
+		}
 
 		parse_line(fconf, line);
 	}
