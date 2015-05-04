@@ -7,6 +7,91 @@
 
 #include "FetFileReaderProcessor.h"
 #include <boost/filesystem.hpp>
+#include <armadillo>
+
+void cluster_gaussian(){
+	std::ifstream ffet("/hd1/data/processing/jc129/jc129_R2_0114_sub.fet.9");
+	std::ifstream fgaussians("/hd1/data/processing/jc129/jc129_R2_0114_sub.gauss");
+
+	int nclu = 0;
+	fgaussians >> nclu;
+	// cluster 1 is not present
+	nclu --;
+	int nfeat = 9;
+
+	std::vector<arma::mat> covi, mean;
+
+	for (int cl = 0; cl < nclu; ++cl){
+		covi.push_back(arma::mat(nfeat, nfeat));
+		mean.push_back(arma::mat(nfeat, 1));
+
+		for (int r=0; r < nfeat; ++r){
+			for (int c=0; c < nfeat; ++c){
+				fgaussians >> covi[cl](r, c);
+			}
+		}
+
+		if(cl == 1 || cl == 88){
+			std::cout << cl << "\n";
+			covi[cl].print();
+			std::cout << "\n";
+		}
+
+		for (int r=0; r < nfeat; ++r){
+			fgaussians >> mean[cl](r, 0);
+		}
+
+		if(cl == 1 || cl == 88){
+			mean[cl].print();
+			std::cout << "\n";
+		}
+	}
+
+	std::ofstream fclu("/hd1/data/processing/jc129/jc129_R2_0114_test.clu.9");
+
+	arma::mat spike(nfeat, 1);
+	int dummy = 0, scount = 0;
+	ffet >> dummy;
+	while (!ffet.eof()){
+		// read spike
+		for (int f = 0; f < 4; ++f){
+			ffet >> spike(f * 2, 0);
+			ffet >> spike(f * 2 + 1, 0);
+			ffet >> dummy;
+		}
+		ffet >> dummy; ffet >> dummy; ffet >> dummy; ffet >> dummy;
+		ffet >> spike(nfeat - 1, 0);
+
+		// classify - find min Mahalanobis
+		int minclu = -1;
+		double mindist = 1000000000.f;
+		arma::mat mah;
+//		std::cout << spike;
+		for (int cl = 0; cl < nclu; ++cl){
+			mah = (spike - mean[cl]).t() * covi[cl] * (spike - mean[cl]);
+			if (mah(0, 0) < mindist){
+				mindist = mah(0, 0);
+				minclu = cl;
+			}
+		}
+		fclu << minclu << "\n";
+
+		// DEBUG
+//		spike.print();
+//		std::cout << "\n";
+//		std::cout << minclu << "\n";
+//		covi[minclu].print();
+//		std::cout << "\n";
+//		mean[minclu].print();
+//		std::cout << "\n";
+
+		scount ++;
+		if (!(scount % 100000)){
+			std::cout << scount << " done \n";
+			exit(1);
+		}
+	}
+}
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 :FetFileReaderProcessor(buffer,
@@ -26,6 +111,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
 , pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
 , exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false)){
+	cluster_gaussian();
+
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
 
