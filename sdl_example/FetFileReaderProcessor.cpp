@@ -8,20 +8,57 @@
 #include "FetFileReaderProcessor.h"
 #include <boost/filesystem.hpp>
 #include <armadillo>
+#include <iomanip>
+
+int nclu = 0;
+unsigned int NJOBS = 12;
+unsigned int JOBSIZE = 100000;
+std::vector<unsigned int> clus_;
+std::vector<arma::mat> covi, mean;
+std::vector<std::vector<arma::mat> > data_;
+std::vector<std::thread*> jobs_;
+
+void cluster_thread(unsigned int job, unsigned int start_idx){
+	arma::mat mah;
+	clock_t start = clock();
+//		std::cout << spike;
+	for (unsigned int i=0; i < JOBSIZE; ++i){
+		int minclu = -1;
+		double mindist = 1000000000.f;
+
+		for (int cl = 0; cl < nclu; ++cl){
+			// ???!!!
+//			if (cl == 1)
+//				continue;
+
+			mah = (data_[job][i] - mean[cl]).t() * covi[cl] * (data_[job][i] - mean[cl]);
+			if (mah(0, 0) < mindist){
+				mindist = mah(0, 0);
+				minclu = cl;
+			}
+		}
+//		fclu << minclu << "\n";
+		clus_[start_idx + i] = minclu;
+	}
+	std::cout << std::setprecision(3) << "Done job # " << job << " in " << (clock() - start) / (float)CLOCKS_PER_SEC << " sec\n";
+}
 
 void cluster_gaussian(){
 	std::ifstream ffet("/hd1/data/processing/jc129/jc129_R2_0114_sub.fet.9");
 	std::ifstream fgaussians("/hd1/data/processing/jc129/jc129_R2_0114_sub.gauss");
 
-	int nclu = 0;
 	fgaussians >> nclu;
 	// cluster 1 is not present
 	nclu --;
 	int nfeat = 9;
 
-	std::vector<arma::mat> covi, mean;
+	// for skipping fet
+	int dummy = 0;
 
+	// read Gaussians
 	for (int cl = 0; cl < nclu; ++cl){
+		fgaussians >> dummy;
+
 		covi.push_back(arma::mat(nfeat, nfeat));
 		mean.push_back(arma::mat(nfeat, 1));
 
@@ -46,35 +83,57 @@ void cluster_gaussian(){
 			std::cout << "\n";
 		}
 	}
-
-	std::ofstream fclu("/hd1/data/processing/jc129/jc129_R2_0114_test.clu.9");
-
-	arma::mat spike(nfeat, 1);
-	int dummy = 0, scount = 0;
+	// total number of spikes read
+	int scount = 0;
 	ffet >> dummy;
+
+	clus_.resize(40000000);
+	unsigned int npoints = 0, curjob = 0;
+	data_.resize(NJOBS);
+	for (unsigned int j=0;j < NJOBS; ++j){
+		data_[j].resize(JOBSIZE);
+		for (unsigned int s=0;s < JOBSIZE; ++s){
+			data_[j][s] = arma::mat(nfeat, 1);
+		}
+	}
+
 	while (!ffet.eof()){
 		// read spike
 		for (int f = 0; f < 4; ++f){
-			ffet >> spike(f * 2, 0);
-			ffet >> spike(f * 2 + 1, 0);
+			ffet >> data_[curjob][npoints](f * 2, 0);
+			ffet >> data_[curjob][npoints](f * 2 + 1, 0);
 			ffet >> dummy;
 		}
 		ffet >> dummy; ffet >> dummy; ffet >> dummy; ffet >> dummy;
-		ffet >> spike(nfeat - 1, 0);
+		ffet >> data_[curjob][npoints](nfeat - 1, 0);
 
-		// classify - find min Mahalanobis
-		int minclu = -1;
-		double mindist = 1000000000.f;
-		arma::mat mah;
-//		std::cout << spike;
-		for (int cl = 0; cl < nclu; ++cl){
-			mah = (spike - mean[cl]).t() * covi[cl] * (spike - mean[cl]);
-			if (mah(0, 0) < mindist){
-				mindist = mah(0, 0);
-				minclu = cl;
+		// for current job
+		npoints ++;
+		// total
+		scount ++;
+		// if enough points, start job in new thread
+		if (npoints == JOBSIZE){
+			if (jobs_.size() < NJOBS){
+				std::cout << "Start new job # " << curjob << " with spikes starting " << scount - JOBSIZE << "!\n";
+				jobs_.push_back(new std::thread(&cluster_thread, curjob, scount - JOBSIZE));
+			}else{
+				// wait for job to finish
+				std::cout << "Wait for job to finish!\n";
+				jobs_[curjob]->join();
+				std::cout << "Finished job " << curjob << "!\n";
+				std::cout << "Current spike count = " << scount << "\n";
+				// TODO DELETE
+				std::cout << "Start new job # " << curjob << " with spikes starting " << scount - JOBSIZE << "!\n";
+				jobs_[curjob] = new std::thread(&cluster_thread, curjob, scount - JOBSIZE);
 			}
+
+			curjob ++;
+			if (curjob == NJOBS){
+				curjob = 0;
+			}
+
+			npoints = 0;
 		}
-		fclu << minclu << "\n";
 
 		// DEBUG
 //		spike.print();
@@ -85,12 +144,46 @@ void cluster_gaussian(){
 //		mean[minclu].print();
 //		std::cout << "\n";
 
-		scount ++;
 		if (!(scount % 100000)){
 			std::cout << scount << " done \n";
-			exit(1);
+		}
+
+		// DEBUG
+//		if (scount >= 2050000){
+//			std::cout << "break\n";
+//			break;
+//		}
+	}
+
+	// start with last piece of data
+	std::cout << "Wait for job to finish!\n";
+	jobs_[curjob]->join();
+	std::cout << "Finished job " << curjob << "!\n";
+	std::cout << "Current spike count = " << scount << "\n";
+	// TODO DELETE
+	jobs_[curjob] = new std::thread(&cluster_thread, curjob, scount - npoints);
+	curjob ++;
+
+	// wait for all jobs to finish
+	std::cout << "Wait for ALL threads...\n";
+	for (unsigned int j=0; j < NJOBS; ++j){
+		if (jobs_[j]->joinable()){
+			jobs_[j]->join();
+			std::cout << "Joined thread # " << j << "\n";
 		}
 	}
+	std::cout << "Joined all threads\n";
+
+	// write clu
+	std::ofstream fclu("/hd1/data/processing/jc129/jc129_R2_0114.clu.9");
+	fclu << nclu + 1 << "\n";
+	for (int s = 0; s < scount - 1; ++s){
+		fclu << clus_[s] + 2 << "\n";
+	}
+	fclu.flush();
+	std::cout << "CLU written\n";
+
+	exit(0);
 }
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
