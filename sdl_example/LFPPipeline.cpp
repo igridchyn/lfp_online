@@ -108,6 +108,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 
 		processor_numbers[proc_name] ++;
 	}
+
+	pipeline_thread_ = new std::thread(&LFPPipeline::process, this);
 }
 
 LFPPipeline::~LFPPipeline(){
@@ -120,9 +122,19 @@ LFPPipeline::~LFPPipeline(){
 }
 
 void LFPPipeline::process(){
-    for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
-        (*piter)->process();
-    }
+	while(true)
+	{
+		std::unique_lock<std::mutex> lk(mtx_data_add_);
+		cv_data_added_.wait(lk, [this]{return data_added_;});
+
+		for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
+			(*piter)->process();
+		}
+
+		data_added_ = false;
+		lk.unlock();
+		cv_data_added_.notify_one();
+	}
 }
 
 LFPProcessor *LFPPipeline::get_processor(const unsigned int& index){

@@ -10,6 +10,7 @@
 #define __sdl_example__LFPPipeline__
 
 #include <iostream>
+#include <condition_variable>
 
 #include "LFPProcessor.h"
 
@@ -18,6 +19,12 @@ class LFPONLINEAPI LFPPipeline{
 	LFPBuffer *buf_ = nullptr;
 
 public:
+	std::mutex mtx_data_add_;
+	std::condition_variable cv_data_added_;
+	bool data_added_;
+
+	std::thread *pipeline_thread_;
+
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
     void process();
     

@@ -2,6 +2,9 @@
 #include "LFPPipeline.h"
 #include "Config.h"
 #include "boost/filesystem.hpp"
+#include <condition_variable>
+
+#include "BinFileReaderProcessor.h"
 
 typedef short t_bin;
 
@@ -70,7 +73,7 @@ typedef short t_bin;
 //	  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
     Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift_MAC.conf");
 
-    //	Config *config = new Config("../Res/spike_detection_jc11.conf");
+    //	Config *config = new Config("../Res/spike_detehction_jc11.confmz");
 #else
     Config *config = nullptr;
 
@@ -79,8 +82,8 @@ typedef short t_bin;
     } else {
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
-    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
-//    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
+//    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
+    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 //    	config = new Config("../Res/spike_display_jc118_1003.conf");
 //    	config = new Config("../Res/spike_dump.conf");
 //    	config = new Config("../Res/spike_display.conf");
@@ -93,7 +96,7 @@ typedef short t_bin;
 //      config = new Config("../Res/spike_display_128.conf");
 
 //		config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
-//		config = new Config("../Res/decoding_jc118_1003_env1_2x.cz`onf"); // shifted map
+//		config = new Config("../Res/decoding_jc118_1003_env1_2x.conf"); // shifted map
 //		config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 
 //		*config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
@@ -106,8 +109,19 @@ typedef short t_bin;
 	LFPBuffer *buf = new LFPBuffer(config);
 	LFPPipeline *pipeline = new LFPPipeline(buf);
 
+	BinFileReaderProcessor *binreader = new BinFileReaderProcessor(buf);
+
 	while (true) {
-		pipeline->process();
+		{
+			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);
+			binreader->process();
+			pipeline->data_added_ = true;
+		}
+		pipeline->cv_data_added_.notify_one();
+		// TODO: wait to simulate real-time [1 25 us for 24 kHz]
+		usleep(125);
+
+//		pipeline->process();
 	}
 
 	return 0;
