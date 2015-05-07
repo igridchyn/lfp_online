@@ -11,36 +11,65 @@
 #include <iomanip>
 
 int nclu = 0;
+
 unsigned int NJOBS = 12;
 unsigned int JOBSIZE = 100000;
+double MD_THOLD = 17.0;
+double CLUST_SIZE_THOLD = 100.0;
+double TIME_VAR_THOLD = 1e-17;
+int NFEAT = 9;
+
 std::vector<unsigned int> clus_;
+std::vector<double> dists_;
+
+// cluster characteristics
 std::vector<arma::mat> covi, mean;
+std::vector<double> cluster_sizes_;
+
 std::vector<std::vector<arma::mat> > data_;
 std::vector<std::thread*> jobs_;
 
 void cluster_thread(unsigned int job, unsigned int start_idx){
 	arma::mat mah;
 	clock_t start = clock();
-//		std::cout << spike;
+
+	unsigned int found_first_pass_ = 0;
+
 	for (unsigned int i=0; i < JOBSIZE; ++i){
 		int minclu = -1;
 		double mindist = 1000000000.f;
 
+		// first pass: close enough to small clusters (ignore big and spread in time)
 		for (int cl = 0; cl < nclu; ++cl){
-			// ???!!!
-//			if (cl == 1)
-//				continue;
+			// skip big clusters
+			if (cluster_sizes_[cl] > CLUST_SIZE_THOLD || covi[cl](NFEAT - 1, NFEAT - 1) < TIME_VAR_THOLD)
+				continue;
 
 			mah = (data_[job][i] - mean[cl]).t() * covi[cl] * (data_[job][i] - mean[cl]);
-			if (mah(0, 0) < mindist){
+			if (mah(0, 0) < mindist && mah(0, 0) < MD_THOLD){
 				mindist = mah(0, 0);
 				minclu = cl;
 			}
 		}
-//		fclu << minclu << "\n";
+
+		// second pass if no cluster found: no limitations - include big clusters
+		if (minclu < 0){
+			for (int cl = 0; cl < nclu; ++cl){
+				mah = (data_[job][i] - mean[cl]).t() * covi[cl] * (data_[job][i] - mean[cl]);
+				if (mah(0, 0) < mindist){
+					mindist = mah(0, 0);
+					minclu = cl;
+				}
+			}
+		}else{
+			found_first_pass_ ++;
+		}
+
 		clus_[start_idx + i] = minclu;
+		dists_[start_idx + i] = mindist;
 	}
 	std::cout << std::setprecision(3) << "Done job # " << job << " in " << (clock() - start) / (float)CLOCKS_PER_SEC << " sec\n";
+	std::cout << "Assigned in first pass: " << found_first_pass_ << " / " << JOBSIZE << "\n";
 }
 
 void cluster_gaussian(){
@@ -50,50 +79,68 @@ void cluster_gaussian(){
 	fgaussians >> nclu;
 	// cluster 1 is not present
 	nclu --;
-	int nfeat = 9;
 
 	// for skipping fet
 	int dummy = 0;
+	double clu_size_ = .0;
 
 	// read Gaussians
 	for (int cl = 0; cl < nclu; ++cl){
+		// cluster number
 		fgaussians >> dummy;
+		fgaussians >> clu_size_;
 
-		covi.push_back(arma::mat(nfeat, nfeat));
-		mean.push_back(arma::mat(nfeat, 1));
+		cluster_sizes_.push_back(clu_size_);
+		covi.push_back(arma::mat(NFEAT, NFEAT));
+		mean.push_back(arma::mat(NFEAT, 1));
 
-		for (int r=0; r < nfeat; ++r){
-			for (int c=0; c < nfeat; ++c){
+		for (int r=0; r < NFEAT; ++r){
+			for (int c=0; c < NFEAT; ++c){
 				fgaussians >> covi[cl](r, c);
 			}
 		}
 
-		if(cl == 1 || cl == 88){
+		if(cl < 300){
 			std::cout << cl << "\n";
 			covi[cl].print();
 			std::cout << "\n";
 		}
 
-		for (int r=0; r < nfeat; ++r){
+		for (int r=0; r < NFEAT; ++r){
 			fgaussians >> mean[cl](r, 0);
 		}
 
-		if(cl == 1 || cl == 88){
+		if(cl < 300){
 			mean[cl].print();
 			std::cout << "\n";
 		}
 	}
+
+	unsigned int n_large_clu = 0, n_large_time_var = 0;
+	for (int cl=0; cl < nclu; ++cl){
+		if (cluster_sizes_[cl] > CLUST_SIZE_THOLD)
+			n_large_clu ++;
+
+		if(covi[cl](NFEAT - 1, NFEAT - 1) < TIME_VAR_THOLD){
+			n_large_time_var ++;
+		}
+
+	}
+	std::cout << n_large_clu << " largest clusters will not be considered in the first assignment pass!\n";
+	std::cout << n_large_time_var << " clusters with large time variance will not be considered in the first assignment pass!\n";
+
 	// total number of spikes read
 	int scount = 0;
 	ffet >> dummy;
 
 	clus_.resize(40000000);
+	dists_.resize(40000000);
 	unsigned int npoints = 0, curjob = 0;
 	data_.resize(NJOBS);
 	for (unsigned int j=0;j < NJOBS; ++j){
 		data_[j].resize(JOBSIZE);
 		for (unsigned int s=0;s < JOBSIZE; ++s){
-			data_[j][s] = arma::mat(nfeat, 1);
+			data_[j][s] = arma::mat(NFEAT, 1);
 		}
 	}
 
@@ -105,7 +152,7 @@ void cluster_gaussian(){
 			ffet >> dummy;
 		}
 		ffet >> dummy; ffet >> dummy; ffet >> dummy; ffet >> dummy;
-		ffet >> data_[curjob][npoints](nfeat - 1, 0);
+		ffet >> data_[curjob][npoints](NFEAT - 1, 0);
 
 		// for current job
 		npoints ++;
@@ -176,11 +223,14 @@ void cluster_gaussian(){
 
 	// write clu
 	std::ofstream fclu("/hd1/data/processing/jc129/jc129_R2_0114.clu.9");
+	std::ofstream fdists("dists.txt");
 	fclu << nclu + 1 << "\n";
 	for (int s = 0; s < scount - 1; ++s){
 		fclu << clus_[s] + 2 << "\n";
+		fdists << dists_[s] << "\n";
 	}
 	fclu.flush();
+	fdists.flush();
 	std::cout << "CLU written\n";
 
 	exit(0);
