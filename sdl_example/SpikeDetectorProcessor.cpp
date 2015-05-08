@@ -146,11 +146,12 @@ void SpikeDetectorProcessor::process()
                 // printf("%d ", spike_pos);
                 
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
-
-                spike_add_mtx_.lock();
-                Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos];
-                buffer->AddSpike(spike);
-                spike_add_mtx_.unlock();
+                Spike *spike = nullptr;
+                {
+                	std::lock_guard<std::mutex> lk(spike_add_mtx_);
+                	spike = buffer->spike_buffer_[buffer->spike_buf_pos];
+                	buffer->AddSpike(spike);
+                }
 
                 buffer->FreeFeaturesMemory(spike);
                 buffer->FreeWaveshapeMemory(spike);

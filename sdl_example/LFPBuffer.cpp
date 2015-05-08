@@ -698,7 +698,7 @@ void LFPBuffer::FreeExtraFeaturePointerMemory(Spike* spike) {
 }
 
 void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
-	chunk_access_mtx_.lock();
+	std::lock_guard<std::mutex> lk(chunk_access_mtx_);
 
 	if (chunk_buf_ptr_in_ + data_size >= chunk_buf_len_){
 		Log("ERROR: input buffer overflow, continue anyway");
@@ -707,6 +707,4 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 
 	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);
 	chunk_buf_ptr_in_ += data_size;
-
-	chunk_access_mtx_.unlock();
 }

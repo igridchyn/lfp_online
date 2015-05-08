@@ -150,9 +150,10 @@ void PackageExractorProcessor::process(){
     buffer->last_pkg_id += 3 * num_chunks;
 
     // reset input data buffer pointers
-    buffer->chunk_access_mtx_.lock();
-    buffer->chunk_buf_ptr_in_ = 0;
-    buffer->chunk_access_mtx_.unlock();
+    {
+    	std::lock_guard<std::mutex> lk(buffer->chunk_access_mtx_);
+    	buffer->chunk_buf_ptr_in_ = 0;
+    }
 
 	// DEBUG
 //	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){
