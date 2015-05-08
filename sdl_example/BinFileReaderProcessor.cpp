@@ -97,7 +97,7 @@ void BinFileReaderProcessor::process() {
 	}
 	else if	(!end_bin_file_reported_){
 		// if last data has not been read yet
-		if (buffer->num_chunks > 0)
+		if (buffer->chunk_buf_ptr_in_ > 0)
 			return;
 
 		end_bin_file_reported_ = true;

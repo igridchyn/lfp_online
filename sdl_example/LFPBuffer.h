@@ -158,7 +158,6 @@ public:
 	const unsigned int CHANNEL_NUM = 64;
 
 	// Axona package configuration in bytes
-	const int CHUNK_SIZE = 432;
 	const int HEADER_LEN = 32;
 	const int TAIL_LEN = 16;
 	const int BLOCK_SIZE = 64;
@@ -295,7 +294,6 @@ public:
 	unsigned char *chunk_buf_ = nullptr;
 	size_t chunk_buf_len_ = 100 * 1024;
 	size_t chunk_buf_ptr_in_ = 0;
-	unsigned int num_chunks = 0;
 
 	std::vector<OnlineEstimator<float, float> > powerEstimators_;
 	OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];

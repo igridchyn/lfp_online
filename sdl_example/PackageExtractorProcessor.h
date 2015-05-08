@@ -22,6 +22,8 @@ class PackageExractorProcessor : public LFPProcessor{
 
 	bool skip_next_pkg_ = false;
 
+	const int CHUNK_SIZE = 432;
+
 public:
 	virtual std::string name();
     virtual void process();

@@ -45,8 +45,10 @@ void PackageExractorProcessor::process(){
         return;
     }
     
+    unsigned int num_chunks = buffer->chunk_buf_ptr_in_ / CHUNK_SIZE;
+
     // see if buffer reinit is needed, rewind buffer
-    if (buffer->buf_pos + 3 * buffer->num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
+    if (buffer->buf_pos + 3 * num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c){
 
         	if (!buffer->is_valid_channel_[c])
@@ -74,8 +76,8 @@ void PackageExractorProcessor::process(){
     unsigned char *bin_ptr = buffer->chunk_buf_ + buffer->HEADER_LEN;
     
     // read pos
-    for (unsigned int c=0; c < buffer->num_chunks; ++c){
-    	unsigned char *pos_chunk = buffer->chunk_buf_ + c * buffer->CHUNK_SIZE;
+    for (unsigned int c=0; c < num_chunks; ++c){
+    	unsigned char *pos_chunk = buffer->chunk_buf_ + c * CHUNK_SIZE;
 
     	char pos_flag = *((char*)pos_chunk + 3);
     	if (pos_flag != '1'){
@@ -116,7 +118,7 @@ void PackageExractorProcessor::process(){
     	}
     }
     
-    for (unsigned int chunk=0; chunk < buffer->num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
+    for (unsigned int chunk=0; chunk < num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
     	for (int block=0; block < 3; ++block) {
             short * sbin_ptr = (short*)bin_ptr;
             for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
@@ -143,14 +145,13 @@ void PackageExractorProcessor::process(){
         }
     }
 
-    buffer->buf_pos += 3 * buffer->num_chunks;
+    buffer->buf_pos += 3 * num_chunks;
 	// TODO extract from package
-    buffer->last_pkg_id += 3 * buffer->num_chunks;
+    buffer->last_pkg_id += 3 * num_chunks;
 
     // reset input data buffer pointers
     buffer->chunk_access_mtx_.lock();
     buffer->chunk_buf_ptr_in_ = 0;
-    buffer->num_chunks = 0;
     buffer->chunk_access_mtx_.unlock();
 
 	// DEBUG

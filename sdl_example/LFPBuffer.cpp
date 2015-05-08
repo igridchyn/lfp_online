@@ -319,7 +319,6 @@ LFPBuffer::LFPBuffer(Config* config)
 
     chunk_buf_ = new unsigned char[chunk_buf_len_];
     chunk_buf_ptr_in_ = 0;
-    num_chunks = 0;
 }
 
 template <class T>
@@ -708,8 +707,6 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 
 	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);
 	chunk_buf_ptr_in_ += data_size;
-
-	num_chunks += data_size / CHUNK_SIZE;
 
 	chunk_access_mtx_.unlock();
 }
