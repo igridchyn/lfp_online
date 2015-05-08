@@ -29,7 +29,7 @@ void PackageExractorProcessor::process(){
 //	skip_next_pkg_ = true;
 
     // IDLE processing, waiting for user input
-    if (buffer->chunk_ptr == nullptr){
+    if (buffer->chunk_buf_ == nullptr){
 //		buffer->Log("PEXTR: zero pointer, return");
     	if (!end_reported_){
     		Log("EOF reached!");
@@ -69,11 +69,13 @@ void PackageExractorProcessor::process(){
     // data extraction:
     // t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
     
-    unsigned char *bin_ptr = buffer->chunk_ptr + buffer->HEADER_LEN;
+    // Log("Read chunks: ", buffer->num_chunks);
+
+    unsigned char *bin_ptr = buffer->chunk_buf_ + buffer->HEADER_LEN;
     
     // read pos
     for (unsigned int c=0; c < buffer->num_chunks; ++c){
-    	unsigned char *pos_chunk = buffer->chunk_ptr + c * buffer->CHUNK_SIZE;
+    	unsigned char *pos_chunk = buffer->chunk_buf_ + c * buffer->CHUNK_SIZE;
 
     	char pos_flag = *((char*)pos_chunk + 3);
     	if (pos_flag != '1'){
@@ -140,10 +142,16 @@ void PackageExractorProcessor::process(){
             bin_ptr += 2 *  buffer->CHANNEL_NUM;
         }
     }
-    
+
     buffer->buf_pos += 3 * buffer->num_chunks;
 	// TODO extract from package
     buffer->last_pkg_id += 3 * buffer->num_chunks;
+
+    // reset input data buffer pointers
+    buffer->chunk_access_mtx_.lock();
+    buffer->chunk_buf_ptr_in_ = 0;
+    buffer->num_chunks = 0;
+    buffer->chunk_access_mtx_.unlock();
 
 	// DEBUG
 //	if (!(buffer->last_pkg_id % buffer->SAMPLING_RATE / 4)){

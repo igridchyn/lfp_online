@@ -316,6 +316,10 @@ LFPBuffer::LFPBuffer(Config* config)
     //DEBUG
     head_start_ = spike_buffer_[0];
     tail_start_ = spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN];
+
+    chunk_buf_ = new unsigned char[chunk_buf_len_];
+    chunk_buf_ptr_in_ = 0;
+    num_chunks = 0;
 }
 
 template <class T>
@@ -692,4 +696,20 @@ void LFPBuffer::AllocateExtraFeaturePointerMemory(Spike* spike) {
 
 void LFPBuffer::FreeExtraFeaturePointerMemory(Spike* spike) {
 	FreetPoolMemory<float*>(&spike->extra_features_, spike_extra_features_ptr_pool_);
+}
+
+void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
+	chunk_access_mtx_.lock();
+
+	if (chunk_buf_ptr_in_ + data_size >= chunk_buf_len_){
+		Log("ERROR: input buffer overflow, continue anyway");
+		// TODO : continue without data
+	}
+
+	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);
+	chunk_buf_ptr_in_ += data_size;
+
+	num_chunks += data_size / CHUNK_SIZE;
+
+	chunk_access_mtx_.unlock();
 }

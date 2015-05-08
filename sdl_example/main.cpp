@@ -119,7 +119,7 @@ typedef short t_bin;
 		}
 		pipeline->cv_data_added_.notify_one();
 		// TODO: wait to simulate real-time [1 25 us for 24 kHz]
-		usleep(125);
+//		usleep(25);
 
 //		pipeline->process();
 	}

@@ -17,6 +17,7 @@
 #include <queue>
 #include <sys/stat.h>
 #include <string>
+#include <mutex>
 
 #include "LFPOnline.h"
 #include "TetrodesInfo.h"
@@ -290,8 +291,11 @@ public:
 	// if shift has happened, what was the previous zero level;
 	int zero_level;
 
-	unsigned char *chunk_ptr = nullptr;
-	unsigned int num_chunks;
+	std::mutex chunk_access_mtx_;
+	unsigned char *chunk_buf_ = nullptr;
+	size_t chunk_buf_len_ = 100 * 1024;
+	size_t chunk_buf_ptr_in_ = 0;
+	unsigned int num_chunks = 0;
 
 	std::vector<OnlineEstimator<float, float> > powerEstimators_;
 	OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];
@@ -415,6 +419,8 @@ public:
 	// DEBUG
 	Spike *head_start_, *tail_start_;
 
+	// just add the data and move along
+	void add_data(unsigned char* new_data, size_t data_size);
 };
 
 template<class T>

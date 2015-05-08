@@ -74,8 +74,7 @@ void BinFileReaderProcessor::process() {
 	if (!feof(bin_file_)) {
 		fread((void*)block_, 1, chunk_size_ * nblock_, bin_file_);
 
-		buffer->chunk_ptr = block_;
-		buffer->num_chunks = nblock_;
+		buffer->add_data(block_, chunk_size_ * nblock_);
 	}
 	else if (current_file_ < files_list_.size() - 1)
 	{
@@ -97,10 +96,15 @@ void BinFileReaderProcessor::process() {
 		}
 	}
 	else if	(!end_bin_file_reported_){
+		// if last data has not been read yet
+		if (buffer->num_chunks > 0)
+			return;
+
 		end_bin_file_reported_ = true;
 		buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 		Log("Out of data packages. Press ESC to exit...\n");
-		buffer->chunk_ptr = nullptr;
+		delete buffer->chunk_buf_;
+		buffer->chunk_buf_ = nullptr;
 	}
 }
 
