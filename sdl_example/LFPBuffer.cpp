@@ -701,8 +701,9 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 	std::lock_guard<std::mutex> lk(chunk_access_mtx_);
 
 	if (chunk_buf_ptr_in_ + data_size >= chunk_buf_len_){
-		Log("ERROR: input buffer overflow, continue anyway");
+		Log("ERROR: input buffer overflow, cut the data, bytes: ", chunk_buf_ptr_in_ + data_size - chunk_buf_len_ );
 		// TODO : continue without data
+		data_size = chunk_buf_len_ - chunk_buf_ptr_in_;
 	}
 
 	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);
