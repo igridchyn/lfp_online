@@ -12,7 +12,7 @@
 
 int nclu = 0;
 
-unsigned int NJOBS = 12;
+unsigned int NJOBS = 10;
 unsigned int JOBSIZE = 100000;
 double MD_THOLD = 17.0;
 double CLUST_SIZE_THOLD = 100.0;
@@ -26,8 +26,136 @@ std::vector<double> dists_;
 std::vector<arma::mat> covi, mean;
 std::vector<double> cluster_sizes_;
 
+// [job][point]
 std::vector<std::vector<arma::mat> > data_;
 std::vector<std::thread*> jobs_;
+
+class HierarchicalCluster{
+public:
+	int id_ = -1;
+	std::vector<HierarchicalCluster> subclusters_;
+
+	arma::mat mean_;
+	arma::mat covi_;
+	double logdet_ = .0;
+
+	HierarchicalCluster() {};
+	HierarchicalCluster(std::ifstream &fclu);
+
+	static HierarchicalCluster read_from_file(std::string path);
+
+	void print_clu();
+
+	int cluster(const arma::mat& data);
+	double distance(const arma::mat& data);
+
+	void cluster_all(int job, int shift);
+};
+
+void HierarchicalCluster::cluster_all(int job, int shift){
+	for (size_t d = 0; d < JOBSIZE; ++d) {
+		int clu = cluster(data_[job][d]);
+		clus_[shift + d] = clu;
+//		std::cout << "point " << shift + d << " gets cluster " << clu << "\n";
+	}
+}
+
+double HierarchicalCluster::distance(const arma::mat& data){
+	arma::mat mah = (data - mean_).t() * covi_ * (data - mean_);
+	return mah(0, 0);
+}
+
+int HierarchicalCluster::cluster(const arma::mat& data){
+	if(id_ > 0){
+		return id_;
+	}
+	else{
+		double mindist = 1000000000000., dist = .0;
+		int minclu = -1;
+		for (size_t c = 0; c < subclusters_.size(); ++c) {
+			dist = subclusters_[c].distance(data);
+			if (dist < mindist){
+				mindist = dist;
+				minclu = c;
+			}
+		}
+
+		return subclusters_[minclu].cluster(data);
+	}
+}
+
+void HierarchicalCluster::print_clu(){
+	if (id_ > 0){
+		std::cout << id_ << " ";
+	}
+	else{
+		std::cout << " [ ";
+		for (size_t var = 0; var < subclusters_.size(); ++var) {
+			subclusters_[var].print_clu();
+		}
+		std::cout << " ] ";
+	}
+}
+
+HierarchicalCluster::HierarchicalCluster(std::ifstream &fclu){
+	fclu >> id_;
+
+	int nclust = 0;
+	if (id_ == -1){
+		fclu >> nclust;
+		// read sub-clusters
+		for (int c = 0; c < nclust; ++c) {
+			subclusters_.push_back(HierarchicalCluster(fclu));
+			if (subclusters_[subclusters_.size() - 1].id_ == 1000){
+				subclusters_.erase(subclusters_.end() - 1);
+			}
+		}
+	}
+
+	if (id_ == 1000)
+		return;
+
+	// if only deleted clusters have been present
+	if (id_ == -1 && subclusters_.size() == 0){
+		id_ = 1000;
+		return;
+	}
+
+	// read log det
+	fclu >> logdet_;
+
+	// read covi
+	covi_ = arma::mat(NFEAT, NFEAT, arma::fill::zeros);
+	for (int r=0; r < NFEAT; ++r){
+		for (int c=0; c < NFEAT; ++c){
+			fclu >> covi_(r, c);
+		}
+	}
+
+	// read mean
+	mean_ = arma::mat(NFEAT, 1, arma::fill::zeros);
+	for (int r=0; r < NFEAT; ++r){
+		fclu >> mean_(r, 0);
+	}
+}
+
+HierarchicalCluster HierarchicalCluster::read_from_file(std::string path){
+	std::ifstream fclu(path);
+	int ntop = 0;
+	fclu >> ntop;
+
+	HierarchicalCluster topclust;
+	topclust.id_ = -1;
+
+	for (int c = 0; c < ntop; ++c) {
+		topclust.subclusters_.push_back(HierarchicalCluster(fclu));
+		if (topclust.subclusters_[topclust.subclusters_.size() - 1].id_ == 1000){
+			topclust.subclusters_.erase(topclust.subclusters_.end() - 1);
+		}
+	}
+
+	return topclust;
+}
 
 void cluster_thread(unsigned int job, unsigned int start_idx){
 	arma::mat mah;
@@ -72,17 +200,15 @@ void cluster_thread(unsigned int job, unsigned int start_idx){
 	std::cout << "Assigned in first pass: " << found_first_pass_ << " / " << JOBSIZE << "\n";
 }
 
-void cluster_gaussian(){
-	std::ifstream ffet("/hd1/data/processing/jc129/jc129_R2_0114_sub.fet.9");
+void read_gaussians(){
 	std::ifstream fgaussians("/hd1/data/processing/jc129/jc129_R2_0114_sub.gauss");
 
 	fgaussians >> nclu;
 	// cluster 1 is not present
 	nclu --;
 
-	// for skipping fet
-	int dummy = 0;
 	double clu_size_ = .0;
+	int dummy = 0;
 
 	// read Gaussians
 	for (int cl = 0; cl < nclu; ++cl){
@@ -115,6 +241,20 @@ void cluster_gaussian(){
 			std::cout << "\n";
 		}
 	}
+}
+
+void cluster_gaussian(){
+	std::ifstream ffet("/hd1/data/processing/jc129/jc129_R2_0114_sub.fet.9");
+	// read_gaussians();
+
+	HierarchicalCluster headclust = HierarchicalCluster::read_from_file("/hd1/data/processing/jc129/cluster_tree.txt");
+	headclust.print_clu();
+
+	// TODO read from cluster tree
+	int nclu = 200;
+
+	// for skipping fet
+	int dummy = 0;
 
 	unsigned int n_large_clu = 0, n_large_time_var = 0;
 	for (int cl=0; cl < nclu; ++cl){
@@ -133,6 +273,7 @@ void cluster_gaussian(){
 	int scount = 0;
 	ffet >> dummy;
 
+	// allocate jobs data memeory
 	clus_.resize(40000000);
 	dists_.resize(40000000);
 	unsigned int npoints = 0, curjob = 0;
@@ -162,16 +303,24 @@ void cluster_gaussian(){
 		if (npoints == JOBSIZE){
 			if (jobs_.size() < NJOBS){
 				std::cout << "Start new job # " << curjob << " with spikes starting " << scount - JOBSIZE << "!\n";
-				jobs_.push_back(new std::thread(&cluster_thread, curjob, scount - JOBSIZE));
+				// hierarchical clustering
+				headclust.cluster_all(curjob, scount - JOBSIZE);
+//				jobs_.push_back(new std::thread(&HierarchicalCluster::cluster_all, &headclust, curjob, scount - JOBSIZE));
+				// min of all clusters
+//				jobs_.push_back(new std::thread(&cluster_thread, curjob, scount - JOBSIZE));
 			}else{
 				// wait for job to finish
-				std::cout << "Wait for job to finish!\n";
+				std::cout << "Wait for job " << curjob << " to finish!\n";
 				jobs_[curjob]->join();
 				std::cout << "Finished job " << curjob << "!\n";
 				std::cout << "Current spike count = " << scount << "\n";
 				// TODO DELETE
 				std::cout << "Start new job # " << curjob << " with spikes starting " << scount - JOBSIZE << "!\n";
-				jobs_[curjob] = new std::thread(&cluster_thread, curjob, scount - JOBSIZE);
+				// hierarchical clustering
+				headclust.cluster_all(curjob, scount - JOBSIZE);
+//				jobs_.push_back(new std::thread(&HierarchicalCluster::cluster_all, &headclust, curjob, scount - JOBSIZE));
+				// min of all clusters
+//				jobs_[curjob] = new std::thread(&cluster_thread, curjob, scount - JOBSIZE);
 			}
 
 			curjob ++;
@@ -203,17 +352,21 @@ void cluster_gaussian(){
 	}
 
 	// start with last piece of data
-	std::cout << "Wait for job to finish!\n";
-	jobs_[curjob]->join();
+	std::cout << "Wait for job to finish to place the last job!\n";
+//	jobs_[curjob]->join();
 	std::cout << "Finished job " << curjob << "!\n";
 	std::cout << "Current spike count = " << scount << "\n";
 	// TODO DELETE
-	jobs_[curjob] = new std::thread(&cluster_thread, curjob, scount - npoints);
+	// hierarchical clustering
+	headclust.cluster_all(curjob, scount - JOBSIZE);
+//	jobs_.push_back(new std::thread(&HierarchicalCluster::cluster_all, &headclust, curjob, scount - JOBSIZE));
+	// min of all clusters
+//	jobs_[curjob] = new std::thread(&cluster_thread, curjob, scount - npoints);
 	curjob ++;
 
 	// wait for all jobs to finish
 	std::cout << "Wait for ALL threads...\n";
-	for (unsigned int j=0; j < NJOBS; ++j){
+	for (unsigned int j=0; j < jobs_.size(); ++j){
 		if (jobs_[j]->joinable()){
 			jobs_[j]->join();
 			std::cout << "Joined thread # " << j << "\n";
@@ -226,7 +379,7 @@ void cluster_gaussian(){
 	std::ofstream fdists("dists.txt");
 	fclu << nclu + 1 << "\n";
 	for (int s = 0; s < scount - 1; ++s){
-		fclu << clus_[s] + 2 << "\n";
+		fclu << clus_[s] << "\n";
 		fdists << dists_[s] << "\n";
 	}
 	fclu.flush();
@@ -254,7 +407,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
 , pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
 , exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false)){
-//	cluster_gaussian();
+
+	cluster_gaussian();
 
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
