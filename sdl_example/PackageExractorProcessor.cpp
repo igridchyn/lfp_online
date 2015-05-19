@@ -47,6 +47,11 @@ void PackageExractorProcessor::process(){
     
     unsigned int num_chunks = buffer->chunk_buf_ptr_in_ / CHUNK_SIZE;
 
+    // DEBUG
+    if (num_chunks > 1){
+    	Log("NUMCH > 1: ", num_chunks);
+    }
+
     // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
         for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c){

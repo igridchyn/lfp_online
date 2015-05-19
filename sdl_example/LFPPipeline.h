@@ -14,6 +14,8 @@
 
 #include "LFPProcessor.h"
 
+// #define PIPELINE_THREAD
+
 class LFPONLINEAPI LFPPipeline{
     std::vector<LFPProcessor*> processors;
 	LFPBuffer *buf_ = nullptr;

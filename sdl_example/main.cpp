@@ -83,10 +83,10 @@ typedef short t_bin;
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
 //    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
-    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
+//    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 //    	config = new Config("../Res/spike_display_jc118_1003.conf");
 //    	config = new Config("../Res/spike_dump.conf");
-//    	config = new Config("../Res/spike_display.conf");
+    	config = new Config("../Res/spike_display.conf");
 //    	config = new Config("../Res/delay_test.conf");
 //    	config = new Config("../Res/trigger_jc140.conf");
 //    	config = new Config("../Res/spike_detection_build_model_jc140.conf");
@@ -109,9 +109,12 @@ typedef short t_bin;
 	LFPBuffer *buf = new LFPBuffer(config);
 	LFPPipeline *pipeline = new LFPPipeline(buf);
 
+#ifdef PIPELINE_THREAD
 	BinFileReaderProcessor *binreader = new BinFileReaderProcessor(buf);
+#endif
 
 	while (true) {
+#ifdef PIPELINE_THREAD
 		{
 			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);
 			binreader->process();
@@ -119,9 +122,10 @@ typedef short t_bin;
 		}
 		pipeline->cv_data_added_.notify_one();
 		// TODO: wait to simulate real-time [1 25 us for 24 kHz]
-//		usleep(25);
-
-//		pipeline->process();
+		usleep(50);
+#else
+		pipeline->process();
+#endif
 	}
 
 	return 0;

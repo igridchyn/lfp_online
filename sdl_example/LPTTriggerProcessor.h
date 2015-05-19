@@ -40,7 +40,6 @@ class LPTTriggerProcessor: public LFPProcessor {
 	void setLow();
 
 	unsigned int last_trigger_time_ = 0;
-	unsigned int pulse_length_ = 0;
 	unsigned int trigger_cooldown_;
 	// in samples
 	unsigned int trigger_start_delay_ = 0;
@@ -58,6 +57,8 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	// depends on the strategy
 	unsigned int & spike_buf_limit_ptr_;
+
+	unsigned int pulse_length_ = 0;
 
 	unsigned int last_synchrony_ = 0;
 

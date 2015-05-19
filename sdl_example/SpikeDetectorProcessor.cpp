@@ -118,8 +118,12 @@ void SpikeDetectorProcessor::process()
         filt_pos = buffer->HEADER_LEN;
     
     // DETECT only after enough samples for power estimation
-    if (buffer->powerEstimators_[0].n_samples() < min_power_samples_)
+    if (buffer->powerEstimators_[0].n_samples() < min_power_samples_){
+//    	if (buffer->last_pkg_id > 250000){
+//    		std::cout << "returning after 125k'\n";
+//    	}
         return;
+    }
     
     for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
         if (!buffer->is_valid_channel(channel)  || (buffer->last_pkg_id % DET_THOLD_CALC_RATE_))
@@ -160,7 +164,12 @@ void SpikeDetectorProcessor::process()
                 	buffer->AllocateExtraFeaturePointerMemory(spike);
                 }
                 spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
-                
+
+                // DEBUG
+//                if (spike_pos + 1 > 250000){
+//                	std::cout << "PKG: " << spike_pos + 1 << "\n";
+//                }
+
                 // DEBUG
                 buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
 
