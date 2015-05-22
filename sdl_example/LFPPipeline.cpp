@@ -34,6 +34,7 @@
 #include "PackageExtractorProcessor.h"
 #include "BinFileReaderProcessor.h"
 #include "FiringRateEstimatorProcessor.h"
+#include "ParallelPipelineProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
@@ -100,6 +101,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new FiringRateEstimatorProcessor(buf));
 		} else if (proc_name == "BinaryPopulationClassifier"){
 			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
+		} else if (proc_name == "ParallelPipeline"){
+			processors.push_back(new ParallelPipelineProcessor(buf));
 		}
 		else{
 			buf->Log(std::string("ERROR: Unknown processor: ") + proc_name + ". Terminating...");
