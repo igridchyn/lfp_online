@@ -79,6 +79,7 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 	known_processors_.push_back("BinFileReader");
 	known_processors_.push_back("FiringRateEstimator");
 	known_processors_.push_back("BinaryPopulationClassifier");
+	known_processors_.push_back("ParallelPipeline");
 
 	for (unsigned int i = 0; i < nparams; ++i){
 		std::string paramline(params[i]);

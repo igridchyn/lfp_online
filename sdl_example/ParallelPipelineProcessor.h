@@ -10,6 +10,7 @@
 
 #include "LFPProcessor.h"
 #include <condition_variable>
+#include <atomic>
 
 class ParallelPipelineProcessor: public LFPProcessor {
 	unsigned int NGROUP = 0;
@@ -20,8 +21,9 @@ class ParallelPipelineProcessor: public LFPProcessor {
 	std::condition_variable cv_data_added_[100];
 	std::condition_variable cv_job_over_;
 
-	std::vector<bool> data_added_;
-	unsigned int threads_finished_;
+	bool data_added_[100];
+//	unsigned int threads_finished_;
+	std::atomic_uint threads_finished_;
 
 	std::mutex mtx_data_add_[100];
 	std::mutex mtx_data_processed_;
