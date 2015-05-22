@@ -261,7 +261,7 @@ void SDLPCADisplayProcessor::process(){
 		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 			ResetTextStack();
 			std::string text = std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_ + 1] + "( channels:";
-			for (int c=0; c < buffer->tetr_info_->channels_number(target_tetrode_); ++c){
+			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(target_tetrode_); ++c){
 				text += std::string(" ") + Utils::Converter::int2str((int)buffer->tetr_info_->tetrode_channels[target_tetrode_][c]);
 			}
 			text += ")";

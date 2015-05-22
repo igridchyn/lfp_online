@@ -408,7 +408,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
 , exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false)){
 
-	cluster_gaussian();
+//	cluster_gaussian();
 
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
