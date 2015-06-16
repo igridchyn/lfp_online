@@ -136,7 +136,8 @@ for w in wells:
 
 # Env2 - 0402
 # goals = [[13,7], [4,7], [5,3]]
-goals = [[2,3], [10,2], [11,10]]
+# goals = [[4,9], [8,8], [10,3]]
+goals = [[2,3], [9,8], [12,10]]
 
 # tracking
 # ftra = open('/hd1/data/bindata/jc140/0402/jc140_0402_21calib1.axtrk')
@@ -165,8 +166,9 @@ print '	6) present in left and right thirds of the S.B.'
 print '	7) not in the outer circle'
 
 # geenrate sets new goals, thold = 10
+goal_shift = 7
 for d in range(0, 7):
-	im = Image.new('RGBA', (470, 600), color = (255,255,255,0))
+	im = Image.new('RGBA', (470, 470), color = (255,255,255,0))
 	draw = ImageDraw.Draw(im)
 
 	inds = generate_new_goals(goals, wells_inner, 11)
@@ -181,7 +183,7 @@ for d in range(0, 7):
 	# draw_whl(whl)
 
 	font = ImageFont.truetype("/usr/share/fonts/liberation/LiberationSerif-Bold.ttf", 20)
-	draw.text((10, 0), 'Day ' + str(d), (0,0,0), font=font)
+	draw.text((10, 0), 'Day ' + str(d+goal_shift), (0,0,0), font=font)
 	
 	
 	# find shortest path between goals
@@ -206,7 +208,7 @@ for d in range(0, 7):
 		end = well_to_coords(shortest_goals[i])
 		draw.line((start[0], start[1], end[0], end[1]), fill = 'black', width = 5)
 
-	im.save('goals_' + str(d) + '.jpg')
+	im.save('goals_' + str(d+goal_shift) + '.jpg')
 	im.show()
 
 	goals = inds

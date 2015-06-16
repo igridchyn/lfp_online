@@ -32,7 +32,11 @@ class ParallelPipelineProcessor: public LFPProcessor {
 	std::vector< std::thread * > worker_threads_;
 
 public:
+	void add_processor(LFPProcessor *processor);
+	void start_workers();
+
 	virtual void process();
+	virtual std::string name() { return "Parallel Pipelie"; };
 
 	void process_thread(const int group);
 

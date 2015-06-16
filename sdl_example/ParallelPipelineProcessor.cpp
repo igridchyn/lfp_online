@@ -12,10 +12,6 @@ ParallelPipelineProcessor::ParallelPipelineProcessor(LFPBuffer *buf)
 	NGROUP = 8;
 
 	threads_finished_ = 0;
-
-	for (unsigned int g = 0; g < NGROUP; ++g) {
-		worker_threads_.push_back(new std::thread(&ParallelPipelineProcessor::process_thread, this, g));
-	}
 }
 
 void ParallelPipelineProcessor::process() {
@@ -67,3 +63,13 @@ ParallelPipelineProcessor::~ParallelPipelineProcessor() {
 	// TODO Auto-generated destructor stub
 }
 
+void ParallelPipelineProcessor::add_processor(LFPProcessor* processor) {
+	Log(std::string("Adding processor ") + processor->name() + std::string(" to the parallel sub-pipeline"));
+	processors_.push_back(processor);
+}
+
+void ParallelPipelineProcessor::start_workers() {
+	for (unsigned int g = 0; g < NGROUP; ++g) {
+		worker_threads_.push_back(new std::thread(&ParallelPipelineProcessor::process_thread, this, g));
+	}
+}
