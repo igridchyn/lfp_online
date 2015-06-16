@@ -42,6 +42,10 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 
 	std::map<std::string, unsigned int> processor_numbers;
 
+	// starts and ends (both inclusive) of the parallel sub-pipelines
+	// 		(to form processor list later)
+	std::vector<unsigned int> sub_pipe_starts, sub_pipe_ends;
+
 	for (size_t i = 0; i < processor_names.size(); ++i) {
 		std::string proc_name = processor_names[i];
 
@@ -102,7 +106,14 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 		} else if (proc_name == "BinaryPopulationClassifier"){
 			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
 		} else if (proc_name == "ParallelPipeline"){
-			processors.push_back(new ParallelPipelineProcessor(buf));
+			if (sub_pipe_starts.size() == sub_pipe_ends.size()){
+				// the entry indicated the START of parallel sub-pipeline
+				processors.push_back(new ParallelPipelineProcessor(buf));
+				sub_pipe_starts.push_back(processors.size());
+			} else{
+				// the entry indicated the END of parallel sub-pipeline
+				sub_pipe_ends.push_back(processors.size() - 1);
+			}
 		}
 		else{
 			buf->Log(std::string("ERROR: Unknown processor: ") + proc_name + ". Terminating...");
@@ -110,6 +121,23 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 		}
 
 		processor_numbers[proc_name] ++;
+	}
+
+	// extract sub-pipelines
+	if (sub_pipe_starts.size() != sub_pipe_ends.size()){
+		buf->Log("ERROR: Parallel pipeline end not defined !");
+		exit(534532);
+	}
+	for (unsigned int sp = 0; sp < sub_pipe_starts.size(); ++sp) {
+		for (unsigned int p = sub_pipe_starts[sp]; p <= sub_pipe_ends[sp]; ++p){
+			// the corresponding parallel processor is prior to start of the sub-pipeline
+			dynamic_cast<ParallelPipelineProcessor*>(processors[sub_pipe_starts[sp] - 1])->add_processor(processors[p]);
+		}
+		dynamic_cast<ParallelPipelineProcessor*>(processors[sub_pipe_starts[sp] - 1])->start_workers();
+	}
+	// remove processors from main pipieline
+	for (int sp = sub_pipe_starts.size() - 1; sp >= 0; --sp) {
+		processors.erase(processors.begin() + sub_pipe_starts[sp], processors.begin() + sub_pipe_ends[sp] + 1);
 	}
 
 #ifdef PIPELINE_THREAD
