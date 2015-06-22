@@ -88,7 +88,7 @@ void FetFileWriterProcessor::process() {
 		const int& tetrode = spike->tetrode_;
 		std::ofstream& fet_file = *(fet_files_[tetrode]);
 
-		const unsigned int fetn = buffer->feature_space_dims_[spike->tetrode_];
+		const unsigned int fetn = spike->num_channels_ * spike->num_pc_;
 
 		// TODO customize extra-features
 		for(unsigned int f=0; f < fetn + 4; ++f){
