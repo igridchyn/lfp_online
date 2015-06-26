@@ -24,6 +24,8 @@ class PackageExractorProcessor : public LFPProcessor{
 
 	const int CHUNK_SIZE = 432;
 
+	bool mode128_ = false;
+
 public:
 	virtual std::string name();
     virtual void process();

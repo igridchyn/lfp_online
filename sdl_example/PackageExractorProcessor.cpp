@@ -14,6 +14,7 @@ PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
 	, SCALE(buffer->config_->getFloat("pack.extr.xyscale"))
 	, exit_on_data_over_(buffer->config_->getBool("pack.extr.exit.on.over", false))
 	, read_pos_(buffer->config_->getBool("pack.extr.read.pos", true))
+	, mode128_(buffer->config_->getBool("pack.extr.128mode", false))
 {
 	Log("Created");
 	report_rate_ = buffer->SAMPLING_RATE * 60;
@@ -84,8 +85,10 @@ void PackageExractorProcessor::process(){
     for (unsigned int c=0; c < num_chunks; ++c){
     	unsigned char *pos_chunk = buffer->chunk_buf_ + c * CHUNK_SIZE;
 
+    	// check whether the package contains the tracking information
     	char pos_flag = *((char*)pos_chunk + 3);
-    	if (pos_flag != '1'){
+    	if ( (mode128_ && (pos_flag == 'B' || pos_flag == 'F')) ||
+    			(!mode128_ && (pos_flag != '1'))){
     		// extract position
     		unsigned short bx = *((unsigned short*)(pos_chunk + 16));
     		unsigned short by = *((unsigned short*)(pos_chunk + 18));
@@ -118,7 +121,13 @@ void PackageExractorProcessor::process(){
     			}
     			buffer->positions_buf_[buffer->pos_buf_pos_].pkg_id_ = buffer->last_pkg_id + c;
 
-    			buffer->pos_buf_pos_++;;
+    			// TODO: !!! REWIND BUF POS HERE
+    			buffer->pos_buf_pos_++;
+
+    			// TMPDEBUG
+    			if (buffer->pos_buf_pos_ >= buffer->POS_BUF_LEN){
+    				Log("WARNING: POS BUF overflow!");
+    			}
     		}
     	}
     }
