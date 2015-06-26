@@ -59,7 +59,7 @@ void LFPBuffer::Reset(Config* config) {
 	pc_per_chan.push_back(0);
 	const unsigned int npc4 = config->getInt("pca.num.pc", 3);
 	for (int nc = 1; nc < 5; ++ nc){
-		pc_per_chan.push_back(npc4 - nc + 4);
+		pc_per_chan.push_back(npc4); // - nc + 4);
 	}
 
 	Log("Number of PCs per channel for a group of 4 channels: ", pc_per_chan[4]);
@@ -162,7 +162,8 @@ void LFPBuffer::Reset(Config* config) {
 
 	log_stream << "INFO: BUFFER CREATED\n";
 
-	memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
+	// ??? rather init all spikes ???
+	// memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
 
 	ISIEstimators_ = new OnlineEstimator<float, float>*[tetr_info_->tetrodes_number()];
 	for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
@@ -461,13 +462,33 @@ void LFPBuffer::AddSpike(Spike* spike) {
 		// DEBUG
 		if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
 				(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
-			Log("Buffer abused!");
+			if (head_start_ != spike_buffer_[0]){
+				Log("Buffer abused before rewind - HEAD!");
+				if (spike_buffer_[0] == (Spike*)0xb74edb){
+					Log("0xb74edb");
+				}
+			}
+			else{
+				Log("Buffer abused before rewind - TAIL!");
+			}
 		}
 
-		// exchange head and tail
+		// exchange head and tail1
 		memcpy(tmp_spike_buf_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+		// to reuse the same objects that are in the head
 		memcpy(spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, spike_buffer_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
 		memcpy(spike_buffer_, tmp_spike_buf_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+
+		// DEBUG
+		if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
+				(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
+			if (head_start_ != spike_buffer_[0]){
+				Log("Buffer abused after rewind - HEAD!");
+			}
+			else{
+				Log("Buffer abused after rewind - TAIL!");
+			}
+		}
 
 		//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
 		//                    	delete spike_buffer_[del_spike];
