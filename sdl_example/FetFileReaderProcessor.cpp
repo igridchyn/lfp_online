@@ -402,7 +402,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , read_spk_(buffer->config_->getBool("spike.reader.spk.read", false))
 , read_whl_(buffer->config_->getBool("spike.reader.whl.read", false))
 , binary_(buffer->config_->getBool("spike.reader.binary", false))
-, report_rate_(buffer->SAMPLING_RATE * 60 * 5)
+, report_rate_(buffer->SAMPLING_RATE * 60 * 2)
 , num_files_with_spikes_(buffer->tetr_info_->tetrodes_number())
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
 , pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
@@ -440,7 +440,14 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	}
 
 	for (unsigned int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-		last_spikies_.push_back(new Spike(0, 0));
+		last_spikies_.push_back(buffer->spike_buffer_[buffer->spike_buf_pos]);
+		buffer->AddSpike(last_spikies_[t]);
+
+		// allocate once and then swap pointers with objects in the buffer (to avoid copying and filling objects before knowing the temporal order)
+		buffer->AllocateExtraFeaturePointerMemory(last_spikies_[t]);
+		buffer->AllocateFeaturesMemory(last_spikies_[t]);
+		buffer->AllocateWaveshapeMemory(last_spikies_[t]);
+		buffer->AllocateFinalWaveshapeMemory(last_spikies_[t]);
 	}
 
 	openNextFile();
@@ -486,12 +493,19 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 
 	const unsigned int fetn = buffer->feature_space_dims_[tetr];
 
-	buffer->AllocateFeaturesMemory(spike);
-	buffer->AllocateExtraFeaturePointerMemory(spike);
-//	spike->pc = new float[fetn];
+	// memory is allocated initially and then just swapped with obejcts in buffer
+
 	spike->num_channels_ = chno;
 
 	std::ifstream& fet_stream = *(fet_streams_[tetr]);
+
+	if (!spike->pc){
+		buffer->AllocateFeaturesMemory(spike);
+	}
+	if (!spike->extra_features_){
+		buffer->AllocateExtraFeaturePointerMemory(spike);
+		spike->assignExtraFeaturePointers();
+	}
 
 	if (!binary_){
 		for (unsigned int fet=0; fet < fetn; ++fet) {
@@ -521,7 +535,10 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	spike->num_channels_ = chno;
 
 	if (read_spk_){
-		buffer->AllocateWaveshapeMemory(spike);
+
+		if (!spike->waveshape){
+			buffer->AllocateWaveshapeMemory(spike);
+		}
 
 		std::ifstream& spk_stream = *(spk_streams_[tetr]);
 //		spike->waveshape = new int*[chno];
@@ -644,7 +661,7 @@ void FetFileReaderProcessor::openNextFile() {
 }
 
 void FetFileReaderProcessor::process() {
-	int last_spike_pkg_id = last_pkg_id_;
+	unsigned int last_spike_pkg_id = last_pkg_id_;
 
 	if (num_files_with_spikes_ == 0){
 		if (current_file_ < (int)buffer->config_->spike_files_.size() - 1){
@@ -695,6 +712,7 @@ void FetFileReaderProcessor::process() {
 		int earliest_spike_tetrode_ = -1;
 		unsigned int earliest_spike_time_ = std::numeric_limits<unsigned int>::max();
 
+		// find the earliest spike
 		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 			if (file_over_[t]){
 				continue;
@@ -708,10 +726,14 @@ void FetFileReaderProcessor::process() {
 
 		Spike *bspike = buffer->spike_buffer_[buffer->spike_buf_pos];
 		Spike *nspike = last_spikies_[earliest_spike_tetrode_];
-		*bspike = *nspike;
-		nspike->pc = nullptr;
-		nspike->waveshape = nullptr;
-		nspike->extra_features_ = nullptr;
+		// swap with local buffer
+		{
+			Spike tmp_spike;
+			tmp_spike = *bspike;
+			*bspike = *nspike;
+			*nspike = tmp_spike;
+		}
+
 		bspike->assignExtraFeaturePointers();
 
 		// add the earliest spike to the buffer and
@@ -747,8 +769,6 @@ void FetFileReaderProcessor::process() {
 		if (spike == nullptr)
 			continue;
 
-		last_spikies_[earliest_spike_tetrode_] = spike;
-
 		// set coords
 		// find position
 		// !!! TODO: interpolate, wait for next if needed [separate processor ?]
@@ -765,7 +785,8 @@ void FetFileReaderProcessor::process() {
 	}
 
 	// for next processor - clustering
-	buffer->spike_buf_pos_unproc_ = buffer->spike_buf_pos;
+	// without the spikes reserved for the last_tetrode_spike
+	buffer->spike_buf_pos_unproc_ = buffer->spike_buf_pos - buffer->tetr_info_->tetrodes_number();
 	last_pkg_id_ = last_spike_pkg_id;
 
 	buffer->last_pkg_id = last_pkg_id_;
@@ -773,7 +794,7 @@ void FetFileReaderProcessor::process() {
 	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
 
 	if (last_spike_pkg_id - last_reported_ > report_rate_){
-		buffer->log_string_stream_ << "Loaded spikes for the first " << last_reported_ / report_rate_ * 5 << " minutes of recording...\n";
+		buffer->log_string_stream_ << "Loaded spikes for the first " << last_reported_ / report_rate_ * 2 << " minutes of recording...\n";
 		buffer->Log();
 		last_reported_ = last_spike_pkg_id;
 	}
