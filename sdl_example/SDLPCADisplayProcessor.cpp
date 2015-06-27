@@ -128,6 +128,12 @@ void SDLPCADisplayProcessor::process(){
             }
         }
 
+
+        if (spike->tetrode_ != target_tetrode_){
+        	buffer->spike_buf_no_disp_pca++;
+        	continue;
+        }
+
         int x;
         int y;
         getSpikeCoords(spike, x ,y);
@@ -145,11 +151,6 @@ void SDLPCADisplayProcessor::process(){
         		}
 
         	}
-        }
-
-        if (spike->tetrode_ != target_tetrode_){
-        	buffer->spike_buf_no_disp_pca++;
-        	continue;
         }
 
         // TODO ??? don't display artifacts and unknown with the same color
