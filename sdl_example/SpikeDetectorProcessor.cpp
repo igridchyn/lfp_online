@@ -94,12 +94,13 @@ void SpikeDetectorProcessor::process()
             buffer->filtered_signal_buf[channel][fpos] = filtered;
             
             // power in window of 4
-            long long pw = 0;
+            unsigned long long pw = 0;
             for(int i=0; i<4 ;++i){
                 pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
             }
             buffer->power_buf[channel][fpos] = sqrt(pw);
             
+            // TODO: !!! INVESTIGATE NEGITIVE THRESHOLD
             // std estimation
             if (buffer->powerEstimatorsMap_[channel] != nullptr)
                 buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
@@ -130,6 +131,12 @@ void SpikeDetectorProcessor::process()
             continue;
         
         thresholds_[channel] = (int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
+
+        // TMPDEBUG
+        if (thresholds_[channel] < 0){
+        	thresholds_[channel] = std::numeric_limits<int>::max();
+        	Log("WARNING: THRESHOLD < 0 at channel", channel);
+        }
     }
 
     for (unsigned int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
@@ -139,7 +146,7 @@ void SpikeDetectorProcessor::process()
                 continue;
             
             int threshold = thresholds_[channel];
-            
+
             int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
             
             // detection via threshold nstd * std
@@ -152,6 +159,7 @@ void SpikeDetectorProcessor::process()
                 buffer->last_spike_pos_[tetrode] = spike_pos + 1;
                 Spike *spike = nullptr;
                 {
+                	// TODO: !!! lock private and used withing AddSpike
                 	std::lock_guard<std::mutex> lk(spike_add_mtx_);
                 	spike = buffer->spike_buffer_[buffer->spike_buf_pos];
                 	buffer->AddSpike(spike);
@@ -175,7 +183,7 @@ void SpikeDetectorProcessor::process()
 
                 // DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
 //                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
-                
+
                 // set coords
                 // find position
                 // !!! TODO: interpolate, wait for next if needed [separate processor ?]
