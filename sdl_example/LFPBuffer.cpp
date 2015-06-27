@@ -15,7 +15,8 @@
 	#define DATEFORMAT "%F_%T"
 #endif
 
-void LFPBuffer::Reset(Config* config) {
+void LFPBuffer::Reset(Config* config)
+{
 	if (config_)
 		delete config_;
 
@@ -99,11 +100,6 @@ void LFPBuffer::Reset(Config* config) {
 	log_stream << "Buffer reset\n";
 	log_stream << "INFO: # of tetrodes: " << tetr_info_->tetrodes_number() << "\n";
 	log_stream << "INFO: set memory...";
-
-	for(size_t c=0; c < CHANNEL_NUM; ++c){
-
-	}
-
 	log_stream << "done\n";
 
 	log_stream << "INFO: Create online estimators...";
@@ -114,7 +110,6 @@ void LFPBuffer::Reset(Config* config) {
     speedEstimator_ = new OnlineEstimator<float, float>(SPEED_ESTIMATOR_WINDOW_);
 	log_stream << "done\n";
 
-    memset(is_valid_channel_, 0, CHANNEL_NUM);
     tetr_info_->tetrode_by_channel = new unsigned int[CHANNEL_NUM];
 
     if (last_spike_pos_)
@@ -250,6 +245,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
+, CHANNEL_NUM(config->getInt("channel.num", 64))
 {
 	CH_MAP = new int[64]{8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 40, 41, 42, 43, 44, 45, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23, 32, 33, 34, 35, 36, 37, 38, 39, 48, 49, 50, 51, 52, 53, 54, 55};
 
@@ -257,6 +253,12 @@ LFPBuffer::LFPBuffer(Config* config)
 	//CH_MAP_INV = new int[64]{ 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
 	//CH_MAP_INV = new int[64]{48,49,50,51,52,53,54,55,32,33,34,35,36,37,38,39,16,17,18,19,20,21,22,23,0,1,2,3,4,5,6,7,56,57,58,59,60,61,62,63,40,41,42,43,44,45,46,47,24,25,26,27,28,29,30,31,8,9,10,11,12,13,14,15};
 	CH_MAP_INV = new int[64]{8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63,0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23,32,33,34,35,36,37,38,39,48,49,50,51,52,53,54,55};
+
+	signal_buf.resize(CHANNEL_NUM);
+	filtered_signal_buf.resize(CHANNEL_NUM);
+	power_buf.resize(CHANNEL_NUM);
+	is_valid_channel_.resize(CHANNEL_NUM, false);
+	powerEstimatorsMap_.resize(CHANNEL_NUM);
 
 	for (size_t i = 0; i < CHANNEL_NUM; i++)
 	{
@@ -286,10 +288,6 @@ LFPBuffer::LFPBuffer(Config* config)
 	log_stream.open(logpath, std::ios_base::app);
 
 	Log("Created LOG");
-
-    memset(signal_buf, 0, _CHANNEL_NUM * sizeof(signal_type*));
-    memset(filtered_signal_buf, 0, _CHANNEL_NUM * sizeof(ws_type*));
-    memset(power_buf, 0, _CHANNEL_NUM * sizeof(int*));
 
     Reset(config);
 

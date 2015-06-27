@@ -9,8 +9,6 @@
 #ifndef sdl_example_LFPBuffer_h
 #define sdl_example_LFPBuffer_h
 
-#define _CHANNEL_NUM 64
-
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -155,7 +153,7 @@ public:
 	Config *config_ = nullptr;
 	UserContext user_context_;
 
-	const unsigned int CHANNEL_NUM = 64;
+	const unsigned int CHANNEL_NUM;
 
 	// Axona package configuration in bytes
 	const int HEADER_LEN = 32;
@@ -273,11 +271,11 @@ private:
 	std::ofstream log_stream;
 
 public:
-	bool is_valid_channel_[_CHANNEL_NUM];
+	std::vector<bool> is_valid_channel_;
 
-	signal_type *signal_buf[_CHANNEL_NUM];
-	ws_type *filtered_signal_buf[_CHANNEL_NUM];
-	int *power_buf[_CHANNEL_NUM];
+	std::vector<signal_type *> signal_buf;
+	std::vector<ws_type *> filtered_signal_buf;
+	std::vector<int *> power_buf;
 
 	// ??? for all arrays ?
 	unsigned int buf_pos = BUF_HEAD_LEN;
@@ -296,7 +294,7 @@ public:
 	size_t chunk_buf_ptr_in_ = 0;
 
 	std::vector<OnlineEstimator<float, float> > powerEstimators_;
-	OnlineEstimator<float, float>* powerEstimatorsMap_[_CHANNEL_NUM];
+	std::vector<OnlineEstimator<float, float>* > powerEstimatorsMap_;
 
 	OnlineEstimator<float, float>* speedEstimator_;
 
