@@ -73,7 +73,7 @@ typedef short t_bin;
 //	  Config *config = new Config("../Res/decoding_jc118_1003_env1_2x_MAC.conf");
     Config *config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift_MAC.conf");
 
-    //	Config *config = new Config("../Res/spike_detehction_jc11.confmz");
+    //	Config *config = new Config("../Res/spike_detehction_jc11.conf");
 #else
     Config *config = nullptr;
 
