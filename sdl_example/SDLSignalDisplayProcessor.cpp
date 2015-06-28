@@ -48,7 +48,7 @@ SDLSignalDisplayProcessor::SDLSignalDisplayProcessor(LFPBuffer *buffer, std::str
 
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, window_width, SHIFT/plot_scale);
-    prev_vals_ = new int[64];
+    prev_vals_ = new int[buffer->CHANNEL_NUM];
 
     // check if lfp display channels is a subset of read channels
     if (!buffer->tetr_info_->ContainsChannels(displayed_channels_)){

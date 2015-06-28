@@ -76,7 +76,8 @@ TetrodesInfo::TetrodesInfo(std::string config_path) {
 
 	tconfig.close();
 
-	tetrode_label_map_.resize(16, INVALID_TETRODE);
+	// TODO: configurableize
+	tetrode_label_map_.resize(32, INVALID_TETRODE);
 	for (unsigned int t = 0; t < tetrn; ++t) {
 		int abstetr = (int)floor(tetrode_channels[t][0] / 4);
 		tetrode_label_map_[abstetr] = t;

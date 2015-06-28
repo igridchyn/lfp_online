@@ -56,8 +56,8 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     }
     
     //printf("filt len: %d\n", filter_len);
-    thresholds_ = new int[64];
-    memset(thresholds_, 0, sizeof(int) * 64);
+    thresholds_ = new int[buffer->CHANNEL_NUM];
+    memset(thresholds_, 0, sizeof(int) * buffer->CHANNEL_NUM);
 }
 
 void SpikeDetectorProcessor::process()

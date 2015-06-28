@@ -293,7 +293,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
         pca_done_[t] = false;
     }
     
-    const int nchan = 64;
+    const int nchan = buffer->CHANNEL_NUM;
     
     cor_ = new int**[nchan];
     mean_ = new int*[nchan];
@@ -340,7 +340,7 @@ PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer *buffer, const unsigned
         for (size_t i=0; i < buffer->tetr_info_->tetrodes_number(); ++i) {
             for (size_t ci=0; ci < buffer->tetr_info_->channels_number(i); ++ci) {
                 const unsigned int chan = buffer->tetr_info_->tetrode_channels[i][ci];
-                std::string pca_path(pc_path_ + Utils::NUMBERS[chan] + ".txt");
+                std::string pca_path(pc_path_ + Utils::Converter::int2str(chan) + ".txt");
                 if (!Utils::FS::FileExists(pca_path)){
                 	pca_done_[i] = false;
                 	break;
@@ -508,9 +508,9 @@ void PCAExtractionProcessor::process(){
                 
                 // SAVE PC transform
                 if (save_transform_){
-                	std::string save_path = pc_path_ + Utils::NUMBERS[channel] + std::string(".txt");
+                	std::string save_path = pc_path_ + Utils::Converter::int2str(channel) + std::string(".txt");
                     saveArray(save_path, pc_transform_[channel], num_pc_, waveshape_samples_);
-                    buffer->Log(std::string("Saved PC transform for tetrode ") + Utils::NUMBERS[tetr] + " to " + save_path);
+                    buffer->Log(std::string("Saved PC transform for tetrode ") + Utils::Converter::int2str(tetr) + " to " + save_path);
                 }
                 
                 // DEBUG - print PCA transform matrix

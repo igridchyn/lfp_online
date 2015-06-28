@@ -177,7 +177,7 @@ class WaveShapeReconstructionProcessor : public LFPProcessor{
     void load_restore_one_spike(Spike *spike);
     void find_one_peak(Spike* spike, int *ptmout,int peakp,int peakgit,int *ptmval);
     
-    ws_type rec_tmp_[64][128];
+    ws_type rec_tmp_[128][128];
     
     // cleanup waveshape after reconstruction
     bool cleanup_ws_ = false;
