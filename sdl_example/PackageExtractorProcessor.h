@@ -26,10 +26,15 @@ class PackageExractorProcessor : public LFPProcessor{
 
 	bool mode128_ = false;
 
+	// which channel is at i-th position in the BIN chunk
+	int *CH_MAP_INV;
+	int *CH_MAP;
+
 public:
 	virtual std::string name();
     virtual void process();
     PackageExractorProcessor(LFPBuffer *buffer);
+    ~PackageExractorProcessor() { delete[] CH_MAP; delete[] CH_MAP_INV; }
 };
 
 
