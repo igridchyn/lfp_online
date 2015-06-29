@@ -21,6 +21,11 @@ void ParallelPipelineProcessor::process() {
 	// PROFILE
 //	clock_t start = clock();
 
+	for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
+		(*piter)->desync();
+	}
+
+
 	for (unsigned int g = 0; g < NGROUP; ++g) {
 		std::unique_lock<std::mutex> lk(mtx_data_add_[g]);
 		data_added_[g] = true;
@@ -33,6 +38,10 @@ void ParallelPipelineProcessor::process() {
 	cv_job_over_.wait(lk, [=]{return threads_finished_ == NGROUP;});
 	threads_finished_ = 0;
 
+	for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
+		(*piter)->sync();
+	}
+
 	// PROFILE
 //	time_t time = clock() - start;
 //	std::cout << "All jobs over ... pkg id = " << buffer->last_pkg_id << ", time (us) = " << (time * 1000000) / CLOCKS_PER_SEC <<  "\n";
@@ -44,7 +53,7 @@ void ParallelPipelineProcessor::process_thread(const int group) {
 		cv_data_added_[group].wait(lk, [=]{return data_added_[group];});
 
 		for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
-			(*piter)->process();
+			(*piter)->process_tetrode(group);
 		}
 
 		{
