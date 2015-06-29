@@ -368,6 +368,7 @@ public:
 	double AverageSynchronySpikesWindow();
 
 	void AddSpike(Spike *spike);
+	void Rewind();
 
 	void Log();
 	void Log(std::string message);

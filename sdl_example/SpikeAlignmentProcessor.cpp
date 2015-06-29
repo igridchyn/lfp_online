@@ -10,10 +10,22 @@
 
 
 void SpikeAlignmentProcessor::process(){
+	process_tetrode(-1);
+}
+
+void SpikeAlignmentProcessor::process_tetrode(int tetrode){
     // try to populate unpopulated spikes -
-    while (buffer->spike_buf_nows_pos < buffer->spike_buf_pos &&
-           buffer->spike_buffer_[buffer->spike_buf_nows_pos]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
-        Spike *spike = buffer->spike_buffer_[buffer->spike_buf_nows_pos];
+	unsigned int& spike_buf_ptr = tetrode >=0 ? spike_buf_tetrodewise_ptrs_[tetrode] : buffer->spike_buf_nows_pos;
+
+    while (spike_buf_ptr < buffer->spike_buf_pos &&
+           buffer->spike_buffer_[spike_buf_ptr]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
+        Spike *spike = buffer->spike_buffer_[spike_buf_ptr];
+
+        // parallel mode: skip non-target tetrodes
+        if (tetrode >=0 && spike->tetrode_ != tetrode){
+        	spike_buf_ptr ++;
+        	continue;
+        }
 
         // check if there are not too many spikes in the noise removal queue and signal noise if yes
         while (!noise_detection_queue_.empty()){
@@ -28,7 +40,7 @@ void SpikeAlignmentProcessor::process(){
         // TODO: keep pointer to last spike assigned as noise to repeat the assignment
         if (noise_detection_queue_.size() > NNOISE){
         	last_noise_pkg_id_ = spike->pkg_id_;
-        	unsigned int noise_ptr = buffer->spike_buf_nows_pos;
+        	unsigned int noise_ptr = spike_buf_ptr;
         	while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
         		buffer->spike_buffer_[noise_ptr]->discarded_ = true;
         		noise_ptr--;
@@ -133,7 +145,7 @@ void SpikeAlignmentProcessor::process(){
             		int buf_start_shift = buffer->buf_pos - (buffer->last_pkg_id - prev_spike_pos_[tetrode])
             		                            				- Spike::WS_LENGTH_ALIGNED/ 2 - 1;
             		if(buf_start_shift < 0)
-            			buffer->Log("WTF? Reading waveshape outside of filtered signal buffer...", buffer->spike_buf_nows_pos);
+            			buffer->Log("WTF? Reading waveshape outside of filtered signal buffer...", spike_buf_ptr);
             	}
             }
     	}

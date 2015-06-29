@@ -446,69 +446,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 
 	// check if rewind is requried
 	if (spike_buf_pos == SPIKE_BUF_LEN){
-
-		// DEBUG
-		if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
-				(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
-			if (head_start_ != spike_buffer_[0]){
-				Log("Buffer abused before rewind - HEAD!");
-				if (spike_buffer_[0] == (Spike*)0xb74edb){
-					Log("0xb74edb");
-				}
-			}
-			else{
-				Log("Buffer abused before rewind - TAIL!");
-			}
-		}
-
-		// exchange head and tail1
-		memcpy(tmp_spike_buf_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
-		// to reuse the same objects that are in the head
-		memcpy(spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, spike_buffer_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
-		memcpy(spike_buffer_, tmp_spike_buf_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
-
-		// DEBUG
-		if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
-				(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
-			if (head_start_ != spike_buffer_[0]){
-				Log("Buffer abused after rewind - HEAD!");
-			}
-			else{
-				Log("Buffer abused after rewind - TAIL!");
-			}
-		}
-
-		//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
-		//                    	delete spike_buffer_[del_spike];
-		//                    	spike_buffer_[del_spike] = nullptr;
-		//					}
-
-		const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;
-
-		spike_buf_no_rec -= std::min(shift_new_start, (int)spike_buf_no_rec);
-		spike_buf_nows_pos -= std::min(shift_new_start, (int)spike_buf_nows_pos);
-		spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
-		spike_buf_no_disp_pca -= std::min(shift_new_start, (int)spike_buf_no_disp_pca );
-		spike_buf_pos_out -= std::min(shift_new_start, (int)spike_buf_pos_out );
-		spike_buf_pos_draw_xy -= std::min(shift_new_start, (int)spike_buf_pos_draw_xy );
-		spike_buf_pos_speed_ -= std::min(shift_new_start, (int)spike_buf_pos_speed_);
-		spike_buf_pos_pop_vec_ -= std::min(shift_new_start, (int)spike_buf_pos_pop_vec_);
-		spike_buf_pos_clust_ -= std::min(shift_new_start, (int)spike_buf_pos_clust_);
-		spike_buf_pos_pf_ -= std::min(shift_new_start, (int)spike_buf_pos_pf_);
-		spike_buf_pos_auto_ -= std::min(shift_new_start, (int)spike_buf_pos_auto_);
-		spike_buf_pos_lpt_ -= std::min(shift_new_start, (int)spike_buf_pos_lpt_);
-		spike_buf_pos_fet_writer_ -= std::min(shift_new_start, (int)spike_buf_pos_fet_writer_);
-		spike_buf_pos_ws_disp_ -= std::min(shift_new_start, (int)spike_buf_pos_ws_disp_);
-		spike_buf_pos_featext_collected_ -= std::min(shift_new_start, (int)spike_buf_pos_featext_collected_);
-		spike_buf_pos_binary_classifier_ -= std::min(shift_new_start, (int)spike_buf_pos_binary_classifier_);
-
-		for (size_t i=0; i < spike_buf_pos_clusts_.size(); ++i){
-			spike_buf_pos_clusts_[i] -= std::min(shift_new_start, (int)spike_buf_pos_clusts_[i]);
-		}
-
-		Log("Spike buffer rewind at pos ", spike_buf_pos);
-
-		spike_buf_pos = SPIKE_BUF_HEAD_LEN;
+		Rewind();
 	}
 }
 
@@ -704,6 +642,71 @@ void LFPBuffer::AllocateExtraFeaturePointerMemory(Spike* spike) {
 
 void LFPBuffer::FreeExtraFeaturePointerMemory(Spike* spike) {
 	FreetPoolMemory<float*>(&spike->extra_features_, spike_extra_features_ptr_pool_);
+}
+
+void LFPBuffer::Rewind() {
+	// DEBUG
+	if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
+			(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
+		if (head_start_ != spike_buffer_[0]){
+			Log("Buffer abused before rewind - HEAD!");
+			if (spike_buffer_[0] == (Spike*)0xb74edb){
+				Log("0xb74edb");
+			}
+		}
+		else{
+			Log("Buffer abused before rewind - TAIL!");
+		}
+	}
+
+	// exchange head and tail1
+	memcpy(tmp_spike_buf_, spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+	// to reuse the same objects that are in the head
+	memcpy(spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, spike_buffer_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+	memcpy(spike_buffer_, tmp_spike_buf_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
+
+	// DEBUG
+	if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
+			(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
+		if (head_start_ != spike_buffer_[0]){
+			Log("Buffer abused after rewind - HEAD!");
+		}
+		else{
+			Log("Buffer abused after rewind - TAIL!");
+		}
+	}
+
+	//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
+	//                    	delete spike_buffer_[del_spike];
+	//                    	spike_buffer_[del_spike] = nullptr;
+	//					}
+
+	const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;
+
+	spike_buf_no_rec -= std::min(shift_new_start, (int)spike_buf_no_rec);
+	spike_buf_nows_pos -= std::min(shift_new_start, (int)spike_buf_nows_pos);
+	spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
+	spike_buf_no_disp_pca -= std::min(shift_new_start, (int)spike_buf_no_disp_pca );
+	spike_buf_pos_out -= std::min(shift_new_start, (int)spike_buf_pos_out );
+	spike_buf_pos_draw_xy -= std::min(shift_new_start, (int)spike_buf_pos_draw_xy );
+	spike_buf_pos_speed_ -= std::min(shift_new_start, (int)spike_buf_pos_speed_);
+	spike_buf_pos_pop_vec_ -= std::min(shift_new_start, (int)spike_buf_pos_pop_vec_);
+	spike_buf_pos_clust_ -= std::min(shift_new_start, (int)spike_buf_pos_clust_);
+	spike_buf_pos_pf_ -= std::min(shift_new_start, (int)spike_buf_pos_pf_);
+	spike_buf_pos_auto_ -= std::min(shift_new_start, (int)spike_buf_pos_auto_);
+	spike_buf_pos_lpt_ -= std::min(shift_new_start, (int)spike_buf_pos_lpt_);
+	spike_buf_pos_fet_writer_ -= std::min(shift_new_start, (int)spike_buf_pos_fet_writer_);
+	spike_buf_pos_ws_disp_ -= std::min(shift_new_start, (int)spike_buf_pos_ws_disp_);
+	spike_buf_pos_featext_collected_ -= std::min(shift_new_start, (int)spike_buf_pos_featext_collected_);
+	spike_buf_pos_binary_classifier_ -= std::min(shift_new_start, (int)spike_buf_pos_binary_classifier_);
+
+	for (size_t i=0; i < spike_buf_pos_clusts_.size(); ++i){
+		spike_buf_pos_clusts_[i] -= std::min(shift_new_start, (int)spike_buf_pos_clusts_[i]);
+	}
+
+	Log("Spike buffer rewind at pos ", spike_buf_pos);
+
+	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 }
 
 void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {

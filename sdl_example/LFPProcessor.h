@@ -74,6 +74,8 @@ protected:
     LFPBuffer* buffer = nullptr;
     const unsigned int processor_number_ = 0;
 
+    std::vector<unsigned int> spike_buf_tetrodewise_ptrs_;
+
     virtual void Log(std::string message);
     virtual void Log(std::string message, int num);
     virtual void Log(std::string message, double num);
@@ -88,10 +90,15 @@ public:
 
     virtual std::string name();
     virtual void process() = 0;
+    virtual void process_tetrode(int tetrode) { process(); };
     LFPProcessor(LFPBuffer *buf, const unsigned int& processor_number = 0)
     : buffer(buf)
-    , processor_number_(processor_number){}
+    , processor_number_(processor_number){ spike_buf_tetrodewise_ptrs_.resize(buffer->tetr_info_->tetrodes_number()); }
 	virtual ~LFPProcessor(){ buffer->Log(std::string("Destructor of") + name()); }
+
+	// methods for parallel execution
+	virtual void desync() {};
+	virtual void sync() {};
 };
 
 //====================================================================================================
@@ -159,7 +166,11 @@ class SpikeAlignmentProcessor : public LFPProcessor{
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer);
     virtual void process();
+    virtual void process_tetrode(int tetrode);
     virtual inline std::string name() { return "Spike Alignment"; }
+
+    virtual void desync();
+    virtual void sync();
 };
 
 //==========================================================================================
