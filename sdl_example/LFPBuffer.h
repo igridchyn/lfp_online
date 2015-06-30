@@ -367,7 +367,7 @@ public:
 	bool IsHighSynchrony(double average_spikes_window);
 	double AverageSynchronySpikesWindow();
 
-	void AddSpike(Spike *spike);
+	void AddSpike(Spike *spike, bool rewind = true);
 	void Rewind();
 
 	void Log();

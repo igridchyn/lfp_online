@@ -429,7 +429,7 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 }
 
 
-void LFPBuffer::AddSpike(Spike* spike) {
+void LFPBuffer::AddSpike(Spike* spike, bool rewind) {
 	// the spike is re-initialized rather than deleted and created again
 //	if (spike_buffer_[spike_buf_pos] != nullptr){
 //		FreeWaveshapeMemory(spike_buffer_[spike_buf_pos]);
@@ -445,7 +445,7 @@ void LFPBuffer::AddSpike(Spike* spike) {
 	spike_buf_pos++;
 
 	// check if rewind is requried
-	if (spike_buf_pos == SPIKE_BUF_LEN){
+	if (spike_buf_pos == SPIKE_BUF_LEN && rewind){
 		Rewind();
 	}
 }
