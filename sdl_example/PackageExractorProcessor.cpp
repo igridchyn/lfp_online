@@ -25,6 +25,8 @@ PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
 	//CH_MAP_INV = new int[64]{ 32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, 40, 41, 42, 43, 44, 45, 46, 47, 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55, 16, 17, 18, 19, 20, 21, 22, 23, 56, 57, 58, 59, 60, 61, 62, 63, 24, 25, 26, 27, 28, 29, 30, 31 };
 	//CH_MAP_INV = new int[64]{48,49,50,51,52,53,54,55,32,33,34,35,36,37,38,39,16,17,18,19,20,21,22,23,0,1,2,3,4,5,6,7,56,57,58,59,60,61,62,63,40,41,42,43,44,45,46,47,24,25,26,27,28,29,30,31,8,9,10,11,12,13,14,15};
 	CH_MAP_INV = new int[64]{8,9,10,11,12,13,14,15,24,25,26,27,28,29,30,31,40,41,42,43,44,45,46,47,56,57,58,59,60,61,62,63,0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23,32,33,34,35,36,37,38,39,48,49,50,51,52,53,54,55};
+
+	last_check_point_ = clock();
 }
 
 void PackageExractorProcessor::process(){
@@ -55,10 +57,10 @@ void PackageExractorProcessor::process(){
     
     unsigned int num_chunks = buffer->chunk_buf_ptr_in_ / CHUNK_SIZE;
 
-    // DEBUG
-    if (num_chunks > 1){
-    	Log("NUMCH > 1: ", num_chunks);
-    }
+    // TMPDEBUG
+//    if (num_chunks > 1){
+//    	Log("NUMCH > 1: ", num_chunks);
+//    }
 
     // see if buffer reinit is needed, rewind buffer
     if (buffer->buf_pos + 3 * num_chunks > buffer->LFP_BUF_LEN - buffer->BUF_HEAD_LEN){
@@ -210,6 +212,9 @@ void PackageExractorProcessor::process(){
     if (buffer->last_pkg_id - last_reported_ > report_rate_){
     	last_reported_ = buffer->last_pkg_id;
     	Log(std::string("Processed ") + Utils::Converter::int2str(last_reported_ / (buffer->SAMPLING_RATE * 60)) + " minutes of data...");
+    	unsigned int check_time_ = (clock() - last_check_point_) / CLOCKS_PER_SEC;
+    	last_check_point_ = clock();
+    	Log(std::string("\tin ") + Utils::Converter::int2str(check_time_) + " seconds");
     }
 }
 

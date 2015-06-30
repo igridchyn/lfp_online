@@ -30,6 +30,8 @@ class PackageExractorProcessor : public LFPProcessor{
 	int *CH_MAP_INV;
 	int *CH_MAP;
 
+	unsigned long last_check_point_ = 0;
+
 public:
 	virtual std::string name();
     virtual void process();
