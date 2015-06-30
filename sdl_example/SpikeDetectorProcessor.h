@@ -41,7 +41,15 @@ public:
     SpikeDetectorProcessor(LFPBuffer* buffer);
     SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory);
     virtual void process();
+    virtual void process_tetrode(int tetrode_to_process);
     virtual inline std::string name() { return "Spike Detector"; }
+
+    virtual void desync();
+    virtual void sync();
+
+private:
+    void filter_channel(unsigned int channel);
+    void update_threshold(unsigned int channel);
 };
 
 #endif

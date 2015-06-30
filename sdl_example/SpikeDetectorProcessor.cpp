@@ -60,57 +60,30 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     memset(thresholds_, 0, sizeof(int) * buffer->CHANNEL_NUM);
 }
 
-void SpikeDetectorProcessor::process()
+void SpikeDetectorProcessor::process(){
+	process_tetrode(-1);
+}
+
+void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
 {
     // printf("Spike detect...");
     
     // to start detection by threshold from this position after filtering + power computation
     // int det_pos = filt_pos;
     
-    for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
-        
-        if (!buffer->is_valid_channel(channel) || buffer->buf_pos < filter_len/2)
-            continue;
-        
-        for (unsigned int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
-            // filter with high-pass spike filter
-            int filtered = 0;
-            signal_type *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
-            
-            // SSE implementation with 8-bit filter and signal
+	if (tetrode_to_process < 0){
+		for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
 
-            int filtered_long = 0;
-            for (unsigned int j=0; j < filter_len; ++j, chan_sig_buf++) {
-                filtered_long += *(chan_sig_buf) * filter_int_[j];
-            }
+			if (!buffer->is_valid_channel(channel) || buffer->buf_pos < filter_len/2)
+				continue;
 
-#ifdef CHAR_SIGNAL
-            // * 256 / 8192
-            filtered = filtered_long >> 5;
-#else
-            filtered = filtered_long / 100000000.0f;
-#endif
-            
-            buffer->filtered_signal_buf[channel][fpos] = filtered;
-            
-            // power in window of 4
-            unsigned long long pw = 0;
-            for(int i=0; i<4 ;++i){
-                pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
-            }
-            buffer->power_buf[channel][fpos] = sqrt(pw);
-            
-            // TODO: !!! INVESTIGATE NEGITIVE THRESHOLD
-            // std estimation
-            if (buffer->powerEstimatorsMap_[channel] != nullptr)
-                buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
-            
-            // DEBUG
-//            if (channel == 8){
-//                printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
-//            }
-        }
-    }
+			filter_channel(channel);
+		}
+	} else {
+		for (unsigned int ci = 0; ci < buffer->tetr_info_->tetrode_channels[tetrode_to_process].size(); ++ci){
+			filter_channel(buffer->tetr_info_->tetrode_channels[tetrode_to_process][ci]);
+		}
+	}
     
     filt_pos = buffer->buf_pos - filter_len / 2;
     
@@ -126,17 +99,17 @@ void SpikeDetectorProcessor::process()
         return;
     }
     
-    for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
-        if (!buffer->is_valid_channel(channel)  || (buffer->last_pkg_id % DET_THOLD_CALC_RATE_))
-            continue;
-        
-        thresholds_[channel] = (int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
+    if (tetrode_to_process < 0){
+		for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+			if (!buffer->is_valid_channel(channel) || (buffer->last_pkg_id % DET_THOLD_CALC_RATE_))
+				continue;
 
-        // TMPDEBUG
-        if (thresholds_[channel] < 0){
-        	thresholds_[channel] = std::numeric_limits<int>::max();
-        	Log("WARNING: THRESHOLD < 0 at channel", channel);
-        }
+		   update_threshold(channel);
+		}
+    } else {
+    	for (unsigned int ci = 0; ci < buffer->tetr_info_->tetrode_channels[tetrode_to_process].size(); ++ci){
+    		update_threshold(buffer->tetr_info_->tetrode_channels[tetrode_to_process][ci]);
+    	}
     }
 
     for (unsigned int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
@@ -162,7 +135,8 @@ void SpikeDetectorProcessor::process()
                 	// TODO: !!! lock private and used withing AddSpike
                 	std::lock_guard<std::mutex> lk(spike_add_mtx_);
                 	spike = buffer->spike_buffer_[buffer->spike_buf_pos];
-                	buffer->AddSpike(spike);
+                	// in parallel mode - rewind is done at desync
+                	buffer->AddSpike(spike, tetrode_to_process < 0);
                 }
 
                 buffer->FreeFeaturesMemory(spike);
@@ -206,3 +180,64 @@ void SpikeDetectorProcessor::process()
     det_pos = filt_pos;
 }
 
+void SpikeDetectorProcessor::desync() {
+	// rewind if during async detection can go out of bounds
+	// TODO !!! compute from chunk size
+	if (buffer->spike_buf_pos > buffer->SPIKE_BUF_LEN - buffer->tetr_info_->tetrodes_number() * 300){
+		buffer->Rewind();
+	}
+}
+
+void SpikeDetectorProcessor::sync() {
+}
+
+void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
+	for (unsigned int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
+		// filter with high-pass spike filter
+		int filtered = 0;
+		signal_type *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
+
+		// SSE implementation with 8-bit filter and signal
+
+		int filtered_long = 0;
+		for (unsigned int j=0; j < filter_len; ++j, chan_sig_buf++) {
+			filtered_long += *(chan_sig_buf) * filter_int_[j];
+		}
+
+#ifdef CHAR_SIGNAL
+		// * 256 / 8192
+		filtered = filtered_long >> 5;
+#else
+		filtered = filtered_long / 100000000.0f;
+#endif
+
+		buffer->filtered_signal_buf[channel][fpos] = filtered;
+
+		// power in window of 4
+		unsigned long long pw = 0;
+		for(int i=0; i<4 ;++i){
+			pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
+		}
+		buffer->power_buf[channel][fpos] = sqrt(pw);
+
+		// TODO: !!! INVESTIGATE NEGITIVE THRESHOLD
+		// std estimation
+		if (buffer->powerEstimatorsMap_[channel] != nullptr)
+			buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
+
+		// DEBUG
+		//            if (channel == 8){
+		//                printf("std estimate: %d\n", (int)buffer->powerEstimatorsMap_[channel]->get_std_estimate());
+		//            }
+	}
+}
+
+void SpikeDetectorProcessor::update_threshold(unsigned int channel) {
+	 thresholds_[channel] = (int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
+
+	 // TMPDEBUG
+	 if (thresholds_[channel] < 0){
+		 thresholds_[channel] = std::numeric_limits<int>::max();
+		 Log("WARNING: THRESHOLD < 0 at channel", channel);
+	 }
+}
