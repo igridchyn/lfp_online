@@ -24,7 +24,6 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer)
 		buffer->config_->getInt("spike.detection.refractory")
 		){
 	filt_pos = buffer->BUF_HEAD_LEN;
-	det_pos = buffer->BUF_HEAD_LEN;
 }
 
 SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory)
@@ -62,6 +61,13 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 
 void SpikeDetectorProcessor::process(){
 	process_tetrode(-1);
+
+    filt_pos = buffer->buf_pos - filter_len / 2;
+
+    // TODO !!! check if fine with rewinds
+    if (filt_pos < buffer->HEADER_LEN){
+        filt_pos = buffer->HEADER_LEN;
+    }
 }
 
 void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
@@ -84,13 +90,6 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
 			filter_channel(buffer->tetr_info_->tetrode_channels[tetrode_to_process][ci]);
 		}
 	}
-    
-    filt_pos = buffer->buf_pos - filter_len / 2;
-    
-    // TODO !!! check if fine with rewinds
-    if (filt_pos < buffer->HEADER_LEN){
-        filt_pos = buffer->HEADER_LEN;
-    }
     
     // DETECT only after enough samples for power estimation
     if (buffer->powerEstimators_[0].n_samples() < min_power_samples_){
@@ -131,8 +130,6 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
     		detect_spikes(channel, threshold, tetrode, tetrode_to_process);
     	}
     }
-    
-    det_pos = filt_pos;
 }
 
 void SpikeDetectorProcessor::desync() {
@@ -144,10 +141,15 @@ void SpikeDetectorProcessor::desync() {
 }
 
 void SpikeDetectorProcessor::sync() {
+	filt_pos = buffer->buf_pos - filter_len / 2;
+
+	if (filt_pos < buffer->HEADER_LEN){
+		filt_pos = buffer->HEADER_LEN;
+	}
 }
 
 void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
-	for (unsigned int fpos = filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
+	for (unsigned int fpos =  filt_pos; fpos < buffer->buf_pos - filter_len/2; ++fpos) {
 		// filter with high-pass spike filter
 		int filtered = 0;
 		signal_type *chan_sig_buf = buffer->signal_buf[channel] + fpos - filter_len/2;
@@ -198,7 +200,7 @@ void SpikeDetectorProcessor::update_threshold(unsigned int channel) {
 }
 
 void SpikeDetectorProcessor::detect_spikes(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process) {
-	for (unsigned int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
+	for (unsigned int dpos = filt_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
 		// detection via threshold nstd * std
 		unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
 		if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)

@@ -25,7 +25,6 @@ class SpikeDetectorProcessor : public LFPProcessor{
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
     int filt_pos = 0;
-    int det_pos = 0;
 
     int *thresholds_;
     
@@ -36,9 +35,6 @@ class SpikeDetectorProcessor : public LFPProcessor{
     const unsigned int DET_THOLD_CALC_RATE_;
 
     std::mutex spike_add_mtx_;
-
-    std::vector<int> det_pos_tetrodewise_;
-    std::vector<int> filt_pos_tetrodewise_;
 
 public:
     SpikeDetectorProcessor(LFPBuffer* buffer);
