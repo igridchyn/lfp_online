@@ -240,41 +240,41 @@ void SpikeAlignmentProcessor::sync() {
 	}
 
 	// check temporal order
-//	for (unsigned int spike_buf_ptr = prev_ptr; spike_buf_ptr < buffer->spike_buf_nows_pos; ++spike_buf_ptr){
-//		Spike *spike = buffer->spike_buffer_[spike_buf_ptr];
+	for (unsigned int spike_buf_ptr = prev_ptr; spike_buf_ptr < buffer->spike_buf_nows_pos; ++spike_buf_ptr){
+		Spike *spike = buffer->spike_buffer_[spike_buf_ptr];
+
+		// TODO !!! check validity for sync mode, MAKE PARALLEL VERSION ??? - or avoid
+		// check if there are not too many spikes in the noise removal queue and signal noise if yes
+		while (!noise_detection_queue_.empty()){
+			Spike *front = noise_detection_queue_.front();
+			if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
+				noise_detection_queue_.pop();
+			}else{
+				break;
+			}
+		}
+		noise_detection_queue_.push(spike);
+		// TODO: keep pointer to last spike assigned as noise to repeat the assignment
+		if (noise_detection_queue_.size() > NNOISE){
+			last_noise_pkg_id_ = spike->pkg_id_;
+			unsigned int noise_ptr = spike_buf_ptr;
+			while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
+				buffer->spike_buffer_[noise_ptr]->discarded_ = true;
+				noise_ptr--;
+			}
+
+			spike_buf_ptr++;
+			spike->discarded_ = true;
+			continue;
+		}
 //
-//		// TODO !!! check validity for sync mode, MAKE PARALLEL VERSION ??? - or avoid
-//		// check if there are not too many spikes in the noise removal queue and signal noise if yes
-//		while (!noise_detection_queue_.empty()){
-//			Spike *front = noise_detection_queue_.front();
-//			if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
-//				noise_detection_queue_.pop();
-//			}else{
-//				break;
-//			}
-//		}
-//		noise_detection_queue_.push(spike);
-//		// TODO: keep pointer to last spike assigned as noise to repeat the assignment
-//		if (noise_detection_queue_.size() > NNOISE){
-//			last_noise_pkg_id_ = spike->pkg_id_;
-//			unsigned int noise_ptr = spike_buf_ptr;
-//			while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
-//				buffer->spike_buffer_[noise_ptr]->discarded_ = true;
-//				noise_ptr--;
-//			}
-//
-//			spike_buf_ptr++;
-//			spike->discarded_ = true;
-//			continue;
-//		}
-//
-//		int spike_sort_pos = spike_buf_ptr;
-//		while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
-//			// swap
-//			buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
-//			buffer->spike_buffer_[spike_sort_pos - 1] = spike;
-//
-//			spike_sort_pos --;
-//		}
-//	}
+		int spike_sort_pos = spike_buf_ptr;
+		while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
+			// swap
+			buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
+			buffer->spike_buffer_[spike_sort_pos - 1] = spike;
+
+			spike_sort_pos --;
+		}
+	}
 }
