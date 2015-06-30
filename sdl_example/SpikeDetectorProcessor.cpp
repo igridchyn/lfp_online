@@ -60,6 +60,8 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 }
 
 void SpikeDetectorProcessor::process(){
+	buffer->spike_buf_pos_predetect_ = buffer->spike_buf_pos;
+
 	process_tetrode(-1);
 
     filt_pos = buffer->buf_pos - filter_len / 2;
@@ -68,6 +70,15 @@ void SpikeDetectorProcessor::process(){
     if (filt_pos < buffer->HEADER_LEN){
         filt_pos = buffer->HEADER_LEN;
     }
+
+	// DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
+	//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
+
+	// set coords
+	// find position
+	// !!! TODO: interpolate, wait for next if needed [separate processor ?]
+    set_spike_positions();
+    buffer->spike_buf_pos_predetect_ = buffer->spike_buf_pos;
 }
 
 void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
@@ -138,6 +149,8 @@ void SpikeDetectorProcessor::desync() {
 	if (buffer->spike_buf_pos > buffer->SPIKE_BUF_LEN - buffer->tetr_info_->tetrodes_number() * 300){
 		buffer->Rewind();
 	}
+
+	buffer->spike_buf_pos_predetect_ = buffer->spike_buf_pos;
 }
 
 void SpikeDetectorProcessor::sync() {
@@ -146,6 +159,9 @@ void SpikeDetectorProcessor::sync() {
 	if (filt_pos < buffer->HEADER_LEN){
 		filt_pos = buffer->HEADER_LEN;
 	}
+
+	set_spike_positions();
+	buffer->spike_buf_pos_predetect_ = buffer->spike_buf_pos;
 }
 
 void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
@@ -233,25 +249,26 @@ void SpikeDetectorProcessor::detect_spikes(const unsigned int & channel, const i
 
 			// DEBUG
 			buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
+		}
+	}
+}
 
-			// DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
-			//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
+void SpikeDetectorProcessor::set_spike_positions() {
+	for (unsigned int new_spike_pos = buffer->spike_buf_pos_predetect_; new_spike_pos < buffer->spike_buf_pos; ++ new_spike_pos){
+		Spike *spike = buffer->spike_buffer_[new_spike_pos];
 
-			// set coords
-			// find position
-			// !!! TODO: interpolate, wait for next if needed [separate processor ?]
-			while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
-				buffer->pos_buf_spike_pos_++;
-			}
+		while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike->pkg_id_ && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
+			buffer->pos_buf_spike_pos_++;
+		}
 
-			if (buffer->pos_buf_spike_pos_ > 0){
-				spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
-				spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
-			}
-			else{
-				spike->x = buffer->pos_unknown_;
-				spike->y = buffer->pos_unknown_;
-			}
+		// TODO: separate processor, interpolate optionally
+		if (buffer->pos_buf_spike_pos_ > 0){
+			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
+			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
+		}
+		else{
+			spike->x = buffer->pos_unknown_;
+			spike->y = buffer->pos_unknown_;
 		}
 	}
 }

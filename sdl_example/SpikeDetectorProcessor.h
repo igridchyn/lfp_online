@@ -50,6 +50,7 @@ private:
     void filter_channel(unsigned int channel);
     void update_threshold(unsigned int channel);
     void detect_spikes(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process);
+    void set_spike_positions();
 };
 
 #endif

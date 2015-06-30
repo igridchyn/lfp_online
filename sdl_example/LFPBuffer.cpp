@@ -39,6 +39,7 @@ void LFPBuffer::Reset(Config* config)
 	spike_buf_pos_ws_disp_ = 0;
 	spike_buf_pos_featext_collected_ = 0;
 	spike_buf_pos_binary_classifier_ = 0;
+	spike_buf_pos_predetect_ = 0;
 
 	// main tetrode info
 	if (tetr_info_)
@@ -699,6 +700,7 @@ void LFPBuffer::Rewind() {
 	spike_buf_pos_ws_disp_ -= std::min(shift_new_start, (int)spike_buf_pos_ws_disp_);
 	spike_buf_pos_featext_collected_ -= std::min(shift_new_start, (int)spike_buf_pos_featext_collected_);
 	spike_buf_pos_binary_classifier_ -= std::min(shift_new_start, (int)spike_buf_pos_binary_classifier_);
+	spike_buf_pos_predetect_ -= std::min(shift_new_start, (int)spike_buf_pos_predetect_);
 
 	for (size_t i=0; i < spike_buf_pos_clusts_.size(); ++i){
 		spike_buf_pos_clusts_[i] -= std::min(shift_new_start, (int)spike_buf_pos_clusts_[i]);

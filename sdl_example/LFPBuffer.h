@@ -225,6 +225,8 @@ public:
 	unsigned int spike_buf_pos_featext_collected_;
 	// binary population classifier
 	unsigned int spike_buf_pos_binary_classifier_;
+	// before starting detection - to process all new spikes afterwards (esp. for parallel mode)
+	unsigned int spike_buf_pos_predetect_;
 
 	// TODO: size ?
 	std::vector<unsigned int> spike_buf_pos_clusts_;
