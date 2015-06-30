@@ -37,6 +37,9 @@ class SpikeDetectorProcessor : public LFPProcessor{
 
     std::mutex spike_add_mtx_;
 
+    std::vector<int> det_pos_tetrodewise_;
+    std::vector<int> filt_pos_tetrodewise_;
+
 public:
     SpikeDetectorProcessor(LFPBuffer* buffer);
     SpikeDetectorProcessor(LFPBuffer* buffer, const char* filter_path, const float nstd, const int refractory);
@@ -50,6 +53,7 @@ public:
 private:
     void filter_channel(unsigned int channel);
     void update_threshold(unsigned int channel);
+    void detect_spikes(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process);
 };
 
 #endif

@@ -88,8 +88,9 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
     filt_pos = buffer->buf_pos - filter_len / 2;
     
     // TODO !!! check if fine with rewinds
-    if (filt_pos < buffer->HEADER_LEN)
+    if (filt_pos < buffer->HEADER_LEN){
         filt_pos = buffer->HEADER_LEN;
+    }
     
     // DETECT only after enough samples for power estimation
     if (buffer->powerEstimators_[0].n_samples() < min_power_samples_){
@@ -112,69 +113,23 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
     	}
     }
 
-    for (unsigned int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
-        for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
-            
-            if (!buffer->is_valid_channel(channel))
-                continue;
-            
-            int threshold = thresholds_[channel];
+    if (tetrode_to_process < 0){
+		for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+			if (!buffer->is_valid_channel(channel))
+				continue;
+			int threshold = thresholds_[channel];
+			int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
 
-            int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
-            
-            // detection via threshold nstd * std
-            unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
-            if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)
-            {
-                // printf("Spike: %d...\n", spike_pos);
-                // printf("%d ", spike_pos);
-                
-                buffer->last_spike_pos_[tetrode] = spike_pos + 1;
-                Spike *spike = nullptr;
-                {
-                	// TODO: !!! lock private and used withing AddSpike
-                	std::lock_guard<std::mutex> lk(spike_add_mtx_);
-                	spike = buffer->spike_buffer_[buffer->spike_buf_pos];
-                	// in parallel mode - rewind is done at desync
-                	buffer->AddSpike(spike, tetrode_to_process < 0);
-                }
+			detect_spikes(channel, threshold, tetrode, tetrode_to_process);
+		}
+    } else {
+    	for (unsigned int ci = 0; ci < buffer->tetr_info_->tetrode_channels[tetrode_to_process].size(); ++ci){
+    		unsigned int channel = buffer->tetr_info_->tetrode_channels[tetrode_to_process][ci];
+    		int threshold = thresholds_[channel];
+    		int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
 
-                buffer->FreeFeaturesMemory(spike);
-                buffer->FreeWaveshapeMemory(spike);
-                buffer->FreeFinalWaveshapeMemory(spike);
-                if (!spike->extra_features_){
-                	buffer->AllocateExtraFeaturePointerMemory(spike);
-                }
-                spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
-
-                // DEBUG
-//                if (spike_pos + 1 > 250000){
-//                	std::cout << "PKG: " << spike_pos + 1 << "\n";
-//                }
-
-                // DEBUG
-                buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
-
-                // DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
-//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
-
-                // set coords
-                // find position
-                // !!! TODO: interpolate, wait for next if needed [separate processor ?]
-                while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
-                    buffer->pos_buf_spike_pos_++;
-                }
-
-                if (buffer->pos_buf_spike_pos_ > 0){
-                	spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
-                	spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
-                }
-                else{
-                	spike->x = buffer->pos_unknown_;
-                	spike->y = buffer->pos_unknown_;
-                }
-            }
-        }
+    		detect_spikes(channel, threshold, tetrode, tetrode_to_process);
+    	}
     }
     
     det_pos = filt_pos;
@@ -240,4 +195,61 @@ void SpikeDetectorProcessor::update_threshold(unsigned int channel) {
 		 thresholds_[channel] = std::numeric_limits<int>::max();
 		 Log("WARNING: THRESHOLD < 0 at channel", channel);
 	 }
+}
+
+void SpikeDetectorProcessor::detect_spikes(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process) {
+	for (unsigned int dpos = det_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
+		// detection via threshold nstd * std
+		unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
+		if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)
+		{
+			// printf("Spike: %d...\n", spike_pos);
+			// printf("%d ", spike_pos);
+
+			buffer->last_spike_pos_[tetrode] = spike_pos + 1;
+			Spike *spike = nullptr;
+			{
+				// TODO: !!! lock private and used withing AddSpike
+				std::lock_guard<std::mutex> lk(spike_add_mtx_);
+				spike = buffer->spike_buffer_[buffer->spike_buf_pos];
+				// in parallel mode - rewind is done at desync
+				buffer->AddSpike(spike, tetrode_to_process < 0);
+			}
+
+			buffer->FreeFeaturesMemory(spike);
+			buffer->FreeWaveshapeMemory(spike);
+			buffer->FreeFinalWaveshapeMemory(spike);
+			if (!spike->extra_features_){
+				buffer->AllocateExtraFeaturePointerMemory(spike);
+			}
+			spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
+
+			// DEBUG
+			//                if (spike_pos + 1 > 250000){
+			//                	std::cout << "PKG: " << spike_pos + 1 << "\n";
+			//                }
+
+			// DEBUG
+			buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
+
+			// DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
+			//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
+
+			// set coords
+			// find position
+			// !!! TODO: interpolate, wait for next if needed [separate processor ?]
+			while(buffer->positions_buf_[buffer->pos_buf_spike_pos_].pkg_id_ < spike_pos && buffer->pos_buf_spike_pos_ < buffer->pos_buf_pos_){
+				buffer->pos_buf_spike_pos_++;
+			}
+
+			if (buffer->pos_buf_spike_pos_ > 0){
+				spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
+				spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
+			}
+			else{
+				spike->x = buffer->pos_unknown_;
+				spike->y = buffer->pos_unknown_;
+			}
+		}
+	}
 }
