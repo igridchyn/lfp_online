@@ -49,6 +49,9 @@ void ParallelPipelineProcessor::process() {
 
 void ParallelPipelineProcessor::process_thread(const int group) {
 	while(true){
+		// TMPDEBUG
+//		std::cout << "process " << group << "\n";
+
 		std::unique_lock<std::mutex> lk(mtx_data_add_[group]);
 		cv_data_added_[group].wait(lk, [=]{return data_added_[group];});
 

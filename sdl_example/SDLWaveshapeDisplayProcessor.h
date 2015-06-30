@@ -72,6 +72,10 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 
 	unsigned int last_ua_id_ = 0;
 
+	// TODO finish implementation
+	// [tetrode][cluster][channel][sample]
+	//unsigned int mean_waveshapes_[32][40][4][128] = {0};
+
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,

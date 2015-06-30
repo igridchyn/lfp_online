@@ -13,42 +13,44 @@ void SpikeAlignmentProcessor::process(){
 	process_tetrode(-1);
 }
 
-void SpikeAlignmentProcessor::process_tetrode(int tetrode){
+void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
     // try to populate unpopulated spikes -
-	unsigned int& spike_buf_ptr = tetrode >=0 ? spike_buf_tetrodewise_ptrs_[tetrode] : buffer->spike_buf_nows_pos;
+	unsigned int& spike_buf_ptr = tetrode_to_process >=0 ? spike_buf_tetrodewise_ptrs_[tetrode_to_process] : buffer->spike_buf_nows_pos;
 
     while (spike_buf_ptr < buffer->spike_buf_pos &&
            buffer->spike_buffer_[spike_buf_ptr]->pkg_id_ < buffer->last_pkg_id - 25 - Spike::WL_LENGTH/2){
         Spike *spike = buffer->spike_buffer_[spike_buf_ptr];
 
         // parallel mode: skip non-target tetrodes
-        if (tetrode >=0 && spike->tetrode_ != tetrode){
+        if (tetrode_to_process >=0 && spike->tetrode_ != tetrode_to_process){
         	spike_buf_ptr ++;
         	continue;
         }
 
         // check if there are not too many spikes in the noise removal queue and signal noise if yes
-        while (!noise_detection_queue_.empty()){
-        	Spike *front = noise_detection_queue_.front();
-        	if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
-        		noise_detection_queue_.pop();
-        	}else{
-        		break;
-        	}
-        }
-        noise_detection_queue_.push(spike);
-        // TODO: keep pointer to last spike assigned as noise to repeat the assignment
-        if (noise_detection_queue_.size() > NNOISE){
-        	last_noise_pkg_id_ = spike->pkg_id_;
-        	unsigned int noise_ptr = spike_buf_ptr;
-        	while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
-        		buffer->spike_buffer_[noise_ptr]->discarded_ = true;
-        		noise_ptr--;
-        	}
+        if (tetrode_to_process == -1){
+			while (!noise_detection_queue_.empty()){
+				Spike *front = noise_detection_queue_.front();
+				if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
+					noise_detection_queue_.pop();
+				}else{
+					break;
+				}
+			}
+			noise_detection_queue_.push(spike);
+			// TODO: keep pointer to last spike assigned as noise to repeat the assignment
+			if (noise_detection_queue_.size() > NNOISE){
+				last_noise_pkg_id_ = spike->pkg_id_;
+				unsigned int noise_ptr = spike_buf_ptr;
+				while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
+					buffer->spike_buffer_[noise_ptr]->discarded_ = true;
+					noise_ptr--;
+				}
 
-        	 buffer-> spike_buf_nows_pos++;
-        	 spike->discarded_ = true;
-        	 continue;
+				 spike_buf_ptr++;
+				 spike->discarded_ = true;
+				 continue;
+			}
         }
 
 		// DEBUG
@@ -100,13 +102,13 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode){
         
         // TODO: shift buffer or create one more for aligned spikes
         if ((peak_time==1) && (spike->waveshape[max_chan][0] < max_val)){
-            buffer-> spike_buf_nows_pos++;
+            spike_buf_ptr++;
             spike->discarded_ = true;
             continue; /* not a peak */ // - if peak in the beginning, but previous value is larger
         }
         
         if ((peak_time==(Spike::WL_LENGTH-2))&&(spike->waveshape[max_chan][Spike::WL_LENGTH-1] < max_val)){
-            buffer-> spike_buf_nows_pos++;
+            spike_buf_ptr++;
             spike->discarded_ = true;
             continue; /* not a peak */ // - if peak in the end, but the last value is larger
         }
@@ -124,7 +126,7 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode){
                 prev_spike_[tetrode]->power_ = prev_max_val_[tetrode];
 
                 // ADD spike to buffer's population window and use for ISI estimation
-                buffer->UpdateWindowVector(prev_spike_[tetrode]);
+//                buffer->UpdateWindowVector(prev_spike_[tetrode]);
             }
             
             prev_spike_pos_[tetrode] = peak_pos;
@@ -168,30 +170,39 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode){
 		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until start of temporal shift check in SpikeAlign\n");
 
         // make sure the temporal order of spikes didn't change (assuming it is correct for all previous spikes) by pushing current spikes down in buffer until more recent spike is found
-        int spike_sort_pos = buffer-> spike_buf_nows_pos;
-        while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
-            // swap
-            buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
-            buffer->spike_buffer_[spike_sort_pos - 1] = spike;
+		if (tetrode_to_process == -1){
+			int spike_sort_pos = spike_buf_ptr;
+			while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
+				// swap
+				buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
+				buffer->spike_buffer_[spike_sort_pos - 1] = spike;
 
-            spike_sort_pos --;
-        }
+				spike_sort_pos --;
+			}
+		}
         
         // DEBUG
 		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until end of temporal shift check in SpikeAlign\n");
 
-        buffer-> spike_buf_nows_pos++;
+		spike_buf_ptr++;
     }
 
     // mark all spikes with last pkg_id beyond their refractory as aligned to be available for further processing
     // before the next spike at their tetrode arrives
-    for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-		// WORKAROUND:
-		// last condition - to protect from acessing spikes long ago that could have been deleted
+    if (tetrode_to_process < 0){
+		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
+			// WORKAROUND:
+			// last condition - to protect from acessing spikes long ago that could have been deleted
+			if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD && buffer->last_pkg_id - prev_spike_pos_[t] < buffer->SAMPLING_RATE){
+				prev_spike_[t]->aligned_ = true;
+			}
+		}
+    } else{
+    	unsigned int t = tetrode_to_process;
 		if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD && buffer->last_pkg_id - prev_spike_pos_[t] < buffer->SAMPLING_RATE){
-    		prev_spike_[t]->aligned_ = true;
-    	}
-	}
+			prev_spike_[t]->aligned_ = true;
+		}
+    }
 }
 
 SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
@@ -209,4 +220,61 @@ SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
 	buffer->Log("SpikeAlignmentProcessor created");
 
 //	noise_stream_.open("/tmp/ns");
+}
+
+void SpikeAlignmentProcessor::desync() {
+	// TODO: make a default implementation after encapsulating master ptr into the LFPProcessor
+	// default : set t-wise pointers to master pointer
+	for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+		spike_buf_tetrodewise_ptrs_[t] = buffer->spike_buf_nows_pos;
+	}
+}
+
+void SpikeAlignmentProcessor::sync() {
+	// choose max (as the limit is spike detection ptr which can differ in different tetrodes)
+	unsigned int prev_ptr = buffer->spike_buf_nows_pos;
+
+	for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+		if (spike_buf_tetrodewise_ptrs_[t] > buffer->spike_buf_nows_pos)
+			buffer->spike_buf_nows_pos = spike_buf_tetrodewise_ptrs_[t];
+	}
+
+	// check temporal order
+//	for (unsigned int spike_buf_ptr = prev_ptr; spike_buf_ptr < buffer->spike_buf_nows_pos; ++spike_buf_ptr){
+//		Spike *spike = buffer->spike_buffer_[spike_buf_ptr];
+//
+//		// TODO !!! check validity for sync mode, MAKE PARALLEL VERSION ??? - or avoid
+//		// check if there are not too many spikes in the noise removal queue and signal noise if yes
+//		while (!noise_detection_queue_.empty()){
+//			Spike *front = noise_detection_queue_.front();
+//			if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
+//				noise_detection_queue_.pop();
+//			}else{
+//				break;
+//			}
+//		}
+//		noise_detection_queue_.push(spike);
+//		// TODO: keep pointer to last spike assigned as noise to repeat the assignment
+//		if (noise_detection_queue_.size() > NNOISE){
+//			last_noise_pkg_id_ = spike->pkg_id_;
+//			unsigned int noise_ptr = spike_buf_ptr;
+//			while (noise_ptr > 0 && buffer->spike_buffer_[noise_ptr]->pkg_id_ > spike->pkg_id_ - NOISE_WIN){
+//				buffer->spike_buffer_[noise_ptr]->discarded_ = true;
+//				noise_ptr--;
+//			}
+//
+//			spike_buf_ptr++;
+//			spike->discarded_ = true;
+//			continue;
+//		}
+//
+//		int spike_sort_pos = spike_buf_ptr;
+//		while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
+//			// swap
+//			buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
+//			buffer->spike_buffer_[spike_sort_pos - 1] = spike;
+//
+//			spike_sort_pos --;
+//		}
+//	}
 }
