@@ -32,6 +32,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
 , refractory_(refractory)
 , min_power_samples_(buffer->config_->getInt("spike.detection.min.power.samples", 20000))
 , DET_THOLD_CALC_RATE_(buffer->config_->getInt("spike.detection.thold.rate", 1))
+, filt_pos(buffer->filt_pos_)
 {
     // load spike filter
     std::ifstream filter_stream;
@@ -48,7 +49,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     }
     filter_len = fpos - 1;
     
-    filt_pos = buffer->HEADER_LEN;
+    filt_pos = buffer->BUF_HEAD_LEN;
     
     for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
         buffer->last_spike_pos_[t] = - (int)refractory_;
@@ -64,12 +65,13 @@ void SpikeDetectorProcessor::process(){
 
 	process_tetrode(-1);
 
+	// TODO !!! exclude offset before first rewind
     filt_pos = buffer->buf_pos - filter_len / 2;
 
     // TODO !!! check if fine with rewinds
-    if (filt_pos < buffer->HEADER_LEN){
-        filt_pos = buffer->HEADER_LEN;
-    }
+//    if (filt_pos < buffer->BUF_HEAD_LEN){
+//        filt_pos = buffer->BUF_HEAD_LEN;
+//    }
 
 	// DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
 	//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
@@ -124,14 +126,49 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
     }
 
     if (tetrode_to_process < 0){
-		for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
-			if (!buffer->is_valid_channel(channel))
-				continue;
-			int threshold = thresholds_[channel];
-			int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
+    	for (unsigned int dpos = filt_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
+    		for (unsigned int channel=0; channel<buffer->CHANNEL_NUM; ++channel) {
+    			if (!buffer->is_valid_channel(channel))
+    				continue;
+    			int threshold = thresholds_[channel];
+    			int tetrode = buffer->tetr_info_->tetrode_by_channel[channel];
 
-			detect_spikes(channel, threshold, tetrode, tetrode_to_process);
-		}
+
+    			// detection via threshold nstd * std
+    			unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
+    			if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)
+    			{
+    				// printf("Spike: %d...\n", spike_pos);
+    				// printf("%d ", spike_pos);
+
+    				buffer->last_spike_pos_[tetrode] = spike_pos + 1;
+    				Spike *spike = nullptr;
+    				{
+    					// TODO: !!! lock private and used withing AddSpike
+    					std::lock_guard<std::mutex> lk(spike_add_mtx_);
+    					spike = buffer->spike_buffer_[buffer->spike_buf_pos];
+    					// in parallel mode - rewind is done at desync
+    					buffer->AddSpike(spike, tetrode_to_process < 0);
+    				}
+
+    				buffer->FreeFeaturesMemory(spike);
+    				buffer->FreeWaveshapeMemory(spike);
+    				buffer->FreeFinalWaveshapeMemory(spike);
+    				if (!spike->extra_features_){
+    					buffer->AllocateExtraFeaturePointerMemory(spike);
+    				}
+    				spike->init(spike_pos + 1, tetrode);// new Spike(spike_pos + 1, tetrode);
+
+    				// DEBUG
+    				//                if (spike_pos + 1 > 250000){
+    				//                	std::cout << "PKG: " << spike_pos + 1 << "\n";
+    				//                }
+
+    				// DEBUG
+    				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
+    			}
+    		}
+    	}
     } else {
     	for (unsigned int ci = 0; ci < buffer->tetr_info_->tetrode_channels[tetrode_to_process].size(); ++ci){
     		unsigned int channel = buffer->tetr_info_->tetrode_channels[tetrode_to_process][ci];
@@ -156,11 +193,26 @@ void SpikeDetectorProcessor::desync() {
 void SpikeDetectorProcessor::sync() {
 	filt_pos = buffer->buf_pos - filter_len / 2;
 
-	if (filt_pos < buffer->HEADER_LEN){
-		filt_pos = buffer->HEADER_LEN;
-	}
+//	if (filt_pos < buffer->BUF_HEAD_LEN){
+//		filt_pos = buffer->BUF_HEAD_LEN;
+//	}
 
 	set_spike_positions();
+
+	// restore the temporal order of spikes !
+	// TODO !!! OPTIMIZE
+	for (unsigned int spike_buf_ptr = buffer->spike_buf_pos_predetect_; spike_buf_ptr < buffer->spike_buf_pos; ++spike_buf_ptr){
+		Spike *spike = buffer->spike_buffer_[spike_buf_ptr];
+		int spike_sort_pos = spike_buf_ptr;
+		while (spike_sort_pos > 0 && buffer->spike_buffer_[spike_sort_pos - 1] != nullptr && spike->pkg_id_ < buffer->spike_buffer_[spike_sort_pos - 1]->pkg_id_) {
+			// swap
+			buffer->spike_buffer_[spike_sort_pos] = buffer->spike_buffer_[spike_sort_pos - 1];
+			buffer->spike_buffer_[spike_sort_pos - 1] = spike;
+
+			spike_sort_pos --;
+		}
+	}
+
 	buffer->spike_buf_pos_predetect_ = buffer->spike_buf_pos;
 }
 
@@ -174,6 +226,10 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 
 		int filtered_long = 0;
 		for (unsigned int j=0; j < filter_len; ++j, chan_sig_buf++) {
+			// TMPDEBUG
+			if (channel == 0){
+//				buffer->debug_stream_ << filtered_long << " ";
+			}
 			filtered_long += *(chan_sig_buf) * filter_int_[j];
 		}
 
@@ -192,6 +248,12 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 			pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
 		}
 		buffer->power_buf[channel][fpos] = sqrt(pw);
+
+		// TMPDEBUG
+		if (channel == 0){
+			// buffer->debug_stream_  << "\n" << buffer->buf_pos << " / " << fpos << " : " << filtered << "\n";
+//			buffer->debug_stream_ << filtered << "\n";
+		}
 
 		// TODO: !!! INVESTIGATE NEGITIVE THRESHOLD
 		// std estimation

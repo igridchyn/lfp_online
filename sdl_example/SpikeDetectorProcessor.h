@@ -24,7 +24,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
 
     // position of last processed position in filter array
     // after process() should be equal to buf_pos
-    int filt_pos = 0;
+    unsigned int & filt_pos;
 
     int *thresholds_;
     
