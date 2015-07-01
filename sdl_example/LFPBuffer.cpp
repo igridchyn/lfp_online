@@ -245,10 +245,13 @@ LFPBuffer::LFPBuffer(Config* config)
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
 , CHANNEL_NUM(config->getInt("channel.num", 64))
 {
+	buf_pos = BUF_HEAD_LEN;
+	buf_pos_trig_ = BUF_HEAD_LEN;
+
 	signal_buf.resize(CHANNEL_NUM);
 	filtered_signal_buf.resize(CHANNEL_NUM);
 	power_buf.resize(CHANNEL_NUM);
-	is_valid_channel_.resize(CHANNEL_NUM, false);
+	is_valid_channel_ = new bool[CHANNEL_NUM];
 	powerEstimatorsMap_.resize(CHANNEL_NUM);
 
 	for (size_t i = 0; i < CHANNEL_NUM; i++)
@@ -309,6 +312,8 @@ LFPBuffer::LFPBuffer(Config* config)
 
     chunk_buf_ = new unsigned char[chunk_buf_len_];
     chunk_buf_ptr_in_ = 0;
+
+    debug_stream_.open("debug.txt");
 }
 
 template <class T>
@@ -712,7 +717,9 @@ void LFPBuffer::Rewind() {
 }
 
 void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
+#ifdef PIPELINE_THREAD
 	std::lock_guard<std::mutex> lk(chunk_access_mtx_);
+#endif
 
 	if (chunk_buf_ptr_in_ + data_size >= chunk_buf_len_){
 		Log("ERROR: input buffer overflow, cut the data, bytes: ", chunk_buf_ptr_in_ + data_size - chunk_buf_len_ );

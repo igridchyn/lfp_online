@@ -155,11 +155,6 @@ public:
 
 	const unsigned int CHANNEL_NUM;
 
-	// Axona package configuration in bytes
-	const int HEADER_LEN = 32;
-	const int TAIL_LEN = 16;
-	const int BLOCK_SIZE = 64;
-
 	// length of a population vector, in number of samples (length in seconds = POP_VEC_WIN_LEN / SAMPLING_RATE)
 	const unsigned int POP_VEC_WIN_LEN;
 
@@ -270,15 +265,16 @@ private:
 	std::ofstream log_stream;
 
 public:
-	std::vector<bool> is_valid_channel_;
+	bool *is_valid_channel_;
 
 	std::vector<signal_type *> signal_buf;
 	std::vector<ws_type *> filtered_signal_buf;
 	std::vector<int *> power_buf;
 
 	// ??? for all arrays ?
-	unsigned int buf_pos = BUF_HEAD_LEN;
-	unsigned int buf_pos_trig_ = BUF_HEAD_LEN;
+	unsigned int buf_pos;
+	unsigned int buf_pos_trig_;
+	unsigned int filt_pos_;
 
 	unsigned int last_pkg_id = 0;
 	// for each tetrode
@@ -348,6 +344,8 @@ public:
 	LinearArrayPool<float *> *spike_extra_features_ptr_pool_;
 
 	const unsigned int spike_waveshape_pool_size_;
+
+	std::ofstream debug_stream_;
 
 	//====================================================================================================
 

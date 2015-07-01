@@ -76,6 +76,8 @@ void PackageExractorProcessor::process(){
         buffer->zero_level = buffer->buf_pos + 1;
         buffer->buf_pos = buffer->BUF_HEAD_LEN;
 		buffer->buf_pos_trig_ = buffer->BUF_HEAD_LEN;
+		// TODO !!! DO THIS IN PROPER PLACE
+		buffer->filt_pos_ = buffer->BUF_HEAD_LEN - 25;
         
         // std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
     }
@@ -88,7 +90,7 @@ void PackageExractorProcessor::process(){
     
     // Log("Read chunks: ", buffer->num_chunks);
 
-    unsigned char *bin_ptr = buffer->chunk_buf_ + buffer->HEADER_LEN;
+    unsigned char *bin_ptr = buffer->chunk_buf_ + HEADER_LEN;
     
     // read pos
     for (unsigned int c=0; c < num_chunks; ++c){
@@ -144,7 +146,7 @@ void PackageExractorProcessor::process(){
     // number of full packages read so far (1-64 or 1-128)
     unsigned int full_packages_read = 0;
 
-    for (unsigned int chunk=0; chunk < num_chunks; ++chunk, bin_ptr += buffer->TAIL_LEN + buffer->HEADER_LEN) {
+    for (unsigned int chunk=0; chunk < num_chunks; ++chunk, bin_ptr += TAIL_LEN + HEADER_LEN) {
         unsigned char *pos_chunk = buffer->chunk_buf_ + chunk * CHUNK_SIZE;
 
         // check whether the package contains the tracking information
@@ -178,6 +180,11 @@ void PackageExractorProcessor::process(){
                 // DEBUG
                 //if (c == 0)
                 //    printf("%d\n", *((short*)bin_ptr) + 1);
+
+                // TMPDEBUG
+//         		if (c == 0){
+//         			buffer->debug_stream_ << (int)buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + chunk*3 + block] << "\n";
+//         		}
             }
             bin_ptr += 2 * 64;
         }
@@ -215,6 +222,8 @@ void PackageExractorProcessor::process(){
     	unsigned int check_time_ = (clock() - last_check_point_) / CLOCKS_PER_SEC;
     	last_check_point_ = clock();
     	Log(std::string("\tin ") + Utils::Converter::int2str(check_time_) + " seconds");
+    	Log("With # of spikes: ", buffer->spike_buf_pos);
+//    	exit(0);
     }
 }
 

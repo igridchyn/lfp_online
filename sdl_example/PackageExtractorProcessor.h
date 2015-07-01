@@ -11,6 +11,10 @@
 #include "LFPProcessor.h"
 
 class PackageExractorProcessor : public LFPProcessor{
+	// Axona package configuration in bytes
+	const int HEADER_LEN = 32;
+	const int TAIL_LEN = 16;
+
 	const float SCALE;
 	unsigned int last_reported_ = 0;
 	unsigned int report_rate_;
