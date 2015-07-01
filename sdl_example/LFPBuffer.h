@@ -286,7 +286,7 @@ public:
 	std::mutex chunk_access_mtx_;
 	unsigned char *chunk_buf_ = nullptr;
 	// TODO !!! configurable
-	size_t chunk_buf_len_ = 1000 * 432;
+	size_t chunk_buf_len_ = 10000 * 432;
 	size_t chunk_buf_ptr_in_ = 0;
 
 	std::vector<OnlineEstimator<float, float> > powerEstimators_;
