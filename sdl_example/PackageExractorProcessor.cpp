@@ -69,7 +69,7 @@ void PackageExractorProcessor::process(){
         	if (!buffer->is_valid_channel_[c])
         		continue;
 
-            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(signal_type));
+            memcpy(buffer->signal_buf[c], buffer->signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, (buffer->BUF_HEAD_LEN + 3) * sizeof(signal_type));
             memcpy(buffer->filtered_signal_buf[c], buffer->filtered_signal_buf[c] + buffer->buf_pos - buffer->BUF_HEAD_LEN, buffer->BUF_HEAD_LEN * sizeof(ws_type));
         }
         

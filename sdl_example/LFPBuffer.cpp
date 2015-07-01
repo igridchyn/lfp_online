@@ -142,7 +142,7 @@ void LFPBuffer::Reset(Config* config)
     		filtered_signal_buf[c] = new ws_type[LFP_BUF_LEN + WS_SHIFT];
     		power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
 
-	        memset(signal_buf[c], 0, LFP_BUF_LEN * sizeof(signal_type));
+	        memset(signal_buf[c], 0, (LFP_BUF_LEN + WS_SHIFT) * sizeof(signal_type));
 	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(ws_type));
 	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
     	}
