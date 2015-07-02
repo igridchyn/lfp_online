@@ -225,11 +225,12 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 		// SSE implementation with 8-bit filter and signal
 
 		int filtered_long = 0;
+		// TODO !!! unroll
 		for (unsigned int j=0; j < filter_len; ++j, chan_sig_buf++) {
 			// TMPDEBUG
-			if (channel == 0){
+//			if (channel == 0){
 //				buffer->debug_stream_ << filtered_long << " ";
-			}
+//			}
 			filtered_long += *(chan_sig_buf) * filter_int_[j];
 		}
 
@@ -250,15 +251,16 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 		buffer->power_buf[channel][fpos] = sqrt(pw);
 
 		// TMPDEBUG
-		if (channel == 0){
+//		if (channel == 0){
 			// buffer->debug_stream_  << "\n" << buffer->buf_pos << " / " << fpos << " : " << filtered << "\n";
 //			buffer->debug_stream_ << filtered << "\n";
-		}
+//		}
 
 		// TODO: !!! INVESTIGATE NEGITIVE THRESHOLD
 		// std estimation
-		if (buffer->powerEstimatorsMap_[channel] != nullptr)
-			buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
+		// NO CHECK, as channel has bee n chosen for filtering, so it's good
+//		if (buffer->powerEstimatorsMap_[channel] != nullptr)
+		buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
 
 		// DEBUG
 		//            if (channel == 8){
@@ -278,9 +280,10 @@ void SpikeDetectorProcessor::update_threshold(unsigned int channel) {
 }
 
 void SpikeDetectorProcessor::detect_spikes(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process) {
-	for (unsigned int dpos = filt_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos) {
+	unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + filt_pos;
+
+	for (unsigned int dpos = filt_pos; dpos < buffer->buf_pos - filter_len/2; ++dpos, ++spike_pos) {
 		// detection via threshold nstd * std
-		unsigned int spike_pos = buffer->last_pkg_id - buffer->buf_pos + dpos;
 		if (buffer->power_buf[channel][dpos] > threshold && spike_pos - buffer->last_spike_pos_[tetrode] >= refractory_ - 1)
 		{
 			// printf("Spike: %d...\n", spike_pos);
@@ -289,8 +292,8 @@ void SpikeDetectorProcessor::detect_spikes(const unsigned int & channel, const i
 			buffer->last_spike_pos_[tetrode] = spike_pos + 1;
 			Spike *spike = nullptr;
 			{
-				// TODO: !!! lock private and used withing AddSpike
 				std::lock_guard<std::mutex> lk(spike_add_mtx_);
+				// TODO: !!! lock private and used withing AddSpike
 				spike = buffer->spike_buffer_[buffer->spike_buf_pos];
 				// in parallel mode - rewind is done at desync
 				buffer->AddSpike(spike, tetrode_to_process < 0);
