@@ -68,6 +68,9 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 
 	buf->pipeline_status_ = PIPELINE_STATUS_READ_BIN;
 	buf->input_duration_ = totalAxonaPackages(files_list_);
+
+	Log("WARNING: SKIP 1 PKG");
+	fread((void*)block_, 1, chunk_size_, bin_file_);
 }
 
 void BinFileReaderProcessor::process() {
