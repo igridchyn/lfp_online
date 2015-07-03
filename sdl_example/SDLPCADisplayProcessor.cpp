@@ -128,18 +128,9 @@ void SDLPCADisplayProcessor::process(){
             }
         }
 
-
-        if (spike->tetrode_ != target_tetrode_){
-        	buffer->spike_buf_no_disp_pca++;
-        	continue;
-        }
-
-        int x;
-        int y;
-        getSpikeCoords(spike, x ,y);
-
         // polygon cluster
         // TODO use scaled coordinates
+        // TODO !!! do all tetrodes have to be processed at this point?
         if (spike->cluster_id_ == -1 && need_clust_check_){
         	for (size_t i=0; i < polygon_clusters_[spike->tetrode_].size(); ++i){
         		// TODO use other dimensions if cluster has the other one
@@ -152,6 +143,16 @@ void SDLPCADisplayProcessor::process(){
 
         	}
         }
+
+        if (spike->tetrode_ != target_tetrode_){
+        	buffer->spike_buf_no_disp_pca++;
+        	continue;
+        }
+
+        int x;
+        int y;
+        getSpikeCoords(spike, x ,y);
+
 
         // TODO ??? don't display artifacts and unknown with the same color
         const unsigned int cid = spike->cluster_id_ > -1 ? spike->cluster_id_ : 0;
@@ -315,6 +316,8 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 			polygon_clusters_[t][c].Serialize(fpoly);
 		}
 	}
+
+	fpoly << "FORMAT:\n<tetrode number>\n[<clusters number>\n<inclusive projections size>\n[<dim1> <dim2> <npoints>\n[<xi yi]]]";
 
 	fpoly.close();
 }
