@@ -380,6 +380,7 @@ public:
 #endif
 	void Log(std::string message, double num);
 
+	const unsigned int& GetSpikeBufPointer(std::string name);
 	const unsigned int& GetPosBufPointer(std::string name);
 
 	// cause recalculation of autocorrelograms due to change in cluster(s) - from buffer start

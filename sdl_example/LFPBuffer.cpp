@@ -539,6 +539,17 @@ void LFPBuffer::Log(std::string message) {
 	log_stream.flush();
 }
 
+const unsigned int& LFPBuffer::GetSpikeBufPointer(std::string name) {
+	if (name == "speed"){
+		return spike_buf_pos_speed_;
+	}else if (name == "pca"){
+		return spike_buf_pos_unproc_;
+	}else{
+		Log("ERROR: Wrong or not supported name for position buffer pointer. Allowed names are: speed, pca");
+		exit(LFPONLINE_ERROR_UNKNOWN_POS_BUFFER_POINTER);
+	}
+}
+
 const unsigned int& LFPBuffer::GetPosBufPointer(std::string name) {
 	if (name == "pos"){
 		return pos_buf_pos_;
