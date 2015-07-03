@@ -23,6 +23,8 @@ class FetFileWriterProcessor : public virtual LFPProcessor {
 
 	bool streams_flushed_after_input_over_ = false;
 
+	const unsigned int & spike_buf_ptr_limit_;
+
 public:
 	FetFileWriterProcessor(LFPBuffer *buf);
 	virtual ~FetFileWriterProcessor();

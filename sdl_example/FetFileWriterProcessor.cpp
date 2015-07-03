@@ -8,7 +8,8 @@
 #include "FetFileWriterProcessor.h"
 
 FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
-:LFPProcessor(buf)
+: LFPProcessor(buf)
+, spike_buf_ptr_limit_(buf->GetSpikeBufPointer(buf->config_->getString("spike.writer.limit")))
 {
 	std::string path_base = buf->config_->getOutPath("spike.writer.path.base");
 	write_spk_ = buf->config_->getBool("spike.writer.spk.write");
@@ -61,6 +62,10 @@ void FetFileWriterProcessor::process() {
 		whl_file_->flush();
 
 		streams_flushed_after_input_over_ = true;
+
+		Log("Flushed streams after input over at spike pos ", buffer->spike_buf_pos_fet_writer_);
+
+		exit(0);
 	}
 
 	// write whl
@@ -70,7 +75,7 @@ void FetFileWriterProcessor::process() {
 		buffer->pos_buf_pos_whl_writer_++;
 	}
 
-	while(buffer->spike_buf_pos_fet_writer_ < buffer->spike_buf_pos_speed_){
+	while(buffer->spike_buf_pos_fet_writer_ < spike_buf_ptr_limit_){
 
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_fet_writer_];
 
@@ -99,7 +104,7 @@ void FetFileWriterProcessor::process() {
 		}
 
 		if (binary_)
-			fet_file.write((char*)&spike->pkg_id_, sizeof(int));
+			fet_file.write((char*)&spike->pkg_id_, sizeof(unsigned int));
 		else
 			fet_file << spike->pkg_id_ << "\n";
 
