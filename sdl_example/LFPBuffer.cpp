@@ -242,8 +242,8 @@ LFPBuffer::LFPBuffer(Config* config)
 , BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
 , high_synchrony_factor_(config->getFloat("high.synchrony.factor", 2.0f))
 , POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
-, target_pkg_id_(config_->getInt("debug.target.pkg", 0))
-, target_buf_pos_(config_->getInt("debug.target.bufpos", 0))
+, target_pkg_id_(config->getInt("debug.target.pkg", 0))
+, target_buf_pos_(config->getInt("debug.target.bufpos", 0))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
 {
@@ -578,7 +578,30 @@ bool LFPBuffer::CheckPkgIdAndReportTime(const unsigned int& pkg_id,
 		const std::string msg, bool set_checkpoint) {
 	if (pkg_id == target_pkg_id_){
 		log_string_stream_ << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
-		Log();
+		if (true){
+			Log();
+		}
+		if (set_checkpoint){
+			checkpoint_ = clock();
+		}
+		return true;
+	}
+	return false;
+}
+
+bool LFPBuffer::CheckPkgIdAndReportTime(const unsigned int pkg_id1,
+		const unsigned int pkg_id2, const std::string msg,
+		bool set_checkpoint) {
+	if (pkg_id1 <= target_pkg_id_&& pkg_id2 >= target_pkg_id_){
+		if (!set_checkpoint){
+			log_string_stream_ << (clock() - checkpoint_) * 1000000 / CLOCKS_PER_SEC << " us " << msg;
+		}else
+		{
+			log_string_stream_ << " - us " << msg;
+		}
+		if (true){
+			Log();
+		}
 		if (set_checkpoint){
 			checkpoint_ = clock();
 		}

@@ -54,7 +54,7 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
         }
 
 		// DEBUG
-		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in SpikeAlign \n");
+		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in SpikeAlign, # of spikes = " + Utils::Converter::int2str(buffer->spike_buf_pos) + "\n");
 
         int num_of_ch = buffer->tetr_info_->channels_number(spike->tetrode_);
         buffer->AllocateWaveshapeMemory(spike);

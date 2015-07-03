@@ -387,6 +387,8 @@ public:
 	void ResetAC(const unsigned int& reset_tetrode);
 
 	// DEBUG
+	bool CheckPkgIdAndReportTime(const unsigned int pkg_id1, const unsigned int pkg_id2,
+				const std::string msg, bool set_checkpoint = false);
 	bool CheckPkgIdAndReportTime(const unsigned int& pkg_id,
 			const std::string msg, bool set_checkpoint = false);
 	void CheckBufPosAndReportTime(const unsigned int& buf_pos,

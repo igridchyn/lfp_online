@@ -5,6 +5,7 @@
  *      Author: igor
  */
 
+#include <iomanip>
 #include "ParallelPipelineProcessor.h"
 
 ParallelPipelineProcessor::ParallelPipelineProcessor(LFPBuffer *buf)
@@ -25,7 +26,6 @@ void ParallelPipelineProcessor::process() {
 		(*piter)->desync();
 	}
 
-
 	for (unsigned int g = 0; g < NGROUP; ++g) {
 		std::unique_lock<std::mutex> lk(mtx_data_add_[g]);
 		data_added_[g] = true;
@@ -38,13 +38,17 @@ void ParallelPipelineProcessor::process() {
 	cv_job_over_.wait(lk, [=]{return threads_finished_ == NGROUP;});
 	threads_finished_ = 0;
 
+//	time_t time = clock() - start;
+//	start = clock();
+//	std::cout << "All jobs over ... pkg id = " << buffer->last_pkg_id << ", time (ms) = " << (time * 1000) / CLOCKS_PER_SEC <<  "\n";
+
 	for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
 		(*piter)->sync();
 	}
 
 	// PROFILE
-//	time_t time = clock() - start;
-//	std::cout << "All jobs over ... pkg id = " << buffer->last_pkg_id << ", time (us) = " << (time * 1000000) / CLOCKS_PER_SEC <<  "\n";
+//	time = clock() - start;
+//	std::cout << "Sync over ... pkg id = " << buffer->last_pkg_id << ", time (ms) = " << (time * 1000) / CLOCKS_PER_SEC <<  "\n";
 }
 
 void ParallelPipelineProcessor::process_thread(const int group) {
@@ -54,6 +58,9 @@ void ParallelPipelineProcessor::process_thread(const int group) {
 
 		std::unique_lock<std::mutex> lk(mtx_data_add_[group]);
 		cv_data_added_[group].wait(lk, [=]{return data_added_[group];});
+
+		// PROFILE
+//		clock_t start = clock();
 
 		for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
 			(*piter)->process_tetrode(group);
@@ -68,6 +75,10 @@ void ParallelPipelineProcessor::process_thread(const int group) {
 		data_added_[group] = false;
 
 		cv_job_over_.notify_one();
+
+		// PROFILE
+//		double time = (double)(clock() - start) * 1000 / CLOCKS_PER_SEC;
+//		std::cout << std::setprecision(2) << "g" << group << ", t=" << time << "\n";
 	}
 }
 

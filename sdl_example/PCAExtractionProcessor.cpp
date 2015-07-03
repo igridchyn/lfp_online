@@ -437,8 +437,7 @@ void PCAExtractionProcessor::process(){
         Spike *spike = buffer->spike_buffer_[*buf_ptr_ptr_];
         
 		// DEBUG
-        buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until PCA start\n");
-
+        buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until PCA start\n", false);
         if (spike->discarded_){
             (*buf_ptr_ptr_)++;
             continue;
