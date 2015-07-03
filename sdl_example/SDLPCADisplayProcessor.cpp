@@ -68,6 +68,9 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 					polygon_clusters_[t].clear();
 					for (unsigned int c=0; c < nclust; ++c){
 						polygon_clusters_[t].push_back(PolygonCluster(fpoly));
+						if (polygon_clusters_[t][c].projections_inclusive_.size() == 0 && c > 0){
+							user_context_.invalid_cluster_numbers_[t].push_back(c);
+						}
 					}
 				}
 			}
@@ -700,6 +703,8 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 	polygon_y_.clear();
 
 	nchan_ = buffer->tetr_info_->channels_number(target_tetrode_);
+
+	user_context_.active_tetrode_ = display_tetrode;
 
 	user_context_.SelectCluster1(-1);
 	user_context_.SelectCluster2(-1);
