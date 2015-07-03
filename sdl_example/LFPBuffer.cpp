@@ -232,7 +232,8 @@ LFPBuffer::~LFPBuffer(){
 }
 
 LFPBuffer::LFPBuffer(Config* config)
-: POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
+: CHANNEL_NUM(config->getInt("channel.num", 64))
+, POP_VEC_WIN_LEN(config->getInt("pop.vec.win.len.ms"))
 , SAMPLING_RATE(config->getInt("sampling.rate"))
 , pos_unknown_(config->getInt("pos.unknown", 1023))
 , SPIKE_BUF_LEN(config->getInt("spike.buf.size", 1 << 24))
@@ -243,7 +244,6 @@ LFPBuffer::LFPBuffer(Config* config)
 , POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
-, CHANNEL_NUM(config->getInt("channel.num", 64))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
