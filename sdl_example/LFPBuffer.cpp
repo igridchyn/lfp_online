@@ -242,6 +242,8 @@ LFPBuffer::LFPBuffer(Config* config)
 , BUF_HEAD_LEN(config->getInt("buf.head.len", 1 << 8))
 , high_synchrony_factor_(config->getFloat("high.synchrony.factor", 2.0f))
 , POS_BUF_LEN(config->getInt("pos.buf.len", 1000000))
+, target_pkg_id_(config_->getInt("debug.target.pkg", 0))
+, target_buf_pos_(config_->getInt("debug.target.bufpos", 0))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
 {

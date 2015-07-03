@@ -319,8 +319,8 @@ public:
 	// DEBUG
 	// for performance evaluation
 	time_t checkpoint_ = 0;
-	unsigned int target_pkg_id_ = 250024;
-	unsigned int target_buf_pos_ = 7543;
+	unsigned int target_pkg_id_ = 0;
+	unsigned int target_buf_pos_ = 0;
 
 	int coord_shift_x_ = 0;
 	int coord_shift_y_ = 0;
