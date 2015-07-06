@@ -18,21 +18,35 @@ typedef short t_bin;
 // SHIFT+NUM ~ 10+NUM
 
 #ifdef WIN32
+void usleep(__int64 usec)
+{
+	HANDLE timer;
+	LARGE_INTEGER ft;
+
+	ft.QuadPart = -(10 * usec); // Convert to 100 nanosecond interval, negative value indicates relative time
+
+	timer = CreateWaitableTimer(nullptr, TRUE, nullptr);
+	SetWaitableTimer(timer, &ft, 0, nullptr, nullptr, 0);
+	WaitForSingleObject(timer, INFINITE);
+	CloseHandle(timer);
+}
+
 	int wmain(int argc, wchar_t *argv[]){
 #else // WIN32
 	int main(int argc, char *argv[]){
 #endif // WIN32
 
 #ifdef _WIN32
+
 	//std::string cpath("../Res/signal_display_win_bin.conf");
 	// std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
 
 		// 1) dump spikes
 		// std::string cpath(R"(../Res/spike_dump_win.conf)");
 		// 2) diplay
-		std::string cpath(R"(../Res/spike_display_win.conf)");
+		//std::string cpath(R"(../Res/spike_display_win.conf)");
 
-		//std::string cpath(R"(../Res/delay_test_win.conf)");
+		std::string cpath(R"(../Res/delay_test_win.conf)");
 		//std::string cpath(R"(../Res/spike_detection_build_model_jc118_1003_8l_shift_WIN.conf)");
 		//std::string cpath(R"(../Res/decoding_online_jc118_1003_shift_WIN.conf)");
 		//std::string cpath(R"(../Res/trigger_jc140_win.conf)");
@@ -121,7 +135,7 @@ typedef short t_bin;
 		}
 		pipeline->cv_data_added_.notify_one();
 		// TODO: wait to simulate real-time [1 25 us for 24 kHz]
-		usleep(10);
+		//usleep(1);
 #else
 		pipeline->process();
 #endif

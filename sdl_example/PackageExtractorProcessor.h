@@ -36,6 +36,8 @@ class PackageExractorProcessor : public LFPProcessor{
 
 	time_t last_check_point_ = 0;
 
+	unsigned int total_chunks_ = 0;
+
 public:
 	virtual std::string name();
     virtual void process();

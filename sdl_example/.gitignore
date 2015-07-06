@@ -9,3 +9,6 @@ ss*
 .settings
 
 lfponline_test/*txt
+lfponlinevs/Res/
+
+.gitignore

@@ -35,6 +35,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// !!! DON'T FORGET TO EXCLUDE BINARY READER !!!
+//#define PIPELINE_THREAD
+
 #define CHAR_SIGNAL
 typedef char signal_type;
 

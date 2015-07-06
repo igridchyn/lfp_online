@@ -14,9 +14,6 @@
 
 #include "LFPProcessor.h"
 
-// !!! DON'T FORGET TO EXCLUDE BINARY READER !!!
-// #define PIPELINE_THREAD
-
 class LFPONLINEAPI LFPPipeline{
     std::vector<LFPProcessor*> processors;
 	LFPBuffer *buf_ = nullptr;

@@ -503,6 +503,7 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 void LFPBuffer::Log() {
 	std::cout << log_string_stream_.str();
 	log_stream << log_string_stream_.str();
+	// TODO !!!!!! don't fllush in RELEASE (all overloads)
 	log_stream.flush();
 	log_string_stream_.str(std::string());
 }
