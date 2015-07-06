@@ -16,7 +16,7 @@ std::string Utils::Converter::int2str(int a){
     return s;
 }
 
-#if _WIN32
+#ifdef WIN32
 char* Utils::Converter::WstringToCstring(wchar_t *wstring){
 	size_t convertedChars = 0;
 	size_t origsize = wcslen(wstring) + 1;

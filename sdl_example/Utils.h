@@ -2,18 +2,19 @@
 #include <vector>
 #include <math.h>
 #include <boost/filesystem.hpp>
+#include "LFPOnline.h"
 #ifdef _WIN32
 	#define M_PI 3.14159265358979323846
 #endif
 
-class Utils{
+class LFPONLINEAPI Utils{
 public:
     static const char* const NUMBERS[];
     
-    class Converter{
+	class LFPONLINEAPI Converter{
     public:
         static std::string int2str(int a);
-#if _WIN32
+#ifdef WIN32
         static char* WstringToCstring(wchar_t *wstring);
 #endif
     };

@@ -68,7 +68,7 @@ public:
 
 //==========================================================================================
 
-class LFPProcessor{
+class LFPONLINEAPI LFPProcessor{
     
 protected:
     LFPBuffer* buffer = nullptr;
