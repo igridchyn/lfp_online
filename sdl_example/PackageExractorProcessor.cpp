@@ -57,9 +57,10 @@ void PackageExractorProcessor::process(){
     }
     
     unsigned int num_chunks = buffer->chunk_buf_ptr_in_ / CHUNK_SIZE;
+	total_chunks_ += num_chunks;
 
     // DEBUG - performance test
-    buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id, buffer->last_pkg_id + num_chunks / 2 * 3, Utils::Converter::int2str(buffer->last_pkg_id) + " pkg is reached, start clock\n", true);
+    // buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id, buffer->last_pkg_id + num_chunks / 2 * 3, Utils::Converter::int2str(buffer->last_pkg_id) + " pkg is reached, start clock\n", true);
 
     // TMPDEBUG
 //    if (num_chunks > 1){
@@ -200,7 +201,9 @@ void PackageExractorProcessor::process(){
 
     // reset input data buffer pointers
     {
+#ifdef PIPELINE_THREAD
     	std::lock_guard<std::mutex> lk(buffer->chunk_access_mtx_);
+#endif
     	buffer->chunk_buf_ptr_in_ = 0;
     }
 
@@ -216,7 +219,7 @@ void PackageExractorProcessor::process(){
 	//Log("Package extraction done");
 
     // DEBUG - performance test
-    buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id - num_chunks * 3, buffer->last_pkg_id - num_chunks / 2 * 3, Utils::Converter::int2str(buffer->last_pkg_id) + " read data with target package, start clock, #of spikes = " + Utils::Converter::int2str(buffer->spike_buf_pos) + "\n", true);
+    // buffer->CheckPkgIdAndReportTime(buffer->last_pkg_id - num_chunks * 3, buffer->last_pkg_id - num_chunks / 2 * 3, Utils::Converter::int2str(buffer->last_pkg_id) + " read data with target package, start clock, #of spikes = " + Utils::Converter::int2str(buffer->spike_buf_pos) + "\n", true);
 
     if (buffer->last_pkg_id - last_reported_ > report_rate_){
     	last_reported_ = buffer->last_pkg_id;
@@ -225,6 +228,8 @@ void PackageExractorProcessor::process(){
     	last_check_point_ = time(0);
     	Log(std::string("\tin ") + Utils::Converter::int2str(check_time_) + " seconds");
     	Log("With # of spikes: ", buffer->spike_buf_pos);
+		Log("And chunks: ", total_chunks_);
+		Log("And last_pkg_id: ", buffer->last_pkg_id);
 //    	exit(0);
     }
 }
