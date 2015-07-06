@@ -155,9 +155,9 @@ LFPPipeline::~LFPPipeline(){
 }
 
 void LFPPipeline::process(){
+#ifdef PIPELINE_THREAD
 	while(true)
 	{
-#ifdef PIPELINE_THREAD
 		std::unique_lock<std::mutex> lk(mtx_data_add_);
 		cv_data_added_.wait(lk, [this]{return data_added_;});
 #endif
@@ -170,8 +170,8 @@ void LFPPipeline::process(){
 		data_added_ = false;
 		lk.unlock();
 		cv_data_added_.notify_one();
-#endif
 	}
+#endif
 }
 
 LFPProcessor *LFPPipeline::get_processor(const unsigned int& index){
