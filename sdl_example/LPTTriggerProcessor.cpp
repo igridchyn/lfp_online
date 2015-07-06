@@ -25,12 +25,16 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	std::string trigger_type_string = buffer->config_->getString("lpt.trigger.type", "regular");
 	if (trigger_type_string == "dominance"){
 		trigger_type_ = LPTTriggerType::EnvironmentDominance;
+		trigger_target_ = LPTTriggerTarget::LPTTargetSpikes;
 	} else if (trigger_type_string == "synchrony"){
 		trigger_type_ = LPTTriggerType::HighSynchronyTrigger;
+		trigger_target_ = LPTTriggerTarget::LPTTargetSpikes;
 	} else if (trigger_type_string == "regular"){
 		trigger_type_ = LPTTriggerType::RegularFalshes;
+		trigger_target_ = LPTTriggerTarget::LPTTargetLFP;
 	} else if (trigger_type_string == "threshold"){
 		trigger_type_ = LPTTriggerType::DoubleThresholdCrossing;
+		trigger_target_ = LPTTriggerTarget::LPTTargetLFP;
 	} else {
 		Log("Invalid trigger type. Allowed values are: dominance / synchrony / threshold / regular");
 		exit(29875);
@@ -39,17 +43,6 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	std::string ttpath = buffer->config_->getString("lpt.trigger.ttpath");
 	Log("Write trigger timestamps to " + ttpath);
 	timestamp_log_.open(ttpath);
-
-	std::string target = buffer->config_->getString("lpt.trigger.target", std::string("spikes"));
-	if (target == std::string("spikes")){
-		trigger_target_ =  LPTTriggerTarget::LPTTargetSpikes;
-	} else if (target == std::string("lfp")) {
-		trigger_target_ = LPTTriggerTarget::LPTTargetLFP;
-		trigger_type_ = LPTTriggerType::DoubleThresholdCrossing;
-	} else {
-		Log("Unknown LPT trigger target. Exit");
-		exit(1345);
-	}
 
 #ifdef _WIN32
 	//Opendriver();
