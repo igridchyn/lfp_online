@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 from math import cos, sin, pi, sqrt
 import random
 import itertools
+from sys import argv
 
 class EnvTransform:
 	def __init__(self, sc, rot, x, y):
@@ -20,21 +21,39 @@ def dist(p1, p2):
 #========================================================================================================================
 def generate_new_goals(goals, wells, thold):
 # geenrate new goals
+	rfailed = [0] * 10
+	niter = 0
+	print 'Start goal generation with threshold %d' % thold
+	print 'With goals at ', goals
+	print 'And wells: ', wells
+	print '\t (%d wells)' % len(wells)
 	while True:
+		failed = False
+		niter += 1
+
+		if niter % 50000 == 0:
+			print str(niter) + ' iterations tried, failed: ' + str([r / float(sum(rfailed)) for r in rfailed])
+
 		inds = []
 		for i in range(0,3):
 			inds.append(wells[random.randint(0, len(wells) - 1)])
 
-		# too close to each other
+		# 1) too close to each other
 		if dist(inds[0], inds[1]) < thold or dist(inds[1], inds[2]) < thold or dist(inds[0], inds[2]) < thold:
-			continue
+			rfailed[0] += 1
+			failed = True
 
-		failed = False
-		# too close to other goals
+		# 2) too close to other goals
+		failed2 = False
 		for i in range(0,3):
-			for j in range(0,3):
+			if failed2:
+				break
+			for j in range(0, len(goals)):
 				if dist(inds[i], goals[j]) < thold:
+					rfailed[1] += 1
 					failed = True
+					failed2 = True
+					break
 
 		# too close to the trajectory
 		#for i in range(0, len(whl), 1):
@@ -46,30 +65,51 @@ def generate_new_goals(goals, wells, thold):
 		#	if failed:
 		#		break
 
-		# too close to the SB
+		# 4) too close to the SB
 		for i in range(0,3):
-			if inds[i][1] > 10:
+			if inds[i][1] > 10 and inds[i][0] > 6:
+				rfailed[3] += 1
 				failed = True
 				break
 
 		center = False
-		# none in the center
+		# 5) none in the center
+		crad = 5
 		for i in range(0,3):
-			if inds[i][0] in range(5,10) and inds[i][1] in range(5,10):
+			if inds[i][0] in range(crad,15-crad) and inds[i][1] in range(crad,15-crad):
 				center = True
+		if not center:
+			rfailed[4] += 1
+			failed = True
 
-		# no goals in left third or right third
+		# 6) goals should be  in both left third and right third
 		left_third = False
 		right_third = False
 		for i in range(0,3):
 			if inds[i][0] < 5:
 				left_third = True
 			if inds[i][0] > 9:
-				right_third = True
-			
-		if not center or not left_third or not right_third:
+				right_third = True			
+		if not left_third or not right_third:
+			rfailed[5] += 1
 			failed = True
 
+		
+		# 8) no more than one s.t. disatnce to border is < 3
+		nclose = 0
+		bordprox = 3
+		for i in range(0, 3):
+			for (x,y) in [(-bordprox, 0), (bordprox, 0), (0, -bordprox), (0, bordprox)]:
+				shiftp = [inds[i][0]+x, inds[i][1]+y]
+				if not (shiftp in wells):
+					# print shiftp
+					nclose += 1
+					break
+		if nclose > 1:
+			rfailed[7] += 1
+			failed = True
+
+		# are all conditions satisfied ?
 		if failed:
 			continue
 
@@ -99,10 +139,9 @@ excl.extend([[0,4], [0,3], [0,2], [0,1], [0,0], [1,2], [1,1], [1,0], [2,1], [2,0
 ncorn = 12
 # excl = excl * 4
 
-# add other corners
+# modify excl to represent 4 quarters add other corners
 for i in range(ncorn, 3*ncorn):
 	excl[i][0] = 14 - excl[i][0]
-
 for i in range(2*ncorn, 4*ncorn):
 	excl[i][1] = 14 - excl[i][1]
 
@@ -118,7 +157,7 @@ for x in range(0,15):
 		
 		wells.append([x,y])
 
-# excluding the outer
+# excluding the outer circle
 wells_inner = []
 for w in wells:
 	nin = 0
@@ -137,7 +176,7 @@ for w in wells:
 # Env2 - 0402
 # goals = [[13,7], [4,7], [5,3]]
 # goals = [[4,9], [8,8], [10,3]]
-goals = [[2,3], [9,8], [12,10]]
+goals = [[2,3], [9,8], [12,10]] if len(argv) < 3 else []
 
 # tracking
 # ftra = open('/hd1/data/bindata/jc140/0402/jc140_0402_21calib1.axtrk')
@@ -164,14 +203,17 @@ print '	4) not too close to the S.B.'
 print '	5) in the central 5 X 5 square'
 print '	6) present in left and right thirds of the S.B.'
 print '	7) not in the outer circle'
+print '	8) no more than one s.t. the distance to border < 3'
+
+thold = 8 if len(argv) < 2 else float(argv[1])
 
 # geenrate sets new goals, thold = 10
-goal_shift = 7
+goal_shift = 0
 for d in range(0, 7):
 	im = Image.new('RGBA', (470, 470), color = (255,255,255,0))
 	draw = ImageDraw.Draw(im)
 
-	inds = generate_new_goals(goals, wells_inner, 11)
+	inds = generate_new_goals(goals, wells_inner, thold)
 
 	for [x,y] in wells:
 		# print [x,y]
@@ -187,26 +229,27 @@ for d in range(0, 7):
 	
 	
 	# find shortest path between goals
-	shortest_dist = 10000000
-	shortest_perm = []
-	for perm in itertools.permutations(range(0,3)):
-		pathlen = sqrt(dist([7, 14], goals[perm[0]]))
-		for i in range(1,3):
-			pathlen += sqrt(dist(goals[perm[i-1]], goals[perm[i]]))
-		pathlen += sqrt(dist(goals[perm[2]], [7, 14]))
-		if pathlen < shortest_dist:
-			shortest_dist = pathlen
-			shortest_perm = perm
+	if len(goals) > 0:
+		shortest_dist = 10000000
+		shortest_perm = []
+		for perm in itertools.permutations(range(0,3)):
+			pathlen = sqrt(dist([7, 14], goals[perm[0]]))
+			for i in range(1,3):
+				pathlen += sqrt(dist(goals[perm[i-1]], goals[perm[i]]))
+			pathlen += sqrt(dist(goals[perm[2]], [7, 14]))
+			if pathlen < shortest_dist:
+				shortest_dist = pathlen
+				shortest_perm = perm
 
-	# draw shortest path
-	shortest_goals = [[7, 14]]
-	for i in range(0, 3):
-		shortest_goals.append(goals[shortest_perm[i]])
-	shortest_goals.append([7, 14])
-	for i in range(1,5):
-		start = well_to_coords(shortest_goals[i-1])
-		end = well_to_coords(shortest_goals[i])
-		draw.line((start[0], start[1], end[0], end[1]), fill = 'black', width = 5)
+		# draw shortest path
+		shortest_goals = [[7, 14]]
+		for i in range(0, 3):
+			shortest_goals.append(goals[shortest_perm[i]])
+		shortest_goals.append([7, 14])
+		for i in range(1,5):
+			start = well_to_coords(shortest_goals[i-1])
+			end = well_to_coords(shortest_goals[i])
+			draw.line((start[0], start[1], end[0], end[1]), fill = 'black', width = 5)
 
 	im.save('goals_' + str(d+goal_shift) + '.jpg')
 	im.show()
