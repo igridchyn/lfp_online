@@ -440,8 +440,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	}
 
 	for (unsigned int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-		last_spikies_.push_back(buffer->spike_buffer_[buffer->spike_buf_pos]);
-		buffer->AddSpike(last_spikies_[t]);
+		last_spikies_.push_back(new Spike(0, -1)); // buffer->spike_buffer_[buffer->spike_buf_pos]);
+//		buffer->AddSpike(last_spikies_[t]);
 
 		// allocate once and then swap pointers with objects in the buffer (to avoid copying and filling objects before knowing the temporal order)
 		buffer->AllocateExtraFeaturePointerMemory(last_spikies_[t]);
@@ -786,7 +786,7 @@ void FetFileReaderProcessor::process() {
 
 	// for next processor - clustering
 	// without the spikes reserved for the last_tetrode_spike
-	buffer->spike_buf_pos_unproc_ = buffer->spike_buf_pos - buffer->tetr_info_->tetrodes_number();
+	buffer->spike_buf_pos_unproc_ = buffer->spike_buf_pos;
 	last_pkg_id_ = last_spike_pkg_id;
 
 	buffer->last_pkg_id = last_pkg_id_;

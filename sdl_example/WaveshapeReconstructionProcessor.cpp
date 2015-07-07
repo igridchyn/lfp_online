@@ -139,7 +139,7 @@ void WaveShapeReconstructionProcessor::process(){
 
 	// DEBUG
 	unsigned int first_nows_pos = buffer->spike_buf_nows_pos;
-	buffer->CheckPkgIdAndReportTime(buffer->spike_buf_nows_pos, "Time from after package extraction until WS start for nows_pos = 7543\n");
+//	buffer->CheckPkgIdAndReportTime(buffer->spike_buf_nows_pos, "Time from after package extraction until WS start for nows_pos = 7543\n");
 
     while (buffer->spike_buf_no_rec < buffer->spike_buf_nows_pos){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_rec];
