@@ -23,16 +23,21 @@ def generate_new_goals(goals, wells, thold):
 # geenrate new goals
 	rfailed = [0] * 10
 	niter = 0
-	print 'Start goal generation with threshold %d' % thold
-	print 'With goals at ', goals
-	print 'And wells: ', wells
-	print '\t (%d wells)' % len(wells)
+	# print 'Start goal generation with threshold %d' % thold
+	# print 'With goals at ', goals
+	# print 'And wells: ', wells
+	# print '\t (%d wells)' % len(wells)
+	max_iter = 100000
+	# print 'With max iterations: %d' % max_iter
 	while True:
 		failed = False
 		niter += 1
 
 		if niter % 50000 == 0:
-			print str(niter) + ' iterations tried, failed: ' + str([r / float(sum(rfailed)) for r in rfailed])
+			print str(niter) + ' iterations tried, failed: ' + str([r / float(niter) for r in rfailed])
+
+		if niter >= max_iter:
+			return []
 
 		inds = []
 		for i in range(0,3):
@@ -82,18 +87,20 @@ def generate_new_goals(goals, wells, thold):
 			rfailed[4] += 1
 			failed = True
 
-		# 6) goals should be  in both left third and right third
+		# 6) goals should be  in both left third and right third, and top third
 		left_third = False
 		right_third = False
+		top = False
 		for i in range(0,3):
 			if inds[i][0] < 5:
 				left_third = True
 			if inds[i][0] > 9:
 				right_third = True			
-		if not left_third or not right_third:
+			if inds[i][1] < 5:
+				top = True
+		if not left_third or not right_third or not top:
 			rfailed[5] += 1
 			failed = True
-
 		
 		# 8) no more than one s.t. disatnce to border is < 3
 		nclose = 0
@@ -176,7 +183,9 @@ for w in wells:
 # Env2 - 0402
 # goals = [[13,7], [4,7], [5,3]]
 # goals = [[4,9], [8,8], [10,3]]
-goals = [[2,3], [9,8], [12,10]] if len(argv) < 3 else []
+# goals = [[0,8], [5,6], [12,7]] if len(argv) < 3 else []
+goals = [[3,2], [5,5], [11,10]] if len(argv) < 3 else []
+initial_goals = goals
 
 # tracking
 # ftra = open('/hd1/data/bindata/jc140/0402/jc140_0402_21calib1.axtrk')
@@ -201,7 +210,7 @@ print '	2) apart from previous goals'
 print '	3) apart from previous trajectory (last few trials)'
 print '	4) not too close to the S.B.'
 print '	5) in the central 5 X 5 square'
-print '	6) present in left and right thirds of the S.B.'
+print '	6) present in left and right thirds of the S.B. and top third'
 print '	7) not in the outer circle'
 print '	8) no more than one s.t. the distance to border < 3'
 
@@ -209,11 +218,23 @@ thold = 8 if len(argv) < 2 else float(argv[1])
 
 # geenrate sets new goals, thold = 10
 goal_shift = 0
-for d in range(0, 7):
+d = 0
+nreset = 0
+while d < 10:
+	d += 1
+
 	im = Image.new('RGBA', (470, 470), color = (255,255,255,0))
 	draw = ImageDraw.Draw(im)
 
 	inds = generate_new_goals(goals, wells_inner, thold)
+
+	# if failed: restart
+	if len(inds) == 0:
+		d = 0
+		goals = initial_goals
+		nreset += 1
+		print 'Failed to find sequence (for %d-th time), start from beginning...' % nreset
+		continue
 
 	for [x,y] in wells:
 		# print [x,y]
