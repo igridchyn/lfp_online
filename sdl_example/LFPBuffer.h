@@ -270,7 +270,7 @@ private:
 public:
 	bool *is_valid_channel_;
 
-	std::vector<signal_type *> signal_buf;
+	signal_type **signal_buf;
 	std::vector<ws_type *> filtered_signal_buf;
 	std::vector<int *> power_buf;
 

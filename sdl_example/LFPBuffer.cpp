@@ -250,7 +250,8 @@ LFPBuffer::LFPBuffer(Config* config)
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
 
-	signal_buf.resize(CHANNEL_NUM);
+	signal_buf = new signal_type*[CHANNEL_NUM];
+	memset(signal_buf, 0, sizeof(signal_type*) * CHANNEL_NUM);
 	filtered_signal_buf.resize(CHANNEL_NUM);
 	power_buf.resize(CHANNEL_NUM);
 	is_valid_channel_ = new bool[CHANNEL_NUM];
