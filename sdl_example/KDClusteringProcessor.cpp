@@ -428,6 +428,8 @@ void KDClusteringProcessor::process(){
 			// TODO which pointer ?
 			const unsigned int frest_pos = (WAIT_FOR_SPEED_EST ? buffer->spike_buf_pos_speed_ : buffer->spike_buf_pos_unproc_);
 			Log("Estimate FR from spikes in buffer until position ", frest_pos);
+			// first spike pkg_id
+			const unsigned int first_spike_pkg_id = buffer->spike_buffer_[0]->pkg_id_;
 			for (unsigned int i=0; i < frest_pos; ++i){
 				Spike *spike = buffer->spike_buffer_[i];
 				if (spike->discarded_){
@@ -454,7 +456,7 @@ void KDClusteringProcessor::process(){
 			}
 
 			for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
-					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY);
+					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY - first_spike_pkg_id);
 					std::stringstream ss;
 					ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec (" << spike_numbers_[t] << " spikes)\n";
 					ss << "   with " << spikes_discarded_[t] << " spikes DISCARDED\n";
