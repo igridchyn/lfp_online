@@ -126,7 +126,8 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
                 prev_spike_[tetrode]->power_ = prev_max_val_[tetrode];
 
                 // ADD spike to buffer's population window and use for ISI estimation
-//                buffer->UpdateWindowVector(prev_spike_[tetrode]);
+                // TODO !!!!!! synchronous !!!!!!
+                buffer->UpdateWindowVector(prev_spike_[tetrode]);
             }
             
             prev_spike_pos_[tetrode] = peak_pos;
