@@ -90,8 +90,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const bool WAIT_FOR_SPEED_EST = false;
 
-	std::vector<unsigned int> tetrode_sampling_rates_;
-
 	// if true, KDE starts after collecting MIN_SPIKES on a tetrode
 	// otherwise collection will keep until the data is over
 	const bool RUN_KDE_ON_MIN_COLLECTED = false;
@@ -213,6 +211,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	unsigned int neighb_num_ = 1;
 	std::vector<int> neighbour_inds_;
 	std::vector<double> neighbour_dists_;
+
+	std::vector<unsigned int> tetrode_sampling_rates_;
 
 	// DEBUG
 //	std::vector<int> skipped_spikes_;

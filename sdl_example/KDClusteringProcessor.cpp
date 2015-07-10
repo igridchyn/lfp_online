@@ -403,90 +403,27 @@ void KDClusteringProcessor::process(){
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int)spike->tetrode_);
 		const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 
-		if (tetr == TetrodesInfo::INVALID_TETRODE){
+		// wait until place fields are stabilized
+		if (tetr == TetrodesInfo::INVALID_TETRODE || (spike->pkg_id_ < SAMPLING_DELAY && !LOAD) ){
 			spike_buf_pos_clust_ ++;
 			continue;
 		}
 
 		// wait for enough spikes to estimate the firing rate; beware of the rewind after estimating the FRs
-		if (spike->pkg_id_ < FR_ESTIMATE_DELAY && !LOAD && (tetrode_sampling_rates_.empty())){
-			spike_buf_pos_clust_ ++;
-			continue;
-		}
-
-		// estimate firing rates => spike sampling rates if model has not been loaded
-		if (tetrode_sampling_rates_.empty() && spike->pkg_id_ > FR_ESTIMATE_DELAY){
-			std::stringstream ss;
-			ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
-			Log(ss.str());
-
-			// estimate firing rates
-			std::vector<unsigned int> spike_numbers_, spikes_discarded_, spikes_slow_;
-			spike_numbers_.resize(tetr_info_->tetrodes_number());
-			spikes_slow_.resize(tetr_info_->tetrodes_number());
-			spikes_discarded_.resize(tetr_info_->tetrodes_number());
-			// TODO which pointer ?
-			const unsigned int frest_pos = (WAIT_FOR_SPEED_EST ? buffer->spike_buf_pos_speed_ : buffer->spike_buf_pos_unproc_);
-			Log("Estimate FR from spikes in buffer until position ", frest_pos);
-			// first spike pkg_id
-			const unsigned int first_spike_pkg_id = buffer->spike_buffer_[0]->pkg_id_;
-			for (unsigned int i=0; i < frest_pos; ++i){
-				Spike *spike = buffer->spike_buffer_[i];
-				if (spike->discarded_){
-					spikes_discarded_[spike->tetrode_] ++;
-					continue;
-				}
-
-				if (spike->speed < SPEED_THOLD){
-
-					// DEBUG
-//					if (spike->tetrode_ == 0){
-//						std::cout << spike->pkg_id_ << " ";
-//					}
-
-					spikes_slow_[spike->tetrode_] ++;
-					continue;
-				}
-
-				if (spike == nullptr || !spike->aligned_){
-					continue;
-				}
-
-				spike_numbers_[spike->tetrode_] ++;
-			}
-
-			for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
-					double firing_rate = spike_numbers_[t] * buffer->SAMPLING_RATE / double(FR_ESTIMATE_DELAY - first_spike_pkg_id);
+		if (!LOAD && (tetrode_sampling_rates_.empty())){
+			if (buffer->fr_estimated_){
+				for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
+					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / SAMPLING_RATE;
 					std::stringstream ss;
-					ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec (" << spike_numbers_[t] << " spikes)\n";
-					ss << "   with " << spikes_discarded_[t] << " spikes DISCARDED\n";
-					ss << "   with " << spikes_slow_[t] << " spikes SLOW\n";
-					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
-					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * firing_rate / MIN_SPIKES) - 1));
+					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * buffer->fr_estimates_[t] / MIN_SPIKES) - 1));
 					ss << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 					Log(ss.str());
-
-					buffer->fr_estimated_ = true;
-					buffer->fr_estimates_.push_back(firing_rate);
-			}
-
-			// REWIND TO THE FIRST SPIKE AFTER SAMPLING DELAY
-			if (!LOAD){
-				Log("Rewind the pointer to the last spike after the sampling delay");
-				Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
-				while ((spike == NULL || spike->pkg_id_ > SAMPLING_DELAY) && (spike_buf_pos_clust_ > 0)){
-					spike_buf_pos_clust_ --;
-					spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 				}
-				Log("   .. until pos ", spike_buf_pos_clust_);
 			}
-		}
-
-		// wait until place fields are stabilized
-		if (spike->pkg_id_ < SAMPLING_DELAY && !LOAD){
-			spike_buf_pos_clust_ ++;
-			continue;
+			else{
+				break;
+			}
 		}
 
 		// DEBUG

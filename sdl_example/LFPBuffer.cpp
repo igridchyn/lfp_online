@@ -246,6 +246,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , target_buf_pos_(config->getInt("debug.target.bufpos", 0))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
+, FR_ESTIMATE_DELAY(config->getInt("kd.frest.delay"))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -457,6 +458,8 @@ void LFPBuffer::AddSpike(Spike* spike, bool rewind) {
 	if (spike_buf_pos == SPIKE_BUF_LEN && rewind){
 		Rewind();
 	}
+
+	estimate_firing_rates();
 }
 
 double LFPBuffer::AverageSynchronySpikesWindow(){
@@ -767,4 +770,62 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 
 	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);
 	chunk_buf_ptr_in_ += data_size;
+}
+
+void LFPBuffer::estimate_firing_rates() {
+	// estimate firing rates => spike sampling rates if model has not been loaded
+	if (!fr_estimated_ && last_pkg_id > FR_ESTIMATE_DELAY){
+		std::stringstream ss;
+		ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
+		Log(ss.str());
+
+		// estimate firing rates
+		std::vector<unsigned int> spike_numbers_, spikes_discarded_, spikes_slow_;
+		spike_numbers_.resize(tetr_info_->tetrodes_number());
+		spikes_slow_.resize(tetr_info_->tetrodes_number());
+		spikes_discarded_.resize(tetr_info_->tetrodes_number());
+		// TODO which pointer ?
+		//				const unsigned int frest_pos = (WAIT_FOR_SPEED_EST ? spike_buf_pos_speed_ : spike_buf_pos_unproc_);
+		const unsigned int frest_pos = spike_buf_pos_unproc_;
+		Log("Estimate FR from spikes in buffer until position ", frest_pos);
+		// first spike pkg_id
+		const unsigned int first_spike_pkg_id = spike_buffer_[0]->pkg_id_;
+		for (unsigned int i=0; i < frest_pos; ++i){
+			Spike *spike = spike_buffer_[i];
+			if (spike->discarded_){
+				spikes_discarded_[spike->tetrode_] ++;
+				continue;
+			}
+
+			//					if (spike->speed < SPEED_THOLD){
+
+			// DEBUG
+			//					if (spike->tetrode_ == 0){
+			//						std::cout << spike->pkg_id_ << " ";
+			//					}
+
+			//						spikes_slow_[spike->tetrode_] ++;
+			//						continue;
+			//					}
+
+			if (spike == nullptr || !spike->aligned_){
+				continue;
+			}
+
+			spike_numbers_[spike->tetrode_] ++;
+		}
+
+		for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
+			double firing_rate = spike_numbers_[t] * SAMPLING_RATE / double(FR_ESTIMATE_DELAY - first_spike_pkg_id);
+			std::stringstream ss;
+			ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec (" << spike_numbers_[t] << " spikes)\n";
+			ss << "   with " << spikes_discarded_[t] << " spikes DISCARDED\n";
+//			ss << "   with " << spikes_slow_[t] << " spikes SLOW\n";
+
+			fr_estimates_.push_back(firing_rate);
+			Log(ss.str());
+		}
+
+		fr_estimated_ = true;
+	}
 }

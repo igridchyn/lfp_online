@@ -350,6 +350,8 @@ public:
 
 	std::ofstream debug_stream_;
 
+	const unsigned int FR_ESTIMATE_DELAY;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);
@@ -422,6 +424,8 @@ public:
 
 	// just add the data and move along
 	void add_data(unsigned char* new_data, size_t data_size);
+
+	void estimate_firing_rates();
 };
 
 template<class T>
