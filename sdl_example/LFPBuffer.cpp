@@ -261,6 +261,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	for (size_t i = 0; i < CHANNEL_NUM; i++)
 	{
 		powerEstimatorsMap_[i] = nullptr;
+		is_valid_channel_[i] = false;
 	}
 
 	spike_buffer_ = new Spike*[SPIKE_BUF_LEN];
