@@ -299,11 +299,12 @@ LFPBuffer::LFPBuffer(Config* config)
     // allocate memory for waveshapes
     // TODO : allocate according to channels number tetrode-wise
     spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
-    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN);
+    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN + 100);
     // TODO !!!! use maximum dimension
     // TODO !!!!!! pools with dynamic size for each unmber of features
-    spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN);
-    spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN);
+    // extra pool size for local file reader objects
+    spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN + 100);
+    spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN + 100);
 
     spike_pool_ = new Spike[SPIKE_BUF_LEN];
     for (unsigned int s=0; s < SPIKE_BUF_LEN; ++s){
