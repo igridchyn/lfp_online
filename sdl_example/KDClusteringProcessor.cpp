@@ -18,7 +18,8 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	//			}
 
 	// 	beware of inexation changes
-	std::ifstream kdtree_stream(BASE_PATH + Utils::NUMBERS[t] + ".kdtree.reduced");
+	std::string rtreepath = BASE_PATH + Utils::NUMBERS[t] + ".kdtree.reduced";
+	std::ifstream kdtree_stream(rtreepath);
 	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
 	kdtree_stream.close();
 
@@ -413,7 +414,7 @@ void KDClusteringProcessor::process(){
 		if (!LOAD && (tetrode_sampling_rates_.empty())){
 			if (buffer->fr_estimated_){
 				for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
-					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / SAMPLING_RATE;
+					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					std::stringstream ss;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * buffer->fr_estimates_[t] / MIN_SPIKES) - 1));
