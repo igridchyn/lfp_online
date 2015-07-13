@@ -143,7 +143,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 		// tmp
 		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2, buffer->feature_space_dims_[t] + 2);
 
-		if (tetr_info_->channels_number(t) > max_dim)
+		if (buffer->feature_space_dims_[t] > max_dim)
 			max_dim = buffer->feature_space_dims_[t];
 	}
 
