@@ -776,7 +776,7 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 
 void LFPBuffer::estimate_firing_rates() {
 	// estimate firing rates => spike sampling rates if model has not been loaded
-	if (!fr_estimated_ && last_pkg_id > FR_ESTIMATE_DELAY){
+	if (!fr_estimated_ && last_pkg_id > FR_ESTIMATE_DELAY && spike_buf_pos_unproc_ > 0){
 		std::stringstream ss;
 		ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
 		Log(ss.str());
