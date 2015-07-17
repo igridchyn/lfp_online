@@ -393,7 +393,12 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 					// STANDARDIZED OR NOT
 					// spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
 					spike->pc[c * num_pc_ + pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w] / feature_scale_;
-					spike->num_pc_ = num_pc_;
+				}
+				spike->num_pc_ = num_pc_;
+
+				// TODO !!! WORKAROUND
+				if (spike->num_channels_ < 4){
+					spike->pc[c * num_pc_ + pc] *= sqrt(4 / (double)spike->num_channels_);
 				}
 			}
 //			if (cleanup_ws_){

@@ -485,6 +485,10 @@ int main(int argc, char **argv){
 	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[20]);
 	BASE_PATH = argv[21];
 
+	if (DIM < 8){
+		SIGMA_A *= sqrt(DIM / (double)12);
+	}
+
 	log_string_ << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 	log_string_ << "\tstart KDE estimation\n";
 	Log();

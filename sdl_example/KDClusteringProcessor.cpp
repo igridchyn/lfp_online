@@ -743,6 +743,7 @@ void KDClusteringProcessor::process(){
 				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose.speed_ >= DUMP_SPEED_THOLD){
 					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
 					dec_bayesian_.flush();
+					// std::cout << pose.speed_ << "\n";
 				}
 
 				// DEBUG
