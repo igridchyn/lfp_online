@@ -19,8 +19,9 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, spike_buf_limit_ptr_(buffer->spike_buf_pos_unproc_)
 	, pulse_length_(buffer->config_->getInt("lpt.trigger.pulse.length"))
 	, confidence_avg_(buffer->config_->getFloat("lpt.trigger.confidence.average", .0))
-	, confidence_high_left_(buffer->config_->getFloat("lpt.trigger.confidence.hight.left", -0.1))
-	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.hight.right", 0.1))
+	, confidence_high_left_(buffer->config_->getFloat("lpt.trigger.confidence.high.left", -0.1))
+	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.high.right", 0.1))
+	, inhibit_nonconf_(buffer->config_->getFloat("lpt.trigger.inhibit.nonconf", false))
 {
 	Log("Constructor start");
 
@@ -45,6 +46,8 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	std::string ttpath = buffer->config_->getString("lpt.trigger.ttpath");
 	Log("Write trigger timestamps to " + ttpath);
 	timestamp_log_.open(ttpath);
+
+	debug_log_.open(ttpath + ".debug");
 
 #ifdef _WIN32
 	//Opendriver();
@@ -219,9 +222,11 @@ void LPTTriggerProcessor::process() {
 						buffer->Log("TIMEOUT for classification decision is reached with a spike at ", buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_);
 
 						// TODO configurable threshold
-						if (environment_dominance_confidence_() > confidence_avg_){
+						double env_dom_conf_ = environment_dominance_confidence_();
+
+						if (env_dom_conf_ > confidence_avg_ || inhibit_nonconf_){
 							buffer->Log("\t decision: INHIBIT, start at ", buffer->last_pkg_id);
-							buffer->Log("\t confidence: ", environment_dominance_confidence_());
+							buffer->Log("\t confidence: ", env_dom_conf_);
 							events_inhibited_timeout_ ++;
 
 							setHigh();
@@ -235,6 +240,7 @@ void LPTTriggerProcessor::process() {
 							buffer->Log("\t decision: DON'T INHIBIT, start at ", buffer->last_pkg_id);
 						}
 
+						debug_log_ << env_dom_conf_ << "\n";
 
 						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 						swr_ptr_ ++;

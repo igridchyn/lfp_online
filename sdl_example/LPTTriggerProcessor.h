@@ -48,6 +48,8 @@ class LPTTriggerProcessor: public LFPProcessor {
 	double average_spikes_in_synchrony_tetrodes_ = -1.0f;
 
 	std::ofstream timestamp_log_;
+	// DEBUG
+	std::ofstream debug_log_;
 
 	// pointer to SWR / synchrony events
 	unsigned int swr_ptr_ = 0;
@@ -69,8 +71,11 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	//
 	double confidence_avg_ = .0;
+	// supposedly lower 5/95 or 10/90 percentiles of confidence distributions
 	double confidence_high_left_ = .0;
 	double confidence_high_right_ = .0;
+
+	bool inhibit_nonconf_ = false;
 
 #ifdef _WIN32
 	typedef void(__stdcall *lpOut32)(short, short);
