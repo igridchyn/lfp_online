@@ -49,7 +49,6 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	std::ofstream timestamp_log_;
 
-	double dominance_confidence_threshold_ = .0;
 	// pointer to SWR / synchrony events
 	unsigned int swr_ptr_ = 0;
 	unsigned int sync_min_duration_ = std::numeric_limits<unsigned int>::max();
@@ -67,6 +66,11 @@ class LPTTriggerProcessor: public LFPProcessor {
 	unsigned int events_inhibited_timeout_ = 0;
 	unsigned int events_allowed_thold_ = 0;
 	unsigned int events_allowed_timeout_ = 0;
+
+	//
+	double confidence_avg_ = .0;
+	double confidence_high_left_ = .0;
+	double confidence_high_right_ = .0;
 
 #ifdef _WIN32
 	typedef void(__stdcall *lpOut32)(short, short);

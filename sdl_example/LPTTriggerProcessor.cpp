@@ -15,10 +15,12 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, channel_(buffer->config_->getInt("lpt.trigger.channel"))
 	, trigger_cooldown_(buffer->config_->getInt("lpt.trigger.cooldown"))
 	, trigger_start_delay_(buffer->config_->getInt("lpt.trigger.start.delay") * buffer->SAMPLING_RATE)
-	, dominance_confidence_threshold_(buffer->config_->getFloat("lpt.trigger.confidence.threshold", 0.01))
 	, sync_max_duration_(buffer->config_->getInt("lpt.trigger.sync.max.duration", 0))
 	, spike_buf_limit_ptr_(buffer->spike_buf_pos_unproc_)
 	, pulse_length_(buffer->config_->getInt("lpt.trigger.pulse.length"))
+	, confidence_avg_(buffer->config_->getFloat("lpt.trigger.confidence.average", .0))
+	, confidence_high_left_(buffer->config_->getFloat("lpt.trigger.confidence.hight.left", -0.1))
+	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.hight.right", 0.1))
 {
 	Log("Constructor start");
 
@@ -217,7 +219,7 @@ void LPTTriggerProcessor::process() {
 						buffer->Log("TIMEOUT for classification decision is reached with a spike at ", buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_);
 
 						// TODO configurable threshold
-						if (environment_dominance_confidence_() > 0){
+						if (environment_dominance_confidence_() > confidence_avg_){
 							buffer->Log("\t decision: INHIBIT, start at ", buffer->last_pkg_id);
 							buffer->Log("\t confidence: ", environment_dominance_confidence_());
 							events_inhibited_timeout_ ++;
@@ -242,25 +244,25 @@ void LPTTriggerProcessor::process() {
 					double envdomconf = environment_dominance_confidence_();
 
 					// evaluate environment dominance confidence and inhibit if higher that threshold
-					if (envdomconf > dominance_confidence_threshold_){
+					if (envdomconf > confidence_high_right_){
 						// DEBUG
 						buffer->log_string_stream_ << "Environment dominance confidence = " << environment_dominance_confidence_() <<
-								" is higher that the threshold = " << dominance_confidence_threshold_ << ", start INHIBITION at " << buffer->last_pkg_id << "\n";
+								" is higher that the threshold = " << confidence_high_right_ << ", start INHIBITION at " << buffer->last_pkg_id << "\n";
 						buffer->Log();
 						events_inhibited_thold_ ++;
 
 						// DEBUG
-						std::string savepath = buffer->config_->getString("out.path.base") + std::string("trig/inh_") + Utils::Converter::int2str(events_inhibited_thold_) + ".mat";
-						buffer->last_predictions_[0].save(savepath, arma::raw_ascii);
+//						std::string savepath = buffer->config_->getString("out.path.base") + std::string("trig/inh_") + Utils::Converter::int2str(events_inhibited_thold_) + ".mat";
+//						buffer->last_predictions_[0].save(savepath, arma::raw_ascii);
 
 						setHigh();
 						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 						buffer->buf_pos_trig_ = buffer->last_pkg_id;
 						swr_ptr_ ++;
 						continue;
-					} else if (envdomconf < - dominance_confidence_threshold_){
+					} else if (envdomconf < confidence_high_left_){
 						buffer->log_string_stream_ << "environment dominance confidence = " << environment_dominance_confidence_() <<
-								" is lower that the -threshold = " << dominance_confidence_threshold_ << ", decide NO INHIBITION at " << buffer->last_pkg_id << "\n";
+								" is lower that the -threshold = " << -confidence_high_left_ << ", decide NO INHIBITION at " << buffer->last_pkg_id << "\n";
 						buffer->Log();
 						events_allowed_thold_ ++;
 
