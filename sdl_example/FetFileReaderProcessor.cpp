@@ -629,8 +629,6 @@ void FetFileReaderProcessor::openNextFile() {
 
 			if (read_whl_){
 				whl_file_ = new std::ifstream(fet_path_base_ + "whl");
-				int pos_first_pkg_id = -1;
-				(*whl_file_) >> pos_first_pkg_id;
 			}
 
 			// read number of records per spike in the beginning of the file
