@@ -17,7 +17,8 @@ def decoding_errors():
 	nnosb = 0
 
 	bsize = 4
-	nbins = 43
+	nbinsx = 80
+	nbinsy = 50
 	errb = 0
 
 	sbs = [[113, 10], [319, 137]]
@@ -27,8 +28,8 @@ def decoding_errors():
 	classn = 0.0
 	classcorr = 0
 
-	predmap = np.zeros((nbins, nbins*2))
-	occmap = np.zeros((nbins, nbins*2))
+	predmap = np.zeros((nbinsy, nbinsx))
+	occmap = np.zeros((nbinsy, nbinsx))
 
 	for line in f:
 		vals = line.split(' ')
@@ -62,7 +63,7 @@ def decoding_errors():
 		gtxb=round((gtx-bsize/2.0)/bsize)
 		gtyb=round((gty-bsize/2.0)/bsize)
 		# print gtyb, gtxb
-		occmap[min(gtyb, nbins-1), min(gtxb, 2*nbins-1)] += 1
+		occmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += 1
 
 		xpb = round((px-bsize/2)/bsize)
 		ypb = round((py-bsize/2)/bsize)
@@ -72,7 +73,7 @@ def decoding_errors():
 
 		# classification
 		classn += 1
-		if (vals[0] - nbins*bsize) * (gtx - nbins*bsize) > 0:
+		if (vals[0] - nbinsx/2*bsize) * (gtx - nbinsx/2*bsize) > 0:
 			classcorr += 1
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)

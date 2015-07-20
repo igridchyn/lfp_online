@@ -165,15 +165,15 @@ for x in range(0,15):
 		wells.append([x,y])
 
 # excluding the outer circle
-wells_inner = []
-for w in wells:
-	nin = 0
-	for d in [[-1,0], [0, -1], [0, 1], [1, 0]]:
-		if [w[0] + d[0], w[1] + d[1]] in wells:
-			nin += 1
-
-	if nin == 4:
-		wells_inner.append(w)
+wells_inner = wells
+# for w in wells:
+#	nin = 0
+#	for d in [[-1,0], [0, -1], [0, 1], [1, 0]]:
+#		if [w[0] + d[0], w[1] + d[1]] in wells:
+#			nin += 1
+#
+#	if nin == 4:
+#		wells_inner.append(w)
 		
 # print len(excl)
 # print excl
@@ -184,7 +184,10 @@ for w in wells:
 # goals = [[13,7], [4,7], [5,3]]
 # goals = [[4,9], [8,8], [10,3]]
 # goals = [[0,8], [5,6], [12,7]] if len(argv) < 3 else []
-goals = [[3,2], [5,5], [11,10]] if len(argv) < 3 else []
+# goals = [[3,2], [5,5], [11,10]] if len(argv) < 3 else []
+# goals = [[3,3], [8,5], [10, 9]]
+goals = [[11,1], [5,6], [4,9]]
+# goals = [[2,2], [7,5], [10,7]]
 initial_goals = goals
 
 # tracking
