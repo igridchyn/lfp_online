@@ -191,7 +191,6 @@ void LPTTriggerProcessor::process() {
 
 			case LPTTriggerType::HighSynchronyTrigger:
 				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
-//					timestamp_log_ << (int)round((last_trigger_time_) * 20 / 24.0) << "\n";
 					setHigh();
 					timestamp_log_ << (int)round((last_trigger_time_)) << "\n";
 					timestamp_log_.flush();
@@ -280,7 +279,7 @@ void LPTTriggerProcessor::process() {
 				} else{ // not in synchrony (IDLE or INHIBITING)
 					// otherwise check for synchrony
 					if (!LPT_is_high_ && buffer->fr_estimated_ && buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_synchrony_ > trigger_cooldown_){
-						timestamp_log_ << (int)round((last_synchrony_) * 20/24.0) << "\n";
+						timestamp_log_ << (int)round((last_synchrony_)) << "\n";
 						timestamp_log_.flush();
 
 						// create new synchrony event in the buffer
