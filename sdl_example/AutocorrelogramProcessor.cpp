@@ -335,7 +335,8 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 	SDL_RenderClear(renderer_);
 	//SDL_RenderPresent(renderer_);
-	int limit = (display_mode_ == AC_DISPLAY_MODE_AC ? (unsigned int)XCLUST : (std::min<int>(XCLUST_CC, (int)MAX_CLUST - XCLUST_CC * shift_xx_x_)));
+	const unsigned int YCLUST = (window_height_ - 100)/ ypix_;
+	int limit = (display_mode_ == AC_DISPLAY_MODE_AC ? (unsigned int)(XCLUST / 2 * YCLUST ) : (std::min<int>(XCLUST_CC, (int)MAX_CLUST - XCLUST_CC * shift_xx_x_)));
 	for (int c=0; c < limit; ++c) {
 		plotACorCCs(display_tetrode_, c);
 	}
