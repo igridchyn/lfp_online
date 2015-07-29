@@ -50,7 +50,8 @@ FetFileWriterProcessor::~FetFileWriterProcessor() {
 
 void FetFileWriterProcessor::process() {
 	// TODO flush only once
-	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER && !streams_flushed_after_input_over_){
+	// last condition - in case PCA min was not reached but rather caluclated after data was over, now spikes have to be written
+	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER && !streams_flushed_after_input_over_ && spike_buf_ptr_limit_ > 0 && buffer->spike_buf_pos_fet_writer_ == spike_buf_ptr_limit_){
 		for (unsigned int i=0; i < fet_files_.size(); ++i){
 			fet_files_[i]->flush();
 
