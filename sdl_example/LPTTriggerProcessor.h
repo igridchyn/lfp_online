@@ -77,6 +77,8 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	bool inhibit_nonconf_ = false;
 
+	bool swap_environments_ = false;
+
 #ifdef _WIN32
 	typedef void(__stdcall *lpOut32)(short, short);
 	typedef short(__stdcall *lpInp32)(short);
