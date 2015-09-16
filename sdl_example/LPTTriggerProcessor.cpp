@@ -22,6 +22,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, confidence_high_left_(buffer->config_->getFloat("lpt.trigger.confidence.high.left", -0.1))
 	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.high.right", 0.1))
 	, inhibit_nonconf_(buffer->config_->getFloat("lpt.trigger.inhibit.nonconf", false))
+	, swap_environments_(buffer->config_->getInt("lpt.swap.environments", false))
 {
 	Log("Constructor start");
 
@@ -267,7 +268,7 @@ void LPTTriggerProcessor::process() {
 						continue;
 					} else if (envdomconf < confidence_high_left_){
 						buffer->log_string_stream_ << "environment dominance confidence = " << environment_dominance_confidence_() <<
-								" is lower that the -threshold = " << -confidence_high_left_ << ", decide NO INHIBITION at " << buffer->last_pkg_id << "\n";
+								" is lower that the -threshold = " << confidence_high_left_ << ", decide NO INHIBITION at " << buffer->last_pkg_id << "\n";
 						buffer->Log();
 						events_allowed_thold_ ++;
 
@@ -325,7 +326,7 @@ double LPTTriggerProcessor::environment_dominance_confidence_() {
 	double prob1 = pred1.max();
 	double prob2 = pred2.max();
 
-	return prob1 - prob2;
+	return swap_environments_ ? prob2 - prob1 : prob1 - prob2;
 }
 
 

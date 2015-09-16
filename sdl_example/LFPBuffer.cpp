@@ -817,8 +817,11 @@ void LFPBuffer::estimate_firing_rates() {
 			spike_numbers_[spike->tetrode_] ++;
 		}
 
+		double seconds_est = double(spike_buffer_[frest_pos - 1]->pkg_id_ - first_spike_pkg_id) / (double)SAMPLING_RATE;
+		Log("Estimating firing rate in seconds: ", seconds_est);
+
 		for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
-			double firing_rate = spike_numbers_[t] * SAMPLING_RATE / double(spike_buffer_[frest_pos - 1]->pkg_id_ - first_spike_pkg_id);
+			double firing_rate = spike_numbers_[t]  / seconds_est;
 			std::stringstream ss;
 			ss << "Estimated firing rate for tetrode #" << t << ": " << firing_rate << " spk / sec (" << spike_numbers_[t] << " spikes)\n";
 			ss << "   with " << spikes_discarded_[t] << " spikes DISCARDED\n";
