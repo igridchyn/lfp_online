@@ -214,6 +214,8 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	std::vector<unsigned int> tetrode_sampling_rates_;
 
+	int display_scale_ = 1;
+
 	// DEBUG
 //	std::vector<int> skipped_spikes_;
 //	std::ofstream debug_;

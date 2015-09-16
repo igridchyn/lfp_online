@@ -32,7 +32,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	for (int s = 0; s < NUSED; ++s) {
 		laxs_[t].push_back(laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1));
 
-		if (!(s % 300))
+		if (!(s % 50))
 			laxs_[t][laxs_[t].size() - 1].save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(s) + ".tmp", arma::raw_ascii);
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
@@ -95,7 +95,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			RUN_KDE_ON_MIN_COLLECTED(getBool("kd.run.on.min")),
             kde_path_(buf->config_->getString("kd.path", "./kde_estimator")),
             continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false)),
-            neighb_num_(buf->config_->getInt("kd.neighb.num", 1))
+            neighb_num_(buf->config_->getInt("kd.neighb.num", 1)),
+            display_scale_(buf->config_->getInt("kd.display.scale", 50))
 		{
 
 	Log("Construction started");
@@ -771,15 +772,15 @@ void KDClusteringProcessor::process(){
 				double minpred = arma::max(arma::max(last_pred_probs_));
 				last_pred_probs_ -= minpred;
 
-				if (swr_regime_){
-					// DEBUG save prediction
-					pos_pred_.save("../out/jc118_1003/" + std::string("swr_") + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
-					swr_win_counter_ ++;
-				}
-				else{
+				// DEBUG save prediction
+//				if (swr_regime_){
+//					pos_pred_.save("../out/jc118_1003/" + std::string("swr_") + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
+//					swr_win_counter_ ++;
+//				}
+//				else{
 					//pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
 					//swr_win_counter_ ++;
-				}
+//				}
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG
@@ -787,7 +788,7 @@ void KDClusteringProcessor::process(){
 
 //				double minval = arma::min(arma::min(pos_pred_));
 //				pos_pred_ = pos_pred_ - minval;
-				pos_pred_ = arma::exp(pos_pred_ / 50);
+				pos_pred_ = arma::exp(pos_pred_ / display_scale_);
 
 				// updated in HMM
 				buffer->last_predictions_[processor_number_] = pos_pred_;
