@@ -221,7 +221,7 @@ public:
 	std::vector< std::vector<unsigned int> > instant_counts_;
 
 	const unsigned int WINDOW = 2400;
-	const unsigned SAMPLE_END = 22.6 * 60 * 24000;
+	const unsigned SAMPLE_END;
 	float speed_limit_ = 2.0;
 	const unsigned int MAX_CLUST = 50;
 	const unsigned int MAX_SPIKE_COUNT = 20;
@@ -234,6 +234,8 @@ public:
 	int current_environment_ = 0;
 
 	bool distribution_reported_ = false;
+
+	const bool SAVE;
 
 public:
 	BinaryPopulationClassifierProcessor(LFPBuffer *buf);

@@ -370,6 +370,8 @@ Spike::Spike() {
 BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
 		LFPBuffer* buf)
 : LFPProcessor(buf)
+, SAMPLE_END(buf->config_->getInt("binary.classifier.sample.end", 0))
+, SAVE(buf->config_->getBool("binary.classifier.save", false))
 {
 	spike_count_stats_.resize(2);
 
@@ -407,10 +409,25 @@ BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
 			clusters_used_[t].push_back(clu);
 		}
 	}
+
+	if (!SAVE){
+		std::ifstream binary_model_in;
+		binary_model_in.open(buffer->config_->getOutPath("binary.classif.model.path"));
+
+		for (unsigned int e=0; e < 2; ++e){
+			for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+				for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
+					for (unsigned int sc=0; sc < MAX_SPIKE_COUNT; ++sc){
+						binary_model_in >> spike_count_stats_[e][t][clusters_used_[t][c]][sc++];
+					}
+				}
+			}
+		}
+	}
 }
 
 void BinaryPopulationClassifierProcessor::process() {
-	while(buffer->spike_buf_pos_binary_classifier_  < std::min<unsigned int>(buffer->spike_buf_pos_speed_, buffer->spike_buf_no_disp_pca)){
+	while(buffer->spike_buf_pos_binary_classifier_  < std::min<unsigned int>(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_binary_classifier_];
 
 		if (spike == nullptr || spike->discarded_ || spike->cluster_id_ <= 0 ||
@@ -461,6 +478,28 @@ void BinaryPopulationClassifierProcessor::process() {
 			}
 
 			distribution_reported_ = true;
+
+			if (SAVE){
+				std::ofstream binary_model_out;
+				std::string model_path = buffer->config_->getOutPath("binary.classif.model.path");
+				binary_model_out.open(model_path);
+
+				for (unsigned int e=0; e < 2; ++e){
+					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+						for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
+							for (unsigned int sc=0; sc < MAX_SPIKE_COUNT; ++sc){
+								binary_model_out << spike_count_stats_[e][t][clusters_used_[t][c]][sc++] << " ";
+							}
+							binary_model_out << "\n";
+						}
+						binary_model_out << "\n";
+					}
+					binary_model_out << "\n";
+				}
+				binary_model_out.close();
+
+				Log(std::string("Saved binary classification model to") + model_path);
+			}
 		}
 
 		buffer->spike_buf_pos_binary_classifier_ ++;
