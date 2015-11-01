@@ -237,6 +237,10 @@ public:
 
 	const bool SAVE;
 
+	const double SPEED_THRESHOLD_;
+
+	std::vector<unsigned int> class_occurances_counts_;
+
 public:
 	BinaryPopulationClassifierProcessor(LFPBuffer *buf);
 	virtual ~BinaryPopulationClassifierProcessor() {}

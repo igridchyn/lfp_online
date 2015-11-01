@@ -371,9 +371,12 @@ BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
 		LFPBuffer* buf)
 : LFPProcessor(buf)
 , SAMPLE_END(buf->config_->getInt("binary.classifier.sample.end", 0))
-, SAVE(buf->config_->getBool("binary.classifier.save", false))
+, SAVE(buf->config_->getBool("binary.classifier.save", true))
+, SPEED_THRESHOLD_(buf->config_->getFloat("binary.classifier.speed.threshold"))
 {
 	spike_count_stats_.resize(2);
+
+	class_occurances_counts_.resize(2, 0);
 
 	for (unsigned int e=0; e < 2; ++e){
 		spike_count_stats_[e].resize(buf->tetr_info_->tetrodes_number());
@@ -438,16 +441,19 @@ void BinaryPopulationClassifierProcessor::process() {
 
 		if (spike->pkg_id_ > last_pkg_id_ + WINDOW){
 			// update statistics and reset counters if environment is known
-			if (current_environment_ >= 0){
+			if (current_environment_ >= 0 && spike->speed > SPEED_THRESHOLD_){
 				for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
 					for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
 						spike_count_stats_[current_environment_][t][clusters_used_[t][c]][ instant_counts_[t][clusters_used_[t][c]] ] ++;
 						instant_counts_[t][clusters_used_[t][c]] = 0;
 					}
 				}
+
+				class_occurances_counts_[current_environment_] ++;
 			}
 
-			last_pkg_id_ = last_pkg_id_ + WINDOW;
+			// in this way can skip windows with no spiking at all
+			last_pkg_id_ = spike->pkg_id_ / WINDOW * WINDOW;
 
 			if (spike->x < 1000)
 				current_environment_ = spike->x < 172 ? 0 : 1;
@@ -461,6 +467,8 @@ void BinaryPopulationClassifierProcessor::process() {
 		instant_counts_[spike->tetrode_][spike->cluster_id_] ++;
 
 		if (spike->pkg_id_ > SAMPLE_END && !distribution_reported_){
+			const unsigned int total_occurances = class_occurances_counts_[0] + class_occurances_counts_[1];
+
 			Log("Report environment-wise spike count distributions");
 			// report distribution of spike counts
 			for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
@@ -470,8 +478,8 @@ void BinaryPopulationClassifierProcessor::process() {
 					for(unsigned int env=0; env < 2; ++env){
 						unsigned int sc = 0;
 						Log("Environment ", env);
-						while ((spike_count_stats_[env][t][c][sc] > 0 || sc < 3) && sc < MAX_SPIKE_COUNT){
-							Log(" ", spike_count_stats_[env][t][clusters_used_[t][c]][sc++]);
+						while ((spike_count_stats_[env][t][c][sc] > 0 || sc < 7) && sc < MAX_SPIKE_COUNT){
+							Log(" ", spike_count_stats_[env][t][clusters_used_[t][c]][sc++] * (float)total_occurances / (2 * class_occurances_counts_[env]));
 						}
 					}
 				}
@@ -479,10 +487,24 @@ void BinaryPopulationClassifierProcessor::process() {
 
 			distribution_reported_ = true;
 
+			Log("Environment 0 occurrences: ", class_occurances_counts_[0]);
+			Log("Environment 1 occurrences: ", class_occurances_counts_[1]);
+
 			if (SAVE){
 				std::ofstream binary_model_out;
-				std::string model_path = buffer->config_->getOutPath("binary.classif.model.path");
+				std::string model_path = buffer->config_->getOutPath("binary.classifier.model.path");
 				binary_model_out.open(model_path);
+
+				// write clusters used
+				binary_model_out << buffer->tetr_info_->tetrodes_number() << "\n";
+				for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+					binary_model_out << clusters_used_[t].size() << " ";
+					for (unsigned int cu = 0; cu < clusters_used_[t].size(); ++cu){
+						binary_model_out << clusters_used_[t][cu] << " ";
+					}
+					binary_model_out << "\n";
+				}
+				binary_model_out << "\n";
 
 				for (unsigned int e=0; e < 2; ++e){
 					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
