@@ -401,29 +401,53 @@ BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
 		}
 	}
 
-	unsigned int apos = 0;
-	std::vector<unsigned int>& disc = buf->config_->discriminators_;
-	while (apos < disc.size()){
-		unsigned int t = disc[apos++];
-		unsigned int nclu = disc[apos++];
-		for (unsigned int c = 0; c < nclu; ++c){
-			unsigned int clu = disc[apos++];
-			use_cluster_[t][clu] = true;
-			clusters_used_[t].push_back(clu);
-		}
-	}
-
 	if (!SAVE){
 		std::ifstream binary_model_in;
-		binary_model_in.open(buffer->config_->getOutPath("binary.classif.model.path"));
+		binary_model_in.open(buffer->config_->getOutPath("binary.classifier.model.path"));
+
+		// read clusters configuration
+		// write clusters used
+		unsigned int model_tetrodes_number = 0;
+		binary_model_in >> model_tetrodes_number;
+
+		if (model_tetrodes_number != buffer->tetr_info_->tetrodes_number()){
+			Log("ERROR: Number of tetrodes in the model is not equal to the current configuration tetrodes number.");
+			exit(9873);
+		}
+
+		for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+			unsigned int clusters_used;
+			binary_model_in >> clusters_used;
+			for (unsigned int cu = 0; cu < clusters_used; ++cu){
+				unsigned int cluster;
+				binary_model_in >> cluster;
+				clusters_used_[t].push_back(cluster);
+				use_cluster_[t][cluster] = true;
+			}
+		}
+
+		binary_model_in >> class_occurances_counts_[0] >> class_occurances_counts_[1];
 
 		for (unsigned int e=0; e < 2; ++e){
 			for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
 				for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
 					for (unsigned int sc=0; sc < MAX_SPIKE_COUNT; ++sc){
-						binary_model_in >> spike_count_stats_[e][t][clusters_used_[t][c]][sc++];
+						binary_model_in >> spike_count_stats_[e][t][clusters_used_[t][c]][sc];
 					}
 				}
+			}
+		}
+	} else {
+		// read discriminators from main config
+		unsigned int apos = 0;
+		std::vector<unsigned int>& disc = buf->config_->discriminators_;
+		while (apos < disc.size()){
+			unsigned int t = disc[apos++];
+			unsigned int nclu = disc[apos++];
+			for (unsigned int c = 0; c < nclu; ++c){
+				unsigned int clu = disc[apos++];
+				use_cluster_[t][clu] = true;
+				clusters_used_[t].push_back(clu);
 			}
 		}
 	}
@@ -506,11 +530,13 @@ void BinaryPopulationClassifierProcessor::process() {
 				}
 				binary_model_out << "\n";
 
+				binary_model_out << class_occurances_counts_[0] << " " << class_occurances_counts_[1] << "\n";
+
 				for (unsigned int e=0; e < 2; ++e){
 					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
 						for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
 							for (unsigned int sc=0; sc < MAX_SPIKE_COUNT; ++sc){
-								binary_model_out << spike_count_stats_[e][t][clusters_used_[t][c]][sc++] << " ";
+								binary_model_out << spike_count_stats_[e][t][clusters_used_[t][c]][sc] << " ";
 							}
 							binary_model_out << "\n";
 						}
