@@ -30,6 +30,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, pos_buf_pointer_limit_(buf->GetPosBufPointer(buf->config_->getString("posdisp.pointer.limit", "pos")))
 	, scale_(buf->config_->getFloat("posdisp.scale", 1.0f))
 	, speed_limit_(buf->config_->getFloat("posdisp.speed.limit", .0f))
+	, draw_circles_(buf->config_->getBool("posdisp.draw.circles", false))
 {
 	std::string pos_buf_name = buf->config_->getString("posdisp.pointer.limit", "pos");
 	if (pos_buf_name == buf->pos_buf_pointer_names_.POS_BUF_SPEED_EST){
@@ -185,9 +186,11 @@ void PositionDisplayProcessor::process(){
     
     if (render){
     	SDL_SetRenderDrawColor(renderer_, 200, 0, 0, 255);
-    	// draw_circle(245, 283, 230);
-    	draw_circle(164, 188, 158);
-    	draw_circle(508, 185, 158);
+
+    	if (draw_circles_){
+    		draw_circle(164, 188, 158);
+    		draw_circle(508, 185, 158);
+    	}
 
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
