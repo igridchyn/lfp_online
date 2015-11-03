@@ -59,6 +59,17 @@ public:
     inline const arma::mat& Mat() const { return place_field_; }
 
     void Load(const std::string path, arma::file_type ft);
+
+    friend std::ostream& operator<<(std::ostream& output, const PlaceField& pf){
+    	for (int y = 0; y < pf.NBINSY; ++y){
+    		for (int x = 0; x < pf.NBINSX; ++x){
+    			output << pf.place_field_(x, y) << " ";
+    		}
+    		output << "\n";
+    	}
+    	output << "\n";
+    	return output;
+    }
 };
 
 #endif /* defined(__sdl_example__PlaceField__) */
