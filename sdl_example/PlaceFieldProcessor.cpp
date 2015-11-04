@@ -52,7 +52,9 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , USE_PRIOR(use_prior)
 , display_prediction_(buf->config_->getBool("pf.display.prediction"))
 , prediction_rate_(buf->config_->getInt("pf.prediction.rate"))
-, POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0)){
+, POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0))
+, MIN_OCCUPANCY(buf->config_->getFloat("pf.min.occupancy"))
+, SPEED_THOLD(buf->config_->getFloat("pf.speed.threshold")){
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
     const unsigned int MAX_CLUST = 30;
     
@@ -123,13 +125,9 @@ void PlaceFieldProcessor::process(){
     while (buffer->spike_buf_pos_pf_ < buffer->spike_buf_pos_speed_){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_pf_];
         
-        if(spike->discarded_){
+        if(spike->discarded_ || isnan(spike->x) || spike->cluster_id_ == -1){
         	buffer->spike_buf_pos_pf_++;
             continue;
-        }
-        
-        if (spike->cluster_id_ == -1){
-            break;
         }
         
         unsigned int tetr = spike->tetrode_;
@@ -317,7 +315,16 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
 }
 
 void PlaceFieldProcessor::smoothPlaceFields(){
+	Log("Smooth place fields");
+
     occupancy_smoothed_ = occupancy_.Smooth();
+
+    for (unsigned int x=0; x < nbinsx_; ++x)
+    	for (unsigned int y =0; y < nbinsy_; ++y)
+    		if (occupancy_smoothed_(x, y) < MIN_OCCUPANCY){
+    			occupancy_smoothed_(x, y) = .0f;
+    		}
+
     if (SAVE){
     	occupancy_smoothed_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
 //    	occupancy_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);

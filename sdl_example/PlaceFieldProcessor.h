@@ -16,7 +16,6 @@
 //==========================================================================================
 
 class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
-    const float SPEED_THOLD = 80.0f;
     const float EPS = 0.001f;
     
     // unsigned int spike_buf_pos_;
@@ -65,6 +64,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     const unsigned int prediction_rate_;
 
     float POS_SAMPLING_RATE = 0.0;
+    double MIN_OCCUPANCY;
+    const float SPEED_THOLD;
     //================================
     
     template <class T>
