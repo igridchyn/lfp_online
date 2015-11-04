@@ -391,12 +391,12 @@ BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
 			spike_count_stats_[e][t].resize(MAX_CLUST);
 
 			if (e == 0){
-				instant_counts_[t].resize(MAX_CLUST);
-				use_cluster_[t].resize(MAX_CLUST);
+				instant_counts_[t].resize(MAX_CLUST, 0);
+				use_cluster_[t].resize(MAX_CLUST, false);
 			}
 
 			for (unsigned int c=0; c < MAX_CLUST; ++c){
-				spike_count_stats_[e][t][c].resize(MAX_SPIKE_COUNT);
+				spike_count_stats_[e][t][c].resize(MAX_SPIKE_COUNT, 0);
 			}
 		}
 	}
@@ -454,26 +454,63 @@ BinaryPopulationClassifierProcessor::BinaryPopulationClassifierProcessor(
 }
 
 void BinaryPopulationClassifierProcessor::process() {
-	while(buffer->spike_buf_pos_binary_classifier_  < std::min<unsigned int>(buffer->spike_buf_pos_speed_, buffer->spike_buf_pos_unproc_)){
+	while(buffer->spike_buf_pos_binary_classifier_  < std::min<unsigned int>(buffer->spike_buf_pos_speed_, buffer->spike_buf_no_disp_pca)){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_binary_classifier_];
 
 		if (spike == nullptr || spike->discarded_ || spike->cluster_id_ <= 0 ||
-				spike->speed < speed_limit_ || !use_cluster_[spike->tetrode_][spike->cluster_id_]){
+				spike->speed < SPEED_THRESHOLD_ || !use_cluster_[spike->tetrode_][spike->cluster_id_]){
 			buffer->spike_buf_pos_binary_classifier_ ++;
 			continue;
 		}
 
 		if (spike->pkg_id_ > last_pkg_id_ + WINDOW){
-			// update statistics and reset counters if environment is known
-			if (current_environment_ >= 0 && spike->speed > SPEED_THRESHOLD_){
+			if (!SAVE){
+				// classify
+				std::vector<double> envprobs;
+				envprobs.resize(2, 1.0);
+
 				for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
 					for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
-						spike_count_stats_[current_environment_][t][clusters_used_[t][c]][ instant_counts_[t][clusters_used_[t][c]] ] ++;
-						instant_counts_[t][clusters_used_[t][c]] = 0;
+						unsigned int clu = clusters_used_[t][c];
+						unsigned int nspike = instant_counts_[t][clu];
+						if (nspike >= MAX_SPIKE_COUNT)
+							nspike = MAX_SPIKE_COUNT - 1;
+						instant_counts_[t][clu] = 0;
+
+						// ignore if not enough data in both environments
+						if (spike_count_stats_[0][t][clu][nspike] < MIN_SPIKE_OCCURRENCE &&
+								spike_count_stats_[1][t][clu][nspike] < MIN_SPIKE_OCCURRENCE)
+							continue;
+
+						// update prediction with current cluster probabilities
+						for (int e=0; e < 2; ++e)
+							envprobs[e] *= spike_count_stats_[e][t][clu][nspike] / (float)class_occurances_counts_[e];
 					}
 				}
 
-				class_occurances_counts_[current_environment_] ++;
+				printf("%.3e   %.3e                %d  %d\n", envprobs[0], envprobs[1], classif_correct_, classif_wrong_);
+
+				if (spike->speed > SPEED_THRESHOLD_ && current_environment_ >= 0){
+					if ((envprobs[0] > envprobs[1]) xor (current_environment_ == 0)){
+						classif_wrong_ += 1;
+					}
+					else{
+						classif_correct_ += 1;
+					}
+				}
+
+			} else {
+				// update statistics and reset counters if environment is known
+				if (current_environment_ >= 0 && spike->speed > SPEED_THRESHOLD_){
+					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+						for (unsigned int c=0; c < clusters_used_[t].size(); ++c){
+							spike_count_stats_[current_environment_][t][clusters_used_[t][c]][ instant_counts_[t][clusters_used_[t][c]] ] ++;
+							instant_counts_[t][clusters_used_[t][c]] = 0;
+						}
+					}
+
+					class_occurances_counts_[current_environment_] ++;
+				}
 			}
 
 			// in this way can skip windows with no spiking at all

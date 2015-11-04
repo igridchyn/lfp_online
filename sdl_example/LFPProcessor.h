@@ -240,6 +240,10 @@ public:
 	const double SPEED_THRESHOLD_;
 
 	std::vector<unsigned int> class_occurances_counts_;
+	const unsigned int MIN_SPIKE_OCCURRENCE = 5;
+
+	unsigned int classif_correct_ = 0;
+	unsigned int classif_wrong_ = 0;
 
 public:
 	BinaryPopulationClassifierProcessor(LFPBuffer *buf);
