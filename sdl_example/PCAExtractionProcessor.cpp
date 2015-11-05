@@ -540,15 +540,6 @@ void PCAExtractionProcessor::process(){
                 }
                 
                 compute_pcs(spike);
-                
-                // DEBUG            
-    //            for (int ci=0; ci < 4; ++ci) {
-    //                printf("PCs %d chan #%d ", spike->pkg_id_, ci);
-    //                for (int pc=0; pc < num_pc_; ++pc) {
-    //                    printf("%f ", spike->pc[ci][pc]);
-    //                }
-    //                printf("\n");
-    //            }
             }
 
             npcdone_ ++;
