@@ -515,15 +515,18 @@ void BinaryPopulationClassifierProcessor::process() {
 
 			// in this way can skip windows with no spiking at all
 			last_pkg_id_ = spike->pkg_id_ / WINDOW * WINDOW;
-
-			if (spike->x < 1000)
-				current_environment_ = spike->x < 172 ? 0 : 1;
-			else
-				current_environment_ = -1;
 		}
 
-		if (current_environment_ == -1 && spike->x < 1000)
-			current_environment_ = spike->x < 172 ? 0 : 1;
+//		if (spike->x < 1000)
+//			current_environment_ = spike->x < 172 ? 0 : 1;
+//		else
+//			current_environment_ = -1;
+
+		if (spike->x < 1000 && (spike->x < 60 || spike->x > 100))
+			current_environment_ = spike->x < 60 ? 0 : 1;
+		else
+			current_environment_ = -1;
+
 
 		instant_counts_[spike->tetrode_][spike->cluster_id_] ++;
 
