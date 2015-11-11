@@ -21,7 +21,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, confidence_avg_(buffer->config_->getFloat("lpt.trigger.confidence.average", .0))
 	, confidence_high_left_(buffer->config_->getFloat("lpt.trigger.confidence.high.left", -0.1))
 	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.high.right", 0.1))
-	, inhibit_nonconf_(buffer->config_->getFloat("lpt.trigger.inhibit.nonconf", false))
+	, inhibit_nonconf_(buffer->config_->getBool("lpt.trigger.inhibit.nonconf", false))
 	, swap_environments_(buffer->config_->getInt("lpt.swap.environments", false))
 {
 	Log("Constructor start");
@@ -321,8 +321,16 @@ void LPTTriggerProcessor::process() {
 
 double LPTTriggerProcessor::environment_dominance_confidence_() {
 	const arma::fmat & pred = buffer->last_predictions_[0];
+
+	// separation by X
 	arma::fmat pred1 = pred.submat(0, 0, pred.n_rows / 2 - 1, pred.n_cols - 1);
 	arma::fmat pred2 = pred.submat(pred.n_rows / 2, 0 , pred.n_rows - 1, pred.n_cols - 1);
+
+	// separation by Y
+	/*arma::fmat pred1 = pred.submat(0, 0, pred.n_rows - 1, 22 - 1);
+	arma::fmat pred2 = pred.submat(0, 22, pred.n_rows - 1, pred.n_cols - 1);*/
+
+	// TODO: sum ?
 	double prob1 = pred1.max();
 	double prob2 = pred2.max();
 
