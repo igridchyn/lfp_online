@@ -491,7 +491,7 @@ void BinaryPopulationClassifierProcessor::process() {
 				printf("%.3e   %.3e                %d  %d\n", envprobs[0], envprobs[1], classif_correct_, classif_wrong_);
 
 				if (spike->speed > SPEED_THRESHOLD_ && current_environment_ >= 0){
-					if ((envprobs[0] > envprobs[1]) xor (current_environment_ == 0)){
+					if ((envprobs[0] > envprobs[1]) ^ (current_environment_ == 0)){
 						classif_wrong_ += 1;
 					}
 					else{
