@@ -106,14 +106,13 @@ public:
 		free_pos_ = (free_pos_ + 1) % pool_size_;
 	}
 
-	// TODO !!! implement
 	QueueInterface(const unsigned int pool_size);
 	virtual ~QueueInterface() {
+		delete[] pool_;
 	}
 	;
 };
 
-// TODO !!! destructors
 template<class T>
 class LinearArrayPool: public virtual QueueInterface<T*> {
 	T *array_;
@@ -122,6 +121,7 @@ class LinearArrayPool: public virtual QueueInterface<T*> {
 
 public:
 	LinearArrayPool(unsigned int dim, unsigned int pool_size);
+	~LinearArrayPool() { delete[] array_; }
 };
 
 template<class T>
@@ -136,6 +136,7 @@ class PseudoMultidimensionalArrayPool: public virtual QueueInterface<T**> {
 public:
 	PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2,
 			unsigned int pool_size);
+	~PseudoMultidimensionalArrayPool() { delete[] array_; delete[] array_rows_; }
 };
 
 class LFPONLINEAPI LFPBuffer {
