@@ -216,6 +216,8 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	int display_scale_ = 1;
 
+	const double SWR_COMPRESSION_FACTOR;
+
 	// DEBUG
 //	std::vector<int> skipped_spikes_;
 //	std::ofstream debug_;
