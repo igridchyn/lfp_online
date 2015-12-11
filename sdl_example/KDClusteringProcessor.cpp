@@ -96,7 +96,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
             kde_path_(buf->config_->getString("kd.path", "./kde_estimator")),
             continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false)),
             neighb_num_(buf->config_->getInt("kd.neighb.num", 1)),
-            display_scale_(buf->config_->getInt("kd.display.scale", 50))
+            display_scale_(buf->config_->getInt("kd.display.scale", 50)),
+            SWR_COMPRESSION_FACTOR(buf->config_->getFloat("kd.swr.compression.factor", 5.0))
 		{
 
 	Log("Construction started");
@@ -663,8 +664,7 @@ void KDClusteringProcessor::process(){
 				// TODO: from window start if the spike was first
 				if (continuous_prediction_){
 					// from last spike at the current tetrode
-					// TODO !!! configurable factor
-					const double DE_SEC = (spike->pkg_id_ - last_spike_pkg_ids_by_tetrode_[stetr]) / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
+					const double DE_SEC = (spike->pkg_id_ - last_spike_pkg_ids_by_tetrode_[stetr]) / (float)buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
 					// !!! TODO !!!
 					pos_pred_ -= DE_SEC  * lxs_[stetr];
 
@@ -696,8 +696,7 @@ void KDClusteringProcessor::process(){
 
 				// edges of the window
 				// account for the increase in the firing rate during high synchrony with additional factor
-				// TODO !!! configurable factor
-				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? 5.0 : 1.0);
+				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
 
 				if (!continuous_prediction_){
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {

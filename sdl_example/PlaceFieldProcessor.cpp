@@ -8,6 +8,8 @@
 
 #include "math.h"
 #include "assert.h"
+#include <fstream>
+#include <memory>
 
 #include "LFPProcessor.h"
 #include "PlaceFieldProcessor.h"
@@ -298,6 +300,32 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_p:
                 display_prediction_ = true;
                 break;
+            	// generate clu and res-files for all tetrodes
+            case SDLK_g:
+            	{
+            		Log("START SAVING CLU/RES");
+					std::vector<std::unique_ptr<std::ofstream> > res_files, clu_files;
+					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+						std::string res_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".res";
+						std::string clu_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".clu";
+						Log(res_path);
+						res_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(res_path)));
+						clu_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(clu_path)));
+					}
+					for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
+						Spike *spike = buffer->spike_buffer_[i];
+						if (spike != nullptr && spike->cluster_id_ > 0){
+							*(res_files[spike->tetrode_]) << spike->pkg_id_ << "\n";
+							*(clu_files[spike->tetrode_]) << spike->cluster_id_ << "\n";
+						}
+					}
+					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+						res_files[t]->close();
+						clu_files[t]->close();
+					}
+					Log("FINISHED SAVING CLU/RES");
+            	}
+    		    break;
             default:
                 need_redraw = false;
                 break;
@@ -319,11 +347,17 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 
     occupancy_smoothed_ = occupancy_.Smooth();
 
+    unsigned int less_than_min = 0;
     for (unsigned int x=0; x < nbinsx_; ++x)
     	for (unsigned int y =0; y < nbinsy_; ++y)
     		if (occupancy_smoothed_(x, y) < MIN_OCCUPANCY){
     			occupancy_smoothed_(x, y) = .0f;
+    			less_than_min ++;
     		}
+
+    std::stringstream ss;
+    ss << "Bins with less than minimal occupancy: " << less_than_min << " out of " << nbinsx_ * nbinsy_;
+    Log(ss.str());
 
     if (SAVE){
     	occupancy_smoothed_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
@@ -340,6 +374,8 @@ void PlaceFieldProcessor::smoothPlaceFields(){
             }
         }
     }
+
+    Log("Done smoothing place fields");
 }
 
 void PlaceFieldProcessor::cachePDF(){
