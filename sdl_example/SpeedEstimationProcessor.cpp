@@ -10,7 +10,7 @@
 
 SpeedEstimationProcessor::SpeedEstimationProcessor(LFPBuffer *buffer)
 : LFPProcessor(buffer) {
-	dump_.open("../out/spike_speed.txt");
+	dump_.open("../spike_speed.txt");
 }
 
 SpeedEstimationProcessor::~SpeedEstimationProcessor() {
