@@ -861,7 +861,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		}
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if ( buffer->positions_buf_[n].x_small_LED_ == buffer->pos_unknown_ || buffer->positions_buf_[n].x_big_LED_ == buffer->pos_unknown_  || buffer->positions_buf_[n].x_big_LED_ < 0 || buffer->positions_buf_[n].x_small_LED_ < 0 || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
+		if ( buffer->positions_buf_[n].x_pos() < 0 || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			continue;
 		}
 
@@ -896,6 +896,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		Log("ERROR: number of position samples == 0");
 		exit(91824);
 	}
+
+	Log("Number of pos samples: ", npoints);
 
 	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
