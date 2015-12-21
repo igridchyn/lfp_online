@@ -118,7 +118,7 @@ std::string BinFileReaderProcessor::axonaFileDuration(std::string file_path) {
 
 std::string BinFileReaderProcessor::axonaFilesDuration(
 		std::vector<std::string> file_list) {
-	return axonaFileDurationFromNSampes(totalAxonaPackages(file_list));
+	return axonaFileDurationFromNSampes(totalAxonaPackages(file_list) * 64 / buffer->CHANNEL_NUM);
 }
 
 std::string BinFileReaderProcessor::axonaFileDurationFromNSampes(
