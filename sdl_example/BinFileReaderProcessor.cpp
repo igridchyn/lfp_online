@@ -118,13 +118,14 @@ std::string BinFileReaderProcessor::axonaFileDuration(std::string file_path) {
 
 std::string BinFileReaderProcessor::axonaFilesDuration(
 		std::vector<std::string> file_list) {
-	return axonaFileDurationFromNSampes(totalAxonaPackages(file_list) * 64 / buffer->CHANNEL_NUM);
+	return axonaFileDurationFromNSampes(totalAxonaPackages(file_list));
 }
 
 std::string BinFileReaderProcessor::axonaFileDurationFromNSampes(
 	const unsigned int& nsamples) {
 	std::stringstream ss;
-	ss << nsamples / (buffer->SAMPLING_RATE * 60) << " min " <<  nsamples / (buffer->SAMPLING_RATE) % 60 << " sec @ " << buffer->SAMPLING_RATE << " samples / sec";
+	double factor = 64 / (double)buffer->CHANNEL_NUM;
+	ss << int(factor * nsamples) / (buffer->SAMPLING_RATE * 60) << " min " <<  int(factor * nsamples) / (buffer->SAMPLING_RATE) % 60 << " sec @ " << buffer->SAMPLING_RATE << " samples / sec";
 	return ss.str();
 }
 
