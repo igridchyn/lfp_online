@@ -79,7 +79,7 @@ void PCAExtractionProcessor::tred(float **a,int n,float d[],float e[]) {
 }
 
 
-void PCAExtractionProcessor::tqli(float d[],float e[],int n,float **z) {
+int PCAExtractionProcessor::tqli(float d[],float e[],int n,float **z) {
     int m,l,iter,i,k;
     float s,r,p,g,f,dd,c,b;
     void nrerror();
@@ -95,7 +95,7 @@ void PCAExtractionProcessor::tqli(float d[],float e[],int n,float **z) {
             }
             if (m != l) {
                 if (iter++ == 1000){ printf("too many iteration in TQLI");
-                    exit(0); }
+                    return 1; }
                 g=(d[l+1]-d[l])/(2.0*e[l]);
                 r=sqrt((g*g)+1.0);
                 g=d[m]-d[l]+e[l]/(g+SIGN(r,g));
@@ -133,9 +133,11 @@ void PCAExtractionProcessor::tqli(float d[],float e[],int n,float **z) {
             }
         } while( m!=l);
     }
+
+    return 0;
 }
 
-void PCAExtractionProcessor::eigenc(float **m,float ev[], int ftno) {
+int PCAExtractionProcessor::eigenc(float **m,float ev[], int ftno) {
     float **z;
     float *d,*e;
     int i,j;
@@ -153,7 +155,11 @@ void PCAExtractionProcessor::eigenc(float **m,float ev[], int ftno) {
             z[i+1][j+1]=m[i][j];
     
     tred(z,ftno,d,e);
-    tqli(d,e,ftno,z);
+    int tqli_ret = tqli(d,e,ftno,z);
+
+    if(tqli_ret != 0)
+    	return tqli_ret;
+
     for(i=0;i<ftno;i++) {
         ev[i]=d[i+1];
         for(j=0;j<ftno;j++)
@@ -167,9 +173,11 @@ void PCAExtractionProcessor::eigenc(float **m,float ev[], int ftno) {
     free(z);
     free(d);
     free(e);
+
+    return 0;
 }
 
-void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj,float **prm, int prno)  {
+int PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj,float **prm, int prno)  {
     int i,j,sei;
     float seg;
     float *ev,sz1,sz2;
@@ -206,7 +214,10 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     
     
     //printf("Solving Eigen equation...");
-    eigenc(cor,ev,ftno);
+    int eigenc_ret = eigenc(cor,ev,ftno);
+    if (eigenc_ret != 0){
+    	return eigenc_ret;
+    }
     //printf("finished!\n");
     
     // bubble sort eigenvalues
@@ -259,6 +270,7 @@ void PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj
     free(ev);
     free(ind);
     
+    return 0;
 }
 
 PCAExtractionProcessor::PCAExtractionProcessor(LFPBuffer* buffer)
@@ -508,8 +520,14 @@ void PCAExtractionProcessor::process(){
                 }
                 
                 // prm - projection matrix, prm[j][i] = contribution of j-th wave feature to i-th PC
-                final(corf_, meanf_, waveshape_samples_, num_spikes[tetr], pc_transform_[channel], num_pc_);
+                int final_ret = final(corf_, meanf_, waveshape_samples_, num_spikes[tetr], pc_transform_[channel], num_pc_);
                 
+                if (final_ret != 0){
+                	Log("WARNING: couldn't perform PCA for channel ", channel);
+                	Log("	0-PC transform will be returned", channel);
+                	Log("	Please, exclude flat channels from configuration before running PCA", channel);
+                }
+
                 // SAVE PC transform
                 if (save_transform_){
                 	std::string save_path = pc_path_ + Utils::Converter::int2str(channel) + std::string(".txt");
