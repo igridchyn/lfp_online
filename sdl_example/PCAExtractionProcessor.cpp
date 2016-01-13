@@ -249,9 +249,6 @@ int PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj,
     for(j=0;j<prno;j++){
         for(i=0;i<ftno;i++)         {
             prm[j][i]=cor[i][ind[j]];
-
-            // DEBUG
-//            printf("%f ", prm[j][i]);
         }
     }
     
@@ -262,10 +259,7 @@ int PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj,
         sz2+=ev[j];
     }
     
-    printf("  Overall projected variances : %f5.4\n",sz2 / sz1);
-
-	// TODO !!! debug this with file with no spikes
-    // assert(sz2 <= sz1);
+    Log("  Overall projected variances : %f5.4\n",sz2 / sz1);
     
     free(ev);
     free(ind);
@@ -395,7 +389,6 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 
     if (spike->pc == nullptr){
     	buffer->AllocateFeaturesMemory(spike);
-//        spike->pc = new float[numchan * num_pc_];
 
         for (int c=0; c < numchan; ++c) {
             int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][c];
@@ -424,11 +417,6 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 //        	spike->waveshape_final = nullptr;
         }
     }
-    
-    // DEBUG
-//    if (spike->tetrode_ == 0){
-//        printf("%f\n", spike->pc[0][0]);
-//    }
 }
 
 void saveArray(std::string path, float ** array, const unsigned int& dim1, const unsigned int& dim2){
@@ -468,10 +456,6 @@ void PCAExtractionProcessor::process(){
                     mean_[chan][w] += spike->waveshape_final[chani][w] / scale_;
                     sumsq_[chan][w] += spike->waveshape_final[chani][w] / scale_ * spike->waveshape_final[chani][w] / scale_;
                     
-//                    if (chani==0 && abs(spike->waveshape_final[chani][w]) > 5000){
-//                        // printf("Large amplitude at %d: %d!\n",spike->pkg_id_, spike->waveshape_final[chani][w]);
-//                    }
-                    
                     for (size_t w2=w; w2 < waveshape_samples_; ++w2) {
                         cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2] / ( scale_ * scale_ );
                     }
@@ -499,13 +483,6 @@ void PCAExtractionProcessor::process(){
 
             for (size_t ci=0; ci < buffer->tetr_info_->channels_number(tetr); ++ci) {
                 int channel = buffer->tetr_info_->tetrode_channels[tetr][ci];
-//            }
-//            
-//            for (int channel = 0; channel < 64; ++channel){
-                
-//                if (!buffer->is_valid_channel(channel)){
-//                    continue;
-//                }
                 
                 // copy cor and mean to float arrays
                 for (size_t w = 0; w < waveshape_samples_; ++w){
@@ -534,18 +511,6 @@ void PCAExtractionProcessor::process(){
                     saveArray(save_path, pc_transform_[channel], num_pc_, waveshape_samples_);
                     buffer->Log(std::string("Saved PC transform for tetrode ") + Utils::Converter::int2str(tetr) + " to " + save_path);
                 }
-                
-                // DEBUG - print PCA transform matrix
-//                if (channel == 8){
-//                    for (int pc=0; pc < 3; ++pc) {
-//                        //printf("PC #%d: ", pc);
-//                        for (int w=0; w < waveshape_samples_; ++w) {
-//                            printf("%.2f ", pc_transform_[8][pc][w]);
-//                        }
-//                        //printf("\n");
-//                    }
-//                }
-                
             }
             
             pca_done_[tetr] = true;
