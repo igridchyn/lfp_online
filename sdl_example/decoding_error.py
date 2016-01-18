@@ -73,7 +73,8 @@ def decoding_errors():
 
 		# classification
 		classn += 1
-		if (vals[0] - nbinsx/2*bsize) * (gtx - nbinsx/2*bsize) > 0:
+		# was : nbinsx/2*bsize
+		if (vals[0] - 125) * (gtx - 125) > 0:
 			classcorr += 1
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)
@@ -85,7 +86,7 @@ def run_model_and_decoding(pnames, pvals):
 		parstring.append(pnames[p] + '=' + str(pvals[p]) + ' ')
 	
 	# run model build
-	print 'Start model build with params ', parstring
+	log('Start model build with params ' + str(parstring))
 	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
 	subp.wait()
 	# run decoding
@@ -98,6 +99,7 @@ def run_model_and_decoding(pnames, pvals):
 def log(s):
 	print s
 	flog.write(s + '\n')
+	flog.flush()
 
 #========================================================================================================
 def gradient_descent():
@@ -116,40 +118,58 @@ def gradient_descent():
 	print os.getcwd()
 	# exit(0)
 
-	parbest = []
-	precbest = 0
+	run_model_and_decoding(pnames, pvals)
+        sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
+	mederr = np.median(np.array(errs))
+        classprec = classcorr * 100 / classn
+	log('BASELINE (starting precision): %.2f / %.1f%%' %(mederr, classprec))
+
+	parbest = pvals[:]
+	precbest = classprec
 	errthold = 25
-	errbest = 0
+	errbest = mederr
 	prevbest = -1
 	# iteratively find new best set of parameters while have improvement
-	while precbest > prevbest:
-		prevbest = precbest
-		for p in range(0, pnum):
-			# run with changed p-th param (+/-)
-			for dp in (-psteps[p], psteps[p]):
-				pvals[p] += dp
-				run_model_and_decoding(pnames, pvals)
-				sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
-				mederr = np.median(np.array(errs))
-				classprec = classcorr * 100 / classn
+	while True:
+		while precbest > prevbest:
+			prevbest = precbest
+			for p in range(0, pnum):
+				# run with changed p-th param (+/-)
+				for dp in (-psteps[p], psteps[p]):
+					pvals[p] += dp
+					run_model_and_decoding(pnames, pvals)
+					sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
+					mederr = np.median(np.array(errs))
+					classprec = classcorr * 100 / classn
+	
+					log('Done estimation for params ' + str(pvals))
+					log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
+	
+					# if classprec > precbest and mederr < errthold:
+					if mederr < errthold:
+						print 'New BEST! (absolute error)'
+						precbest = classprec
+						parbest = pvals[:]
+						errbest = mederr
+	
+					# return old param value
+					pvals[p] -= dp
+	
+			log('Iteration over, new best params: ' + str(parbest))
+			log('BEST Med. error / classification error: %.2f / %.1f%%' %(errbest, precbest))
 
-				log('Done estimation for params ' + str(pvals))
-				log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
-
-				if classprec > precbest and mederr < errthold:
-					print 'New BEST!'
-					precbest = classprec
-					parbest = pvals[:]
-					errbest = mederr
-
-				# return old param value
-				pvals[p] -= dp
-
-		log('Iteration over, new best params: ' + str(parbest))
-		log('BEST Med. error / classification error: %.2f / %.1f%%' %(errbest, precbest))
-
-		pvals = parbest[:]
+			pvals = parbest[:]
+		log('No better params found, restart with steps 2X');
+		# increase steps 2X and continue
+		for i in range(0, len(psteps)):
+			psteps[i] = psteps[i] * 2
+		prevbest = precbest - 1
 #============================================================================================================
+if len(argv) == 1:
+	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<"1"_to_plot_error_distribution>'
+	print 'Or:    decoding_error.py (1)<error_file_name> (2)<opt_config> (3)<initial_build_model_config> (4)<initial_decoding_config>'
+	exit(0)
+
 if len(argv) > 3:
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
