@@ -44,7 +44,7 @@ void LFPBuffer::Reset(Config* config)
 	// main tetrode info
 	if (tetr_info_)
 		delete tetr_info_;
-	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"));
+	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"), this);
 
 	if (tetr_info_->tetrodes_number() != config_->tetrodes.size() &&  config_->tetrodes.size() > 0){
 		Log("ERROR: Tetrodes list in main config does not correspond to the information in tetrodes config.");
@@ -64,9 +64,9 @@ void LFPBuffer::Reset(Config* config)
 		pc_per_chan.push_back(npc4); // - nc + 4);
 	}
 
-	Log("Number of PCs per channel for a group of 4 channels: ", pc_per_chan[4]);
-	Log("Number of PCs per channel for a group of 3 channels: ", pc_per_chan[3]);
-	Log("Number of PCs per channel for a group of 2 channels: ", pc_per_chan[2]);
+	Log("Number of PCs per channel for a group of 4 channels: ", (int)pc_per_chan[4]);
+	Log("Number of PCs per channel for a group of 3 channels: ", (int)pc_per_chan[3]);
+	Log("Number of PCs per channel for a group of 2 channels: ", (int)pc_per_chan[2]);
 
 	for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
 		int nchan = tetr_info_->channels_number(t);
@@ -79,7 +79,7 @@ void LFPBuffer::Reset(Config* config)
 	std::string tipath = config->getString("tetr.conf.path.0", config->getString("tetr.conf.path"));
 	int ticount = 1;
 	while (tiexists){
-		TetrodesInfo *new_ti = new TetrodesInfo(tipath);
+		TetrodesInfo *new_ti = new TetrodesInfo(tipath, this);
 		if (new_ti -> status_ == TI_STATUS_BAD_TETRODES_NUMBER){
 			Log("Bad tetrodes nuber, exiting...");
 			exit(LFPONLINE_BAD_TETRODES_CONFIG);

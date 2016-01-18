@@ -1,3 +1,6 @@
+#ifndef Utils_h
+#define Utils_h
+
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -11,6 +14,18 @@ class LFPONLINEAPI Utils{
 public:
     static const char* const NUMBERS[];
     
+    class Logger{
+    public:
+    	virtual void Log() = 0;
+    	virtual void Log(std::string message) = 0;
+    	virtual void Log(std::string message, int num) = 0;
+    	virtual void Log(std::string message, unsigned int num) = 0;
+    #ifndef _WIN32
+    	virtual void Log(std::string message, size_t num) = 0;
+    #endif
+    	virtual void Log(std::string message, double num) = 0;
+    };
+
 	class LFPONLINEAPI Converter{
     public:
         static std::string int2str(int a);
@@ -50,3 +65,5 @@ public:
         }
     };
 };
+
+#endif

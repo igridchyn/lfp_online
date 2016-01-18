@@ -139,7 +139,7 @@ public:
 	~PseudoMultidimensionalArrayPool() { delete[] array_; delete[] array_rows_; }
 };
 
-class LFPONLINEAPI LFPBuffer {
+class LFPONLINEAPI LFPBuffer : public virtual Utils::Logger {
 
 public:
 	LFPPipelineStatus pipeline_status_ = PIPELINE_STATUS_ONLINE;
@@ -377,14 +377,14 @@ public:
 	void AddSpike(Spike *spike, bool rewind = true);
 	void Rewind();
 
-	void Log();
-	void Log(std::string message);
-	void Log(std::string message, int num);
-	void Log(std::string message, unsigned int num);
+	virtual void Log();
+	virtual void Log(std::string message);
+	virtual void Log(std::string message, int num);
+	virtual void Log(std::string message, unsigned int num);
 #ifndef _WIN32
-	void Log(std::string message, size_t num);
+	virtual void Log(std::string message, size_t num);
 #endif
-	void Log(std::string message, double num);
+	virtual void Log(std::string message, double num);
 
 	const unsigned int& GetSpikeBufPointer(std::string name);
 	const unsigned int& GetPosBufPointer(std::string name);

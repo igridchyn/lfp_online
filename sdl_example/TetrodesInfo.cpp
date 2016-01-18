@@ -52,11 +52,13 @@ TetrodesInfo* TetrodesInfo::GetMergedTetrodesInfo(const TetrodesInfo* ti1, const
 	return tetrinf;
 }
 
-TetrodesInfo::TetrodesInfo(std::string config_path) {
+TetrodesInfo::TetrodesInfo(std::string config_path, Utils::Logger* logger) {
 	std::ifstream tconfig(config_path);
 
 	unsigned int tetrn = 0;
 	tconfig >> tetrn;
+
+	logger->Log("Number of tetrodes in tetrode config: ", tetrn);
 
 	if (tetrn <= 0){
 		status_ = TI_STATUS_BAD_TETRODES_NUMBER;
