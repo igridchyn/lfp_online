@@ -99,14 +99,14 @@ void usleep(__int64 usec)
     } else {
 
 //    	config = new Config("../Res/assembly_inhibition_jc149.conf");
-//    	config = new Config("../Res/build_model_jc149.conf");
+//    	config = new Config("../Res/build_model_jc157.conf");
 //    	config = new Config("../Res/decoding_online_jc155.conf");
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 //    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
 //    	config = new Config("../Res/spike_display_jc118_1003.conf");
-//    	config = new Config("../Res/spike_dump.conf");
+//    	config = new Config("../Res/spike_dump_128.conf");
     	config = new Config("../Res/spike_display_jc157.conf");
 //    	config = new Config("../Res/synchrony_detection.conf");
 //    	config = new Config("../Res/trigger_jc140.conf");
