@@ -25,8 +25,9 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
 
     arma::mat reconstructed_position_;
     
-    std::vector< std::vector< PlaceField > > place_fields_;
-    std::vector< std::vector< PlaceField > > place_fields_smoothed_;
+    // [tetrode] [cluster] [session]
+    std::vector< std::vector< std::vector< PlaceField > > > place_fields_;
+    std::vector< std::vector< std::vector< PlaceField > > > place_fields_smoothed_;
     
     double sigma_;
     double bin_size_;
@@ -34,8 +35,9 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     unsigned int nbinsy_;
     double spread_;
     
-    PlaceField occupancy_;
-    PlaceField occupancy_smoothed_;
+    // [session]
+    std::vector<PlaceField> occupancy_;
+    std::vector<PlaceField> occupancy_smoothed_;
 
     unsigned int display_tetrode_ = 0;
 
@@ -66,6 +68,14 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     float POS_SAMPLING_RATE = 0.0;
     double MIN_OCCUPANCY;
     const float SPEED_THOLD;
+
+    const unsigned int N_SESSIONS;
+
+    // to which session last received spike belonged
+    unsigned int current_session_ = 0;
+
+    // user-selected session for display
+    unsigned int selected_session_ = 0;
     //================================
     
     template <class T>
@@ -96,7 +106,7 @@ public:
     // call the constructor above after reading params from config
     PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& processors_number);
 
-    const arma::mat& GetSmoothedOccupancy();
+//    const arma::mat& GetSmoothedOccupancy();
 
     // LFPProcessor
     virtual void process();
@@ -106,6 +116,8 @@ public:
     virtual void process_SDL_control_input(const SDL_Event& e);
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     
+    void switchSession(const unsigned int& session);
+
 };
 
 #endif

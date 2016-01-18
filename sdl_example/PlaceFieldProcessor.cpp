@@ -44,8 +44,6 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , nbinsx_(nbinsx)
 , nbinsy_(nbinsy)
 , spread_(spread)
-, occupancy_(sigma, bin_size, nbinsy, nbinsx, spread)
-, occupancy_smoothed_(sigma, bin_size, nbinsy, nbinsx, spread)
 , SAVE(save)
 , LOAD(load)
 , BASE_PATH(base_path)
@@ -56,20 +54,28 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , prediction_rate_(buf->config_->getInt("pf.prediction.rate"))
 , POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0))
 , MIN_OCCUPANCY(buf->config_->getFloat("pf.min.occupancy"))
-, SPEED_THOLD(buf->config_->getFloat("pf.speed.threshold")){
+, SPEED_THOLD(buf->config_->getFloat("pf.speed.threshold"))
+, N_SESSIONS(buf->config_->pf_sessions_.size() + 1){
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
     const unsigned int MAX_CLUST = 30;
     
     place_fields_.resize(tetrn);
     place_fields_smoothed_.resize(tetrn);
-    
+
+    occupancy_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsy, nbinsx, spread));
+    occupancy_smoothed_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsy, nbinsx, spread));
+
     for (size_t t=0; t < tetrn; ++t) {
+    	place_fields_[t].resize(MAX_CLUST);
+    	place_fields_smoothed_[t].resize(MAX_CLUST);
         for (size_t c=0; c < MAX_CLUST; ++c) {
-            place_fields_[t].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
-			place_fields_smoothed_[t].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
-			if (LOAD){
-				place_fields_smoothed_[t][c].Load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
-			}
+        	for (size_t s=0; s < N_SESSIONS; ++s) {
+				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+				if (LOAD){
+					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + "_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+				}
+        	}
         }
     }
     
@@ -77,10 +83,14 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 
     // load smoothed occupancy
     if(LOAD){
-    	occupancy_smoothed_.Load(BASE_PATH + "occ.mat", arma::raw_ascii);
+    	for (size_t s=0; s < N_SESSIONS; ++s) {
+    		occupancy_smoothed_[s].Load(BASE_PATH + "occ_" +  Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+    	}
     	// pos sampling rate is unknown in the beginning
     	//cachePDF();
     }
+
+    Log("WARNING: processor assumes chronological order of spikes");
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
@@ -98,7 +108,8 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     	return;
     }
 
-    occupancy_(yb, xb) += 1.f;
+    // TODO check correctness
+    occupancy_[current_session_](yb, xb) += 1.f;
     
     // normalizer
 //    double norm = .0f;
@@ -135,8 +146,14 @@ void PlaceFieldProcessor::process(){
         unsigned int tetr = spike->tetrode_;
         unsigned int clust = spike->cluster_id_;
      
+        // update current session number based on the spike id
+        while (current_session_ <  N_SESSIONS - 1 && spike->pkg_id_ > buffer->config_->pf_sessions_[current_session_]){
+        	current_session_ ++;
+        	Log("Advance current session to ", current_session_);
+        }
+
         if (spike->speed > SPEED_THOLD){
-            bool spike_added = place_fields_[tetr][clust].AddSpike(spike);
+            bool spike_added = place_fields_[tetr][clust][current_session_].AddSpike(spike);
             if (!spike_added){
             	buffer->log_string_stream_ << "Spike with coordinates " << spike->x << ", " << spike->y << " not added.\n";
             	buffer->Log();
@@ -169,10 +186,10 @@ void PlaceFieldProcessor::process(){
     }
 }
 
-const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
-	occupancy_smoothed_ = occupancy_.Smooth();
-	return occupancy_smoothed_.Mat();
-}
+//const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
+//	occupancy_smoothed_ = occupancy_.Smooth();
+//	return occupancy_smoothed_.Mat();
+//}
 
 void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
     display_tetrode_ = MIN(display_tetrode, buffer->tetr_info_->tetrodes_number() - 1);
@@ -221,17 +238,27 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
 }
 
 void PlaceFieldProcessor::drawOccupancy(){
-    drawMat(occupancy_smoothed_.Mat());
+    drawMat(occupancy_smoothed_[selected_session_].Mat());
 }
 
 void PlaceFieldProcessor::drawPlaceField(){
-    const PlaceField& pf = place_fields_smoothed_[display_tetrode_][display_cluster_];
-    arma::mat dv = pf.Mat() / occupancy_smoothed_.Mat();
+    const PlaceField& pf = place_fields_smoothed_[display_tetrode_][display_cluster_][selected_session_];
+    arma::mat dv = pf.Mat() / occupancy_smoothed_[selected_session_].Mat();
     drawMat(dv);
 }
 
 void PlaceFieldProcessor::drawPrediction(){
     drawMat(reconstructed_position_);
+}
+
+void PlaceFieldProcessor::switchSession(const unsigned int& session){
+	if (session < N_SESSIONS){
+		selected_session_ = session;
+		Log("Switched session to ", session);
+	} else {
+		Log("Requested session outside of range: ", session);
+		Log("Number of available sessions: ", N_SESSIONS);
+	}
 }
 
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
@@ -244,6 +271,9 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         shift = 10;
     }
     
+    bool change_session = kmod & KMOD_RSHIFT;
+
+
     bool need_redraw = false;
     bool display_occupancy = false;
     
@@ -257,17 +287,29 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         		exit(0);
         		break;
             case SDLK_1:
-            	display_prediction_ = false;
-                display_cluster_ = 1 + shift;
+            	if (change_session){
+            		switchSession(0);
+            	}
+            	else
+            		display_cluster_ = 1 + shift;
                 break;
             case SDLK_2:
-                display_cluster_ = 2 + shift;
+            	if (change_session)
+            		switchSession(1);
+            	else
+            		display_cluster_ = 2 + shift;
                 break;
             case SDLK_3:
-                display_cluster_ = 3 + shift;
+            	if (change_session)
+            		switchSession(2);
+            	else
+            		display_cluster_ = 3 + shift;
                 break;
             case SDLK_4:
-                display_cluster_ = 4 + shift;
+            	if (change_session)
+            		switchSession(3);
+            	else
+            		display_cluster_ = 4 + shift;
                 break;
             case SDLK_5:
                 display_cluster_ = 5 + shift;
@@ -285,7 +327,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 display_cluster_ = 9 + shift;
                 break;
             case SDLK_0:
-                display_cluster_ = 0 + shift;
+            	if (change_session){
+            		Log("Switch session to 0");
+            		selected_session_ = 0;
+            	}
+            	else
+            		display_cluster_ = 0 + shift;
                 break;
             case SDLK_o:
                 display_occupancy = true;
@@ -345,33 +392,44 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
 void PlaceFieldProcessor::smoothPlaceFields(){
 	Log("Smooth place fields");
 
-    occupancy_smoothed_ = occupancy_.Smooth();
+	for (size_t s = 0; s < N_SESSIONS; ++s) {
+		occupancy_smoothed_[s] = occupancy_[s].Smooth();
+	}
 
-    unsigned int less_than_min = 0;
+    std::vector<unsigned int> less_than_min;
+    less_than_min.resize(N_SESSIONS);
     for (unsigned int x=0; x < nbinsx_; ++x)
     	for (unsigned int y =0; y < nbinsy_; ++y)
-    		if (occupancy_smoothed_(x, y) < MIN_OCCUPANCY){
-    			occupancy_smoothed_(x, y) = .0f;
-    			less_than_min ++;
+    		for (size_t s = 0; s < N_SESSIONS; ++s) {
+				if (occupancy_smoothed_[s](x, y) < MIN_OCCUPANCY){
+					occupancy_smoothed_[s](x, y) = .0f;
+					less_than_min[s] ++;
+				}
     		}
 
     std::stringstream ss;
-    ss << "Bins with less than minimal occupancy: " << less_than_min << " out of " << nbinsx_ * nbinsy_;
+    for (size_t s = 0; s < N_SESSIONS; ++s) {
+    	ss << "Bins with less than minimal occupancy in session " << s << ": " << less_than_min[s] << " out of " << nbinsx_ * nbinsy_ << "\n";
+    }
     Log(ss.str());
 
     if (SAVE){
-    	occupancy_smoothed_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
+    	for (size_t s = 0; s < N_SESSIONS; ++s) {
+    		occupancy_smoothed_[s].Mat().save(BASE_PATH + "occ_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+    	}
 //    	occupancy_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
     }
     
     for (size_t t=0; t < place_fields_.size(); ++t) {
         for (size_t c = 0; c < place_fields_[t].size(); ++c) {
-            place_fields_smoothed_[t][c] = place_fields_[t][c].Smooth();
+        	for (size_t s = 0; s < N_SESSIONS; ++s) {
+				place_fields_smoothed_[t][c][s] = place_fields_[t][c][s].Smooth();
 
-            if (SAVE){
-            	place_fields_smoothed_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
-//            	place_fields_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
-            }
+				if (SAVE){
+					place_fields_smoothed_[t][c][s].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + "_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+	//            	place_fields_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
+				}
+        	}
         }
     }
 
@@ -379,23 +437,27 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 }
 
 void PlaceFieldProcessor::cachePDF(){
-	// TODO: !!! introduce counter (in case of buffer rewind)
-	float pos_sampling_rate = buffer->pos_buf_pos_ / (float)buffer->last_pkg_id * buffer->SAMPLING_RATE;
 	// !!! dividing spike counts by occupancy will give the FR for window 1/pos_sampling_rate (s)
 	// we need FR for window POP_VEC_WIN_LEN (ms), thus factor is POP_VEC_WIN_LEN  * pos_sampling_rat / 1000
-	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000.0f;
+
 
 	// factor - number by which the
 
-    for (size_t t=0; t < place_fields_.size(); ++t) {
-        for (size_t c = 0; c < place_fields_[t].size(); ++c) {
-            place_fields_smoothed_[t][c].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_, factor);
-        }
-    }
+	// TODO THIS GOT BROKE after introducing session-wise place fields
+	// TODO: !!! introduce counter (in case of buffer rewind)
+//	float pos_sampling_rate = buffer->pos_buf_pos_ / (float)buffer->last_pkg_id * buffer->SAMPLING_RATE;
+//	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000.0f;
+//    for (size_t t=0; t < place_fields_.size(); ++t) {
+//        for (size_t c = 0; c < place_fields_[t].size(); ++c) {
+//        	for (size_t s = 0; s < buffer->config_->pf_sessions_.size(); ++c) {
+//        		place_fields_smoothed_[t][c][s].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_[s], factor);
+//        	}
+//        }
+//    }
 }
 
 void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned int> > pop_vec){
-    reconstructed_position_.resize(occupancy_smoothed_.Height(), occupancy_smoothed_.Width());
+    reconstructed_position_.resize(occupancy_smoothed_[current_session_].Height(), occupancy_smoothed_[current_session_].Width());
 	reconstructed_position_.fill(0);
     assert(pop_vec.size() == buffer->tetr_info_->tetrodes_number());
     
@@ -416,7 +478,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     	buffer->Log("Clusters with FR > thold: ", fr_cnt);
 
     // normalize by sum to have probabilities
-    const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_.Mat()));
+    const double occ_sum = arma::sum(arma::sum(occupancy_smoothed_[current_session_].Mat()));
 
     unsigned int nclust = 0;
     for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
@@ -427,7 +489,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
         for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
             
         	// apply occupancy threshold
-        	if (occupancy_smoothed_(r, c)/occ_sum < 0.001){
+        	if (occupancy_smoothed_[current_session_](r, c)/occ_sum < 0.001){
         		reconstructed_position_(r, c) = -1000000000;
         		continue;
         	}
@@ -440,14 +502,15 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
                 	}
 
                 	int spikes = MIN(PlaceField::MAX_SPIKES - 1, pop_vec[t][cl]);
-                	double logprob = place_fields_smoothed_[t][cl].Prob(r, c, spikes);
+                	// TODO: choose section properly if the method is to be used
+                	double logprob = place_fields_smoothed_[t][cl][selected_session_].Prob(r, c, spikes);
                     reconstructed_position_(r, c) += logprob;
                 }
             }
             
             // TODO: !!! ENABLE prior probabilities (disabled for sake of debugging simplification)
             if (USE_PRIOR){
-            	reconstructed_position_(r, c) += occupancy_smoothed_(r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_(r, c) / occ_sum)) : -100000.0;
+            	reconstructed_position_(r, c) += occupancy_smoothed_[current_session_](r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_[current_session_](r, c) / occ_sum)) : -100000.0;
             }
         }
     }
