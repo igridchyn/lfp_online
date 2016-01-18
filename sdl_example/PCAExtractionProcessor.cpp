@@ -259,7 +259,7 @@ int PCAExtractionProcessor::final(float **cor,float mea[],int ftno, int num_obj,
         sz2+=ev[j];
     }
     
-    Log("  Overall projected variances : %f5.4\n",sz2 / sz1);
+    Log("  Overall projected variances :",sz2 / sz1);
     
     free(ev);
     free(ind);
