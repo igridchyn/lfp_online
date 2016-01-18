@@ -25,7 +25,7 @@ bool PlaceField::AddSpike(Spike *spike){
     int xb = (int)round(spike->x / bin_size_);
     int yb = (int)round(spike->y / bin_size_);
 
-    if (xb >= NBINSX || yb >= NBINSY){
+    if (xb >= NBINSY || yb >= NBINSX){
     	return false;
     }
 
