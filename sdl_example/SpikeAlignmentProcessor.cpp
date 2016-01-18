@@ -226,7 +226,7 @@ SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
 void SpikeAlignmentProcessor::desync() {
 	// TODO: make a default implementation after encapsulating master ptr into the LFPProcessor
 	// default : set t-wise pointers to master pointer
-	for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
 		spike_buf_tetrodewise_ptrs_[t] = buffer->spike_buf_nows_pos;
 	}
 }
@@ -235,7 +235,7 @@ void SpikeAlignmentProcessor::sync() {
 	// choose max (as the limit is spike detection ptr which can differ in different tetrodes)
 	unsigned int prev_ptr = buffer->spike_buf_nows_pos;
 
-	for (int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
 		if (spike_buf_tetrodewise_ptrs_[t] > buffer->spike_buf_nows_pos)
 			buffer->spike_buf_nows_pos = spike_buf_tetrodewise_ptrs_[t];
 	}
