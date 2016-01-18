@@ -42,6 +42,8 @@ public:
 
 	std::vector<unsigned int> discriminators_;
 
+	std::vector<unsigned int> pf_sessions_;
+
 	std::vector<unsigned int> parallel_;
 
 	std::vector<std::string> spike_files_;

@@ -129,6 +129,10 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 			ReadList<unsigned int>(fconf, parallel_);
 			continue;
 		}
+		if (line == std::string("pf.sessions")){
+			ReadList<unsigned int>(fconf, pf_sessions_);
+			continue;
+		}
 
 		parse_line(fconf, line);
 	}
