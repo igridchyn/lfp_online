@@ -232,6 +232,11 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
     	FillRect(buffer->positions_buf_[pos].x_pos() * binw / bin_size_, buffer->positions_buf_[pos].y_pos() * binh / bin_size_, 0, 2, 2);
     }
 
+    ResetTextStack();
+    TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
+    TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
+    TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, true);
+
     SDL_SetRenderTarget(renderer_, nullptr);
     SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
     SDL_RenderPresent(renderer_);
