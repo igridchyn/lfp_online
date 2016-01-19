@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include <sstream>
 
 const char * const Utils::NUMBERS[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63"};
 
@@ -15,6 +16,22 @@ std::string Utils::Converter::int2str(int a){
     
     return s;
 }
+
+ std::string Utils::Converter::Combine(std::string s, int a){
+	 return s + int2str(a);
+ }
+
+ std::string Utils::Converter::Combine(const char* s, int a){
+	 return std::string(s) + int2str(a);
+ }
+
+ std::string Utils::Converter::Combine(const char* s, double a){
+	 std::stringstream ss("");
+	 ss << s;
+	 ss.precision(2);
+	 ss << a;
+ 	 return ss.str();
+  }
 
 #ifdef WIN32
 char* Utils::Converter::WstringToCstring(wchar_t *wstring){

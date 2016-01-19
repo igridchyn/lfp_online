@@ -29,6 +29,9 @@ public:
 	class LFPONLINEAPI Converter{
     public:
         static std::string int2str(int a);
+        static std::string Combine(std::string s, int a);
+        static std::string Combine(const char* s, int a);
+        static std::string Combine(const char* s, double a);
 #ifdef WIN32
         static char* WstringToCstring(wchar_t *wstring);
 #endif
