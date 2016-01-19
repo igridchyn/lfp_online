@@ -66,6 +66,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const unsigned int DUMP_DELAY;
 	const unsigned int DUMP_END;
+	const bool DUMP_END_EXIT;
 
 	const unsigned int HMM_RESET_RATE;
 

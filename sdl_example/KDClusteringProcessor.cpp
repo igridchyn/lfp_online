@@ -82,6 +82,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SWR_PRED_WIN(buf->config_->getInt("kd.swr.pred.win", 400)),
 			DUMP_DELAY(buf->config_->getInt("kd.dump.delay", 46000000)),
 			DUMP_END(buf->config_->getInt("kd.dump.end", 1000000000)),
+			DUMP_END_EXIT(buf->config_->getBool("kd.dump.end.exit", false)),
 			HMM_RESET_RATE(buf->config_->getInt("kd.hmm.reset.rate", 60000000)),
 			use_intervals_(buf->config_->getBool("kd.use.intervals", false)),
 			spike_buf_pos_clust_(buf->spike_buf_pos_clusts_[processor_number]),
@@ -738,6 +739,10 @@ void KDClusteringProcessor::process(){
 				if (last_pred_pkg_id_ > DUMP_END && !dump_end_reach_reported_){
 					dump_end_reach_reported_= true;
 					Log("Dump end reached: ", (int)DUMP_END);
+					if (DUMP_END_EXIT){
+						Log("EXIT upon dump end reached");
+						exit(0);
+					}
 				}
 
 				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose.speed_ >= DUMP_SPEED_THOLD){
