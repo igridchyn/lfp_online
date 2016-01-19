@@ -91,7 +91,7 @@ def run_model_and_decoding(pnames, pvals):
 	subp.wait()
 	# run decoding
 	parstring[1] = argv[4]
-	print 'Start decoding with params ', parstring
+	log('Start decoding with params ' + str(parstring))
 	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
 	subp.wait()
 
@@ -114,15 +114,18 @@ def gradient_descent():
 		pvals.append(float(fpar.readline()))
 		psteps.append(float(fpar.readline()))
 
-	print 'Optimize params: ', pnames
+	log('Optimize params: ' + str(pnames))
 	print os.getcwd()
 	# exit(0)
+
+	psteps_min = psteps[:]
 
 	run_model_and_decoding(pnames, pvals)
         sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 	mederr = np.median(np.array(errs))
         classprec = classcorr * 100 / classn
 	log('BASELINE (starting precision): %.2f / %.1f%%' %(mederr, classprec))
+	log('Number of error records: %d' % len(errs))
 
 	parbest = pvals[:]
 	precbest = classprec
@@ -140,17 +143,24 @@ def gradient_descent():
 					run_model_and_decoding(pnames, pvals)
 					sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 					mederr = np.median(np.array(errs))
-					classprec = classcorr * 100 / classn
+					if classn > 0:
+						classprec = classcorr * 100 / classn
+					else:
+						classprec = 0
+						log('Model buliding / decoding has likely failed')
 	
 					log('Done estimation for params ' + str(pvals))
 					log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
+					log('Number of error records: %d' % len(errs))
 	
 					# if classprec > precbest and mederr < errthold:
-					if mederr < errthold:
-						print 'New BEST! (absolute error)'
+					if mederr < errbest:
+						log('New BEST! (absolute error)')
+						log('')
 						precbest = classprec
 						parbest = pvals[:]
 						errbest = mederr
+					        psteps = psteps_min[:]	
 	
 					# return old param value
 					pvals[p] -= dp
