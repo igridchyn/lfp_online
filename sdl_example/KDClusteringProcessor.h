@@ -27,6 +27,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	const std::string BASE_PATH;
 
 	const unsigned int SAMPLING_DELAY;
+	const unsigned int SAMPLING_END;
 
 	const bool SAVE;
 	const bool LOAD;
@@ -159,6 +160,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	// hmm prediction at last_pred_pkg_id_
 	arma::fmat hmm_prediction_;
 
+	bool sampling_end_reached_reported_ = false;
 	bool delay_reached_reported = false;
 	bool prediction_delay_reached_reported = false;
 

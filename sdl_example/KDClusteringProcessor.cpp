@@ -58,6 +58,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			MIN_SPIKES(getInt("kd.min.spikes")),
 			BASE_PATH(getOutPath("kd.path.base")),
 			SAMPLING_DELAY(getInt("kd.sampling.delay")),
+			SAMPLING_END(buf->config_->getInt("kd.sampling.end", std::numeric_limits<int>::max())),
 			SAVE(getBool("kd.save")),
 			LOAD(!getBool("kd.save")),
 			USE_PRIOR(getBool("kd.use.prior")),
@@ -449,8 +450,14 @@ void KDClusteringProcessor::process(){
 			// to start prediction only after all PFs are available
 			last_pred_pkg_id_ = spike->pkg_id_;
 
-			if ((total_spikes_[tetr] >= MIN_SPIKES && RUN_KDE_ON_MIN_COLLECTED) || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
+			if ((total_spikes_[tetr] >= MIN_SPIKES && RUN_KDE_ON_MIN_COLLECTED) || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER
+					|| last_pred_pkg_id_ > SAMPLING_END){
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
+
+				if (last_pred_pkg_id_ > SAMPLING_END && !sampling_end_reached_reported_){
+					sampling_end_reached_reported_ = true;
+					Log("Sampling end reached : ", SAMPLING_END);
+				}
 
 				// start clustering if it is not running yet, otherwise - ignore
 				if (!fitting_jobs_running_[tetr]){

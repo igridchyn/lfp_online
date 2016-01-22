@@ -91,6 +91,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     }
 
     Log("WARNING: processor assumes chronological order of spikes");
+    Log("Controls: g - save res / clu; s - smooth place fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster");
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
@@ -233,6 +234,7 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
     }
 
     ResetTextStack();
+    TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, true);
