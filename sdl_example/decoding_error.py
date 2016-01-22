@@ -16,9 +16,6 @@ def decoding_errors():
 	sumnosb = 0
 	nnosb = 0
 
-	bsize = 4
-	nbinsx = 80
-	nbinsy = 50
 	errb = 0
 
 	sbs = [[113, 10], [319, 137]]
@@ -27,9 +24,6 @@ def decoding_errors():
 
 	classn = 0.0
 	classcorr = 0
-
-	predmap = np.zeros((nbinsy, nbinsx))
-	occmap = np.zeros((nbinsy, nbinsx))
 
 	for line in f:
 		vals = line.split(' ')
@@ -64,6 +58,7 @@ def decoding_errors():
 		gtyb=round((gty-bsize/2.0)/bsize)
 		# print gtyb, gtxb
 		occmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += 1
+		errmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += dist
 
 		xpb = round((px-bsize/2)/bsize)
 		ypb = round((py-bsize/2)/bsize)
@@ -74,7 +69,7 @@ def decoding_errors():
 		# classification
 		classn += 1
 		# was : nbinsx/2*bsize
-		if (vals[0] - 125) * (gtx - 125) > 0:
+		if (vals[0] - envlimit) * (gtx - envlimit) > 0:
 			classcorr += 1
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)
@@ -185,9 +180,18 @@ if len(argv) > 3:
 	dt = datetime.datetime.now()
 	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
-	
+		
+envlimit = 150
+bsize = 4
+nbinsx = 66
+nbinsy = 29
+predmap = np.zeros((nbinsy, nbinsx))
+occmap = np.zeros((nbinsy, nbinsx))
+errmap = np.zeros((nbinsy, nbinsx))
 
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
+errmap = np.divide(errmap, occmap)
+errmap = np.nan_to_num(errmap)
 
 # P.figure()
 
@@ -200,11 +204,22 @@ print ("Classification precision: %.1f%%") % (classcorr * 100 / classn)
 print "Binning error: ", errb/ndist
 
 if len(argv) > 2:
-	n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
-	P.show()
+	#n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
+	#P.show()
 
 	im=P.imshow(predmap, cmap='hot', interpolation='none')
+	P.title('Predicted locations')
 	P.show()
 	
-	imocc=P.imshow(occmap, cmap='hot', interpolation='none')
+	#imocc=P.imshow(occmap, cmap='hot', interpolation='none')
+	#P.show()
+
+	P.title('Error map')
+	imerr=P.imshow(errmap, cmap='hot', interpolation='none')
 	P.show()
+
+# print errmap
+sum1 = np.sum(errmap[:, 0:nbinsx/2])
+sum2 = np.sum(errmap[:, nbinsx/2:])
+print 'Error in env 1 = %f' % sum1
+print 'Error in env 2 = %f' % sum2
