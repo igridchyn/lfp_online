@@ -76,6 +76,11 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
 
     // user-selected session for display
     unsigned int selected_session_ = 0;
+
+    // # of clusters per tetrodes, computed while iterating through spikes, not maintained
+    std::vector<unsigned int> clusters_in_tetrode_;
+    // cumulatieve sum of the above, computed during place field smoothing, not maintained
+    std::vector<unsigned int> global_cluster_number_shfit_;
     //================================
     
     template <class T>
@@ -117,6 +122,7 @@ public:
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     
     void switchSession(const unsigned int& session);
+    void dumpCluAndRes();
 
 };
 

@@ -91,7 +91,10 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     }
 
     Log("WARNING: processor assumes chronological order of spikes");
-    Log("Controls: g - save res / clu; s - smooth place fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster");
+    Log("CONTROLS: g - save res / clu; s - smooth place fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster");
+
+    clusters_in_tetrode_.resize(buf->tetr_info_->tetrodes_number());
+    global_cluster_number_shfit_.resize(buf->tetr_info_->tetrodes_number());
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
@@ -161,6 +164,10 @@ void PlaceFieldProcessor::process(){
             }
         }
         
+        if (clust > clusters_in_tetrode_[tetr]){
+        	clusters_in_tetrode_[tetr] = clust;
+        }
+
         buffer->spike_buf_pos_pf_++;
     }
     
@@ -236,6 +243,7 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
     ResetTextStack();
     TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
+    TextOut(Utils::Converter::Combine("Cluster global: ", int(global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, true);
 
@@ -266,6 +274,41 @@ void PlaceFieldProcessor::switchSession(const unsigned int& session){
 		Log("Requested session outside of range: ", session);
 		Log("Number of available sessions: ", N_SESSIONS);
 	}
+}
+
+void PlaceFieldProcessor::dumpCluAndRes(){
+	Log("START SAVING CLU/RES");
+	Log("Global cluster number shifts: ", global_cluster_number_shfit_);
+	std::vector<std::unique_ptr<std::ofstream> > res_files, clu_files;
+	std::ofstream *res_global, *clu_global;
+	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+		std::string res_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".res";
+		std::string clu_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".clu";
+		Log(res_path);
+		res_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(res_path)));
+		clu_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(clu_path)));
+
+		res_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.res");
+		clu_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.clu");
+	}
+	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
+		Spike *spike = buffer->spike_buffer_[i];
+		if (spike != nullptr && spike->cluster_id_ > 0){
+			*(res_files[spike->tetrode_]) << spike->pkg_id_ << "\n";
+			*(clu_files[spike->tetrode_]) << spike->cluster_id_ << "\n";
+
+			*(res_global) << spike->pkg_id_ << "\n";
+			*(clu_global) << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
+		}
+	}
+	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+		res_files[t]->close();
+		clu_files[t]->close();
+		// TODO delete
+	}
+	clu_global->close();
+	res_global->close();
+	Log("FINISHED SAVING CLU/RES");
 }
 
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
@@ -356,29 +399,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 break;
             	// generate clu and res-files for all tetrodes
             case SDLK_g:
-            	{
-            		Log("START SAVING CLU/RES");
-					std::vector<std::unique_ptr<std::ofstream> > res_files, clu_files;
-					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-						std::string res_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".res";
-						std::string clu_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".clu";
-						Log(res_path);
-						res_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(res_path)));
-						clu_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(clu_path)));
-					}
-					for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
-						Spike *spike = buffer->spike_buffer_[i];
-						if (spike != nullptr && spike->cluster_id_ > 0){
-							*(res_files[spike->tetrode_]) << spike->pkg_id_ << "\n";
-							*(clu_files[spike->tetrode_]) << spike->cluster_id_ << "\n";
-						}
-					}
-					for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-						res_files[t]->close();
-						clu_files[t]->close();
-					}
-					Log("FINISHED SAVING CLU/RES");
-            	}
+            	dumpCluAndRes();
     		    break;
             default:
                 need_redraw = false;
@@ -441,6 +462,19 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     }
 
     Log("Done smoothing place fields");
+
+    Log("Clusters per tetrodes:");
+    unsigned int total_clusters = 0;
+    for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+    	std::stringstream ss;
+    	ss << "Clusters in tetrode " << t << " : " << clusters_in_tetrode_[t];
+    	Log(ss.str());
+
+    	global_cluster_number_shfit_[t] = total_clusters;
+    	total_clusters += clusters_in_tetrode_[t];
+    }
+
+    Log("Total clusters: ", total_clusters);
 }
 
 void PlaceFieldProcessor::cachePDF(){
