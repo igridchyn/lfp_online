@@ -91,7 +91,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     }
 
     Log("WARNING: processor assumes chronological order of spikes");
-    Log("CONTROLS: g - save res / clu; s - smooth place fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster");
+    Log("CONTROLS: g - save res / clu; s - smooth place fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster; d - dump place fields	");
 
     clusters_in_tetrode_.resize(buf->tetr_info_->tetrodes_number());
     global_cluster_number_shfit_.resize(buf->tetr_info_->tetrodes_number());
@@ -311,6 +311,19 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	Log("FINISHED SAVING CLU/RES");
 }
 
+void PlaceFieldProcessor::dumpPlaceFields(){
+	Log("dump place fields...");
+    for (size_t t=0; t < place_fields_.size(); ++t) {
+        for (size_t c = 0; c < clusters_in_tetrode_[t]; ++c) {
+        	for (size_t s = 0; s < N_SESSIONS; ++s) {
+				arma::mat dv = place_fields_smoothed_[t][c][s].Mat() / occupancy_smoothed_[s].Mat();
+				dv.save(BASE_PATH + Utils::NUMBERS[c + global_cluster_number_shfit_[t]] + "_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+        	}
+        }
+    }
+    Log("done dump place fields");
+}
+
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     // TODO: implement, abstract ClusterInfoDisplay
     
@@ -400,6 +413,10 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             	// generate clu and res-files for all tetrodes
             case SDLK_g:
             	dumpCluAndRes();
+    		    break;
+            case SDLK_d:
+            	// dump place fields
+            	dumpPlaceFields();
     		    break;
             default:
                 need_redraw = false;
