@@ -156,6 +156,13 @@ void LFPProcessor::Log(std::string message, unsigned int num) {
 	buffer->Log(name() + ": " + message + Utils::Converter::int2str(num));
 }
 
+void LFPProcessor::Log(std::string message, std::vector<unsigned int> array){
+	buffer->Log(name() + ": " + message);
+	for (unsigned int i=0; i < array.size(); ++i){
+		buffer->Log(Utils::Converter::int2str(array[i]));
+	}
+}
+
 int LFPProcessor::getInt(std::string name) {
 	int p0val = buffer->config_->getInt(name);
 
