@@ -594,12 +594,11 @@ void FetFileReaderProcessor::openNextFile() {
 				spk_streams_[i]->close();
 				delete spk_streams_[i];
 			}
-			if (read_whl_){
-				whl_file_->close();
-				delete whl_file_;
-			}
-
 			file_over_[i] = false;
+		}
+		if (read_whl_ && whl_file_ != nullptr){
+			whl_file_->close();
+			delete whl_file_;
 		}
 		fet_streams_.clear();
 		spk_streams_.clear();
