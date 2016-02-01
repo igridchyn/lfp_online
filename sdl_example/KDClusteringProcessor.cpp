@@ -414,7 +414,7 @@ void KDClusteringProcessor::process(){
 		if (!LOAD && (tetrode_sampling_rates_.empty())){
 			if (buffer->fr_estimated_){
 				for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
-					unsigned int est_sec_left = (buffer->input_duration_ - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
+					unsigned int est_sec_left = (std::min(SAMPLING_END, buffer->input_duration_) - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					std::stringstream ss;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					tetrode_sampling_rates_.push_back(std::max<int>(0, (int)round(est_sec_left * buffer->fr_estimates_[t] / MIN_SPIKES) - 1));
@@ -654,7 +654,6 @@ void KDClusteringProcessor::process(){
 //				time_t kds = clock();
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
 				kdtrees_[stetr]->annkSearch(pnt_, neighb_num_ , &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
-//				std::cout << "kd time = " << clock() - kds << "\n";
 
 				// add 'place field' of the spike with the closest wave shape
 				if (neighb_num_ > 1){
@@ -664,6 +663,7 @@ void KDClusteringProcessor::process(){
 				}else{
 					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
 				}
+//				std::cout << "kd time = " << clock() - kds << "\n";
 
 				// TODO: from window start if the spike was first
 				if (continuous_prediction_){
@@ -927,7 +927,11 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	if (tspikepos > 0 && buffer->spike_buffer_[tspikepos] != nullptr)
 		last_pkg_id = buffer->spike_buffer_[tspikepos]->pkg_id_;
 
-	/// buuild commandline to start kde_estimator
+	// change in calculated firing rate due to speed-filtered out spikes : <predicted rate based on not speed-filtered spikes> / <actual rate in the sampling period>
+	double effective_rate_factor = buffer->fr_estimates_[tetr] * (last_pkg_id - SAMPLING_DELAY) / double(buffer->SAMPLING_RATE * total_spikes_[tetr] * (tetrode_sampling_rates_[tetr] + 1));
+	Log("Effective rate factor: ", effective_rate_factor);
+
+	// build commandline to start kde_estimator
 	std::ostringstream  os;
 	const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 	os << kde_path_ << " " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " <<
