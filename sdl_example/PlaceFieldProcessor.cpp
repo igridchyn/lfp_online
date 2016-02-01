@@ -73,7 +73,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				if (LOAD){
-					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + "_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
 				}
         	}
         }
@@ -84,7 +84,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     // load smoothed occupancy
     if(LOAD){
     	for (size_t s=0; s < N_SESSIONS; ++s) {
-    		occupancy_smoothed_[s].Load(BASE_PATH + "occ_" +  Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+    		occupancy_smoothed_[s].Load(BASE_PATH + "occ_" +  Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
     	}
     	// pos sampling rate is unknown in the beginning
     	//cachePDF();
@@ -282,15 +282,14 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	std::vector<std::unique_ptr<std::ofstream> > res_files, clu_files;
 	std::ofstream *res_global, *clu_global;
 	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-		std::string res_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".res";
-		std::string clu_path = buffer->config_->getString("out.path.base") + std::string(Utils::NUMBERS[t]) + ".clu";
+		std::string res_path = buffer->config_->getString("out.path.base") + std::string(Utils::Converter::int2str(t)) + ".res";
+		std::string clu_path = buffer->config_->getString("out.path.base") + std::string(Utils::Converter::int2str(t)) + ".clu";
 		Log(res_path);
 		res_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(res_path)));
 		clu_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(clu_path)));
-
-		res_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.res");
-		clu_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.clu");
 	}
+	res_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.res");
+	clu_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.clu");
 	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
 		Spike *spike = buffer->spike_buffer_[i];
 		if (spike != nullptr && spike->cluster_id_ > 0){
@@ -314,10 +313,10 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 void PlaceFieldProcessor::dumpPlaceFields(){
 	Log("dump place fields...");
     for (size_t t=0; t < place_fields_.size(); ++t) {
-        for (size_t c = 0; c < clusters_in_tetrode_[t]; ++c) {
+        for (size_t c = 1; c <= clusters_in_tetrode_[t]; ++c) {
         	for (size_t s = 0; s < N_SESSIONS; ++s) {
 				arma::mat dv = place_fields_smoothed_[t][c][s].Mat() / occupancy_smoothed_[s].Mat();
-				dv.save(BASE_PATH + Utils::NUMBERS[c + global_cluster_number_shfit_[t]] + "_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+				dv.save(BASE_PATH + Utils::Converter::int2str(c + global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
         	}
         }
     }
@@ -460,7 +459,7 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 
     if (SAVE){
     	for (size_t s = 0; s < N_SESSIONS; ++s) {
-    		occupancy_smoothed_[s].Mat().save(BASE_PATH + "occ_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+    		occupancy_smoothed_[s].Mat().save(BASE_PATH + "occ_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
     	}
 //    	occupancy_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
     }
@@ -471,7 +470,7 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 				place_fields_smoothed_[t][c][s] = place_fields_[t][c][s].Smooth();
 
 				if (SAVE){
-					place_fields_smoothed_[t][c][s].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + "_" + Utils::NUMBERS[s] + ".mat", arma::raw_ascii);
+					place_fields_smoothed_[t][c][s].Mat().save(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
 	//            	place_fields_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
 				}
         	}
