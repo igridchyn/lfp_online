@@ -673,7 +673,8 @@ void KDClusteringProcessor::process(){
 					pos_pred_ -= DE_SEC  * lxs_[stetr];
 
 					// TODO !!! make a reference for speed
-					buffer->last_predictions_[processor_number_] = arma::exp(pos_pred_ / display_scale_);
+					buffer->last_predictions_[processor_number_] = pos_pred_;
+//					buffer->last_predictions_[processor_number_] = arma::exp(pos_pred_ / display_scale_);
 
 					// DEBUG
 					buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Prediction ready\n");
