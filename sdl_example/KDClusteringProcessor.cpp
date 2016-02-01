@@ -275,7 +275,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			// implement hmm{t}(xb,yb) = max_{x,y \in neighb(xb,yb)}(hmm_{t-1}(x,y) * tp(x,y,xb,yb) * prob(xb, yb | a_{1..N}))
 
 			float best_to_xb_yb = -1000.0f * 100000000.0f;
-			int bestx, besty;
+			int bestx = 0, besty = 0;
 
 			for (unsigned int x = MAX(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
 				for (unsigned int y =  MAX(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
@@ -365,10 +365,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		buffer->Log("Exit after dumping the HMM prediction :", (int)DUMP_DELAY);
 		exit(0);
 	}
-
-
-	// DEBUG
-//	std::cout << "hmm after upd with evidence:" << hmm_prediction_ << "\n\n";
 
 	buffer->last_predictions_[processor_number_] = arma::exp(hmm_prediction_ / display_scale_);
 }
@@ -755,11 +751,7 @@ void KDClusteringProcessor::process(){
 				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose.speed_ >= DUMP_SPEED_THOLD){
 					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
 					dec_bayesian_.flush();
-					// std::cout << pose.speed_ << "\n";
 				}
-
-				// DEBUG
-//				std::cout << "Searching at " << (unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE) << " while speed_est at " << buffer->pos_buf_pos_speed_est << ", speed = " << pose[5] << "\n";
 
 				//DEBUG - slow down to see SWR prediction
 				if (swr_regime_){
@@ -774,8 +766,6 @@ void KDClusteringProcessor::process(){
 					window_spike_counts_.flush();
 				}
 
-				// DEBUG
-				// std::cout << "Number of spikes in the prediction window: " << last_window_n_spikes_ << " (proc# " << processor_number_ << ")\n";
 				last_window_n_spikes_ = 0;
 
 				last_pred_probs_ = pos_pred_;
