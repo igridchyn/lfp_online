@@ -31,7 +31,7 @@ int NBLOCKSX;
 int NBLOCKSY;
 
 int MIN_SPIKES;
-int SAMPLING_RATE;
+double SAMPLING_RATE;
 int BUFFER_SAMPLING_RATE;
 int BUFFER_LAST_PKG_ID;
 int SAMPLING_DELAY;
@@ -471,12 +471,13 @@ int main(int argc, char **argv){
 		Log("Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!");
 		exit(1);
 	}
-	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &NBINSX, &NBINSY, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
-	const char* parnames[] = {"tetr", "DIM", "NN_K", "NN_K_COORDS", "N_FEAT", "MULT_INT", "NBINSX", "NBINSY", "MIN_SPIKES", "SAMPLING_RATE", "BUFFER_SAMPLING_RATE", "BUFFER_LAST_PKG_ID", "SAMPLING_DELAY"};
+	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &NBINSX, &NBINSY, &MIN_SPIKES, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+	const char* parnames[] = {"tetr", "DIM", "NN_K", "NN_K_COORDS", "N_FEAT", "MULT_INT", "NBINSX", "NBINSY", "MIN_SPIKES", "BUFFER_SAMPLING_RATE", "BUFFER_LAST_PKG_ID", "SAMPLING_DELAY"};
 
-	for(int p=0; p < 13; ++p){
+	for(int p=0; p < 12; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
 	}
+	SAMPLING_RATE = atof(argv[13]);
 	BIN_SIZE = atof(argv[14]);
 	NN_EPS = atof(argv[15]);
 	SIGMA_X = atof(argv[16]);
@@ -492,10 +493,10 @@ int main(int argc, char **argv){
 
 	log_.open(BASE_PATH + "KDE_tetr_" + Utils::NUMBERS[tetr] + ".log");
 
-	for (int p=0; p < 13; ++p){
+	for (int p=0; p < 12; ++p){
 		log_string_ << parnames[p] << "=" << *pars[p] << ", ";
 	}
-	log_string_ << "BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_string_ << "SAMPLING_RATE = " << SAMPLING_RATE << ", BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 	log_string_ << "\tstart KDE estimation\n";
 	Log();
 
