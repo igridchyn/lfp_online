@@ -472,6 +472,7 @@ int main(int argc, char **argv){
 		exit(1);
 	}
 	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &NBINSX, &NBINSY, &MIN_SPIKES, &SAMPLING_RATE, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
+	const char* parnames[] = {"tetr", "DIM", "NN_K", "NN_K_COORDS", "N_FEAT", "MULT_INT", "NBINSX", "NBINSY", "MIN_SPIKES", "SAMPLING_RATE", "BUFFER_SAMPLING_RATE", "BUFFER_LAST_PKG_ID", "SAMPLING_DELAY"};
 
 	for(int p=0; p < 13; ++p){
 		*(pars[p]) = atoi(argv[p+1]);
@@ -489,7 +490,12 @@ int main(int argc, char **argv){
 		SIGMA_A *= sqrt(DIM / (double)12);
 	}
 
-	log_string_ << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_.open(BASE_PATH + "KDE_tetr_" + Utils::NUMBERS[tetr] + ".log");
+
+	for (int p=0; p < 13; ++p){
+		log_string_ << parnames[p] << "=" << *pars[p] << ", ";
+	}
+	log_string_ << "BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 	log_string_ << "\tstart KDE estimation\n";
 	Log();
 
@@ -498,8 +504,6 @@ int main(int argc, char **argv){
 	kdtree_ = new ANNkd_tree(kdstream);
 	kdstream.close();
 	ann_points_ = kdtree_->thePoints();
-
-	log_.open(BASE_PATH + "KDE_tetr_" + Utils::NUMBERS[tetr] + ".log");
 
 	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
 	pos_buf.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
