@@ -106,10 +106,11 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 			continue;
 		}
 
-		if (line == std::string("tetrodes")){
-			ReadList(fconf, tetrodes);
-			continue;
-		}
+		// this is now set externally after reading tetrodes config
+//		if (line == std::string("tetrodes")){
+//			ReadList(fconf, tetrodes);
+//			continue;
+//		}
 
 		if (line == std::string("synchrony")){
 			ReadList<unsigned int>(fconf, synchrony_tetrodes_);
@@ -357,4 +358,16 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 		log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
 		Log();
 	}
+}
+
+void Config::setTetrodes(const unsigned int& tetrodes_count){
+	if (tetrodes.size() < 0){
+		log_string_stream_ << "WARNING: tetrodes list not empty. Overriding old entries.\n";
+		Log();
+	}
+	for (unsigned int t=0; t < tetrodes_count; ++t){
+		tetrodes.push_back(t);
+	}
+	log_string_stream_ << "Added number of tetrodes: " << tetrodes_count << "\n";
+	Log();
 }

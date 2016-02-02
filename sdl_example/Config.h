@@ -80,6 +80,8 @@ public:
 	std::string evaluate_variables(std::string key, std::string value);
 
 	void parse_line(std::ifstream& fconf, std::string line);
+
+	void setTetrodes(const unsigned int& tetrodes_count);
 };
 
 #endif /* CONFIG_H_ */

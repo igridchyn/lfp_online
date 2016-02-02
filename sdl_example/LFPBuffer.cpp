@@ -45,6 +45,7 @@ void LFPBuffer::Reset(Config* config)
 	if (tetr_info_)
 		delete tetr_info_;
 	tetr_info_ = new TetrodesInfo(config->getString("tetr.conf.path"), this);
+	config->setTetrodes(tetr_info_->tetrodes_number());
 
 	if (tetr_info_->tetrodes_number() != config_->tetrodes.size() &&  config_->tetrodes.size() > 0){
 		Log("ERROR: Tetrodes list in main config does not correspond to the information in tetrodes config.");
