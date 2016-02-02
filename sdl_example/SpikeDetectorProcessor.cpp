@@ -273,7 +273,11 @@ void SpikeDetectorProcessor::detect_spike_pos(const unsigned int & channel, cons
 		spike->init(spike_pos + 1, tetrode);
 
 		// DEBUG
-		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
+//		if (spike->pkg_id_ > 1000000)
+//			Log("Spike detected: ", spike->pkg_id_);
+
+		// DEBUG
+//		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Spike detected\n");
 	}
 }
 
