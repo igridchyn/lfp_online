@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c++0x -g -Wall
+CFLAGS = -std=c++0x -g -O3 -Wall
 LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
 	
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o
