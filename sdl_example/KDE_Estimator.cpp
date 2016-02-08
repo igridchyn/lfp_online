@@ -2,7 +2,7 @@
  * KDE_Estimator.cpp
  *
  *  Created on: Jun 26, 2014
- *      Author: igor
+ *      Author: Igor Gridchyn
  */
 #include <armadillo>
 #include <ANN/ANN.h>
@@ -163,7 +163,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 	log_string_ << "Found all neighbours in " << (end - start) / CLOCKS_PER_SEC << " sec.\n";
 	Log();
 
-	Log(": make neighbourship symmetric\n");
+	Log("make neighbourship symmetric\n");
 
 	 // make symmetric distance relations
 	 for (unsigned int n = 0; n < NPOITNS; ++n) {
@@ -175,7 +175,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		 }
 	 }
 
-	 Log(": sort by number of neighbours\n");
+	 Log("sort by number of neighbours\n");
 
 	// sort them by number of neighbours less than thold
 	 std::sort(nodes.begin(), nodes.end());
@@ -184,11 +184,11 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		 node_by_id[nodes[n].id_] = &(nodes[n]);
 	 }
 
-	 	 log_string_ << ": node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n\t";
-	 log_string_ << ": node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n\t";
-	 log_string_ << ": node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n\t";
-	 log_string_ << ": node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n\t";
-	 log_string_ << ": node with least neighbours: " << nodes[nodes.size() - 1].neighbour_ids_.size() << "\n";
+	 	 log_string_ << "node with most neighbours: " << nodes[0].neighbour_ids_.size() << "\n\t";
+	 log_string_ << "node with higher quartile neighbours: " << nodes[nodes.size()/4].neighbour_ids_.size() << "\n\t";
+	 log_string_ << "node with mean neighbours: " << nodes[nodes.size()/2].neighbour_ids_.size() << "\n\t";
+	 log_string_ << "node with lower quartile neighbours: " << nodes[3*nodes.size()/4].neighbour_ids_.size() << "\n\t";
+	 log_string_ << "node with least neighbours: " << nodes[nodes.size() - 1].neighbour_ids_.size() << "\n";
 	 Log();
 
 	 // create sorted double-linked list
@@ -616,7 +616,7 @@ int main(int argc, char **argv){
 	// compute occupancy KDE - pi(x) from tracking position sampling
 	// overall tetrode average firing rate, spikes / s
 	double mu = (double)MIN_SPIKES * (double)SAMPLING_RATE * (double)BUFFER_SAMPLING_RATE / double(BUFFER_LAST_PKG_ID - SAMPLING_DELAY);
-	log_string_ << ": Average firing rate: " << mu << "\n";
+	log_string_ << "Average firing rate: " << mu << "\n";
 	Log();
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
@@ -643,7 +643,7 @@ int main(int argc, char **argv){
 			pix(xb, yb) = kde_sum;
 		}
 	}
-	Log(": done pix\n");
+	Log("done pix\n");
 
 	// compute generalized rate function lambda(x)
 	// TODO !!! uniform + parametrize
@@ -670,7 +670,7 @@ int main(int argc, char **argv){
 		coords_normalized(b, 0) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdx);
 		coords_normalized(b, 1) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
-	Log(": done coords_normalized\n");
+	Log("done coords_normalized\n");
 
 	// prepare bin block neighbours cache - allocate
 	NBLOCKSX = NBINSX / BLOCK_SIZE + ((NBINSX % BLOCK_SIZE) ? 1 : 0);
