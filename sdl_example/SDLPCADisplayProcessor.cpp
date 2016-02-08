@@ -462,15 +462,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
     	need_redraw = true;
     	need_clust_check_ = false;
 
-        // select clusters from 10 to 29
+        // select clusters from 10 to 39
         int shift = 0;
         if (kmod & KMOD_LSHIFT){
-            shift = 10;
-        } else{
-        	if (kmod & KMOD_RSHIFT){
-        		shift = 20;
-        	}
+            shift += 10;
         }
+		if (kmod & KMOD_RSHIFT){
+			shift += 20;
+		}
 
         unsigned int old_comp1 = comp1_;
         unsigned int old_comp2 = comp2_;

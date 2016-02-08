@@ -99,7 +99,13 @@ void SDLControlInputMetaProcessor::process(){
                 if (kmod & KMOD_LALT) {
                     // switch tetrode
 
-                	int shift = (kmod & KMOD_LSHIFT) ? 10 : ((kmod & KMOD_RSHIFT) ? 20 : 0);
+                    int shift = 0;
+                    if (kmod & KMOD_LSHIFT){
+                        shift += 10;
+                    }
+            		if (kmod & KMOD_RSHIFT){
+            			shift += 20;
+            		}
                 	unsigned int tetrode = LFPBuffer::TETRODE_UNKNOWN;
                     
                     switch( e.key.keysym.sym ) {
