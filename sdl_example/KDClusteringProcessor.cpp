@@ -99,7 +99,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
             continuous_prediction_(buf->config_->getBool("kd.pred.continuous", false)),
             neighb_num_(buf->config_->getInt("kd.neighb.num", 1)),
             display_scale_(buf->config_->getInt("kd.display.scale", 50)),
-            SWR_COMPRESSION_FACTOR(buf->config_->getFloat("kd.swr.compression.factor", 5.0))
+            SWR_COMPRESSION_FACTOR(buf->config_->getFloat("kd.swr.compression.factor", 5.0)),
+            pred_dump_(buf->config_->getBool("kd.pred.dump", false)),
+			pred_dump_pref_(buf->config_->getOutPath("kd.pred.dump.pref", "pred_"))
 		{
 
 	Log("Construction started");
@@ -775,14 +777,16 @@ void KDClusteringProcessor::process(){
 				last_pred_probs_ -= minpred;
 
 				// DEBUG save prediction
-//				if (swr_regime_){
-//					pos_pred_.save("../out/jc118_1003/" + std::string("swr_") + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
-//					swr_win_counter_ ++;
-//				}
-//				else{
-					//pos_pred_.save("../out/jc84_1910/" + std::string("learn_") + Utils::Converter::int2str(swr_win_counter_) + ".mat", arma::raw_ascii);
-					//swr_win_counter_ ++;
-//				}
+				if (pred_dump_){
+					if (swr_regime_){
+						pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
+						swr_win_counter_ ++;
+					}
+					else{
+						pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
+						swr_win_counter_ ++;
+					}
+				}
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG

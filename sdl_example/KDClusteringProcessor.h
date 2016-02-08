@@ -221,6 +221,9 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const double SWR_COMPRESSION_FACTOR;
 
+	bool pred_dump_ = false;
+	std::string pred_dump_pref_;
+
 	// DEBUG
 //	std::vector<int> skipped_spikes_;
 //	std::ofstream debug_;
