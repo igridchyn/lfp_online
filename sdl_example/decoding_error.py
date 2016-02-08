@@ -170,21 +170,21 @@ def gradient_descent():
 			psteps[i] = psteps[i] * 2
 		prevbest = precbest - 1
 #============================================================================================================
-if len(argv) == 1:
-	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<"1"_to_plot_error_distribution>'
+if len(argv) < 5:
+	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not>'
 	print 'Or:    decoding_error.py (1)<error_file_name> (2)<opt_config> (3)<initial_build_model_config> (4)<initial_decoding_config>'
 	exit(0)
 
-if len(argv) > 3:
+if len(argv) == 5:
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
 	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
 		
-envlimit = 150
+envlimit = int(argv[4])
 bsize = 4
-nbinsx = 66
-nbinsy = 29
+nbinsx = int(argv[2])
+nbinsy = int(argv[3])
 predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
@@ -203,7 +203,8 @@ print "Average error outside of SB: ", sumnosb/nnosb
 print ("Classification precision: %.1f%%") % (classcorr * 100 / classn)
 print "Binning error: ", errb/ndist
 
-if len(argv) > 2:
+plot_distr = int(argv[5])
+if plot_distr:
 	#n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
 	#P.show()
 
