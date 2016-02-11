@@ -62,7 +62,8 @@ void LFPBuffer::Reset(Config* config)
 	pc_per_chan.push_back(0);
 	const unsigned int npc4 = config->getInt("pca.num.pc", 3);
 	for (int nc = 1; nc < 5; ++ nc){
-		pc_per_chan.push_back(npc4); // - nc + 4);
+		const unsigned int npc_nc = config->getInt(Utils::Converter::Combine("pca.num.pc.", nc) , npc4);
+		pc_per_chan.push_back(npc_nc); // - nc + 4);
 	}
 
 	Log("Number of PCs per channel for a group of 4 channels: ", (int)pc_per_chan[4]);
