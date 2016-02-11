@@ -406,9 +406,17 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 , num_files_with_spikes_(buffer->tetr_info_->tetrodes_number())
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
 , pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
-, exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false)){
+, exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false))
+, binary_spk_(buffer->config_->getBool("spike.reader.binary.spk", buffer->config_->getBool("spike.reader.binary", false))){
 
 //	cluster_gaussian();
+
+	std::string whl_format = buffer->config_->getString("spike.reader.whl.format", "long");
+	if (whl_format == "long"){
+		whl_format_ = WHL_FORMAT_LONG;
+	} else{
+		whl_format_ = WHL_FORMAT_SHORT;
+	}
 
 	// number of feature files that still have spike records
 	file_over_.resize(num_files_with_spikes_);
@@ -424,6 +432,12 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	if (!binary_){
 		for (unsigned int f=0; f < buffer->config_->spike_files_.size(); ++f){
 			std::string path = buffer->config_->spike_files_[f] + "fet." + Utils::NUMBERS[buffer->config_->tetrodes[0]];
+
+			if (!boost::filesystem::exists(path)){
+				Log(std::string("ERROR: ") + path + " doesn't exist or is not available!");
+				exit(LFPONLINE_ERROR_FET_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
+			}
+
 			std::ifstream ffet(path);
 			int d;
 			while (!ffet.eof()){
@@ -546,7 +560,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		for (int c=0; c < chno; ++c){
 //			spike->waveshape[c] = new int[128];
 
-			if (!binary_){
+			if (!binary_spk_){
 				for (int w=0; w < 128; ++w){
 					spk_stream >> spike->waveshape[c][w];
 				}
@@ -697,10 +711,29 @@ void FetFileReaderProcessor::process() {
 //	unsigned int last_pos_pkg_id = last_pkg_id_;
 	while(read_whl_ && last_pkg_id_ + WINDOW_SIZE > pos_sampling_rate_ && last_pos_pkg_id_ < last_pkg_id_ + WINDOW_SIZE - pos_sampling_rate_ && !whl_file_->eof()){
 		SpatialInfo *pos_entry = buffer->positions_buf_ + buffer->pos_buf_pos_;
-		(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_ >> pos_entry->valid;
+
+		if (whl_format_ == WHL_FORMAT_LONG){
+			(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_ >> pos_entry->valid;
+			last_pos_pkg_id_ = pos_entry->pkg_id_;
+		} else {
+			double x;
+			double y;
+			(*whl_file_) >> x >> y;
+			bool valid = true;
+			// in short: -1 instead of 1023 means invalid
+			if (x < 0){
+				x = y = 1023;
+				valid = false;
+			}
+			pos_entry->x_big_LED_ = pos_entry->x_small_LED_ = x;
+			pos_entry->y_big_LED_ = pos_entry->y_small_LED_ = y;
+			pos_entry->valid = valid;
+			last_pos_pkg_id_ += 512;
+			pos_entry->pkg_id_ = last_pos_pkg_id_;
+		}
 
 		buffer->pos_buf_pos_ ++;
-		last_pos_pkg_id_ = pos_entry->pkg_id_;
+
 		// TODO !!! rewind
 	}
 

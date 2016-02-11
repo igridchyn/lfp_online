@@ -14,6 +14,13 @@
 #include <iostream>
 #include <vector>
 
+enum Whlformat{
+	// x y
+	WHL_FORMAT_SHORT,
+	// big_x big_y small_x small_y valid
+	WHL_FORMAT_LONG
+};
+
 class FetFileReaderProcessor: public LFPProcessor {
 	std::string fet_path_base_;
 	std::vector< std::ifstream * > fet_streams_;
@@ -54,6 +61,10 @@ class FetFileReaderProcessor: public LFPProcessor {
 	unsigned int last_pos_pkg_id_ = 0;
 
 	bool exit_on_over_ = false;
+
+	bool binary_spk_ = false;
+
+	Whlformat whl_format_;
 
 	void openNextFile();
 
