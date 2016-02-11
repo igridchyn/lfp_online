@@ -143,7 +143,6 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 
 bool Config::check_parameter(std::string name, bool exit_on_fail){
 	if (params_.find(name) == params_.end()){
-		log_string_stream_ << (exit_on_fail ? "ERROR" : "WARNING") << ": no parameter named " << name << "\n";
 		if (exit_on_fail){
 			log_string_stream_ << "ERROR: no parameter named " << name << "\n";
 			Log();
