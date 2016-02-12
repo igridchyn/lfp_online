@@ -630,9 +630,9 @@ void KDClusteringProcessor::process(){
 					// if spikes have been processed before SWR detection - rewind until the first spike in the SW
 					while(spike_buf_pos_clust_ > 0 && spike !=nullptr && spike->pkg_id_ > last_pred_pkg_id_){
 						spike_buf_pos_clust_ --;
-						spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
+					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 
 					// !!! if spikes have not been processed yet - rewind until the first spieks in the SWR
 					while(spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ && spike != nullptr && spike->pkg_id_ < last_pred_pkg_id_){
