@@ -228,6 +228,12 @@ class KDClusteringProcessor: public LFPProcessor {
 //	std::vector<int> skipped_spikes_;
 //	std::ofstream debug_;
 
+	// first spike participating in current prediction
+	unsigned int& spike_buf_pos_pred_start_;
+
+	// fixed number of spikes for prediction window; 0 if no limit
+	const unsigned int prediction_window_spike_number_ = 0;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

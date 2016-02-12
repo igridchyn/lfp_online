@@ -101,7 +101,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
             display_scale_(buf->config_->getInt("kd.display.scale", 50)),
             SWR_COMPRESSION_FACTOR(buf->config_->getFloat("kd.swr.compression.factor", 5.0)),
             pred_dump_(buf->config_->getBool("kd.pred.dump", false)),
-			pred_dump_pref_(buf->config_->getOutPath("kd.pred.dump.pref", "pred_"))
+			pred_dump_pref_(buf->config_->getOutPath("kd.pred.dump.pref", "pred_")),
+			spike_buf_pos_pred_start_(buffer->spike_buf_pos_pred_start_)
 		{
 
 	Log("Construction started");
@@ -586,6 +587,7 @@ void KDClusteringProcessor::process(){
 					// if spikes have been processed before SWR detection - rewind until the first spike in the SW
 					while(spike_buf_pos_clust_ > 0 && spike !=nullptr && spike->pkg_id_ > last_pred_pkg_id_){
 						spike_buf_pos_clust_ --;
+						spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
 
@@ -686,6 +688,16 @@ void KDClusteringProcessor::process(){
 				spike_buf_pos_clust_++;
 				// spike may be without speed (the last one) - but it's not crucial
 
+				// workaround : if spike number is reached, set PRED_WIN to finish the prediction
+				if (prediction_window_spike_number_ > 0 && spike_buf_pos_clust_ - spike_buf_pos_pred_start_ >= prediction_window_spike_number_){
+					PRED_WIN = spike->pkg_id_ - last_pred_pkg_id_;
+					// DEBUG
+					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " <<
+							PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n" <<
+							"new PRED_WIN = " << PRED_WIN << "\n";
+					buffer->Log();
+					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
+				}
 			}
 
 			// if have to wait until the speed estimate
@@ -760,17 +772,18 @@ void KDClusteringProcessor::process(){
 				}
 
 				//DEBUG - slow down to see SWR prediction
-				if (swr_regime_){
-					buffer->log_string_stream_ << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "# of spikes = " << last_window_n_spikes_ << "\n";
-					buffer->Log();
+//				if (swr_regime_){
+//					buffer->log_string_stream_ << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "# of spikes = " << last_window_n_spikes_ << "\n";
+//					buffer->Log();
 
-					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
-						usleep(1000 * SWR_SLOWDOWN_DURATION);
-					}
+					// DEBUG
+//					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
+//						usleep(1000 * SWR_SLOWDOWN_DURATION);
+//					}
 
-					window_spike_counts_ << last_window_n_spikes_ << "\n";
-					window_spike_counts_.flush();
-				}
+//					window_spike_counts_ << last_window_n_spikes_ << "\n";
+//					window_spike_counts_.flush();
+//				}
 
 				last_window_n_spikes_ = 0;
 
@@ -797,7 +810,7 @@ void KDClusteringProcessor::process(){
 
 //				double minval = arma::min(arma::min(pos_pred_));
 //				pos_pred_ = pos_pred_ - minval;
-				pos_pred_ = arma::exp(pos_pred_ / display_scale_);
+//				pos_pred_ = arma::exp(pos_pred_ / display_scale_);
 
 				// updated in HMM
 				buffer->last_predictions_[processor_number_] = pos_pred_;
@@ -829,6 +842,13 @@ void KDClusteringProcessor::process(){
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)
+
+				if(prediction_window_spike_number_ > 0){
+					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
+					// TODO what should be here
+					PRED_WIN = swr_regime_ ? (SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0])) : THETA_PRED_WIN;
+				}
+
 				return;
 			}
 			// marginal rate function at each tetrode
