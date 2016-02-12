@@ -380,6 +380,49 @@ void KDClusteringProcessor::reset_hmm() {
 	}
 }
 
+void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx, const unsigned int& my){
+	if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
+			// DEBUG
+			if (!dump_delay_reach_reported_){
+				dump_delay_reach_reported_= true;
+				Log("Dump delay reached: ", (int)DUMP_DELAY);
+			}
+			if (last_pred_pkg_id_ + PRED_WIN >= DUMP_END && !dump_end_reach_reported_){
+				dump_end_reach_reported_= true;
+				Log("Dump end reached: ", (int)DUMP_END);
+				if (DUMP_END_EXIT){
+					Log("EXIT upon dump end reached");
+					exit(0);
+				}
+			}
+
+			unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
+
+			// !!! WORKAROUND - WOULDN'T WORK WITH THE REWIND
+			SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
+			if (pose.x_big_LED_ == buffer->pos_unknown_){
+				if (pose.x_small_LED_ != buffer->pos_unknown_){
+					gtx = pose.x_small_LED_;
+					gty = pose.y_small_LED_;
+				}
+			} else if (pose.x_small_LED_ == buffer->pos_unknown_){
+				if (pose.x_big_LED_ != buffer->pos_unknown_){
+					gtx = pose.x_big_LED_;
+					gty = pose.y_big_LED_;
+				}
+			}
+			else {
+				gtx = pose.x_pos();
+				gty = pose.y_pos();
+			}
+
+			if (pose.speed_ >= DUMP_SPEED_THOLD){
+				dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
+				dec_bayesian_.flush();
+			}
+		}
+}
+
 void KDClusteringProcessor::process(){
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 		for (size_t tetr=0; tetr < tetr_info_->tetrodes_number(); ++tetr){
@@ -730,46 +773,7 @@ void KDClusteringProcessor::process(){
 				unsigned int mx = 0,my = 0;
 				pos_pred_.max(mx, my);
 
-				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
-					// DEBUG
-					if (!dump_delay_reach_reported_){
-						dump_delay_reach_reported_= true;
-						Log("Dump delay reached: ", (int)DUMP_DELAY);
-					}
-					if (last_pred_pkg_id_ + PRED_WIN >= DUMP_END && !dump_end_reach_reported_){
-						dump_end_reach_reported_= true;
-						Log("Dump end reached: ", (int)DUMP_END);
-						if (DUMP_END_EXIT){
-							Log("EXIT upon dump end reached");
-							exit(0);
-						}
-					}
-
-					unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
-
-					// !!! WORKAROUND - WOULDN'T WORK WITH THE REWIND
-					SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
-					if (pose.x_big_LED_ == buffer->pos_unknown_){
-						if (pose.x_small_LED_ != buffer->pos_unknown_){
-							gtx = pose.x_small_LED_;
-							gty = pose.y_small_LED_;
-						}
-					} else if (pose.x_small_LED_ == buffer->pos_unknown_){
-						if (pose.x_big_LED_ != buffer->pos_unknown_){
-							gtx = pose.x_big_LED_;
-							gty = pose.y_big_LED_;
-						}
-					}
-					else {
-						gtx = pose.x_pos();
-						gty = pose.y_pos();
-					}
-
-					if (pose.speed_ >= DUMP_SPEED_THOLD){
-						dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
-						dec_bayesian_.flush();
-					}
-				}
+				dump_positoins_if_needed(mx, my);
 
 				//DEBUG - slow down to see SWR prediction
 //				if (swr_regime_){

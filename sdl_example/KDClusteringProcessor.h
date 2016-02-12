@@ -238,6 +238,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	void reset_hmm();
 
 	void load_laxs_tetrode(unsigned int tetrode);
+	void dump_positoins_if_needed(const unsigned int& mx, const unsigned int& my);
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int& processor_number);
