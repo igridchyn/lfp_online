@@ -157,8 +157,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 	pix_log_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
-	pos_pred_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
-
 	if (LOAD){
 		// load occupancy
 		pix_log_.load(BASE_PATH + "pix_log.mat");
@@ -174,10 +172,13 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 //		std::cout << "All laxs loaded \n";
 
 		n_pf_built_ = tetrn;
+	}
 
-		if (USE_PRIOR){
-			pos_pred_ = pix_log_;
-		}
+	if (USE_PRIOR){
+		// will be 0's if not loaded
+		pos_pred_ = pix_log_;
+	} else {
+		pos_pred_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 	}
 
 	tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number(), false);
@@ -527,7 +528,7 @@ void KDClusteringProcessor::process(){
 
 			spike_buf_pos_clust_ ++;
 		}
-		else{
+		else{ // model is ready for decoding
 			// if pf_built but job is designated as running, then it is over and can be joined
 			if (fitting_jobs_running_[tetr]){
 				fitting_jobs_running_[tetr] = false;
@@ -595,7 +596,9 @@ void KDClusteringProcessor::process(){
 					}
 
 					// reset HMM
-					reset_hmm();
+					if (USE_HMM){
+						reset_hmm();
+					}
 
 					// for continuous prediction - adjustment be the generalized firing rate
 					for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
@@ -639,10 +642,6 @@ void KDClusteringProcessor::process(){
 					spike_buf_pos_clust_++;
 					continue;
 				}
-
-				// DEBUG
-//				if (spike->tetrode_ == 0)
-//					debug_ << spike->pkg_id_ << "\n";
 
 				tetr_spiked_[stetr] = true;
 
