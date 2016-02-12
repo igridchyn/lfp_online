@@ -719,21 +719,21 @@ void KDClusteringProcessor::process(){
 				unsigned int mx = 0,my = 0;
 				pos_pred_.max(mx, my);
 
-				// DEBUG
-				if (last_pred_pkg_id_ > DUMP_DELAY && !dump_delay_reach_reported_){
-					dump_delay_reach_reported_= true;
-					Log("Dump delay reached: ", (int)DUMP_DELAY);
-				}
-				if (last_pred_pkg_id_ > DUMP_END && !dump_end_reach_reported_){
-					dump_end_reach_reported_= true;
-					Log("Dump end reached: ", (int)DUMP_END);
-					if (DUMP_END_EXIT){
-						Log("EXIT upon dump end reached");
-						exit(0);
-					}
-				}
-
 				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
+					// DEBUG
+					if (!dump_delay_reach_reported_){
+						dump_delay_reach_reported_= true;
+						Log("Dump delay reached: ", (int)DUMP_DELAY);
+					}
+					if (last_pred_pkg_id_ + PRED_WIN >= DUMP_END && !dump_end_reach_reported_){
+						dump_end_reach_reported_= true;
+						Log("Dump end reached: ", (int)DUMP_END);
+						if (DUMP_END_EXIT){
+							Log("EXIT upon dump end reached");
+							exit(0);
+						}
+					}
+
 					unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
 
 					// !!! WORKAROUND - WOULDN'T WORK WITH THE REWIND
