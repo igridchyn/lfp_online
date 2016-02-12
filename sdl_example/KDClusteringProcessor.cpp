@@ -705,6 +705,7 @@ void KDClusteringProcessor::process(){
 				// account for the increase in the firing rate during high synchrony with additional factor
 				const double DE_SEC = PRED_WIN / (float)buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
 
+
 				if (!continuous_prediction_){
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 						// TODO ? subtract even if did not spike
@@ -717,25 +718,6 @@ void KDClusteringProcessor::process(){
 				// DUMP decoded coordinate
 				unsigned int mx = 0,my = 0;
 				pos_pred_.max(mx, my);
-				unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
-
-				// !!! WORKAROUND
-				SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
-				if (pose.x_big_LED_ == buffer->pos_unknown_){
-					if (pose.x_small_LED_ != buffer->pos_unknown_){
-						gtx = pose.x_small_LED_;
-						gty = pose.y_small_LED_;
-					}
-				} else if (pose.x_small_LED_ == buffer->pos_unknown_){
-					if (pose.x_big_LED_ != buffer->pos_unknown_){
-						gtx = pose.x_big_LED_;
-						gty = pose.y_big_LED_;
-					}
-				}
-				else {
-					gtx = pose.x_pos();
-					gty = pose.y_pos();
-				}
 
 				// DEBUG
 				if (last_pred_pkg_id_ > DUMP_DELAY && !dump_delay_reach_reported_){
@@ -751,9 +733,31 @@ void KDClusteringProcessor::process(){
 					}
 				}
 
-				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END && pose.speed_ >= DUMP_SPEED_THOLD){
-					dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
-					dec_bayesian_.flush();
+				if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END){
+					unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
+
+					// !!! WORKAROUND - WOULDN'T WORK WITH THE REWIND
+					SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
+					if (pose.x_big_LED_ == buffer->pos_unknown_){
+						if (pose.x_small_LED_ != buffer->pos_unknown_){
+							gtx = pose.x_small_LED_;
+							gty = pose.y_small_LED_;
+						}
+					} else if (pose.x_small_LED_ == buffer->pos_unknown_){
+						if (pose.x_big_LED_ != buffer->pos_unknown_){
+							gtx = pose.x_big_LED_;
+							gty = pose.y_big_LED_;
+						}
+					}
+					else {
+						gtx = pose.x_pos();
+						gty = pose.y_pos();
+					}
+
+					if (pose.speed_ >= DUMP_SPEED_THOLD){
+						dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
+						dec_bayesian_.flush();
+					}
 				}
 
 				//DEBUG - slow down to see SWR prediction
