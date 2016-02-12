@@ -423,6 +423,22 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx, con
 		}
 }
 
+void KDClusteringProcessor::dump_swr_window_spike_count(){
+	//DEBUG - slow down to see SWR prediction
+//				if (swr_regime_){
+//					buffer->log_string_stream_ << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "# of spikes = " << last_window_n_spikes_ << "\n";
+//					buffer->Log();
+
+		// DEBUG
+//					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
+//						usleep(1000 * SWR_SLOWDOWN_DURATION);
+//					}
+
+//					window_spike_counts_ << last_window_n_spikes_ << "\n";
+//					window_spike_counts_.flush();
+//				}
+}
+
 void KDClusteringProcessor::process(){
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
 		for (size_t tetr=0; tetr < tetr_info_->tetrodes_number(); ++tetr){
@@ -774,20 +790,7 @@ void KDClusteringProcessor::process(){
 				pos_pred_.max(mx, my);
 
 				dump_positoins_if_needed(mx, my);
-
-				//DEBUG - slow down to see SWR prediction
-//				if (swr_regime_){
-//					buffer->log_string_stream_ << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "# of spikes = " << last_window_n_spikes_ << "\n";
-//					buffer->Log();
-
-					// DEBUG
-//					if (buffer->last_pkg_id > SWR_SLOWDOWN_DELAY){
-//						usleep(1000 * SWR_SLOWDOWN_DURATION);
-//					}
-
-//					window_spike_counts_ << last_window_n_spikes_ << "\n";
-//					window_spike_counts_.flush();
-//				}
+				dump_swr_window_spike_count();
 
 				last_window_n_spikes_ = 0;
 
