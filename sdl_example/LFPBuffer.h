@@ -226,6 +226,8 @@ public:
 	unsigned int spike_buf_pos_binary_classifier_;
 	// before starting detection - to process all new spikes afterwards (esp. for parallel mode)
 	unsigned int spike_buf_pos_predetect_;
+	// first spike participating in current prediction
+	unsigned int spike_buf_pos_pred_start_;
 
 	// TODO: size ?
 	std::vector<unsigned int> spike_buf_pos_clusts_;
