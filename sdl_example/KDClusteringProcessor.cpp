@@ -562,12 +562,6 @@ void KDClusteringProcessor::process(){
 				}
 				missed_spikes_[tetr] = 0;
 
-				// DEBUG
-//				if (tetr == 0){
-//					debug_ << spike->pkg_id_ << "\n";
-//					debug_.flush();
-//				}
-
 				// copy features and coords to ann_points_int and obs_mats
 				for(unsigned int fet=0; fet < nfeat; ++fet){
 					ann_points_[tetr][total_spikes_[tetr]][fet] = spike->pc[fet];
@@ -802,12 +796,14 @@ void KDClusteringProcessor::process(){
 				// DEBUG save prediction
 				if (pred_dump_){
 					if (swr_regime_){
-						pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
+						pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
 						swr_win_counter_ ++;
 					}
 					else{
-						pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
-						swr_win_counter_ ++;
+						if (!SWR_SWITCH){
+							pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
+							swr_win_counter_ ++;
+						}
 					}
 				}
 
@@ -815,19 +811,9 @@ void KDClusteringProcessor::process(){
 				// DEBUG
 				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until prediction for the window ready\n");
 
-//				double minval = arma::min(arma::min(pos_pred_));
-//				pos_pred_ = pos_pred_ - minval;
-//				pos_pred_ = arma::exp(pos_pred_ / display_scale_);
-
 				// updated in HMM
 				buffer->last_predictions_[processor_number_] = pos_pred_;
 				buffer->last_preidction_window_ends_[processor_number_] = last_pred_pkg_id_ + PRED_WIN;
-
-				// DEBUG
-//				if (!(last_pred_pkg_id_ % 200)){
-//					pos_pred_.save(BASE_PATH + "tmp_pred_" + Utils::Converter::int2str(last_pred_pkg_id_) + ".mat", arma::raw_ascii);
-//					std::cout << "save prediction...\n";
-//				}
 
 				last_pred_pkg_id_ += PRED_WIN;
 
