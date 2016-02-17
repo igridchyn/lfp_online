@@ -23,7 +23,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 			buf->config_->getInt("nbinsx"),
 			buf->config_->getInt("nbinsy"),
 			buf->config_->getInt("pf.spread"),
-			!buf->config_->getBool("pf.save"),
+			buf->config_->getBool("pf.load"),
 			buf->config_->getBool("pf.save"),
 			buf->config_->getOutPath("pf.base.path"),
 			buf->config_->getFloat("pf.prediction.firing.rate.threshold"),
@@ -173,7 +173,6 @@ void PlaceFieldProcessor::process(){
     
     // TODO: configurable [in LFPProc ?]
     while(buffer->pos_buf_pos_ >= 8 && pos_buf_pos_ < buffer->pos_buf_pos_ - 8){
-        // TODO: use noth LEDs to compute coord (in upstream processor) + speed estimate
         if (buffer->positions_buf_[pos_buf_pos_].speed_ > SPEED_THOLD && buffer->positions_buf_[pos_buf_pos_].valid){
             AddPos(buffer->positions_buf_[pos_buf_pos_].x_pos(), buffer->positions_buf_[pos_buf_pos_].y_pos());
         }
@@ -182,14 +181,8 @@ void PlaceFieldProcessor::process(){
 
     // if prediction display requested and at least prediction_rate_ time has passed since last prediction
     if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_){
-        // ReconstructPosition(buffer->population_vector_window_);
-//        drawPrediction();
-
-//    	if (!(buffer->last_preidction_window_end_ % 10000)){
     	arma::fmat pred = buffer->last_predictions_[processor_number_].t();
     	drawMat(pred);
-    	//    	}
-
     	last_predicted_pkg_ = buffer->last_pkg_id;
     }
 }
@@ -205,7 +198,7 @@ void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode)
 }
 
 template <class T>
-void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
+void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std::string> text_output){
     const unsigned int binw = window_width_ / nbinsx_;
     const unsigned int binh = window_height_ / nbinsy_;
 
@@ -245,7 +238,12 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat){
     TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Cluster global: ", int(global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
     TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
-    TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, true);
+    TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, false);
+    TextOut(Utils::Converter::Combine(" / ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0x000000, true);
+
+    for (auto const& line: text_output){
+    	TextOut(line, 0xFFFFFF, true);
+    }
 
     SDL_SetRenderTarget(renderer_, nullptr);
     SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
@@ -259,7 +257,10 @@ void PlaceFieldProcessor::drawOccupancy(){
 void PlaceFieldProcessor::drawPlaceField(){
     const PlaceField& pf = place_fields_smoothed_[display_tetrode_][display_cluster_][selected_session_];
     arma::mat dv = pf.Mat() / occupancy_smoothed_[selected_session_].Mat();
-    drawMat(dv);
+    unsigned int mx = 0, my = 0;
+    pf.Mat().max(mx, my);
+    std::vector<std::string> lines = {Utils::Converter::Combine("# of spikes in max bin: ", place_fields_[display_tetrode_][display_cluster_][selected_session_](mx, my)), Utils::Converter::Combine("Total nuber of spikes accounted for: ", arma::sum(arma::sum(place_fields_[display_tetrode_][display_cluster_][selected_session_].Mat())))};
+    drawMat(dv, lines);
 }
 
 void PlaceFieldProcessor::drawPrediction(){
@@ -435,6 +436,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
 
 void PlaceFieldProcessor::smoothPlaceFields(){
 	Log("Smooth place fields");
+	Log("Minimal occupancy: ", MIN_OCCUPANCY);
 
 	for (size_t s = 0; s < N_SESSIONS; ++s) {
 		occupancy_smoothed_[s] = occupancy_[s].Smooth();
@@ -461,7 +463,6 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     	for (size_t s = 0; s < N_SESSIONS; ++s) {
     		occupancy_smoothed_[s].Mat().save(BASE_PATH + "occ_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
     	}
-//    	occupancy_.Mat().save(BASE_PATH + "occ.mat", arma::raw_ascii);
     }
     
     for (size_t t=0; t < place_fields_.size(); ++t) {
@@ -471,7 +472,6 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 
 				if (SAVE){
 					place_fields_smoothed_[t][c][s].Mat().save(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
-	//            	place_fields_[t][c].Mat().save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::NUMBERS[c] + ".mat", arma::raw_ascii);
 				}
         	}
         }

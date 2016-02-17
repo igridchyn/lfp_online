@@ -84,7 +84,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     //================================
     
     template <class T>
-    void drawMat(const arma::Mat<T>& mat);
+    void drawMat(const arma::Mat<T>& mat, const std::vector<std::string> text_output = std::vector<std::string>());
     
     void drawPlaceField();
     void drawOccupancy();
