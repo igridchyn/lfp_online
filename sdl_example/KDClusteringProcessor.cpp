@@ -319,10 +319,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 	}
 
-	// renorm > (subtract min)
-	// DEBUG
-//	std::cout << "hmm before upd with evidence:" << hmm_upd_ << "\n\n";
-
 	// add Bayesian pos likelihood from evidence
 	hmm_prediction_ = hmm_upd_ + last_pred_probs_;
 
@@ -427,7 +423,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx, con
 void KDClusteringProcessor::dump_swr_window_spike_count(){
 	//DEBUG - slow down to see SWR prediction
 //				if (swr_regime_){
-//					buffer->log_string_stream_ << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "# of spikes = " << last_window_n_spikes_ << "\n";
+//					buffer->log_string_stream_ << swr_win_counter_ << "-th window, prediction within SWR..., proc# = " << processor_number_ << "\n";
 //					buffer->Log();
 
 		// DEBUG
@@ -438,6 +434,33 @@ void KDClusteringProcessor::dump_swr_window_spike_count(){
 //					window_spike_counts_ << last_window_n_spikes_ << "\n";
 //					window_spike_counts_.flush();
 //				}
+}
+
+void KDClusteringProcessor::dump_prediction_if_needed(const arma::fmat& pos_pred){
+	// DEBUG save prediction
+	if (pred_dump_){
+		if (swr_regime_){
+			buffer->log_string_stream_ << "Save SWR starting at " << buffer->swrs_[swr_pointer_][0] << " under ID " << swr_pointer_ << "\n";
+			buffer->Log();
+			pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_pointer_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
+			swr_win_counter_ ++;
+		}
+		else{
+			if (!SWR_SWITCH){
+				pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
+				swr_win_counter_ ++;
+			}
+		}
+	}
+}
+
+void KDClusteringProcessor::validate_prediction_window_bias(){
+	// DEBUG
+	npred ++;
+	if (!(npred % 2000)){
+		buffer->log_string_stream_ << "Bayesian prediction window bias control: " << npred << " / " << (int)round((last_pred_pkg_id_ - PREDICTION_DELAY) / (float)PRED_WIN) << "\n";
+		buffer->Log();
+	}
 }
 
 void KDClusteringProcessor::process(){
@@ -634,7 +657,6 @@ void KDClusteringProcessor::process(){
 
 					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
 					last_processed_swr_start_ = buffer->swrs_[swr_pointer_][0];
-					last_window_n_spikes_ = 0;
 
 					// the following is required due to different possible order of SWR detection / spike processing
 
@@ -703,8 +725,6 @@ void KDClusteringProcessor::process(){
 				for(unsigned int fet=0; fet < nfeat; ++fet){
 					pnt_[fet] = spike->pc[fet];
 				}
-
-				last_window_n_spikes_ ++;
 
 				// PROFILE
 //				time_t kds = clock();
@@ -786,28 +806,12 @@ void KDClusteringProcessor::process(){
 				dump_positoins_if_needed(mx, my);
 				dump_swr_window_spike_count();
 
-				last_window_n_spikes_ = 0;
-
 				last_pred_probs_ = pos_pred_;
 				// to avoid OOR
 				double minpred = arma::max(arma::max(last_pred_probs_));
 				last_pred_probs_ -= minpred;
 
-				// DEBUG save prediction
-				if (pred_dump_){
-					if (swr_regime_){
-						buffer->log_string_stream_ << "Save SWR starting at " << buffer->swrs_[swr_pointer_][0] << " under ID " << swr_pointer_ << "\n";
-						buffer->Log();
-						pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_pointer_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
-						swr_win_counter_ ++;
-					}
-					else{
-						if (!SWR_SWITCH){
-							pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
-							swr_win_counter_ ++;
-						}
-					}
-				}
+				dump_prediction_if_needed(pos_pred_);
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG
@@ -825,12 +829,7 @@ void KDClusteringProcessor::process(){
 				if (USE_HMM)
 					update_hmm_prediction();
 
-				// DEBUG
-				npred ++;
-				if (!(npred % 2000)){
-					buffer->log_string_stream_ << "Bayesian prediction window bias control: " << npred << " / " << (int)round((last_pred_pkg_id_ - PREDICTION_DELAY) / (float)PRED_WIN) << "\n";
-					buffer->Log();
-				}
+				validate_prediction_window_bias();
 
 				// TODO ? WHY for every tetrode ?
 				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
@@ -846,7 +845,6 @@ void KDClusteringProcessor::process(){
 
 				return;
 			}
-			// marginal rate function at each tetrode
 		}
 	}
 

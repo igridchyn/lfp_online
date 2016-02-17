@@ -194,9 +194,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	// this one is assigned procces_number_-the loaded tetrode info
 	TetrodesInfo* tetr_info_;
 
-	// numnber of spike in the last window
-	unsigned int last_window_n_spikes_ = 0;
-
 	// DUMP
 	std::ofstream dec_bayesian_;
 	std::ofstream window_spike_counts_;
@@ -239,6 +236,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	void load_laxs_tetrode(unsigned int tetrode);
 	void dump_positoins_if_needed(const unsigned int& mx, const unsigned int& my);
 	void dump_swr_window_spike_count();
+	void dump_prediction_if_needed(const arma::fmat& pos_pred);
+	void validate_prediction_window_bias();
 
 public:
 	KDClusteringProcessor(LFPBuffer *buf, const unsigned int& processor_number);
