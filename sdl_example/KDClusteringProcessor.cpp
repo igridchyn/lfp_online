@@ -694,7 +694,9 @@ void KDClusteringProcessor::process(){
 					PRED_WIN = THETA_PRED_WIN;
 
 					// reset HMM
-					reset_hmm();
+					if (USE_HMM){
+						reset_hmm();
+					}
 					swr_pointer_ ++;
 					swr_win_counter_ = 0;
 				}
