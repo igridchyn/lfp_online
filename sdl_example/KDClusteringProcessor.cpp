@@ -102,7 +102,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
             SWR_COMPRESSION_FACTOR(buf->config_->getFloat("kd.swr.compression.factor", 5.0)),
             pred_dump_(buf->config_->getBool("kd.pred.dump", false)),
 			pred_dump_pref_(buf->config_->getOutPath("kd.pred.dump.pref", "pred_")),
-			spike_buf_pos_pred_start_(buffer->spike_buf_pos_pred_start_)
+			spike_buf_pos_pred_start_(buffer->spike_buf_pos_pred_start_),
+			prediction_window_spike_number_(buffer->config_->getInt("kd.fixed.spike.number"))
 		{
 
 	Log("Construction started");
@@ -673,7 +674,6 @@ void KDClusteringProcessor::process(){
 					// reset HMM
 					reset_hmm();
 					swr_pointer_ ++;
-					swr_counter_ ++;
 					swr_win_counter_ = 0;
 				}
 			}
@@ -747,7 +747,7 @@ void KDClusteringProcessor::process(){
 					// DEBUG
 					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " <<
 							PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n" <<
-							"new PRED_WIN = " << PRED_WIN << "\n";
+							"new PRED_WIN = " << PRED_WIN << "(pkg_id = " << last_pred_pkg_id_ << "\n";
 					buffer->Log();
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 				}
@@ -796,7 +796,9 @@ void KDClusteringProcessor::process(){
 				// DEBUG save prediction
 				if (pred_dump_){
 					if (swr_regime_){
-						pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_counter_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
+						buffer->log_string_stream_ << "Save SWR starting at " << buffer->swrs_[swr_pointer_][0] << " under ID " << swr_pointer_ << "\n";
+						buffer->Log();
+						pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_pointer_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
 						swr_win_counter_ ++;
 					}
 					else{

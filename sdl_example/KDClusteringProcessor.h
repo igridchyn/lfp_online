@@ -169,7 +169,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	// not to start processing of the same SWR twice - memorize which one was processed last
 	unsigned int last_processed_swr_start_ = 0;
 
-	unsigned int swr_counter_ = 0;
 	unsigned int swr_win_counter_ = 0;
 	// pointer to the last processed SWR event in the buffer
 	// would not rewind due to small spatial requirements to store SWR events
