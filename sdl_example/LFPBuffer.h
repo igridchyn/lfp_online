@@ -355,6 +355,8 @@ public:
 
 	const unsigned int FR_ESTIMATE_DELAY;
 
+	std::string timestamp_ = "";
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);

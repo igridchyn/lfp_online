@@ -9,12 +9,6 @@
 #include "OnlineEstimator.cpp"
 #include "time.h"
 
-#ifdef _WIN32
-	#define DATEFORMAT "%Y-%m-%d_%H-%M-%S"
-#else
-	#define DATEFORMAT "%F_%T"
-#endif
-
 void LFPBuffer::Reset(Config* config)
 {
 	if (config_)
@@ -272,21 +266,7 @@ LFPBuffer::LFPBuffer(Config* config)
 
 	std::string log_path_prefix = config->getString("log.path.prefix", "lfponline_LOG_");
 
-	// OLD LOG NAME SOLUTION
-//	srand(time(nullptr));
-//	int i = rand() % 64;
-//	log_stream.open(log_path_prefix + Utils::NUMBERS[i] + ".txt", std::ios_base::app);
-
-	// generate temporary file with current date _ time
-	time_t rawtime;
-	struct tm * timeinfo;
-	char buffer [80];
-	time (&rawtime);
-	timeinfo = localtime (&rawtime);
-	strftime (buffer, 80, DATEFORMAT, timeinfo);
-	buffer[13] = '-';
-	buffer[16] = '-';
-	std::string logpath = config->getString("out.path.base") + log_path_prefix + buffer + ".txt";
+	std::string logpath = config->getString("out.path.base") + log_path_prefix + config->timestamp_+ ".log";
 	log_stream.open(logpath, std::ios_base::app);
 
 	Log("Created LOG");
