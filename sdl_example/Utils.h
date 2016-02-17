@@ -51,6 +51,8 @@ public:
     
     class FS{
     public:
+    	static void CheckFileExistsWithError(const std::string& filename, Utils::Logger* logger);
+
         static bool FileExists(const std::string& filename)
         {
             return boost::filesystem::exists(filename);

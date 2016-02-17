@@ -69,3 +69,11 @@ void Utils::Output::printIntArray(int *array, const unsigned int num_el, std::os
     }
     stream << "\n";
 }
+
+void Utils::FS::CheckFileExistsWithError(const std::string& filename, Utils::Logger* logger){
+	if (!FileExists(filename)){
+		logger->Log(std::string("ERROR: File ") + filename + " doesn't exist or is unavailable");
+		exit(82346);
+	}
+
+}
