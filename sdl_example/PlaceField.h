@@ -24,6 +24,8 @@ class PlaceField{
     // how many bins around spikes to take into account
     int spread_;
     
+    arma::mat gauss_;
+
     int NBINS;
     int NBINSX;
     int NBINSY;
