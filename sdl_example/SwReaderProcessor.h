@@ -22,6 +22,10 @@ class SwReaderProcessor: public LFPProcessor {
 	unsigned int current_sw_ = 0;
 	SWR_Format swr_format_ = SWR_FORMAT_START_PEAK_END;
 
+	// in case only peak is provided
+	unsigned int start_to_peak_ = 0;
+	unsigned int peak_to_end_ = 0;
+
 public:
 	SwReaderProcessor(LFPBuffer *buf);
 	SwReaderProcessor(LFPBuffer *buf, std::string path);

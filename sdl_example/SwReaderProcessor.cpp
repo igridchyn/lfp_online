@@ -15,7 +15,9 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf)
 		){}
 
 SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
-	: LFPProcessor(buf){
+	: LFPProcessor(buf)
+	, start_to_peak_(buf->config_->getFloat("swr.reader.start.to.peak.ms") * buf->SAMPLING_RATE / 1000.0)
+	, peak_to_end_(buf->config_->getFloat("swr.reader.peak.to.end.ms") * buf->SAMPLING_RATE / 1000.0){
 
 	Utils::FS::CheckFileExistsWithError(path, buf);
 	std::ifstream swr_stream(path);
@@ -29,8 +31,6 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 		Log("ERROR: Unrecognised SWR format, accepted values are : start_peak_end, synchrony_start");
 		exit(12432);
 	}
-
-	unsigned int pop_vec_len_pkg = buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000;
 
 	while(!swr_stream.eof()){
 		swrs_.push_back(std::vector<unsigned int>());
@@ -48,9 +48,9 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 		case SWR_FORMAT_SYNCHRONY_START:
 			unsigned int ss;
 			swr_stream >> ss;
-			swrs_[swrs_.size() - 1].push_back(ss > pop_vec_len_pkg ? ss - pop_vec_len_pkg : 0);
+			swrs_[swrs_.size() - 1].push_back(ss > start_to_peak_ ? ss - start_to_peak_ : 0);
 			swrs_[swrs_.size() - 1].push_back(ss);
-			swrs_[swrs_.size() - 1].push_back(ss + pop_vec_len_pkg * 5);
+			swrs_[swrs_.size() - 1].push_back(ss + peak_to_end_);
 			break;
 		}
 	}
