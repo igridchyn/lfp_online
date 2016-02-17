@@ -11,11 +11,15 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include "time.h"
+
+#ifdef _WIN32
+	#define DATEFORMAT "%Y-%m-%d_%H-%M-%S"
+#else
+	#define DATEFORMAT "%F_%T"
+#endif
 
 void Config::read_processors(std::ifstream& fconf) {
-	std::string log_prefix = params_.find("out.path.base") == params_.end() ? "" : params_["out.path.base"];
-	log_.open(log_prefix + "lfponline_config_log.txt");
-
 	int numproc;
 	fconf >> numproc;
 	log_string_stream_ << numproc << " processors to be used in the pipeline\n";
@@ -42,6 +46,17 @@ void Config::read_processors(std::ifstream& fconf) {
 
 
 Config::Config(std::string path, unsigned int nparams, char **params) {
+	// generate timestamp
+	time_t rawtime;
+	struct tm * timeinfo;
+	char buffer [80];
+	time (&rawtime);
+	timeinfo = localtime (&rawtime);
+	strftime (buffer, 80, DATEFORMAT, timeinfo);
+	buffer[13] = '-';
+	buffer[16] = '-';
+	timestamp_ = buffer;
+
 	config_path_ = path;
 
 	std::ifstream fconf(path);
@@ -351,6 +366,12 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 		else{
 			log_string_stream_ << "WARNING: unreadable config entry: " << line << "\n";
 			Log();
+		}
+
+		if (key == "out.path.base"){
+			std::string log_prefix = params_.find("out.path.base") == params_.end() ? "" : params_["out.path.base"];
+			log_.open(log_prefix + "lfponline_config_" + timestamp_ + ".log");
+			log_ << "Session timestamp: " << timestamp_ << "\n";
 		}
 	}
 	else{

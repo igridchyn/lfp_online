@@ -52,6 +52,8 @@ public:
 
 	std::stringstream log_string_stream_;
 
+	std::string timestamp_;
+
 	template<class T>
 	void ReadList(std::ifstream& file, std::vector<T>& list);
 
