@@ -57,6 +57,8 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 	buffer[16] = '-';
 	timestamp_ = buffer;
 
+	params_["timestamp"] = timestamp_;
+
 	config_path_ = path;
 
 	std::ifstream fconf(path);
@@ -370,7 +372,7 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 
 		if (key == "out.path.base"){
 			std::string log_prefix = params_.find("out.path.base") == params_.end() ? "" : params_["out.path.base"];
-			log_.open(log_prefix + "lfponline_config_" + timestamp_ + ".log");
+			log_.open(log_prefix + "logs/lfponline_config_" + timestamp_ + ".log");
 			log_ << "Session timestamp: " << timestamp_ << "\n";
 		}
 	}
