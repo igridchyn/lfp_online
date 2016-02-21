@@ -280,32 +280,19 @@ void PlaceFieldProcessor::switchSession(const unsigned int& session){
 void PlaceFieldProcessor::dumpCluAndRes(){
 	Log("START SAVING CLU/RES");
 	Log("Global cluster number shifts: ", global_cluster_number_shfit_);
-	std::vector<std::unique_ptr<std::ofstream> > res_files, clu_files;
+
 	std::ofstream *res_global, *clu_global;
-	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-		std::string res_path = buffer->config_->getString("out.path.base") + std::string(Utils::Converter::int2str(t)) + ".res";
-		std::string clu_path = buffer->config_->getString("out.path.base") + std::string(Utils::Converter::int2str(t)) + ".clu";
-		Log(res_path);
-		res_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(res_path)));
-		clu_files.push_back(std::unique_ptr<std::ofstream>(new std::ofstream(clu_path)));
-	}
+
 	res_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.res");
 	clu_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.clu");
 	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
 		Spike *spike = buffer->spike_buffer_[i];
 		if (spike != nullptr && spike->cluster_id_ > 0){
-			*(res_files[spike->tetrode_]) << spike->pkg_id_ << "\n";
-			*(clu_files[spike->tetrode_]) << spike->cluster_id_ << "\n";
-
 			*(res_global) << spike->pkg_id_ << "\n";
 			*(clu_global) << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
 		}
 	}
-	for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-		res_files[t]->close();
-		clu_files[t]->close();
-		// TODO delete
-	}
+
 	clu_global->close();
 	res_global->close();
 	Log("FINISHED SAVING CLU/RES");
