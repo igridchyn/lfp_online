@@ -77,7 +77,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			SIGMA_X(getFloat("kd.sigma.x")),
 			SIGMA_A(getFloat("kd.sigma.a")),
 			SIGMA_XX(getFloat("kd.sigma.xx")),
-			SWR_SWITCH(buf->config_->getBool("kd.swr.switch", false)),
+			SWR_SWITCH(buf->config_->getBool("kd.swr.switch")),
 			SWR_SLOWDOWN_DELAY(buf->config_->getInt("kd.swr.slowdown.delay", 0)),
 			SWR_SLOWDOWN_DURATION(buf->config_->getInt("kd.swr.slowdown.duration", 1500)),
 			SWR_PRED_WIN(buf->config_->getInt("kd.swr.pred.win", 400)),
@@ -103,10 +103,13 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
             pred_dump_(buf->config_->getBool("kd.pred.dump", false)),
 			pred_dump_pref_(buf->config_->getOutPath("kd.pred.dump.pref", "pred_")),
 			spike_buf_pos_pred_start_(buffer->spike_buf_pos_pred_start_),
-			prediction_window_spike_number_(buffer->config_->getInt("kd.fixed.spike.number"))
+			prediction_window_spike_number_(buffer->config_->getInt("kd.fixed.spike.number")),
+			prediction_windows_overlap_(buffer->config_->getInt("kd.prediction.windows.overlap.percentage") * prediction_window_spike_number_ / 100)
 		{
 
 	Log("Construction started");
+
+	Log("Prediction windows overlap = ", prediction_windows_overlap_);
 
 	PRED_WIN = THETA_PRED_WIN;
 
@@ -440,9 +443,10 @@ void KDClusteringProcessor::dump_prediction_if_needed(const arma::fmat& pos_pred
 	// DEBUG save prediction
 	if (pred_dump_){
 		if (swr_regime_){
-			buffer->log_string_stream_ << "Save SWR starting at " << buffer->swrs_[swr_pointer_][0] << " under ID " << swr_pointer_ << "\n";
+			buffer->log_string_stream_ << "Save SWR starting at " << buffer->swrs_[swr_pointer_][0] << " under ID " << swr_pointer_ <<
+					" and window number " << swr_win_counter_ << " and window center at " << last_pred_pkg_id_ + PRED_WIN/2 <<  "\n";
 			buffer->Log();
-			pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_pointer_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
+			pos_pred_.save(pred_dump_pref_ + "swr_" + Utils::Converter::int2str(swr_pointer_) + "_" + Utils::Converter::int2str(swr_win_counter_) + "_" + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN/2) + "_" + Utils::Converter::int2str(processor_number_) + ".mat", arma::raw_ascii);
 			swr_win_counter_ ++;
 		}
 		else{
@@ -706,8 +710,9 @@ void KDClusteringProcessor::process(){
 			while(spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 
-				if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN)
+				if(spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN){
 					break;
+				}
 
 				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
 
@@ -769,7 +774,7 @@ void KDClusteringProcessor::process(){
 					// DEBUG
 					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " <<
 							PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n" <<
-							"new PRED_WIN = " << PRED_WIN << "(pkg_id = " << last_pred_pkg_id_ << "\n";
+							"new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
 					buffer->Log();
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 				}
@@ -842,7 +847,26 @@ void KDClusteringProcessor::process(){
 				if(prediction_window_spike_number_ > 0){
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 					// TODO what should be here
-					PRED_WIN = swr_regime_ ? (SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0])) : THETA_PRED_WIN;
+					// was: (SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]))
+					// should not limit becase of potential unlimited rewinds
+					PRED_WIN = swr_regime_ ? 24000000 : THETA_PRED_WIN;
+				}
+
+				// rewind back to get predictions of the overlapping windows
+				if (swr_regime_ && prediction_windows_overlap_ > 0 && (spike_buf_pos_clust_ >= prediction_windows_overlap_ + buffer->SPIKE_BUF_HEAD_LEN)){
+					spike_buf_pos_clust_ -= prediction_windows_overlap_;
+					// find first good spike
+					while((spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) && (buffer->spike_buffer_[spike_buf_pos_clust_]->discarded_ ||  !buffer->spike_buffer_[spike_buf_pos_clust_]->aligned_))
+						 spike_buf_pos_clust_ ++;
+
+					last_pred_pkg_id_ = buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_;
+
+					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
+
+					// DEBUG
+					Log("Rewind to get overlapping windows until position: ", spike_buf_pos_clust_);
+					Log("	Update last_pred_pkg_id : ", buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_);
+					Log("	Update spike_buf_pos_pred_start_ : ", spike_buf_pos_pred_start_);
 				}
 
 				return;

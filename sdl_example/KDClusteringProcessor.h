@@ -229,6 +229,8 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// fixed number of spikes for prediction window; 0 if no limit
 	const unsigned int prediction_window_spike_number_ = 0;
+	// packages for fixed length, number of spikes for fixed number of spikes
+	const unsigned int prediction_windows_overlap_ = 0;
 
 	void update_hmm_prediction();
 	void reset_hmm();
