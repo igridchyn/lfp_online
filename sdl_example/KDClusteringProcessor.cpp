@@ -111,6 +111,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 	Log("Prediction windows overlap = ", prediction_windows_overlap_);
 
+	pf_dumped_.resize(100000, false);
+
 	PRED_WIN = THETA_PRED_WIN;
 
 	// load proper tetrode info
@@ -742,6 +744,14 @@ void KDClusteringProcessor::process(){
 				if (neighb_num_ > 1){
 					for (unsigned int i=0; i < neighb_num_ ; ++i){
 							pos_pred_ += 1/float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
+
+//							if (tetr == 1 && spike->cluster_id_ == 2){
+//							if(!pf_dumped_[neighbour_inds_[i]]){
+//								laxs_[stetr][neighbour_inds_[i]].save(pred_dump_pref_ + "tetr_" + Utils::Converter::int2str(stetr) +
+//										"_cluster_" + Utils::Converter::int2str(spike->cluster_id_) + "_" + Utils::Converter::int2str(dumped_num_++) + ".mat", arma::raw_ascii);
+//								pf_dumped_[neighbour_inds_[i]] = true;
+//							}
+//							}
 					}
 				}else{
 					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
@@ -952,7 +962,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
 
 	unsigned int last_pkg_id = buffer->last_pkg_id;
-	// if using intervals, provide sum of interval lengthes until last_pkg_id
+	// if using intervals, provide sum of interval lengths until last_pkg_id
 	if (use_intervals_){
 		last_pkg_id = 0;
 		for (unsigned int i = 0; i < current_interval_; ++i) {
