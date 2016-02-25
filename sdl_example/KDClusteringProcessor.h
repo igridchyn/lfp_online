@@ -232,6 +232,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	// packages for fixed length, number of spikes for fixed number of spikes
 	const unsigned int prediction_windows_overlap_ = 0;
 
+	bool BINARY_CLASSIFIER = false;
+
 	unsigned int dumped_num_ = 0;
 	std::vector<bool> pf_dumped_;
 

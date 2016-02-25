@@ -104,7 +104,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 			pred_dump_pref_(buf->config_->getOutPath("kd.pred.dump.pref", "pred_")),
 			spike_buf_pos_pred_start_(buffer->spike_buf_pos_pred_start_),
 			prediction_window_spike_number_(buffer->config_->getInt("kd.fixed.spike.number")),
-			prediction_windows_overlap_(buffer->config_->getInt("kd.prediction.windows.overlap.percentage") * prediction_window_spike_number_ / 100)
+			prediction_windows_overlap_(buffer->config_->getInt("kd.prediction.windows.overlap.percentage") * prediction_window_spike_number_ / 100),
+			BINARY_CLASSIFIER(buffer->config_->getBool("kd.binary", false))
 		{
 
 	Log("Construction started");
@@ -419,7 +420,8 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx, con
 			}
 
 			if (pose.speed_ >= DUMP_SPEED_THOLD){
-				dec_bayesian_ << BIN_SIZE * (mx + 0.5) << " " << BIN_SIZE * (my + 0.5) << " " << gtx << " " << gty << "\n";
+				double mult = BINARY_CLASSIFIER ? 100 : 1.0;
+				dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << "\n";
 				dec_bayesian_.flush();
 			}
 		}
@@ -599,8 +601,14 @@ void KDClusteringProcessor::process(){
 				}
 
 				if (spike->x > 0){
-					obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
-					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
+					if (BINARY_CLASSIFIER){
+						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x > 140 ? 1.5 : 0.5;
+						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 0.5;
+					}
+					else{
+						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
+						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
+					}
 				}
 				else{
 					obs_mats_[tetr](total_spikes_[tetr], nfeat) = buffer->pos_unknown_;
@@ -903,7 +911,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 
 	// dump obs_mat
 	obs_mats_[tetr].resize(total_spikes_[tetr], obs_mats_[tetr].n_cols);
-	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
+	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat", arma::raw_ascii);
 
 	// free resources
 	obs_mats_[tetr].clear();
@@ -941,8 +949,13 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 			}
 		}
 
-		pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos();
-		pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
+		if (BINARY_CLASSIFIER){
+			pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos() > 140 ? 1.5 : 0.5;
+			pos_buf(1, npoints) = 0.5;;
+		} else {
+			pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos();
+			pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
+		}
 		npoints++;
 	}
 
@@ -959,7 +972,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	Log("Number of pos samples: ", npoints);
 
 	pos_buf = pos_buf.cols(0, npoints - 1);
-	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
+	pos_buf.save(BASE_PATH  + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat", arma::raw_ascii);
 
 	unsigned int last_pkg_id = buffer->last_pkg_id;
 	// if using intervals, provide sum of interval lengths until last_pkg_id
