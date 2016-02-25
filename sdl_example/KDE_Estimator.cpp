@@ -30,6 +30,8 @@ const unsigned int BLOCK_SIZE = 3;
 int NBLOCKSX;
 int NBLOCKSY;
 
+const double MIN_OCC = 0.002;
+
 int MIN_SPIKES;
 double SAMPLING_RATE;
 int BUFFER_SAMPLING_RATE;
@@ -209,6 +211,7 @@ std::vector<unsigned int> VertexCoverSolver::Reduce(ANNkd_tree& full_tree,
 		neighbours_count_.push_back(node_by_id[i]->neighbour_ids_.size());
 	}
 
+	// OPTIMIZATION : don't include single nodes; ~-0.2% accuracy, significant decrease of nodes number
 	while (head != nullptr && neighbours_count_[head->id_] > 0){
 		// if already invalidated, move on
 		if (node_by_id[head->id_] == nullptr){
@@ -358,9 +361,6 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
 
-	// TODO !!! parametrize from nbins and bin size
-	const double MIN_OCC = 0.0001;
-
 	// pre-compute feature part of the sum (same for all coordinates)
 	std::vector<long long> feature_sum;
 	for (int ni = 0; ni < total_spikes; ++ni) {
@@ -399,13 +399,13 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			if (!(xb % BLOCK_SIZE) && !(yb % BLOCK_SIZE)){
 				// form a point (a_i, x_b, y_b) and find its nearest neighbours in (a, x) space for KDE
 				// have to choose central bin of the block
-				p_bin_spike[N_FEAT] = coords_normalized(xb < NBINSX - 1 ? xb + 1 : xb, 0);
-				p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINSY - 1 ? yb + 1 : yb, 1);
+				// !!! TODO THIS IS BUGGY !!!
+				p_bin_spike[N_FEAT] = coords_normalized(xb < NBINSX - 1 ? xb + 1 : xb, 0); // coords_normalized(xb, 0); //
+				p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINSY - 1 ? yb + 1 : yb, 1); // coords_normalized(yb, 1); //
 
 				kdtree_ax_->annkSearch(p_bin_spike, NN_K, cache_block_neighbs_[nblock], dd, NN_EPS / 3.0);
 			}
 			nn_idx = cache_block_neighbs_[nblock];
-
 
 			// to rough estimation
 //			int k_in = kdtree_ax_->annkFRSearch(p_bin_spike, 2000000, NN_K, nn_idx, dd, NN_EPS / 5.0);
@@ -506,8 +506,8 @@ int main(int argc, char **argv){
 	kdstream.close();
 	ann_points_ = kdtree_->thePoints();
 
-	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat");
-	pos_buf.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat");
+	obs_mat.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat", arma::raw_ascii);
+	pos_buf.load(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat", arma::raw_ascii);
 
 	// DEBUG
 	log_string_ << "obs " << obs_mat.n_rows << " X " << obs_mat.n_cols << "\n";
@@ -647,7 +647,6 @@ int main(int argc, char **argv){
 
 	// compute generalized rate function lambda(x)
 	// TODO !!! uniform + parametrize
-	const double MIN_OCC = 0.0001;
 	double pisum = arma::sum(arma::sum(pix));
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
@@ -675,12 +674,15 @@ int main(int argc, char **argv){
 	// prepare bin block neighbours cache - allocate
 	NBLOCKSX = NBINSX / BLOCK_SIZE + ((NBINSX % BLOCK_SIZE) ? 1 : 0);
 	NBLOCKSY = NBINSY / BLOCK_SIZE + ((NBINSY % BLOCK_SIZE) ? 1 : 0);
+	log_string_ << "NBLOCKSX / NBLOCKSY : " << NBLOCKSX << " / " << NBLOCKSY << "\n";
+	Log();
 	for (int xb = 0; xb < NBLOCKSX; ++xb) {
 		for (int yb = 0; yb < NBLOCKSY; ++yb) {
 			cache_block_neighbs_.push_back(new int[NN_K]);
 		}
 	}
 
+	// OPTIMIZATION - significantly(5X) reduces number of pivot spikes
 	// reduce the tree by solving vertex cover
 	VertexCoverSolver ver_solv;
 	log_string_ << "run vertex cover solver with distance threshold = " <<  SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << "\n\t and # of neighbours limited to " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
