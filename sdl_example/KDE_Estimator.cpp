@@ -26,7 +26,7 @@ double BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
-const unsigned int BLOCK_SIZE = 3;
+const unsigned int BLOCK_SIZE = 1;
 int NBLOCKSX;
 int NBLOCKSY;
 
@@ -386,6 +386,10 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
+			if (occupancy(xb, yb)/occ_sum < MIN_OCC){
+				continue;
+			}
+
 			// order of >= 30
 			double kern_sum = 0;
 
