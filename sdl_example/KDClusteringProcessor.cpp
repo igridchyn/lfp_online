@@ -202,10 +202,10 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 	if (SAVE){
 		std::string parpath = BASE_PATH + "params.txt";
 		std::ofstream fparams(parpath);
-		fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINSX, NBINSY, BIN_SIZE\n" <<
+		fparams << "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINSX, NBINSY, BIN_SIZE, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB, NN_EPS\n" <<
 				SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX<< " " << MULT_INT << " " << SAMPLING_RATE<< " "
 				<< NN_K << " "<< NN_K_COORDS << " "
-				<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINSX << " " << NBINSY << " " << BIN_SIZE << "\n";
+				<< MIN_SPIKES << " " << SAMPLING_RATE << " " << SAMPLING_DELAY<< " " << NBINSX << " " << NBINSY << " " << BIN_SIZE << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << NN_EPS << "\n";
 		fparams.close();
 		Log(std::string("Running params written to") + parpath);
 
@@ -1004,7 +1004,6 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	buffer->log_string_stream_ << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";
 	buffer->Log();
 
-//	if (tetr == 13)
 	int retval = system(os.str().c_str());
 	if (retval < 0){
 		buffer->Log("ERROR: impossible to start kde_estimator!");
