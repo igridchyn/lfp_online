@@ -102,7 +102,7 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     unsigned int yb = (unsigned int)round(y / bin_size_);
     
     // unknown coord
-    if (x == buffer->pos_unknown_ || y == buffer->pos_unknown_){
+    if (isnan(x) || isnan(y)){
         return;
     }
 

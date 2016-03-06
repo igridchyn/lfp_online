@@ -303,8 +303,8 @@ void SpikeDetectorProcessor::set_spike_positions() {
 			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
 		}
 		else{
-			spike->x = buffer->pos_unknown_;
-			spike->y = buffer->pos_unknown_;
+			spike->x = nanf("");
+			spike->y = nanf("");
 		}
 	}
 }
