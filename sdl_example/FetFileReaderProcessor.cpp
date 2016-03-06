@@ -714,6 +714,16 @@ void FetFileReaderProcessor::process() {
 
 		if (whl_format_ == WHL_FORMAT_LONG){
 			(*whl_file_) >> pos_entry->x_small_LED_ >> pos_entry->y_small_LED_  >> pos_entry->x_big_LED_ >> pos_entry->y_big_LED_ >> pos_entry->pkg_id_ >> pos_entry->valid;
+
+			if (pos_entry->x_small_LED_ == buffer->pos_unknown_){
+				pos_entry->x_small_LED_ = nanf("");
+				pos_entry->y_small_LED_ = nanf("");
+			}
+			if (pos_entry->x_big_LED_ == buffer->pos_unknown_){
+				pos_entry->x_big_LED_ = nanf("");
+				pos_entry->y_big_LED_ = nanf("");
+			}
+
 			last_pos_pkg_id_ = pos_entry->pkg_id_;
 		} else {
 			double x;
@@ -721,8 +731,8 @@ void FetFileReaderProcessor::process() {
 			(*whl_file_) >> x >> y;
 			bool valid = true;
 			// in short: -1 instead of 1023 means invalid
-			if (x < 0){
-				x = y = 1023;
+			if (x == buffer->pos_unknown_){
+				x = y = nanf("");
 				valid = false;
 			}
 			pos_entry->x_big_LED_ = pos_entry->x_small_LED_ = x;

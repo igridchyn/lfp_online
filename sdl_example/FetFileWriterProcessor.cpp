@@ -72,7 +72,19 @@ void FetFileWriterProcessor::process() {
 	// write whl
 	while(buffer->pos_buf_pos_whl_writer_ < buffer->pos_buf_pos_){
 		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_whl_writer_];
-		(*whl_file_) << pos_rec.x_small_LED_ << " " << pos_rec.y_small_LED_ << " " << pos_rec.x_big_LED_ << " " << pos_rec.y_big_LED_ << " " << pos_rec.pkg_id_ << " " << pos_rec.valid << "\n";
+		float xs = pos_rec.x_small_LED_;
+		float ys = pos_rec.y_small_LED_;
+		float xb = pos_rec.x_big_LED_;
+		float yb = pos_rec.y_big_LED_;
+		if (isnan(xs)){
+			xs = buffer->pos_unknown_;
+			ys = buffer->pos_unknown_;
+		}
+		if (isnan(xb)){
+			xb = buffer->pos_unknown_;
+			yb = buffer->pos_unknown_;
+		}
+		(*whl_file_) << xs << " " << ys << " " << xb << " " << yb << " " << pos_rec.pkg_id_ << " " << pos_rec.valid << "\n";
 		buffer->pos_buf_pos_whl_writer_++;
 	}
 

@@ -577,8 +577,8 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     unsigned int rmax, cmax;
     reconstructed_position_.max(rmax, cmax);
 
-    buffer->positions_buf_[buffer->pos_buf_pos_].x_small_LED_ = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
-    buffer->positions_buf_[buffer->pos_buf_pos_].x_big_LED_ = (cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
-    buffer->positions_buf_[buffer->pos_buf_pos_].y_small_LED_ = (rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
-    buffer->positions_buf_[buffer->pos_buf_pos_].y_big_LED_ = (rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX;
+    buffer->positions_buf_[buffer->pos_buf_pos_].Init((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX,
+    		(rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX,
+    		(cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX,
+    		(rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX);
 }

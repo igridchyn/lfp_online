@@ -403,20 +403,13 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx, con
 
 			// !!! WORKAROUND - WOULDN'T WORK WITH THE REWIND
 			SpatialInfo &pose = buffer->positions_buf_[(unsigned int)(last_pred_pkg_id_ / (float)POS_SAMPLING_RATE)];
-			if (pose.x_big_LED_ == buffer->pos_unknown_){
-				if (pose.x_small_LED_ != buffer->pos_unknown_){
-					gtx = pose.x_small_LED_;
-					gty = pose.y_small_LED_;
-				}
-			} else if (pose.x_small_LED_ == buffer->pos_unknown_){
-				if (pose.x_big_LED_ != buffer->pos_unknown_){
-					gtx = pose.x_big_LED_;
-					gty = pose.y_big_LED_;
-				}
-			}
-			else {
-				gtx = pose.x_pos();
-				gty = pose.y_pos();
+			gtx = pose.x_pos();
+			gty = pose.y_pos();
+
+			// for output need non-nan value
+			if (isnan(gtx)){
+				gtx = buffer->pos_unknown_;
+				gty = buffer->pos_unknown_;
 			}
 
 			if (pose.speed_ >= DUMP_SPEED_THOLD){
@@ -600,7 +593,7 @@ void KDClusteringProcessor::process(){
 					obs_mats_[tetr](total_spikes_[tetr], fet) = spike->pc[fet];
 				}
 
-				if (spike->x > 0){
+				if (!isnan(spike->x)){
 					if (BINARY_CLASSIFIER){
 						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x > 140 ? 1.5 : 0.5;
 						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 0.5;
@@ -928,7 +921,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 		}
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if ( buffer->positions_buf_[n].x_pos() < 0 || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
+		if ( isnan(buffer->positions_buf_[n].x_pos()) || buffer->positions_buf_[n].speed_ < SPEED_THOLD){
 			continue;
 		}
 
@@ -964,6 +957,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(const unsigned int tetr)
 	Log("Tetrode: ", tetr);
 //	Log("Skipped due to speed according to counter: ", skipped_spikes_[tetr]);
 
+	// TODO: MINIMAL POSITION SAMPLES
 	if (npoints == 0){
 		Log("ERROR: number of position samples == 0");
 		exit(91824);

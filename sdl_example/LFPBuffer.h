@@ -80,6 +80,10 @@ public:
 
 	float x_pos();
 	float y_pos();
+
+	SpatialInfo();
+	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb);
+	void Init(const float& xs, const float& ys, const float& xb, const float& yb);
 };
 
 template<class T>

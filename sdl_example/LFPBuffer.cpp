@@ -621,12 +621,12 @@ void LFPBuffer::CheckBufPosAndReportTime(const unsigned int& buf_pos,
 
 float AverageLEDs(const float & smallLED, const float & bigLED, const bool & valid){
 	if (!valid)
-		return -1.0;
+		return nanf("");
 
-	if (smallLED < 0 || smallLED == 1023){
+	if (isnan(smallLED)){
 		return bigLED;
 	}
-	else if (bigLED < 0 || bigLED == 1023){
+	else if (isnan(bigLED)){
 		return smallLED;
 	}
 	else{
@@ -640,6 +640,29 @@ float SpatialInfo::x_pos() {
 
 float SpatialInfo::y_pos() {
 	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
+}
+
+SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb)
+	: x_small_LED_(xs)
+	, y_small_LED_(ys)
+	, x_big_LED_(xb)
+	, y_big_LED_(yb)
+{ }
+
+SpatialInfo::SpatialInfo()
+: x_small_LED_(nanf(""))
+, y_small_LED_(nanf(""))
+, x_big_LED_(nanf(""))
+, y_big_LED_(nanf(""))
+, pkg_id_(0)
+, valid(false)
+{}
+
+void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb){
+	x_small_LED_ = xs;
+	y_small_LED_ = ys;
+	x_big_LED_ = xb;
+	y_big_LED_ = yb;
 }
 
 // TODO extract code

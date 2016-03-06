@@ -123,8 +123,8 @@ void PackageExractorProcessor::process(){
     				buffer->positions_buf_[buffer->pos_buf_pos_].y_big_LED_ = (by * SCALE) + buffer->coord_shift_y_;
     				buffer->positions_buf_[buffer->pos_buf_pos_].valid = true;
     			} else {
-    				buffer->positions_buf_[buffer->pos_buf_pos_].x_big_LED_ = buffer->pos_unknown_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_].y_big_LED_ = buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].x_big_LED_ = nanf("");
+    				buffer->positions_buf_[buffer->pos_buf_pos_].y_big_LED_ = nanf("");
     			}
 
     			if (sx != buffer->pos_unknown_){
@@ -132,8 +132,8 @@ void PackageExractorProcessor::process(){
     				buffer->positions_buf_[buffer->pos_buf_pos_].y_small_LED_ = (sy * SCALE) + buffer->coord_shift_y_;
     				buffer->positions_buf_[buffer->pos_buf_pos_].valid = true;
     			} else {
-    				buffer->positions_buf_[buffer->pos_buf_pos_].x_small_LED_ = buffer->pos_unknown_;
-    				buffer->positions_buf_[buffer->pos_buf_pos_].y_small_LED_ = buffer->pos_unknown_;
+    				buffer->positions_buf_[buffer->pos_buf_pos_].x_small_LED_ = nanf("");
+    				buffer->positions_buf_[buffer->pos_buf_pos_].y_small_LED_ = nanf("");
     			}
     			buffer->positions_buf_[buffer->pos_buf_pos_].pkg_id_ = buffer->last_pkg_id + c;
 
