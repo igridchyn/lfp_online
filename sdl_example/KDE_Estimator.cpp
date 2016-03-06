@@ -26,10 +26,6 @@ double BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
-const unsigned int BLOCK_SIZE = 1;
-int NBLOCKSX;
-int NBLOCKSY;
-
 const double MIN_OCC = 0.002;
 
 int MIN_SPIKES;
@@ -397,19 +393,11 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 			// compute KDE (proportional to log-probability) over cached nearest neighbours
 			// TODO ? exclude self from neighbours list ?
 
-			// do kd search if first bin in the block, otherwise - use cached neighbours
-			// find closest points for 'spike with a given sha'
-			int nblock = (yb / BLOCK_SIZE) * NBLOCKSX + xb / BLOCK_SIZE;
-			if (!(xb % BLOCK_SIZE) && !(yb % BLOCK_SIZE)){
-				// form a point (a_i, x_b, y_b) and find its nearest neighbours in (a, x) space for KDE
-				// have to choose central bin of the block
-				// !!! TODO THIS IS BUGGY !!!
-				p_bin_spike[N_FEAT] = coords_normalized(xb < NBINSX - 1 ? xb + 1 : xb, 0); // coords_normalized(xb, 0); //
-				p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINSY - 1 ? yb + 1 : yb, 1); // coords_normalized(yb, 1); //
 
-				kdtree_ax_->annkSearch(p_bin_spike, NN_K, cache_block_neighbs_[nblock], dd, NN_EPS / 3.0);
-			}
-			nn_idx = cache_block_neighbs_[nblock];
+			p_bin_spike[N_FEAT] = coords_normalized(xb < NBINSX - 1 ? xb + 1 : xb, 0); // coords_normalized(xb, 0); //
+			p_bin_spike[N_FEAT + 1] = coords_normalized(yb < NBINSY - 1 ? yb + 1 : yb, 1); // coords_normalized(yb, 1); //
+
+			kdtree_ax_->annkSearch(p_bin_spike, NN_K, nn_idx, dd, NN_EPS / 3.0);
 
 			// to rough estimation
 //			int k_in = kdtree_ax_->annkFRSearch(p_bin_spike, 2000000, NN_K, nn_idx, dd, NN_EPS / 5.0);
@@ -674,17 +662,6 @@ int main(int argc, char **argv){
 		coords_normalized(b, 1) = (int)(BIN_SIZE * (0.5 + b) * avg_feat_std / SIGMA_X * MULT_INT / stdy);
 	}
 	Log("done coords_normalized\n");
-
-	// prepare bin block neighbours cache - allocate
-	NBLOCKSX = NBINSX / BLOCK_SIZE + ((NBINSX % BLOCK_SIZE) ? 1 : 0);
-	NBLOCKSY = NBINSY / BLOCK_SIZE + ((NBINSY % BLOCK_SIZE) ? 1 : 0);
-	log_string_ << "NBLOCKSX / NBLOCKSY : " << NBLOCKSX << " / " << NBLOCKSY << "\n";
-	Log();
-	for (int xb = 0; xb < NBLOCKSX; ++xb) {
-		for (int yb = 0; yb < NBLOCKSY; ++yb) {
-			cache_block_neighbs_.push_back(new int[NN_K]);
-		}
-	}
 
 	// OPTIMIZATION - significantly(5X) reduces number of pivot spikes
 	// reduce the tree by solving vertex cover
