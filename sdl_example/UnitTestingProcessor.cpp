@@ -35,10 +35,6 @@ bool ArrayValidator<T>::validate(){
     const int CHECK_DELAY = 40;
     // delay for filtes etc. - exact value is not important
     while(targ_buf_pos_ + gt_data_shift_ < gt_data_len_ && targ_buf_pos_ < *(buf_pos_ptr_) - 50){
-        
-        // DEBUG
-        //std::cout << gt_data_[targ_buf_pos_ + gt_data_shift_] << " " << targ_buf_[targ_buf_pos_] << "\n";
-        
         if (targ_buf_pos_ > CHECK_DELAY && gt_data_[targ_buf_pos_ + gt_data_shift_] != targ_buf_[targ_buf_pos_]){
             report_mismatch();
             return false;

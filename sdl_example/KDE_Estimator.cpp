@@ -455,10 +455,6 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 int main(int argc, char **argv){
 	// read the following variables and perform KDE estimation and tree building
 
-//	std::cout << "build kd-tree for tetrode " << tetr;
-//	kdtree_ = new ANNkd_tree(ann_points_, total_spikes_, DIM);
-//	std::cout << "done\n Cache " << NN_K << " nearest neighbours for each spike...\n";
-
 	if (argc != 22){
 		Log("Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!");
 		exit(1);
@@ -695,7 +691,6 @@ int main(int argc, char **argv){
 	for (unsigned int u=0; u < NUSED; ++u){
 		int p = used_ids_[u];
 
-		// DEBUG
 		if (!(u % 1000)){
 			std::cout.precision(2);
 			log_string_ << u << " out of  " << NUSED << " place fields built, last 1000 in " << (clock() - start)/ (float)CLOCKS_PER_SEC << " sec....\n";

@@ -451,7 +451,6 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	}
 
 	if (e.type == SDL_MOUSEWHEEL){
-//		std::cout << e.wheel.y << "\n";
 		scale_ *= pow(1.1, e.wheel.y);
 		need_redraw = true;
 		need_clust_check_ = false;

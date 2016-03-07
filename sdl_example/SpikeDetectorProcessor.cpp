@@ -74,18 +74,12 @@ void SpikeDetectorProcessor::process(){
     filt_pos = buffer->buf_pos - filter_len / 2;
 
 	// DEBUG 1) not ordered; 2) multiple spikes around one pos on one tetrode (have 2 buffers?)
-	//                std::cout << "Spike at tetrode " << tetrode << " at pos " << spike_pos + 1 << "\n";
 
 	// set coords
 	// find position
 	// !!! TODO: interpolate, wait for next if needed [separate processor ?]
     set_spike_positions();
     buffer->spike_buf_pos_predetect_ = buffer->spike_buf_pos;
-
-    // PROFILE
-//	time_t time = clock() - start;
-//	std::cout << "Spike Detection over at pkg id = " << buffer->last_pkg_id << ", time (us) = " << (time * 1000000) / CLOCKS_PER_SEC <<  "\n";
-
 }
 
 void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
@@ -111,13 +105,6 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
 			filter_channel(buffer->tetr_info_->tetrode_channels[tetrode_to_process][ci]);
 		}
 	}
-    
-	// DEBUG
-//	int proct = (clock() - start) * 1000 / CLOCKS_PER_SEC;
-//	if (tetrode_to_process == 2 || tetrode_to_process  == -1){
-//		debug_estimator_->push(proct);
-//		std::cout << "SD filtering time = " << debug_estimator_->get_mean_estimate() << " ms\n";
-//	}
 
     // DETECT only after enough samples for power estimation
     if (buffer->powerEstimators_[0].n_samples() < min_power_samples_){

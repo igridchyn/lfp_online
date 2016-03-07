@@ -67,15 +67,10 @@ void CluReaderClusteringProcessor::process() {
 				buffer->UpdateWindowVector(spike);
 				buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
 			}
-//			std::cout << spike->tetrode_ << " " << spike->pkg_id_ << " " << clust << "\n";
 		}
 		else{
-//			std::cout << "missing clu for res = " << res << "\n";
 		}
 
 		buffer->spike_buf_pos_clust_++;
-
-//		if (spike->pkg_id_ > 10000)
-//			exit(1);
 	}
 }
