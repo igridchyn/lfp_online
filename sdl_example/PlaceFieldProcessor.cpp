@@ -102,7 +102,7 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     unsigned int yb = (unsigned int)round(y / bin_size_);
     
     // unknown coord
-    if (isnan(x) || isnan(y)){
+	if (std::isnan<float>(x) || std::isnan<float>(y)){
         return;
     }
 
@@ -142,7 +142,7 @@ void PlaceFieldProcessor::process(){
     while (buffer->spike_buf_pos_pf_ < buffer->spike_buf_pos_speed_){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_pf_];
         
-        if(spike->discarded_ || isnan(spike->x) || spike->cluster_id_ == -1){
+		if (spike->discarded_ || std::isnan<float>(spike->x) || spike->cluster_id_ == -1){
         	buffer->spike_buf_pos_pf_++;
             continue;
         }

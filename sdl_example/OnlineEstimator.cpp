@@ -30,7 +30,7 @@ void OnlineEstimator<T, S>::push(T value){
     // printf("push %f\n", value);
     
 	// TODO LOG ERROR
-	if (isnan(value))
+	if (std::isnan<T>(value))
 		return;
 
     // TODO: ignore to optimize ?

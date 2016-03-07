@@ -76,11 +76,11 @@ void FetFileWriterProcessor::process() {
 		float ys = pos_rec.y_small_LED_;
 		float xb = pos_rec.x_big_LED_;
 		float yb = pos_rec.y_big_LED_;
-		if (isnan(xs)){
+		if (std::isnan<float>(xs)){
 			xs = buffer->pos_unknown_;
 			ys = buffer->pos_unknown_;
 		}
-		if (isnan(xb)){
+		if (std::isnan<float>(xb)){
 			xb = buffer->pos_unknown_;
 			yb = buffer->pos_unknown_;
 		}
