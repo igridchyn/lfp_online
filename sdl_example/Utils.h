@@ -63,10 +63,10 @@ public:
             std::string  path_dir = file_path.substr(0, file_path.find_last_of('/'));
             
             if(!boost::filesystem::exists(path_dir)){
-                boost::filesystem::create_directories(path_dir);
+                return boost::filesystem::create_directories(path_dir);
+            } else {
+            	return true;
             }
-            
-            return true;
         }
     };
 };

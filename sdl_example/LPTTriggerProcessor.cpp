@@ -44,6 +44,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 		exit(29875);
 	}
 
+	// this one should contain ${timestamp} in it to avoid overwriting old timestamps
 	std::string ttpath = buffer->config_->getString("lpt.trigger.ttpath");
 	Log("Write trigger timestamps to " + ttpath);
 	timestamp_log_.open(ttpath);
