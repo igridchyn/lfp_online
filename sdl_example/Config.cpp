@@ -371,8 +371,10 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 		}
 
 		if (key == "out.path.base"){
-			std::string log_prefix = params_.find("out.path.base") == params_.end() ? "" : params_["out.path.base"];
-			log_.open(log_prefix + "logs/lfponline_config_" + timestamp_ + ".log");
+			Utils::FS::CreateDirectories(value);
+
+			Utils::FS::CreateDirectories(value + "logs/");
+			log_.open(value + "logs/lfponline_config_" + timestamp_ + ".log");
 			log_ << "Session timestamp: " << timestamp_ << "\n";
 		}
 	}
