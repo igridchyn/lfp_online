@@ -476,7 +476,6 @@ void PCAExtractionProcessor::process(){
     for (size_t tetr=0; tetr < buffer->tetr_info_->tetrodes_number(); ++tetr) {
         if ((num_spikes[tetr] >= min_samples_ || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER) && !pca_done_[tetr]){
 
-//            std::cout << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
 			std::stringstream ss;
 			ss << "Doing PCA for tetrode " << tetr << "(" << min_samples_ << " spikes collected) " << "...\n";
 			buffer->Log(ss.str());
@@ -503,6 +502,23 @@ void PCAExtractionProcessor::process(){
                 	Log("WARNING: couldn't perform PCA for channel ", channel);
                 	Log("	0-PC transform will be returned", channel);
                 	Log("	Please, exclude flat channels from configuration before running PCA", channel);
+                }
+
+                // invert transform if needed (for uniform representation across channels)
+                for (unsigned int pc = 0; pc < num_pc_; ++pc){
+                	double sum = 0;
+                	for (int i=7; i < 12; ++i){
+                		sum += pc_transform_[channel][pc][i];
+                	}
+                	std::stringstream ss;
+                	ss << "Sum of weights from 7 to 11 for channel " << channel << " and PC " << pc << " equals " << sum;
+                	Log(ss.str());
+                	if (sum < 0){
+                		 Log("Invert weights because of negative sum...");
+                		 for (size_t w = 0; w < waveshape_samples_; ++w){
+                			 pc_transform_[channel][pc][w] = - pc_transform_[channel][pc][w];
+                		 }
+                	}
                 }
 
                 // SAVE PC transform
