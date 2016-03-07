@@ -56,7 +56,6 @@ void HierarchicalCluster::cluster_all(int job, int shift){
 	for (size_t d = 0; d < JOBSIZE; ++d) {
 		int clu = cluster(data_[job][d]);
 		clus_[shift + d] = clu;
-//		std::cout << "point " << shift + d << " gets cluster " << clu << "\n";
 	}
 }
 

@@ -291,8 +291,6 @@ int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
 	int cx = round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
 
-	std::cout << cx << " " << cy << "\n";
-
 	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx;
 }
 

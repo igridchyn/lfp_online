@@ -98,7 +98,6 @@ float Spike::getWidth(float level, int chan) {
 }
 
 Spike::~Spike() {
-//	std::cout << "Spike destroyed\n";
 //	for (int c = 0; c < num_channels_; ++c) {
 //		if (waveshape && waveshape[c])
 //		delete[] waveshape[c];

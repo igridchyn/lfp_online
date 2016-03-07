@@ -56,12 +56,6 @@ void FrequencyPowerBandProcessor::process(){
 
     freq_pow = arma::fft(X);
     
-    // DEBUG
-//    for (int i=1; i < BUF_LEN; i+=2){
-//        float mag = sqrt(freq_pow(i, 0).real() * freq_pow(i, 0).real() + freq_pow(i, 0).imag() * freq_pow(i, 0).imag());
-//        std::cout << mag << " ";
-//    }
-    
     last_performed_an = buffer->last_pkg_id;
     
     // DISPLAY

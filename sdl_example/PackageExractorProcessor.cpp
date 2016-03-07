@@ -83,8 +83,6 @@ void PackageExractorProcessor::process(){
 		buffer->buf_pos_trig_ = buffer->BUF_HEAD_LEN;
 		// TODO !!! DO THIS IN PROPER PLACE
 		buffer->filt_pos_ = buffer->BUF_HEAD_LEN - 25;
-        
-        // std::cout << "SIGNAL BUFFER REWIND (at pos " << buffer->buf_pos <<  ")!\n";
     }
     else{
         buffer->zero_level = 0;
@@ -110,9 +108,6 @@ void PackageExractorProcessor::process(){
     		unsigned short by = *((unsigned short*)(pos_chunk + 18));
     		unsigned short sx = *((unsigned short*)(pos_chunk + 20));
     		unsigned short sy = *((unsigned short*)(pos_chunk + 22));
-
-    		// EVERY 240 !!! = 100 Hz
-//    		std::cout << "new pos at " << buffer->buf_pos << ": " << bx << ", " << by  << "\n";
 
     		// skip every other position sample
     		skip_next_pos_ = ! skip_next_pos_;

@@ -16,9 +16,6 @@ ParallelPipelineProcessor::ParallelPipelineProcessor(LFPBuffer *buf)
 }
 
 void ParallelPipelineProcessor::process() {
-	// DEBUG
-//	std::cout << "Set data add to 0 and notify all ... \n";
-
 	// PROFILE
 //	clock_t start = clock();
 
@@ -38,6 +35,7 @@ void ParallelPipelineProcessor::process() {
 	cv_job_over_.wait(lk, [=]{return threads_finished_ == NGROUP;});
 	threads_finished_ = 0;
 
+// PROFILE
 //	time_t time = clock() - start;
 //	start = clock();
 //	std::cout << "All jobs over ... pkg id = " << buffer->last_pkg_id << ", time (ms) = " << (time * 1000) / CLOCKS_PER_SEC <<  "\n";
@@ -53,8 +51,6 @@ void ParallelPipelineProcessor::process() {
 
 void ParallelPipelineProcessor::process_thread(const int group) {
 	while(true){
-		// TMPDEBUG
-//		std::cout << "process " << group << "\n";
 
 		std::unique_lock<std::mutex> lk(mtx_data_add_[group]);
 		cv_data_added_[group].wait(lk, [=]{return data_added_[group];});

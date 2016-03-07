@@ -409,18 +409,6 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 
     if (is_high_synchrony_tetrode_[spike->tetrode_])
     	high_synchrony_tetrode_spikes_ ++;
-
-    // DEBUG - print pop vector occasionally
-//    if (!(spike->pkg_id_ % 3000)){
-//        std::cout << "Pop. vector: \n";
-//        for (int t=0; t < tetr_info_->tetrodes_number(); ++t) {
-//            std::cout << "\t";
-//            for (int c=0; c < population_vector_window_[t].size(); ++c) {
-//                std::cout << population_vector_window_[t][c] << " ";
-//            }
-//            std::cout << "\n";
-//        }
-//    }
 }
 
 
@@ -805,17 +793,6 @@ void LFPBuffer::estimate_firing_rates() {
 				spikes_discarded_[spike->tetrode_] ++;
 				continue;
 			}
-
-			//					if (spike->speed < SPEED_THOLD){
-
-			// DEBUG
-			//					if (spike->tetrode_ == 0){
-			//						std::cout << spike->pkg_id_ << " ";
-			//					}
-
-			//						spikes_slow_[spike->tetrode_] ++;
-			//						continue;
-			//					}
 
 			if (spike == nullptr || !spike->aligned_){
 				continue;
