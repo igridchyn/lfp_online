@@ -6,6 +6,7 @@
  */
 
 #include "KDClusteringProcessor.h"
+#include "Utils.h"
 
 #include <fstream>
 
@@ -19,6 +20,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 
 	// 	beware of inexation changes
 	std::string rtreepath = BASE_PATH + Utils::NUMBERS[t] + ".kdtree.reduced";
+	Utils::FS::CheckFileExistsWithError(rtreepath, (Utils::Logger*)this);
 	std::ifstream kdtree_stream(rtreepath);
 	kdtrees_[t] = new ANNkd_tree(kdtree_stream);
 	kdtree_stream.close();
@@ -28,7 +30,9 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 
 	// load binary combined matrix and extract individual l(a,x)
 	arma::fmat laxs_tetr_(NBINSX, NBINSY * NUSED);
-	laxs_tetr_.load(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
+	std::string laxs_path = BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat";
+	Utils::FS::CheckFileExistsWithError(laxs_path, (Utils::Logger*)this);
+	laxs_tetr_.load(laxs_path);
 	for (int s = 0; s < NUSED; ++s) {
 		laxs_[t].push_back(laxs_tetr_.cols(s*NBINSY, (s + 1) * NBINSY - 1));
 
@@ -38,7 +42,9 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
 	// load marginal rate function
-	lxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_lx.mat");
+	std::string lxs_path = BASE_PATH + Utils::NUMBERS[t] + "_lx.mat";
+	Utils::FS::CheckFileExistsWithError(lxs_path, (Utils::Logger*)this);
+	lxs_[t].load(lxs_path);
 	double maxval = arma::max(arma::max(lxs_[t]));
 	for (unsigned int xb = 0; xb < NBINSX; ++xb) {
 		for (unsigned int yb = 0; yb < NBINSY; ++yb) {
@@ -48,7 +54,9 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 		}
 	}
 
-	pxs_[t].load(BASE_PATH + Utils::NUMBERS[t] + "_px.mat");
+	std::string pxs_path = BASE_PATH + Utils::NUMBERS[t] + "_lx.mat";
+	Utils::FS::CheckFileExistsWithError(pxs_path, (Utils::Logger*)this);
+	pxs_[t].load(pxs_path);
 
 	pf_built_[t] = true;
 }
@@ -167,6 +175,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf, const unsigned int&
 
 	if (LOAD){
 		// load occupancy
+		Utils::FS::CheckFileExistsWithError(BASE_PATH + "pix_log.mat", (Utils::Logger*)this);
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
 		std::vector<std::thread*> load_threads;
