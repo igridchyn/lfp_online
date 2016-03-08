@@ -60,7 +60,7 @@ PlaceField PlaceField::Smooth(){
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_; dy <= spread_; ++dy) {
                 	// TODO validate consistency of downstream usage
-					if (y + dy <0 || x + dx < 0 || y + dy >= place_field_.n_rows || x + dx >= place_field_.n_cols || isinf(place_field_(y + dy, x + dx)) || std::isnan(place_field_(y + dy, x + dx))){
+					if (y + dy <0 || x + dx < 0 || y + dy >= place_field_.n_rows || x + dx >= place_field_.n_cols || isinf(place_field_(y + dy, x + dx)) || Utils::Math::isnan(place_field_(y + dy, x + dx))){
                 		ignored_part += gauss_(dy+spread_, dx+spread_);
                 		continue;
                 	}

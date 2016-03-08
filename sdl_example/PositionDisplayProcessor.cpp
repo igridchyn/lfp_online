@@ -171,7 +171,7 @@ void PositionDisplayProcessor::process(){
         }
         
         if (spike->discarded_ || ((spike->cluster_id_ > -1) && !display_cluster_[spike->cluster_id_])
-			|| (!wait_clust_ && (spike->cluster_id_ == -1)) || spike->speed < speed_limit_ || std::isnan(spike->speed)){
+			|| (!wait_clust_ && (spike->cluster_id_ == -1)) || spike->speed < speed_limit_ || Utils::Math::isnan(spike->speed)){
         	buffer->spike_buf_pos_draw_xy++;
         	continue;
         }

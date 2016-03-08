@@ -63,6 +63,14 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
     return merged;
 }
 
+bool Utils::Math::isnan(float f){
+#ifdef _WIN32
+	return std::isnan<float>(f);
+#elif
+	return std::isnan(f);
+#endif
+}
+
 void Utils::Output::printIntArray(int *array, const unsigned int num_el, std::ostream stream){
     for (unsigned int e = 0; e < num_el; ++e) {
     	stream << array[e] << " ";

@@ -90,7 +90,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			for (unsigned int dx = 0; dx < NEIGHB_SIZE; ++dx) {
 				for (unsigned int dy = 0; dy < NEIGHB_SIZE; ++dy) {
 					// WORKAROUND
-					if (std::isnan(trans_probs_[b](dx, dy))){ // || isinf(trans_probs_[b](dx, dy))){
+					if (Utils::Math::isnan(trans_probs_[b](dx, dy))){ // || isinf(trans_probs_[b](dx, dy))){
 						trans_probs_[b](dx, dy) = -100000;
 					}
 				}

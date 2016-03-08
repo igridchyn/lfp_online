@@ -42,6 +42,7 @@ public:
         inline static double Gauss2D(double sigma, double x, double y) { return 1/(2 * M_PI * sqrt(sigma)) * exp(-0.5 * (pow(x, 2) + pow(y, 2)) / (sigma * sigma)); };
         static std::vector<int> GetRange(const unsigned int& from, const unsigned int& to);
         static std::vector<int> MergeRanges(const std::vector<int>& a1, const std::vector<int>& a2);
+		static bool isnan(float f);
     };
     
     class Output{
