@@ -29,6 +29,8 @@
 #include <thread>
 #include <fstream>
 
+#include <cmath>
+
 #include <SDL2/SDL.h>
 #ifdef __APPLE__
 #include <SDL2_ttf/SDL_ttf.h>
