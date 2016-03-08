@@ -119,6 +119,7 @@ class KDClusteringProcessor: public LFPProcessor {
 	std::vector<bool> pf_built_;
 	std::mutex kde_mutex_;
 	unsigned int n_pf_built_ = 0;
+	unsigned int kde_jobs_running_ = 0;
 
 	// tmp - to estimate std
 	std::vector< arma::fmat > obs_mats_;
@@ -236,6 +237,8 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	unsigned int dumped_num_ = 0;
 	std::vector<bool> pf_dumped_;
+
+	const unsigned int MAX_KDE_JOBS = 5;
 
 	void update_hmm_prediction();
 	void reset_hmm();

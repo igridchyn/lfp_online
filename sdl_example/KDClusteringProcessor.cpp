@@ -113,7 +113,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buffer->config_->getInt(
 						"kd.prediction.windows.overlap.percentage")
 						* prediction_window_spike_number_ / 100), BINARY_CLASSIFIER(
-				buffer->config_->getBool("kd.binary", false)) {
+				buffer->config_->getBool("kd.binary", false)), MAX_KDE_JOBS(
+				buffer->config_->getInt("kd.max.jobs", 5))
+	{
 
 	Log("Construction started");
 
@@ -438,7 +440,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 		gty = pose.y_pos();
 
 		// for output need non-nan value
-		if (std::isnan<float>(gtx)) {
+		if (std::isnan(gtx)) {
 			gtx = buffer->pos_unknown_;
 			gty = buffer->pos_unknown_;
 		}
@@ -518,7 +520,7 @@ void KDClusteringProcessor::validate_prediction_window_bias() {
 void KDClusteringProcessor::process() {
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER) {
 		for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr) {
-			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr]) {
+			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr] && kde_jobs_running_ < MAX_KDE_JOBS) {
 				buffer->log_string_stream_ << "t " << tetr
 						<< ": build kd-tree for tetrode " << tetr << ", "
 						<< n_pf_built_ << " / " << tetr_info_->tetrodes_number()
@@ -626,7 +628,7 @@ void KDClusteringProcessor::process() {
 				}
 
 				// start clustering if it is not running yet, otherwise - ignore
-				if (!fitting_jobs_running_[tetr]) {
+				if (!fitting_jobs_running_[tetr] && kde_jobs_running_ < MAX_KDE_JOBS) {
 //					build_lax_and_tree_separate(tetr);
 					// SHOULD BE DONE IN THE SAME PROCESS, AS KD Search is not parallel
 					// dump required data and start process (due to non-thread-safety of ANN)
@@ -642,6 +644,8 @@ void KDClusteringProcessor::process() {
 							<< " nearest neighbours for each spike in tetrode "
 							<< tetr << " (in a separate thread)...\n";
 					buffer->Log();
+
+					Log("Number of KDE jobs before starting a new one: ", kde_jobs_running_);
 
 					fitting_jobs_running_[tetr] = true;
 					fitting_jobs_[tetr] = new std::thread(
@@ -687,7 +691,7 @@ void KDClusteringProcessor::process() {
 					obs_mats_[tetr](total_spikes_[tetr], fet) = spike->pc[fet];
 				}
 
-				if (!std::isnan<float>(spike->x)) {
+				if (!std::isnan(spike->x)) {
 					if (BINARY_CLASSIFIER) {
 						obs_mats_[tetr](total_spikes_[tetr], nfeat) =
 								spike->x > 140 ? 1.5 : 0.5;
@@ -1036,6 +1040,11 @@ void KDClusteringProcessor::process() {
 
 void KDClusteringProcessor::build_lax_and_tree_separate(
 		const unsigned int tetr) {
+
+	kde_mutex_.lock();
+	kde_jobs_running_ ++;
+	kde_mutex_.unlock();
+
 	if (total_spikes_[tetr] == 0) {
 		Log("ERROR: No spikes collected for KDE. Exiting. Tetrode = ", tetr);
 		// because this is the child thread
@@ -1067,7 +1076,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		}
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if (std::isnan<float>(buffer->positions_buf_[n].x_pos())
+		if (std::isnan(buffer->positions_buf_[n].x_pos())
 				|| buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
 			continue;
 		}
@@ -1183,6 +1192,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 	kde_mutex_.lock();
 	n_pf_built_++;
+	kde_jobs_running_ --;
 	kde_mutex_.unlock();
 
 	if (n_pf_built_ == tetr_info_->tetrodes_number()) {
