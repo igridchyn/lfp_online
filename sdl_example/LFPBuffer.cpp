@@ -244,6 +244,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
 , FR_ESTIMATE_DELAY(config->getInt("kd.frest.delay"))
+, REWIND_GUARD(config->getInt("buf.rewind.guard", 1000000))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -688,18 +689,8 @@ void LFPBuffer::FreeExtraFeaturePointerMemory(Spike* spike) {
 }
 
 void LFPBuffer::Rewind() {
-	// DEBUG
-	if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
-			(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
-		if (head_start_ != spike_buffer_[0]){
-			Log("Buffer abused before rewind - HEAD!");
-			if (spike_buffer_[0] == (Spike*)0xb74edb){
-				Log("0xb74edb");
-			}
-		}
-		else{
-			Log("Buffer abused before rewind - TAIL!");
-		}
+	if (last_pkg_id < REWIND_GUARD){
+		Log("ERROR: buffer rewind happened before the guarded time. Increase buffer size or adjust other parameters (e.g. detection threshold");
 	}
 
 	// exchange head and tail1

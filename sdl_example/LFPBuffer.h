@@ -361,6 +361,8 @@ public:
 
 	std::string timestamp_ = "";
 
+	const unsigned int REWIND_GUARD = 0;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);
