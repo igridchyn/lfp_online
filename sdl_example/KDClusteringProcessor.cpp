@@ -183,7 +183,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				(Utils::Logger*) this);
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
-		std::vector<std::thread*> load_threads;
 		for (unsigned int t = 0; t < tetrn; ++t) {
 			load_laxs_tetrode(t);
 		}
