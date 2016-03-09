@@ -108,13 +108,16 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getFloat("kd.swr.compression.factor", 5.0)), pred_dump_(
 				buf->config_->getBool("kd.pred.dump", false)), pred_dump_pref_(
 				buf->config_->getOutPath("kd.pred.dump.pref", "pred_")), spike_buf_pos_pred_start_(
-				buffer->spike_buf_pos_pred_start_), prediction_window_spike_number_(
-				buffer->config_->getInt("kd.fixed.spike.number")), prediction_windows_overlap_(
-				buffer->config_->getInt(
+				buf->spike_buf_pos_pred_start_), prediction_window_spike_number_(
+				buf->config_->getInt("kd.fixed.spike.number")), prediction_windows_overlap_(
+				buf->config_->getInt(
 						"kd.prediction.windows.overlap.percentage")
 						* prediction_window_spike_number_ / 100), BINARY_CLASSIFIER(
-				buffer->config_->getBool("kd.binary", false)), MAX_KDE_JOBS(
-				buffer->config_->getInt("kd.max.jobs", 5))
+				buf->config_->getBool("kd.binary", false)), MAX_KDE_JOBS(
+				buf->config_->getInt("kd.max.jobs", 5)), sr_path_(
+				buf->config_->getString("out.path.base") + buf->config_->getString("kd.sr.path", "sampling_rates.txt")), sr_save_(
+				buf->config_->getBool("kd.sr.save", false)), sr_load_(
+				buf->config_->getBool("kd.sr.load", false))
 	{
 
 	Log("Construction started");
@@ -259,6 +262,17 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	neighbour_dists_.resize(neighb_num_);
 	neighbour_inds_.resize(neighb_num_);
+
+	if (sr_load_){
+		std::ifstream fsrs(sr_path_);
+		for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
+			unsigned int sr;
+			fsrs >> sr;
+			tetrode_sampling_rates_.push_back(sr);
+		}
+
+		Log("Loaded sampling rates");
+	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -585,6 +599,15 @@ void KDClusteringProcessor::process() {
 					ss << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 					Log(ss.str());
 				}
+
+				// write sampling rates to file
+				if (sr_save_){
+					std::ofstream fsampling_rates(sr_path_);
+					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+						fsampling_rates << tetrode_sampling_rates_[t] << "\n";
+					}
+				}
+
 			} else {
 				break;
 			}
