@@ -579,17 +579,10 @@ void KDClusteringProcessor::process() {
 							buffer->input_duration_) - SAMPLING_DELAY)
 							/ buffer->SAMPLING_RATE;
 					std::stringstream ss;
-					ss << "Estimated remaining data duration: "
-							<< est_sec_left / 60 << " min, "
-							<< est_sec_left % 60 << " sec\n";
+					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					tetrode_sampling_rates_.push_back(
-							std::max<int>(0,
-									(int) round(
-											est_sec_left
-													* buffer->fr_estimates_[t]
-													/ MIN_SPIKES) - 1));
-					ss << "\t sampling rate (with speed thold) set to: "
-							<< tetrode_sampling_rates_[t] << "\n";
+							std::max<int>(0, (int) round( est_sec_left * buffer->fr_estimates_[t] / MIN_SPIKES) - 1));
+					ss << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 					Log(ss.str());
 				}
 			} else {
@@ -616,13 +609,10 @@ void KDClusteringProcessor::process() {
 			// to start prediction only after all PFs are available
 			last_pred_pkg_id_ = spike->pkg_id_;
 
-			if ((total_spikes_[tetr] >= MIN_SPIKES && RUN_KDE_ON_MIN_COLLECTED)
-					|| buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER
-					|| last_pred_pkg_id_ > SAMPLING_END) {
+			if ((total_spikes_[tetr] >= MIN_SPIKES && RUN_KDE_ON_MIN_COLLECTED) || buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER || last_pred_pkg_id_ > SAMPLING_END) {
 				// build the kd-tree and call kNN for all points, cache indices (unsigned short ??) in the array of pointers to spikes
 
-				if (last_pred_pkg_id_ > SAMPLING_END
-						&& !sampling_end_reached_reported_) {
+				if (last_pred_pkg_id_ > SAMPLING_END && !sampling_end_reached_reported_) {
 					sampling_end_reached_reported_ = true;
 					Log("Sampling end reached : ", SAMPLING_END);
 				}
@@ -633,34 +623,22 @@ void KDClusteringProcessor::process() {
 					// SHOULD BE DONE IN THE SAME PROCESS, AS KD Search is not parallel
 					// dump required data and start process (due to non-thread-safety of ANN)
 					// build tree and dump it along with points
-					buffer->log_string_stream_ << "t " << tetr
-							<< ": build kd-tree for tetrode " << tetr << ", "
-							<< n_pf_built_ << " / "
-							<< tetr_info_->tetrodes_number() << " finished... ";
-					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr],
-							total_spikes_[tetr], nfeat);
-					buffer->log_string_stream_ << "done\nt " << tetr
-							<< ": cache " << NN_K
-							<< " nearest neighbours for each spike in tetrode "
-							<< tetr << " (in a separate thread)...\n";
+					buffer->log_string_stream_ << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number() << " finished... ";
+					kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], nfeat);
+					buffer->log_string_stream_ << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 					buffer->Log();
 
 					Log("Number of KDE jobs before starting a new one: ", kde_jobs_running_);
 
 					fitting_jobs_running_[tetr] = true;
-					fitting_jobs_[tetr] = new std::thread(
-							&KDClusteringProcessor::build_lax_and_tree_separate,
-							this, tetr);
+					fitting_jobs_[tetr] = new std::thread( &KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
 				}
 			} else {
 
 				if (use_intervals_) {
 					// if after current interval -> advance interval pointer
-					if (current_interval_ < interval_starts_.size()
-							&& spike->pkg_id_
-									> interval_ends_[current_interval_]) {
-						Log("Advance to next interval with spike at ",
-								spike->pkg_id_);
+					if (current_interval_ < interval_starts_.size() && spike->pkg_id_ > interval_ends_[current_interval_]) {
+						Log("Advance to next interval with spike at ", spike->pkg_id_);
 						current_interval_++;
 					}
 
@@ -686,26 +664,21 @@ void KDClusteringProcessor::process() {
 
 				// copy features and coords to ann_points_int and obs_mats
 				for (unsigned int fet = 0; fet < nfeat; ++fet) {
-					ann_points_[tetr][total_spikes_[tetr]][fet] =
-							spike->pc[fet];
+					ann_points_[tetr][total_spikes_[tetr]][fet] = spike->pc[fet];
 					obs_mats_[tetr](total_spikes_[tetr], fet) = spike->pc[fet];
 				}
 
 				if (!Utils::Math::isnan(spike->x)) {
 					if (BINARY_CLASSIFIER) {
-						obs_mats_[tetr](total_spikes_[tetr], nfeat) =
-								spike->x > 140 ? 1.5 : 0.5;
+						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x > 140 ? 1.5 : 0.5;
 						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 0.5;
 					} else {
 						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
-						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) =
-								spike->y;
+						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
 					}
 				} else {
-					obs_mats_[tetr](total_spikes_[tetr], nfeat) =
-							buffer->pos_unknown_;
-					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) =
-							buffer->pos_unknown_;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat) = buffer->pos_unknown_;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = buffer->pos_unknown_;
 				}
 
 				total_spikes_[tetr]++;
@@ -732,49 +705,34 @@ void KDClusteringProcessor::process() {
 			}
 
 			// prediction only after reaching delay (place field stability, cross-validation etc.)
-			if (buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_
-					< PREDICTION_DELAY) {
+			if (buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_ < PREDICTION_DELAY) {
 				spike_buf_pos_clust_++;
 				continue;
 			} else if (!prediction_delay_reached_reported) {
-				buffer->log_string_stream_ << "Prediction delay over ("
-						<< PREDICTION_DELAY << ").\n";
+				buffer->log_string_stream_ << "Prediction delay over (" << PREDICTION_DELAY << ").\n";
 				buffer->Log();
 				prediction_delay_reached_reported = true;
 
 				last_pred_pkg_id_ = PREDICTION_DELAY;
-				buffer->last_preidction_window_ends_[processor_number_] =
-						PREDICTION_DELAY;
+				buffer->last_preidction_window_ends_[processor_number_] = PREDICTION_DELAY;
 			}
 
 			// also rewind SWRs
-			while (swr_pointer_ < buffer->swrs_.size()
-					&& buffer->swrs_[swr_pointer_][2] < PREDICTION_DELAY) {
+			while (swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][2] < PREDICTION_DELAY) {
 				swr_pointer_++;
 			}
 
 			// check if NEW swr was detected and has to switch to the SWR regime
 			if (SWR_SWITCH) {
-				if (!swr_regime_ && swr_pointer_ < buffer->swrs_.size()
-						&& buffer->swrs_[swr_pointer_][0]
-								!= last_processed_swr_start_) {
+				if (!swr_regime_ && swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][0] != last_processed_swr_start_) {
 					//DEBUG
-					buffer->log_string_stream_
-							<< "Switch to SWR prediction regime due to SWR detected at "
-							<< buffer->swrs_[swr_pointer_][0]
-							<< ", SWR length = "
-							<< (buffer->swrs_[swr_pointer_][2]
-									- buffer->swrs_[swr_pointer_][0]) * 1000
-									/ buffer->SAMPLING_RATE << " ms\n";
+					buffer->log_string_stream_ << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_[swr_pointer_][0] << ", SWR length = "
+							<< (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]) * 1000 / buffer->SAMPLING_RATE << " ms\n";
 					buffer->Log();
 
 					swr_regime_ = true;
 
-					PRED_WIN =
-							SWR_PRED_WIN > 0 ?
-									SWR_PRED_WIN :
-									(buffer->swrs_[swr_pointer_][2]
-											- buffer->swrs_[swr_pointer_][0]);
+					PRED_WIN = SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]);
 
 					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
 					last_processed_swr_start_ = buffer->swrs_[swr_pointer_][0];
@@ -782,17 +740,14 @@ void KDClusteringProcessor::process() {
 					// the following is required due to different possible order of SWR detection / spike processing
 
 					// if spikes have been processed before SWR detection - rewind until the first spike in the SW
-					while (spike_buf_pos_clust_ > 0 && spike != nullptr
-							&& spike->pkg_id_ > last_pred_pkg_id_) {
+					while (spike_buf_pos_clust_ > 0 && spike != nullptr && spike->pkg_id_ > last_pred_pkg_id_) {
 						spike_buf_pos_clust_--;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 
 					// !!! if spikes have not been processed yet - rewind until the first spieks in the SWR
-					while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_
-							&& spike != nullptr
-							&& spike->pkg_id_ < last_pred_pkg_id_) {
+					while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ && spike != nullptr && spike->pkg_id_ < last_pred_pkg_id_) {
 						spike_buf_pos_clust_++;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
@@ -813,12 +768,9 @@ void KDClusteringProcessor::process() {
 				}
 
 				// end SWR regime if the SWR is over
-				if (swr_regime_
-						&& last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][2]) {
+				if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][2]) {
 					// DEBUG
-					buffer->Log(
-							"Switch to theta prediction regime due to end of SWR at ",
-							(int) buffer->swrs_[swr_pointer_][2]);
+					buffer->Log( "Switch to theta prediction regime due to end of SWR at ", (int) buffer->swrs_[swr_pointer_][2]);
 					swr_regime_ = false;
 					PRED_WIN = THETA_PRED_WIN;
 
@@ -839,11 +791,9 @@ void KDClusteringProcessor::process() {
 					break;
 				}
 
-				const unsigned int stetr = tetr_info_->Translate(
-						buffer->tetr_info_, spike->tetrode_);
+				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
 
-				if (stetr == TetrodesInfo::INVALID_TETRODE
-						|| spike->discarded_) {
+				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_) {
 					spike_buf_pos_clust_++;
 					continue;
 				}
@@ -863,14 +813,12 @@ void KDClusteringProcessor::process() {
 				// PROFILE
 //				time_t kds = clock();
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
-				kdtrees_[stetr]->annkSearch(pnt_, neighb_num_,
-						&neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
+				kdtrees_[stetr]->annkSearch(pnt_, neighb_num_, &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
 
 				// add 'place field' of the spike with the closest wave shape
 				if (neighb_num_ > 1) {
 					for (unsigned int i = 0; i < neighb_num_; ++i) {
-						pos_pred_ += 1 / float(neighb_num_)
-								* laxs_[stetr][neighbour_inds_[i]];
+						pos_pred_ += 1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
 					}
 				} else {
 					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
@@ -880,10 +828,7 @@ void KDClusteringProcessor::process() {
 				// TODO: from window start if the spike was first
 				if (continuous_prediction_) {
 					// from last spike at the current tetrode
-					const double DE_SEC = (spike->pkg_id_
-							- last_spike_pkg_ids_by_tetrode_[stetr])
-							/ (float) buffer->SAMPLING_RATE
-							* (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
+					const double DE_SEC = (spike->pkg_id_ - last_spike_pkg_ids_by_tetrode_[stetr]) / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
 					// !!! TODO !!!
 					pos_pred_ -= DE_SEC * lxs_[stetr];
 
@@ -892,8 +837,7 @@ void KDClusteringProcessor::process() {
 //					buffer->last_predictions_[processor_number_] = arma::exp(pos_pred_ / display_scale_);
 
 					// DEBUG
-					buffer->CheckPkgIdAndReportTime(spike->pkg_id_,
-							"Prediction ready\n");
+					buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Prediction ready\n");
 				}
 
 				last_spike_pkg_ids_by_tetrode_[stetr] = spike->pkg_id_;
@@ -902,28 +846,18 @@ void KDClusteringProcessor::process() {
 				// spike may be without speed (the last one) - but it's not crucial
 
 				// workaround : if spike number is reached, set PRED_WIN to finish the prediction
-				if (prediction_window_spike_number_ > 0
-						&& spike_buf_pos_clust_ - spike_buf_pos_pred_start_
-								>= prediction_window_spike_number_) {
+				if (prediction_window_spike_number_ > 0 && spike_buf_pos_clust_ - spike_buf_pos_pred_start_ >= prediction_window_spike_number_) {
 					PRED_WIN = spike->pkg_id_ - last_pred_pkg_id_;
 					// DEBUG
-					buffer->log_string_stream_ << "Reached number of spikes of "
-							<< prediction_window_spike_number_ << " after "
-							<< PRED_WIN * 1000 / buffer->SAMPLING_RATE
-							<< " ms from prediction start\n"
-							<< "new PRED_WIN = " << PRED_WIN
-							<< " (last_pred_pkg_id = " << last_pred_pkg_id_
-							<< ")\n";
+					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
+							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
 					buffer->Log();
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 				}
 			}
 
 			// if have to wait until the speed estimate
-			if (WAIT_FOR_SPEED_EST
-					&& (unsigned int) (last_pred_pkg_id_
-							/ (float) POS_SAMPLING_RATE)
-							>= buffer->pos_buf_pos_speed_est) {
+			if (WAIT_FOR_SPEED_EST && (unsigned int) (last_pred_pkg_id_ / (float) POS_SAMPLING_RATE) >= buffer->pos_buf_pos_speed_est) {
 				return;
 			}
 
@@ -932,13 +866,11 @@ void KDClusteringProcessor::process() {
 			if (spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN) {
 
 				// DEBUG
-				buffer->CheckPkgIdAndReportTime(spike->pkg_id_,
-						"Time from after package extraction until arrival in KD at the prediction start\n");
+				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in KD at the prediction start\n");
 
 				// edges of the window
 				// account for the increase in the firing rate during high synchrony with additional factor
-				const double DE_SEC = PRED_WIN / (float) buffer->SAMPLING_RATE
-						* (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
+				const double DE_SEC = PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
 
 				if (!continuous_prediction_) {
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
@@ -965,19 +897,16 @@ void KDClusteringProcessor::process() {
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG
-				buffer->CheckPkgIdAndReportTime(spike->pkg_id_,
-						"Time from after package extraction until prediction for the window ready\n");
+				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until prediction for the window ready\n");
 
 				// updated in HMM
 				buffer->last_predictions_[processor_number_] = pos_pred_;
-				buffer->last_preidction_window_ends_[processor_number_] =
-						last_pred_pkg_id_ + PRED_WIN;
+				buffer->last_preidction_window_ends_[processor_number_] = last_pred_pkg_id_ + PRED_WIN;
 
 				last_pred_pkg_id_ += PRED_WIN;
 
 				// re-init prediction variables
-				tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number(),
-						false);
+				tetr_spiked_ = std::vector<bool>(tetr_info_->tetrodes_number(), false);
 
 				if (USE_HMM)
 					update_hmm_prediction();
@@ -985,10 +914,7 @@ void KDClusteringProcessor::process() {
 				validate_prediction_window_bias();
 
 				// TODO ? WHY for every tetrode ?
-				pos_pred_ =
-						USE_PRIOR ?
-								(tetr_info_->tetrodes_number() * pix_log_) :
-								arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
+				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)
@@ -1002,29 +928,20 @@ void KDClusteringProcessor::process() {
 				}
 
 				// rewind back to get predictions of the overlapping windows
-				if (swr_regime_ && prediction_windows_overlap_ > 0
-						&& (spike_buf_pos_clust_
-								>= prediction_windows_overlap_
-										+ buffer->SPIKE_BUF_HEAD_LEN)) {
+				if (swr_regime_ && prediction_windows_overlap_ > 0 && (spike_buf_pos_clust_ >= prediction_windows_overlap_ + buffer->SPIKE_BUF_HEAD_LEN)) {
 					spike_buf_pos_clust_ -= prediction_windows_overlap_;
 					// find first good spike
-					while ((spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_)
-							&& (buffer->spike_buffer_[spike_buf_pos_clust_]->discarded_
-									|| !buffer->spike_buffer_[spike_buf_pos_clust_]->aligned_))
+					while ((spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) && (buffer->spike_buffer_[spike_buf_pos_clust_]->discarded_ || !buffer->spike_buffer_[spike_buf_pos_clust_]->aligned_))
 						spike_buf_pos_clust_++;
 
-					last_pred_pkg_id_ =
-							buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_;
+					last_pred_pkg_id_ = buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_;
 
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 
 					// DEBUG
-					Log("Rewind to get overlapping windows until position: ",
-							spike_buf_pos_clust_);
-					Log("	Update last_pred_pkg_id : ",
-							buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_);
-					Log("	Update spike_buf_pos_pred_start_ : ",
-							spike_buf_pos_pred_start_);
+					Log("Rewind to get overlapping windows until position: ", spike_buf_pos_clust_);
+					Log("	Update last_pred_pkg_id : ", buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_);
+					Log("	Update spike_buf_pos_pred_start_ : ", spike_buf_pos_pred_start_);
 				}
 
 				return;
@@ -1051,15 +968,13 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		exit(564879);
 	}
 
-	std::ofstream kdstream(
-			BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
+	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
 	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
 	kdstream.close();
 
 	// dump obs_mat
 	obs_mats_[tetr].resize(total_spikes_[tetr], obs_mats_[tetr].n_cols);
-	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat",
-			arma::raw_ascii);
+	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat", arma::raw_ascii);
 
 	// free resources
 	obs_mats_[tetr].clear();
@@ -1076,8 +991,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		}
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if (Utils::Math::isnan(buffer->positions_buf_[n].x_pos())
-				|| buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
+		if (Utils::Math::isnan(buffer->positions_buf_[n].x_pos()) || buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
 			continue;
 		}
 
@@ -1085,8 +999,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		if (use_intervals_) {
 			// TODO account for buffer rewinds
 			unsigned int pos_time = POS_SAMPLING_RATE * n;
-			while (pos_interval < interval_starts_.size()
-					&& pos_time > interval_ends_[pos_interval]) {
+			while (pos_interval < interval_starts_.size() && pos_time > interval_ends_[pos_interval]) {
 				pos_interval++;
 			}
 
@@ -1100,10 +1013,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		}
 
 		if (BINARY_CLASSIFIER) {
-			pos_buf(0, npoints) =
-					buffer->positions_buf_[n].x_pos() > 140 ? 1.5 : 0.5;
+			pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos() > 140 ? 1.5 : 0.5;
 			pos_buf(1, npoints) = 0.5;
-			;
 		} else {
 			pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos();
 			pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
@@ -1125,8 +1036,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	Log("Number of pos samples: ", npoints);
 
 	pos_buf = pos_buf.cols(0, npoints - 1);
-	pos_buf.save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat",
-			arma::raw_ascii);
+	pos_buf.save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat", arma::raw_ascii);
 
 	unsigned int last_pkg_id = buffer->last_pkg_id;
 	// if using intervals, provide sum of interval lengths until last_pkg_id
@@ -1136,8 +1046,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 			last_pkg_id += interval_ends_[i] - interval_starts_[i];
 		}
 		if (current_interval_ < interval_starts_.size()) // && buffer->last_pkg_id < interval_ends_[current_interval_])
-			last_pkg_id += buffer->last_pkg_id
-					- interval_starts_[current_interval_];
+			last_pkg_id += buffer->last_pkg_id - interval_starts_[current_interval_];
 
 		Log("Due to interval usage, calling KDE with ", (int) last_pkg_id);
 		Log("	while the real last_pkg_id is ", (int) buffer->last_pkg_id);
@@ -1145,46 +1054,30 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 	// find last pkg id for each tetrode
 	unsigned int tspikepos = buffer->spike_buf_pos - 1;
-	while (tspikepos > 0
-			&& (buffer->spike_buffer_[tspikepos] == nullptr
-					|| buffer->spike_buffer_[tspikepos]->tetrode_ != (int) tetr)) {
+	while (tspikepos > 0 && (buffer->spike_buffer_[tspikepos] == nullptr || buffer->spike_buffer_[tspikepos]->tetrode_ != (int) tetr)) {
 		tspikepos--;
 	}
 	if (tspikepos > 0 && buffer->spike_buffer_[tspikepos] != nullptr)
 		last_pkg_id = buffer->spike_buffer_[tspikepos]->pkg_id_;
 
 	// change in calculated firing rate due to speed-filtered out spikes : <predicted rate based on not speed-filtered spikes> / <actual rate in the sampling period>
-	double effective_rate_factor = buffer->fr_estimates_[tetr]
-			* (last_pkg_id - SAMPLING_DELAY)
-			/ double(
-					buffer->SAMPLING_RATE * total_spikes_[tetr]
-							* (tetrode_sampling_rates_[tetr] + 1));
+	double effective_rate_factor = buffer->fr_estimates_[tetr] * (last_pkg_id - SAMPLING_DELAY) / double( buffer->SAMPLING_RATE * total_spikes_[tetr] * (tetrode_sampling_rates_[tetr] + 1));
 	Log("Effective rate factor: ", effective_rate_factor);
 
 	// build commandline to start kde_estimator
 	std::ostringstream os;
 	const unsigned int nfeat = buffer->feature_space_dims_[tetr];
-	os << kde_path_ << " " << tetr << " " << nfeat << " " << NN_K << " "
-			<< NN_K_COORDS << " " << nfeat << " " << MULT_INT << " " << NBINSX
-			<< " " << NBINSY << " " << total_spikes_[tetr] << " "
-			<< buffer->SAMPLING_RATE << " " << last_pkg_id << " "
-			<< SAMPLING_DELAY << " "
-			<< effective_rate_factor * (tetrode_sampling_rates_[tetr] + 1)
-			<< " " << BIN_SIZE << " " << NN_EPS << " " << SIGMA_X << " "
-			<< SIGMA_A << " " << SIGMA_XX << " "
-			<< SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " "
+	os << kde_path_ << " " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " << MULT_INT << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " "
+			<< SAMPLING_DELAY << " " << effective_rate_factor * (tetrode_sampling_rates_[tetr] + 1) << " " << BIN_SIZE << " " << NN_EPS << " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " "
 			<< SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;
-	buffer->log_string_stream_ << "t " << tetr
-			<< ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t"
-			<< os.str() << "\n";
+	buffer->log_string_stream_ << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";
 	buffer->Log();
 
 	int retval = system(os.str().c_str());
 	if (retval < 0) {
 		buffer->Log("ERROR: impossible to start kde_estimator!");
 	} else {
-		buffer->log_string_stream_ << "t " << tetr
-				<< ": kde estimator exited with code " << retval << "\n";
+		buffer->log_string_stream_ << "t " << tetr << ": kde estimator exited with code " << retval << "\n";
 		buffer->Log();
 	}
 
