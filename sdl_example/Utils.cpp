@@ -66,7 +66,7 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
 bool Utils::Math::isnan(float f){
 #ifdef _WIN32
 	return std::isnan<float>(f);
-#elif
+#else
 	return std::isnan(f);
 #endif
 }
