@@ -78,8 +78,8 @@ public:
 
 public:
 
-	float x_pos();
-	float y_pos();
+	float x_pos() const;
+	float y_pos() const;
 
 	SpatialInfo();
 	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb);
@@ -362,6 +362,9 @@ public:
 	std::string timestamp_ = "";
 
 	const unsigned int REWIND_GUARD = 0;
+	SpatialInfo* tmp_pos_buf_ = nullptr;
+	unsigned int pos_rewind_shift = 0;
+	const unsigned int POS_SAMPLING_RATE;
 
 	//====================================================================================================
 
@@ -437,6 +440,12 @@ public:
 	void add_data(unsigned char* new_data, size_t data_size);
 
 	void estimate_firing_rates();
+
+	void AdvancePositionBufferPointer();
+
+	const SpatialInfo& PositionAt(const unsigned int& pkg_id);
+	const unsigned int PositionIndexByPacakgeId(const unsigned int& pkg_id);
+	const unsigned int PacakgeIdByPositionIndex(const unsigned int& pos_index);
 };
 
 template<class T>

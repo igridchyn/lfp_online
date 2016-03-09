@@ -51,7 +51,7 @@ void WhlFileReaderProcessor::process(){
 		}
 
 		pos_rec.pkg_id_ = last_pos_pkg_id_;
-		buffer->pos_buf_pos_ ++;
+		buffer->AdvancePositionBufferPointer();
 	}
 }
 

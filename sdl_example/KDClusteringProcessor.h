@@ -84,8 +84,6 @@ class KDClusteringProcessor: public LFPProcessor {
 	//	to decrease number of neighbours, decrease the threshold above
 	unsigned int SPIKE_GRAPH_COVER_NNEIGHB = 1;
 
-	float POS_SAMPLING_RATE = .0f;
-
 	const unsigned int FR_ESTIMATE_DELAY;
 
 	float DUMP_SPEED_THOLD = .0;

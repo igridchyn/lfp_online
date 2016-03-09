@@ -132,8 +132,7 @@ void PackageExractorProcessor::process(){
     			}
     			buffer->positions_buf_[buffer->pos_buf_pos_].pkg_id_ = buffer->last_pkg_id + c;
 
-    			// TODO: !!! REWIND BUF POS HERE
-    			buffer->pos_buf_pos_++;
+    			buffer->AdvancePositionBufferPointer();
 
     			// TMPDEBUG
     			if (buffer->pos_buf_pos_ >= buffer->POS_BUF_LEN){

@@ -245,6 +245,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
 , FR_ESTIMATE_DELAY(config->getInt("kd.frest.delay"))
 , REWIND_GUARD(config->getInt("buf.rewind.guard", 1000000))
+, POS_SAMPLING_RATE(config->getInt("pos.sampling.rate", 480))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -279,6 +280,7 @@ LFPBuffer::LFPBuffer(Config* config)
 
     positions_buf_ = new SpatialInfo[POS_BUF_LEN];
     POS_BUF_HEAD_LEN = POS_BUF_LEN / 10;
+    tmp_pos_buf_ = new SpatialInfo[POS_BUF_HEAD_LEN];
 
     // allocate memory for waveshapes
     // TODO : allocate according to channels number tetrode-wise
@@ -623,11 +625,11 @@ float AverageLEDs(const float & smallLED, const float & bigLED, const bool & val
 	}
 }
 
-float SpatialInfo::x_pos() {
+float SpatialInfo::x_pos() const{
 	return AverageLEDs(x_small_LED_, x_big_LED_, valid);
 }
 
-float SpatialInfo::y_pos() {
+float SpatialInfo::y_pos() const{
 	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
 }
 
@@ -699,17 +701,6 @@ void LFPBuffer::Rewind() {
 	memcpy(spike_buffer_ + spike_buf_pos - SPIKE_BUF_HEAD_LEN, spike_buffer_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
 	memcpy(spike_buffer_, tmp_spike_buf_, sizeof(Spike*)*SPIKE_BUF_HEAD_LEN);
 
-	// DEBUG
-	if ((head_start_ != spike_buffer_[0] && head_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ||
-			(tail_start_ != spike_buffer_[0] && tail_start_ != spike_buffer_[SPIKE_BUF_LEN - SPIKE_BUF_HEAD_LEN]) ){
-		if (head_start_ != spike_buffer_[0]){
-			Log("Buffer abused after rewind - HEAD!");
-		}
-		else{
-			Log("Buffer abused after rewind - TAIL!");
-		}
-	}
-
 	//                    for (int del_spike = SPIKE_BUF_HEAD_LEN; del_spike < spike_buf_pos; ++del_spike) {
 	//                    	delete spike_buffer_[del_spike];
 	//                    	spike_buffer_[del_spike] = nullptr;
@@ -717,6 +708,7 @@ void LFPBuffer::Rewind() {
 
 	const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;
 
+	// TODO !!! warn if some pointers loose spikes !!!
 	spike_buf_no_rec -= std::min(shift_new_start, (int)spike_buf_no_rec);
 	spike_buf_nows_pos -= std::min(shift_new_start, (int)spike_buf_nows_pos);
 	spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
@@ -808,4 +800,46 @@ void LFPBuffer::estimate_firing_rates() {
 
 		fr_estimated_ = true;
 	}
+}
+
+void LFPBuffer::AdvancePositionBufferPointer(){
+	if (pos_buf_pos_ == POS_BUF_LEN - 1){
+		// REWIND
+		Log("Rewind pos buf pos at ", pos_buf_pos_);
+		Log("	With last_pkg_id at ", last_pkg_id);
+
+		// exchange head and tail1
+		memcpy(tmp_pos_buf_, positions_buf_ + pos_buf_pos_ - POS_BUF_HEAD_LEN, sizeof(SpatialInfo)*POS_BUF_HEAD_LEN);
+		// to reuse the same objects that are in the head
+		//memcpy(positions_buf_ + pos_buf_pos_ - POS_BUF_HEAD_LEN, positions_buf_, sizeof(Spike*)*POS_BUF_HEAD_LEN);
+		memset(positions_buf_, 0,  sizeof(SpatialInfo) * POS_BUF_LEN);
+		memcpy(positions_buf_, tmp_pos_buf_, sizeof(SpatialInfo)*POS_BUF_HEAD_LEN);
+
+		const int shift_new_start = pos_buf_pos_ - POS_BUF_HEAD_LEN;
+		pos_buf_disp_pos_ -= std::min(shift_new_start, (int)pos_buf_disp_pos_);
+		pos_buf_pos_speed_est -= std::min(shift_new_start, (int)pos_buf_pos_speed_est);
+		pos_buf_pos_spike_speed_ -= std::min(shift_new_start, (int)pos_buf_pos_spike_speed_);
+		pos_buf_pos_whl_writer_ -= std::min(shift_new_start, (int)pos_buf_pos_whl_writer_);
+		pos_buf_spike_pos_ -= std::min(shift_new_start, (int)pos_buf_spike_pos_);
+
+		pos_buf_pos_ = POS_BUF_HEAD_LEN;
+
+		pos_rewind_shift += POS_BUF_LEN - POS_BUF_HEAD_LEN;
+	}
+	else{
+		pos_buf_pos_ ++;
+	}
+}
+
+const SpatialInfo& LFPBuffer::PositionAt(const unsigned int& pkg_id){
+	return positions_buf_[PositionIndexByPacakgeId(pkg_id)];
+}
+
+const unsigned int LFPBuffer::PositionIndexByPacakgeId(const unsigned int& pkg_id){
+	const unsigned int abs_index = pkg_id / POS_SAMPLING_RATE;
+	return abs_index - pos_rewind_shift;
+}
+
+const unsigned int LFPBuffer::PacakgeIdByPositionIndex(const unsigned int& pos_index){
+	return (pos_index + pos_rewind_shift) * POS_SAMPLING_RATE;
 }

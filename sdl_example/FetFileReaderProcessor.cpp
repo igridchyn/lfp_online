@@ -741,9 +741,7 @@ void FetFileReaderProcessor::process() {
 			pos_entry->pkg_id_ = last_pos_pkg_id_;
 		}
 
-		buffer->pos_buf_pos_ ++;
-
-		// TODO !!! rewind
+		buffer->AdvancePositionBufferPointer();
 	}
 
 	while(last_spike_pkg_id - last_pkg_id_ < WINDOW_SIZE && num_files_with_spikes_ > 0){

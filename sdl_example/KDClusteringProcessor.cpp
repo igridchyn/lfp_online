@@ -95,8 +95,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.pred.win", 2000)), SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(
 				buf->config_->getFloat(
 						"kd.spike.graph.cover.distance.threshold", 0)), SPIKE_GRAPH_COVER_NNEIGHB(
-				buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)), POS_SAMPLING_RATE(
-				buf->config_->getFloat("pos.sampling.rate", 512.0)), FR_ESTIMATE_DELAY(
+				buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)), FR_ESTIMATE_DELAY(
 				buf->config_->getFloat("kd.frest.delay", 1000000)), DUMP_SPEED_THOLD(
 				buf->config_->getFloat("kd.dump.speed.thold", .0)), WAIT_FOR_SPEED_EST(
 				getBool("kd.wait.speed")), RUN_KDE_ON_MIN_COLLECTED(
@@ -372,10 +371,9 @@ void KDClusteringProcessor::update_hmm_prediction() {
 //	hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 
 	// STATS - write error of Bayesian and HMM, compare to pos in the middle of the window
-	int ind = (int) round(
-			(last_pred_pkg_id_ - PRED_WIN / 2) / (float) POS_SAMPLING_RATE);
-	float corrx = buffer->positions_buf_[ind].x_pos();
-	float corry = buffer->positions_buf_[ind].y_pos();
+	const SpatialInfo& gt_pos = buffer->PositionAt(last_pred_pkg_id_ - PRED_WIN / 2);
+	float corrx = gt_pos.x_pos();
+	float corry = gt_pos.y_pos();
 
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > DUMP_DELAY) {
@@ -390,10 +388,9 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		while (t >= 0) {
 			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5)
 					<< " ";
-			int posind = (int) ((t * PRED_WIN + PREDICTION_DELAY)
-					/ (float) POS_SAMPLING_RATE);
-			corrx = buffer->positions_buf_[posind].x_pos();
-			corry = buffer->positions_buf_[posind].y_pos();
+			const SpatialInfo& gt_pos = buffer->PositionAt(t * PRED_WIN + PREDICTION_DELAY);
+			corrx = gt_pos.x_pos();
+			corry = gt_pos.y_pos();
 			dec_hmm << corrx << " " << corry << "\n";
 			unsigned int b = hmm_traj_[y * NBINSX + x][t];
 
@@ -446,10 +443,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 
 		unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
 
-		// !!! WORKAROUND - WOULDN'T WORK WITH THE REWIND
-		SpatialInfo &pose =
-				buffer->positions_buf_[(unsigned int) (last_pred_pkg_id_
-						/ (float) POS_SAMPLING_RATE)];
+		const SpatialInfo &pose = buffer->PositionAt(last_pred_pkg_id_);
 		gtx = pose.x_pos();
 		gty = pose.y_pos();
 
@@ -461,9 +455,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 
 		if (pose.speed_ >= DUMP_SPEED_THOLD) {
 			double mult = BINARY_CLASSIFIER ? 100 : 1.0;
-			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " "
-					<< BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty
-					<< "\n";
+			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << "\n";
 			dec_bayesian_.flush();
 		}
 	}
@@ -880,7 +872,8 @@ void KDClusteringProcessor::process() {
 			}
 
 			// if have to wait until the speed estimate
-			if (WAIT_FOR_SPEED_EST && (unsigned int) (last_pred_pkg_id_ / (float) POS_SAMPLING_RATE) >= buffer->pos_buf_pos_speed_est) {
+			// TODO !!! VALIDATE THIS
+			if (WAIT_FOR_SPEED_EST &&  buffer->pos_buf_pos_speed_est <= buffer->PositionIndexByPacakgeId(last_pred_pkg_id_)){
 				return;
 			}
 
@@ -1020,8 +1013,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 		// skip if out of the intervals
 		if (use_intervals_) {
-			// TODO account for buffer rewinds
-			unsigned int pos_time = POS_SAMPLING_RATE * n;
+			unsigned int pos_time = buffer->PacakgeIdByPositionIndex(n);
 			while (pos_interval < interval_starts_.size() && pos_time > interval_ends_[pos_interval]) {
 				pos_interval++;
 			}
