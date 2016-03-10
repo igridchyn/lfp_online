@@ -49,6 +49,8 @@
 		B096A1AF19116E6200846EBD /* PositionDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B096A1AD19116E6200846EBD /* PositionDisplayProcessor.cpp */; };
 		B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */; };
 		B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */; };
+		B0AB70521C9169C200FC77D6 /* FiringRateEstimatorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0AB704D1C9169C200FC77D6 /* FiringRateEstimatorProcessor.cpp */; };
+		B0AB70531C9169C200FC77D6 /* ParallelPipelineProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0AB70501C9169C200FC77D6 /* ParallelPipelineProcessor.cpp */; };
 		B0C023B31940747700778F00 /* PackageExractorProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B11940747700778F00 /* PackageExractorProcessor.cpp */; };
 		B0C023B6194074DA00778F00 /* SDLControlInputMetaProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B4194074DA00778F00 /* SDLControlInputMetaProcessor.cpp */; };
 		B0C023B91940750700778F00 /* SDLSingleWindowDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0C023B71940750700778F00 /* SDLSingleWindowDisplay.cpp */; };
@@ -147,6 +149,11 @@
 		B096A1AE19116E6200846EBD /* PositionDisplayProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositionDisplayProcessor.h; sourceTree = "<group>"; };
 		B0A0A73B191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrequencyPowerBandProcessor.cpp; sourceTree = "<group>"; };
 		B0A0A73E1920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLWaveshapeDisplayProcessor.cpp; sourceTree = "<group>"; };
+		B0AB704D1C9169C200FC77D6 /* FiringRateEstimatorProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FiringRateEstimatorProcessor.cpp; sourceTree = "<group>"; };
+		B0AB704E1C9169C200FC77D6 /* FiringRateEstimatorProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiringRateEstimatorProcessor.h; sourceTree = "<group>"; };
+		B0AB704F1C9169C200FC77D6 /* PackageExtractorProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PackageExtractorProcessor.h; sourceTree = "<group>"; };
+		B0AB70501C9169C200FC77D6 /* ParallelPipelineProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParallelPipelineProcessor.cpp; sourceTree = "<group>"; };
+		B0AB70511C9169C200FC77D6 /* ParallelPipelineProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParallelPipelineProcessor.h; sourceTree = "<group>"; };
 		B0C023A4193F33C100778F00 /* PlaceFieldProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceFieldProcessor.h; sourceTree = "<group>"; };
 		B0C023A5193F33E900778F00 /* GMMClusteringProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GMMClusteringProcessor.h; sourceTree = "<group>"; };
 		B0C023A6193F341A00778F00 /* SDLPCADisplayProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDLPCADisplayProcessor.h; sourceTree = "<group>"; };
@@ -217,6 +224,11 @@
 		B052743C18A9375500193EAA /* sdl_example */ = {
 			isa = PBXGroup;
 			children = (
+				B0AB704D1C9169C200FC77D6 /* FiringRateEstimatorProcessor.cpp */,
+				B0AB704E1C9169C200FC77D6 /* FiringRateEstimatorProcessor.h */,
+				B0AB704F1C9169C200FC77D6 /* PackageExtractorProcessor.h */,
+				B0AB70501C9169C200FC77D6 /* ParallelPipelineProcessor.cpp */,
+				B0AB70511C9169C200FC77D6 /* ParallelPipelineProcessor.h */,
 				B0877A1B1A96376B00CC7422 /* Utils.cpp */,
 				B01A32011A305230004CC713 /* FetFileWriterProcessor.cpp */,
 				B049D23419E8846700CC0DC3 /* LFPBuffer.cpp */,
@@ -385,7 +397,9 @@
 				B0611B74193CDF600066583E /* PlaceFieldProcessor.cpp in Sources */,
 				B087CAA719862D7100FC5E01 /* KDClusteringProcessor.cpp in Sources */,
 				B0797C5B1918E65500C1328D /* OnlineEstimator.cpp in Sources */,
+				B0AB70521C9169C200FC77D6 /* FiringRateEstimatorProcessor.cpp in Sources */,
 				B087CAA819862D7100FC5E01 /* SlowDownProcessor.cpp in Sources */,
+				B0AB70531C9169C200FC77D6 /* ParallelPipelineProcessor.cpp in Sources */,
 				B0A0A7401920A2DE00CC04CC /* SDLWaveshapeDisplayProcessor.cpp in Sources */,
 				B0797C581918E41000C1328D /* SpikeDetectorProcessor.cpp in Sources */,
 				B0A0A73D191CE41500CC04CC /* FrequencyPowerBandProcessor.cpp in Sources */,
