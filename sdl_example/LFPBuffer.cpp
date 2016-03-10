@@ -614,10 +614,10 @@ float AverageLEDs(const float & smallLED, const float & bigLED, const bool & val
 	if (!valid)
 		return nanf("");
 
-	if (Utils::Math::isnan(smallLED)){
+	if (Utils::Math::Isnan(smallLED)){
 		return bigLED;
 	}
-	else if (Utils::Math::isnan(bigLED)){
+	else if (Utils::Math::Isnan(bigLED)){
 		return smallLED;
 	}
 	else{

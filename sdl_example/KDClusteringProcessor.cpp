@@ -447,7 +447,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 		gty = pose.y_pos();
 
 		// for output need non-nan value
-		if (Utils::Math::isnan(gtx)) {
+		if (Utils::Math::Isnan(gtx)) {
 			gtx = buffer->pos_unknown_;
 			gty = buffer->pos_unknown_;
 		}
@@ -682,7 +682,7 @@ void KDClusteringProcessor::process() {
 					obs_mats_[tetr](total_spikes_[tetr], fet) = spike->pc[fet];
 				}
 
-				if (!Utils::Math::isnan(spike->x)) {
+				if (!Utils::Math::Isnan(spike->x)) {
 					if (BINARY_CLASSIFIER) {
 						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x > 140 ? 1.5 : 0.5;
 						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 0.5;
@@ -1006,7 +1006,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		}
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if (Utils::Math::isnan(buffer->positions_buf_[n].x_pos()) || buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
+		if (Utils::Math::Isnan(buffer->positions_buf_[n].x_pos()) || buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
 			continue;
 		}
 

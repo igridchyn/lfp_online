@@ -63,11 +63,11 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
     return merged;
 }
 
-bool Utils::Math::isnan(float f){
+bool Utils::Math::Isnan(float f){
 #ifdef _WIN32
 	return std::isnan<float>(f);
 #else
-	return std::isnan(f);
+	return isnan(f);
 #endif
 }
 

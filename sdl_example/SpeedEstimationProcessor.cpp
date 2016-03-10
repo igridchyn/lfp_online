@@ -41,7 +41,7 @@ void SpeedEstimationProcessor::process(){
 		float bx = buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS].x_pos();
 		float by = buffer->positions_buf_[buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS].y_pos();
 
-		if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS && !Utils::Math::isnan(bx) && buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].valid){
+		if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS && !Utils::Math::Isnan(bx) && buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].valid){
 			float dx = bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].x_pos();
 			float dy = by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].y_pos();
 
