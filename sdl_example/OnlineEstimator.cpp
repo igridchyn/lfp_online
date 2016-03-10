@@ -7,6 +7,7 @@
 //
 
 #include "OnlineEstimator.h"
+#include "Utils.h"
 
 template<class T, class S>
 OnlineEstimator<T, S>::OnlineEstimator(unsigned int buf_size)
@@ -30,7 +31,7 @@ void OnlineEstimator<T, S>::push(T value){
     // printf("push %f\n", value);
     
 	// TODO LOG ERROR
-	if (Utils::Math::isnan(value))
+	if (Utils::Math::Isnan(value))
 		return;
 
     // TODO: ignore to optimize ?
