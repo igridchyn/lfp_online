@@ -366,10 +366,12 @@ public:
 	unsigned int pos_rewind_shift = 0;
 	const unsigned int POS_SAMPLING_RATE;
 
+	bool processing_over_ = false;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);
-	~LFPBuffer();
+	virtual ~LFPBuffer();
 
 	void Reset(Config* config);
 

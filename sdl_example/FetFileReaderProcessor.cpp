@@ -694,7 +694,7 @@ void FetFileReaderProcessor::process() {
 			buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 			if (exit_on_over_){
 				Log("Exit on FileReader input over");
-				exit(0);
+				buffer->processing_over_ = true;
 			}
 			return;
 		}

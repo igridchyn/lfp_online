@@ -192,7 +192,7 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
                 break;
                 
             case SDLK_ESCAPE:
-                exit(0);
+            	buffer->processing_over_ = true;
                 break;
                 // TODO: check whether channels are available in the TetrodeInfo
 
