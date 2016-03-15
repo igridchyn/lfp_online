@@ -55,3 +55,8 @@ template<class T, class S>
 unsigned int OnlineEstimator<T, S>::n_samples(){
     return num_samples;
 }
+
+template<class T, class S>
+OnlineEstimator<T, S>::~OnlineEstimator(){
+	delete[] buf;
+}
