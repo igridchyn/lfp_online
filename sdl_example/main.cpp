@@ -42,13 +42,13 @@ void usleep(__int64 usec)
 	// std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
 
 		// 1) dump spikes
-		//std::string cpath(R"(../Res/spike_dump_win.conf)");
+		std::string cpath(R"(../Res/spike_dump_win.conf)");
 		// 2) diplay
 		//// 3) build model
 		 //std::string cpath(R"(../Res/build_model_jc155_win.conf)");
 		// 4) detect assemplies online
 		//std::string cpath(R"(../Res/assembly_inhibition_jc155_win.conf)");
-		std::string cpath(R"(../Res/spike_display_win.conf)");
+		//std::string cpath(R"(../Res/spike_display_win.conf)");
 		//std::string cpath(R"(../Res/synchrony_detection_win.conf)");
 
 		//std::string cpath(R"(../Res/delay_test_win.conf)");
