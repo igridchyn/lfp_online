@@ -146,7 +146,6 @@ void LPTTriggerProcessor::process() {
 				{
 					setHigh();
 					Log("High at ", buffer->last_pkg_id);
-					last_trigger_time_ = buffer->last_pkg_id;
 					timestamp_log_ << last_trigger_time_ << "\n";
 					timestamp_log_.flush();
 				}
@@ -157,8 +156,10 @@ void LPTTriggerProcessor::process() {
 						setLow();
 					}
 				}
-				else if (buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_ && buffer->last_pkg_id > trigger_start_delay_){
+				else if (buffer->last_pkg_id - last_trigger_time_ >= trigger_cooldown_ && buffer->last_pkg_id >= trigger_start_delay_){
 					setHigh();
+					timestamp_log_ << last_trigger_time_ << "\n";
+					timestamp_log_.flush();
 				}
 				break;
 			default:
