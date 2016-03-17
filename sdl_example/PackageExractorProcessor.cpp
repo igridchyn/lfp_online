@@ -50,7 +50,7 @@ void PackageExractorProcessor::process(){
     		// give chance to all subsequent processors to process...
     		if (exit_on_data_over_){
     			Log("Exit on data over...");
-    			exit(0);
+    			buffer->processing_over_ = true;
     		}
     	}
         return;

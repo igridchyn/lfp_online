@@ -334,7 +334,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         switch( e.key.keysym.sym )
         {
         	case SDLK_ESCAPE:
-        		exit(0);
+        		buffer->processing_over_ = true;
         		break;
             case SDLK_1:
             	if (change_session){

@@ -557,7 +557,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
 
             case SDLK_ESCAPE:
-                exit(0);
+                buffer->processing_over_ = true;
                 break;
             case SDLK_1:
                 comp1_ = 1 + shift;

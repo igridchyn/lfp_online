@@ -408,7 +408,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 		buffer->Log("Exit after dumping the HMM prediction :",
 				(int) DUMP_DELAY);
-		exit(0);
+		buffer->processing_over_ = true;
 	}
 
 	buffer->last_predictions_[processor_number_] = arma::exp(
@@ -436,7 +436,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 			Log("Dump end reached: ", (int) DUMP_END);
 			if (DUMP_END_EXIT) {
 				Log("EXIT upon dump end reached");
-				exit(0);
+				buffer->processing_over_ = true;
 			}
 		}
 
@@ -1104,7 +1104,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 	if (n_pf_built_ == tetr_info_->tetrodes_number()) {
 		Log("KDE at all tetrodes done, exiting...\n");
-		exit(0);
+		buffer->processing_over_ = true;
 	}
 }
 

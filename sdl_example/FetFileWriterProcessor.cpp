@@ -66,7 +66,7 @@ void FetFileWriterProcessor::process() {
 
 		Log("Flushed streams after input over at spike pos ", buffer->spike_buf_pos_fet_writer_);
 
-		exit(0);
+		buffer->processing_over_ = true;
 	}
 
 	// write whl

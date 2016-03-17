@@ -98,29 +98,30 @@ void usleep(__int64 usec)
     	config = new Config(argv[1], argc - 2, argv + 2);
     } else {
 
-//    	config = new Config("../Res/assembly_inhibition_jc149.conf");
+//    	config = new Config("../Res/assembly_inhibition_jc157.conf");
 //    	config = new Config("../Res/build_model_jc157.conf");
-//    	config = new Config("../Res/decoding_online_jc155.conf");
+//    	config = new Config("../Res/decoding_online_jc157.conf");
+    	config = new Config("../Res/spike_display_jc164.conf");
+//    	config = new Config("../Res/spike_dump_128.conf");
+
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003.conf");
 //    	config = new Config("../Res/decoding_online_jc118_1003_shift.conf");
 //    	config = new Config("../Res/spike_detection_build_model_jc118_1003_8l_shift.conf");
 //    	config = new Config("../Res/spike_display_jc118_1003.conf");
 //    	config = new Config("../Res/spike_dump_128.conf");
-    	config = new Config("../Res/spike_display_jc157.conf");
 //    	config = new Config("../Res/synchrony_detection.conf");
 //    	config = new Config("../Res/trigger_jc140.conf");
 //    	config = new Config("../Res/spike_detection_build_model_jc140.conf");
 //    	config = new Config("../Res/decoding_online_jc140.conf");
 
-//    	config = new Config("../Res/spike_dump_128.conf");
 //      config = new Config("../Res/spike_display_128.conf");
 
 //		config = new Config("../Res/build_model_jc118_1003_env_shift.conf"); // build model for whl with corrds of one environment shifted by the arena width
 //		config = new Config("../Res/decoding_jc118_1003_env1_2x.conf"); // shifted map
 //		config = new Config("../Res/decoding_jc118_1003_both_env_swr_2x.conf"); // swr decoding in the shfited map
 
-//		*config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
+//		config = new Config("../Res/spike_reader_jc118_1002_10s.conf");
 //		config = new Config("../Res/spike_detection_jc118_1003_3l.conf");
 
     }
@@ -134,7 +135,7 @@ void usleep(__int64 usec)
 	BinFileReaderProcessor *binreader = new BinFileReaderProcessor(buf);
 #endif
 
-	while (true) {
+	while (!buf->processing_over_) {
 #ifdef PIPELINE_THREAD
 		{
 			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);
@@ -148,6 +149,11 @@ void usleep(__int64 usec)
 		pipeline->process();
 #endif
 	}
+
+	delete config;
+	delete buf;
+
+	std::cout << "PROCESSING OVER; CONFIG AND BUFFER DELETED";
 
 	return 0;
 }
