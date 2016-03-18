@@ -101,7 +101,7 @@ void usleep(__int64 usec)
 //    	config = new Config("../Res/assembly_inhibition_jc157.conf");
 //    	config = new Config("../Res/build_model_jc157.conf");
 //    	config = new Config("../Res/decoding_online_jc157.conf");
-    	config = new Config("../Res/spike_display_jc164.conf");
+    	config = new Config("../Res/spike_display_jc157.conf");
 //    	config = new Config("../Res/spike_dump_128.conf");
 
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
@@ -151,9 +151,11 @@ void usleep(__int64 usec)
 	}
 
 	delete config;
+	delete pipeline;
 	delete buf;
 
-	std::cout << "PROCESSING OVER; CONFIG AND BUFFER DELETED";
+	std::cout << "PROCESSING OVER; CONFIG, PIPELINE AND BUFFER DELETED\n";
+	// usleep(30000000);
 
 	return 0;
 }

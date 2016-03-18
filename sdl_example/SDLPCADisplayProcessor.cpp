@@ -93,6 +93,13 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     display_cluster_.resize(MAX_CLUST, true);
 }
 
+SDLPCADisplayProcessor::~SDLPCADisplayProcessor(){
+	delete[] points_;
+    for (unsigned int c = 0; c < MAX_CLUST; ++c) {
+    	delete []spikes_to_draw_[c];
+	}
+}
+
 void SDLPCADisplayProcessor::process(){
     bool render = false;
 

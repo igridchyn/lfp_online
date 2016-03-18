@@ -19,7 +19,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     const float EPS = 0.001f;
     
     // unsigned int spike_buf_pos_;
-    unsigned int pos_buf_pos_;
+    unsigned int pos_buf_pos_ = 0;
     
     std::vector<PlaceField> tetrode_spike_probs_;
 
@@ -110,6 +110,7 @@ public:
     
     // call the constructor above after reading params from config
     PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& processors_number);
+    virtual ~PlaceFieldProcessor() {};
 
 //    const arma::mat& GetSmoothedOccupancy();
 

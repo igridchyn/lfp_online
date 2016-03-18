@@ -389,15 +389,8 @@ void cluster_gaussian(){
 }
 
 FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
-:FetFileReaderProcessor(buffer,
-		buffer->config_->getInt("spike.reader.window", 2000)
-		){
-
-}
-
-FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned int window_size)
 : LFPProcessor(buffer)
-, WINDOW_SIZE(window_size)
+, WINDOW_SIZE(buffer->config_->getInt("spike.reader.window", 2000))
 , read_spk_(buffer->config_->getBool("spike.reader.spk.read", false))
 , read_whl_(buffer->config_->getBool("spike.reader.whl.read", false))
 , binary_(buffer->config_->getBool("spike.reader.binary", false))
@@ -469,11 +462,12 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 	if (binary_){
 		// TODO sum up dirations of multiple files
 		const unsigned int fetn = buffer->feature_space_dims_[0];
-		float *tmpf = new float[fetn + 4];
+		std::vector<float> tmpf;
+		tmpf.resize(fetn + 4, .0f);
 		int stime;
 
 		while (!fet_streams_[0]->eof()){
-			fet_streams_[0]->read((char*)tmpf, (fetn + 4) * sizeof(float));
+			fet_streams_[0]->read((char*)(&tmpf[0]), (fetn + 4) * sizeof(float));
 			fet_streams_[0]->read((char*)&stime, sizeof(int));
 		}
 
@@ -491,6 +485,21 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer, const unsigned
 FetFileReaderProcessor::~FetFileReaderProcessor() {
 	for (unsigned int i = 0; i < fet_streams_.size(); ++i) {
 		fet_streams_[i]->close();
+		delete fet_streams_[i];
+		if (read_spk_){
+			spk_streams_[i]->close();
+			delete spk_streams_[i];
+		}
+	}
+
+	if (read_whl_ && whl_file_ != nullptr){
+		whl_file_->close();
+		delete whl_file_;
+		whl_file_ = nullptr;
+	}
+
+	for (unsigned int t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+		delete last_spikies_[t];
 	}
 }
 
@@ -570,7 +579,7 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		}
 	}
 
-	int stime;
+	int stime = 0;
 	if (!binary_){
 		fet_stream >> stime;
 	}
@@ -612,6 +621,7 @@ void FetFileReaderProcessor::openNextFile() {
 		if (read_whl_ && whl_file_ != nullptr){
 			whl_file_->close();
 			delete whl_file_;
+			whl_file_ = nullptr;
 		}
 		fet_streams_.clear();
 		spk_streams_.clear();
@@ -639,10 +649,6 @@ void FetFileReaderProcessor::openNextFile() {
 				spk_streams_.push_back(new std::ifstream(fet_path_base_ + "spk" + extapp + "." + Utils::NUMBERS[tetrode_numbers[t]], binary_ ? std::ofstream::binary : std::ofstream::in));
 			}
 
-			if (read_whl_){
-				whl_file_ = new std::ifstream(fet_path_base_ + "whl");
-			}
-
 			// read number of records per spike in the beginning of the file
 			if (!binary_){
 				*(fet_streams_[t]) >> dum_ncomp;
@@ -656,6 +662,10 @@ void FetFileReaderProcessor::openNextFile() {
 			if (tspike != nullptr && tspike->pkg_id_ < min_pkg_id){
 				min_pkg_id = tspike->pkg_id_;
 			}
+		}
+
+		if (read_whl_){
+			whl_file_ = new std::ifstream(fet_path_base_ + "whl");
 		}
 
 		buffer->pipeline_status_ = PIPELINE_STATUS_READ_FET;

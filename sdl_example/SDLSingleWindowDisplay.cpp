@@ -25,6 +25,8 @@ void SDLSingleWindowDisplay::ResetTextStack() {
 }
 
 SDLSingleWindowDisplay::~SDLSingleWindowDisplay(){
+	SDL_DestroyTexture(texture_);
+	SDL_DestroyRenderer(renderer_);
 	SDL_DestroyWindow(window_);
 }
 

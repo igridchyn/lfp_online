@@ -18,7 +18,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer* buf)
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float bin_size_ms, const unsigned int nbins)
 : LFPProcessor(buf)
 , SDLControlInputProcessor(buf)
-, SDLSingleWindowDisplay("Autocorrelogramms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
+, SDLSingleWindowDisplay("Autocorrelograms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
 , BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
 , MAX_CLUST(buffer->config_->getInt("ac.max.clust", 30))
 , NBINS(nbins)
@@ -45,6 +45,10 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 			autocorrs_[i][c].resize(NBINS);
 		}
 	}
+}
+
+AutocorrelogramProcessor::~AutocorrelogramProcessor(){
+
 }
 
 void AutocorrelogramProcessor::process(){

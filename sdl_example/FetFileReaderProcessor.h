@@ -70,7 +70,6 @@ class FetFileReaderProcessor: public LFPProcessor {
 
 public:
 	FetFileReaderProcessor(LFPBuffer *buffer);
-	FetFileReaderProcessor(LFPBuffer *buffer, const unsigned int window_size);
 	virtual ~FetFileReaderProcessor();
 
 	// LFPProcessor

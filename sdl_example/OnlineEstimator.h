@@ -24,6 +24,7 @@ class OnlineEstimator{
     
 public:
     OnlineEstimator(unsigned int buf_size = (1 << 15));
+    ~OnlineEstimator();
     
     void push(T value);
     T get_mean_estimate();

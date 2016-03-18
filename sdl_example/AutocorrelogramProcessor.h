@@ -87,7 +87,7 @@ public:
 
     virtual void process();
     virtual inline std::string name() { return "Autocorrelogram"; }
-    virtual ~AutocorrelogramProcessor() {};
+    virtual ~AutocorrelogramProcessor();
 
     void plotAC(const unsigned int tetr, const unsigned int cluster);
     void plotCC(const unsigned int& tetr, const unsigned int& cluster1, const unsigned int& cluster2);

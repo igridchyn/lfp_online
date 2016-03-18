@@ -114,7 +114,7 @@ public:
     // SDLSingleWindowDisplay
     virtual void process_SDL_control_input(const SDL_Event& e);
 
-	virtual ~SDLPCADisplayProcessor(){};
+	virtual ~SDLPCADisplayProcessor();
 };
 
 #endif
