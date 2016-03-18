@@ -92,6 +92,7 @@ TetrodesInfo::TetrodesInfo() {
 }
 
 TetrodesInfo::~TetrodesInfo() {
+	delete[] tetrode_by_channel;
 }
 
 bool TetrodesInfo::ContainsChannel(const unsigned int& channel) {

@@ -107,7 +107,7 @@ void SpikeDetectorProcessor::process_tetrode(int tetrode_to_process)
 	}
 
     // DETECT only after enough samples for power estimation
-    if (buffer->powerEstimators_[0].n_samples() < min_power_samples_){
+    if (buffer->powerEstimators_[0]->n_samples() < min_power_samples_){
         return;
     }
     
