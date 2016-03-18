@@ -145,7 +145,9 @@ DWORD attributes, HANDLE templ )
 				 if (check_bin > 2){
 					if(pipeline){
 						delete pipeline;
+						pipeline = nullptr;
 						delete buf;
+						buf = nullptr;
 					}
 				 
 					Config *config = new Config("d:/Igor/soft/lfp_online/sdl_example/Res/online.conf");
