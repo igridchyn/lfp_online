@@ -125,7 +125,7 @@ class LinearArrayPool: public virtual QueueInterface<T*> {
 
 public:
 	LinearArrayPool(unsigned int dim, unsigned int pool_size);
-	~LinearArrayPool() { delete[] array_; }
+	virtual ~LinearArrayPool() { delete[] array_; }
 };
 
 template<class T>
@@ -140,7 +140,7 @@ class PseudoMultidimensionalArrayPool: public virtual QueueInterface<T**> {
 public:
 	PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2,
 			unsigned int pool_size);
-	~PseudoMultidimensionalArrayPool() { delete[] array_; delete[] array_rows_; }
+	virtual ~PseudoMultidimensionalArrayPool() { delete[] array_; delete[] array_rows_; }
 };
 
 class LFPONLINEAPI LFPBuffer : public virtual Utils::Logger {
@@ -299,7 +299,7 @@ public:
 	size_t chunk_buf_len_ = 10000 * 432;
 	size_t chunk_buf_ptr_in_ = 0;
 
-	std::vector<OnlineEstimator<float, float> > powerEstimators_;
+	std::vector<OnlineEstimator<float, float>* > powerEstimators_;
 	std::vector<OnlineEstimator<float, float>* > powerEstimatorsMap_;
 
 	OnlineEstimator<float, float>* speedEstimator_;

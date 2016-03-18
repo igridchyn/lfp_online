@@ -102,7 +102,7 @@ void LFPBuffer::Reset(Config* config)
 
 	log_stream << "INFO: Create online estimators...";
 	for (size_t t=0; t < tetr_info_->tetrodes_number(); ++t){
-		powerEstimators_.push_back(OnlineEstimator<float, float>(config->getInt("spike.detection.min.power.samples", 500000)));
+		powerEstimators_.push_back(new OnlineEstimator<float, float>(config->getInt("spike.detection.min.power.samples", 500000)));
 	}
 
     speedEstimator_ = new OnlineEstimator<float, float>(SPEED_ESTIMATOR_WINDOW_);
@@ -117,7 +117,7 @@ void LFPBuffer::Reset(Config* config)
     // create a map of pointers to tetrode power estimators for each electrode
     for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
         for (size_t ci = 0; ci < tetr_info_->channels_number(tetr); ++ci){
-            powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = &(powerEstimators_[0]) + tetr;
+            powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = powerEstimators_[tetr];
             is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
 
             tetr_info_->tetrode_by_channel[tetr_info_->tetrode_channels[tetr][ci]] = tetr;
@@ -184,24 +184,34 @@ void LFPBuffer::Reset(Config* config)
 }
 
 LFPBuffer::~LFPBuffer(){
-	Log("Buffer destructor called");
+	Log("Delete pools");
+	delete[] spike_pool_;
+	delete spikes_ws_pool_;
+	delete spikes_ws_final_pool_;
+	delete spike_features_pool_;
+	delete spike_extra_features_ptr_pool_;
 
-	for (size_t s = 0; s < SPIKE_BUF_LEN; ++s) {
-		// DEBUG
-		// TODO remove
-		Log("Delete spike #", s);
-		if (spike_buffer_[s] != nullptr)
-			delete spike_buffer_[s];
-	}
+	Log("Delete chunk buffer");
+	delete[] chunk_buf_;
+
+	Log("Buffer destructor called, delete spike pool and buffer");
+
 	delete[] spike_buffer_;
+	delete[] tmp_spike_buf_;
+
+	delete[] positions_buf_;
+	delete[] tmp_pos_buf_;
 
 	Log("Buffer destructor: delete signal / filtered signal / power buffers");
 
 	for (size_t c = 0; c < CHANNEL_NUM; ++c){
-		delete[] signal_buf[c];
-		delete[] filtered_signal_buf[c];
-		delete[] power_buf[c];
+		if (is_valid_channel_){
+			delete[] signal_buf[c];
+			delete[] filtered_signal_buf[c];
+			delete[] power_buf[c];
+		}
 	}
+	delete[] signal_buf;
 
 	Log("Buffer destructor: delete speed estimator");
 	delete speedEstimator_;
@@ -213,6 +223,7 @@ LFPBuffer::~LFPBuffer(){
 	 Log("Buffer destructor: delete ISI estimators");
 	 for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 		 delete ISIEstimators_[t];
+		 delete powerEstimators_[t];
 	 }
 	 delete[] ISIEstimators_;
 
@@ -224,6 +235,12 @@ LFPBuffer::~LFPBuffer(){
 	Log("Buffer destructor: delete tetrode info");
 	if (tetr_info_)
 		delete tetr_info_;
+
+	delete[] is_valid_channel_;
+
+	for (size_t i = 0; i < alt_tetr_infos_.size(); ++i){
+		delete alt_tetr_infos_[i];
+	}
 
 	Log("Buffer destructor finished");
 }
