@@ -153,8 +153,6 @@ void LFPBuffer::Reset(Config* config)
     	population_vector_window_[t].push_back(0);
     }
 
-	log_stream << "INFO: BUFFER CREATED\n";
-
 	// ??? rather init all spikes ???
 	// memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
 
@@ -181,6 +179,9 @@ void LFPBuffer::Reset(Config* config)
 	high_synchrony_tetrode_spikes_ = 0;
 
 	user_context_.Init(tetr_info_->tetrodes_number());
+
+	log_stream << "INFO: BUFFER CREATED\n";
+	log_stream.flush();
 }
 
 LFPBuffer::~LFPBuffer(){
