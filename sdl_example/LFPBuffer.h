@@ -368,6 +368,9 @@ public:
 
 	bool processing_over_ = false;
 
+	// average number of spikes in the synchrony window
+	double sync_spikes_window_ = .0;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);

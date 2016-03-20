@@ -488,10 +488,6 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 //	return nhigh > 6;
 
 	// TODO !!! cache
-	double sync_spikes_window_ = .0;
-	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
-		sync_spikes_window_ += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0;
-	}
 
 	// whether have at least synchrony.factor X average spikes at all tetrodes
 	return (high_synchrony_tetrode_spikes_ >= sync_spikes_window_ * high_synchrony_factor_);
@@ -813,6 +809,11 @@ void LFPBuffer::estimate_firing_rates() {
 		}
 
 		fr_estimated_ = true;
+
+		for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+			sync_spikes_window_ += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0;
+		}
+
 	}
 }
 
