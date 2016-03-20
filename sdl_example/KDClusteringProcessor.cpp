@@ -116,7 +116,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.max.jobs", 5)), sr_path_(
 				buf->config_->getString("out.path.base") + buf->config_->getString("kd.sr.path", "sampling_rates.txt")), sr_save_(
 				buf->config_->getBool("kd.sr.save", false)), sr_load_(
-				buf->config_->getBool("kd.sr.load", false))
+				buf->config_->getBool("kd.sr.load", false)), SINGLE_PRED_PER_SWR(
+				buf->config_->getBool("kd.single.pred.per.swr", false))
 	{
 
 	Log("Construction started");
@@ -746,8 +747,6 @@ void KDClusteringProcessor::process() {
 
 					swr_regime_ = true;
 
-					// if predicting only once
-
 					PRED_WIN = SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]);
 
 					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
@@ -756,9 +755,25 @@ void KDClusteringProcessor::process() {
 					// the following is required due to different possible order of SWR detection / spike processing
 
 					// if spikes have been processed before SWR detection - rewind until the first spike in the SW
-					while (spike_buf_pos_clust_ > 0 && spike->pkg_id_ > last_pred_pkg_id_) {
-						spike_buf_pos_clust_--;
-						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+					if (SINGLE_PRED_PER_SWR){
+						// find first spike before the end of SWR
+						while (spike->pkg_id_ < buffer->swrs_[swr_pointer_][1]){
+							spike_buf_pos_clust_++;
+							spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+						}
+						while (spike->pkg_id_ > buffer->swrs_[swr_pointer_][1]){
+							spike_buf_pos_clust_--;
+							spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+						}
+
+						// set to prediction_window_spike_number_ spikes back
+						spike_buf_pos_clust_ -= std::min(spike_buf_pos_clust_, prediction_window_spike_number_);
+					}
+					else {
+						while (spike_buf_pos_clust_ > 0 && spike->pkg_id_ > last_pred_pkg_id_) {
+							spike_buf_pos_clust_--;
+							spike = buffer->spike_buffer_[spike_buf_pos_clust_];
+						}
 					}
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 

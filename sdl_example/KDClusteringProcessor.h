@@ -243,6 +243,8 @@ class KDClusteringProcessor: public LFPProcessor {
 	const bool sr_save_ = false;
 	const bool sr_load_ = false;
 
+	const bool SINGLE_PRED_PER_SWR = false;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 
