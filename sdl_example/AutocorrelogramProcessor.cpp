@@ -164,7 +164,7 @@ void AutocorrelogramProcessor::process(){
 	while(buffer->spike_buf_pos_auto_ < buffer->spike_buf_no_disp_pca){
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_auto_];
 
-		if (spike == nullptr || spike->discarded_){
+		if (spike->discarded_){
 			buffer->spike_buf_pos_auto_++;
 			continue;
 		}

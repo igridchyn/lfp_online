@@ -599,7 +599,6 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 		return nullptr;
 
 	spike->pkg_id_ = (stime >= 0 ? stime : 0) + shift_;
-	spike->aligned_ = true;
 
 	return spike;
 }

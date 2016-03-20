@@ -946,7 +946,7 @@ void KDClusteringProcessor::process() {
 				if (swr_regime_ && prediction_windows_overlap_ > 0 && (spike_buf_pos_clust_ >= prediction_windows_overlap_ + buffer->SPIKE_BUF_HEAD_LEN)) {
 					spike_buf_pos_clust_ -= prediction_windows_overlap_;
 					// find first good spike
-					while ((spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) && (buffer->spike_buffer_[spike_buf_pos_clust_]->discarded_ || !buffer->spike_buffer_[spike_buf_pos_clust_]->aligned_))
+					while ((spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) && buffer->spike_buffer_[spike_buf_pos_clust_]->discarded_)
 						spike_buf_pos_clust_++;
 
 					last_pred_pkg_id_ = buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_;

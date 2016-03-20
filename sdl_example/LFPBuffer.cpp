@@ -795,10 +795,6 @@ void LFPBuffer::estimate_firing_rates() {
 				continue;
 			}
 
-			if (spike == nullptr || !spike->aligned_){
-				continue;
-			}
-
 			spike_numbers_[spike->tetrode_] ++;
 		}
 

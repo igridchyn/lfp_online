@@ -149,10 +149,6 @@ void WaveShapeReconstructionProcessor::process(){
 				"Time from after package extraction until WS start\n\t first no_rec pos was: " +
 				Utils::Converter::int2str(first_nows_pos) + ", current = " +
 				Utils::Converter::int2str(buffer->spike_buf_no_rec) + "\n");
-
-        if (!(spike->aligned_ || spike->discarded_)){
-            break;
-        }
         
         if (spike->discarded_){
 			// TODO !!! free when discarded

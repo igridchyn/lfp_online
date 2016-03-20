@@ -138,7 +138,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
         // TODO warn ?
-        if (spike == nullptr || spike->waveshape == nullptr){
+        if (spike->waveshape == nullptr){
         	buf_pointer_++;
 			continue;
         }
@@ -318,9 +318,6 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
         				for (unsigned int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
         					Spike *spike = buffer->spike_buffer_[s];
-
-        					if (spike == nullptr)
-        						continue;
 
         					if ((unsigned int)spike->tetrode_ == targ_tetrode_ && user_context_.IsSelected(spike)){
         						if (display_final_){

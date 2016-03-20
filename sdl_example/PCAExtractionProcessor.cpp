@@ -534,7 +534,7 @@ void PCAExtractionProcessor::process(){
             // get PCs for all past spikes
             for (size_t s=0; s < *buf_ptr_ptr_; ++s) {
                 Spike *spike = buffer->spike_buffer_[s];
-                if (spike == nullptr || spike->discarded_ || (unsigned int)spike->tetrode_ != tetr){
+                if (spike->discarded_ || (unsigned int)spike->tetrode_ != tetr){
                     continue;
                 }
                 

@@ -53,7 +53,7 @@ void SpeedEstimationProcessor::process(){
 			unsigned int known_speed_pkg_id = buffer->positions_buf_[buffer->pos_buf_pos_speed_est].pkg_id_;
 			while (buffer->spike_buf_pos_speed_ < buffer->spike_buf_pos){
 				Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
-				if (spike == nullptr || spike->pkg_id_ > known_speed_pkg_id){
+				if (spike->pkg_id_ > known_speed_pkg_id){
 					break;
 				}
 
@@ -94,9 +94,6 @@ void SpeedEstimationProcessor::process(){
 	if (buffer->pos_buf_pos_speed_est > ESTIMATION_RADIUS){
 		while (buffer->spike_buf_pos_speed_< buffer->spike_buf_pos){
 			Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_speed_];
-
-			if (spike == nullptr)
-				break;
 
 			if (spike->pkg_id_ > buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].pkg_id_)
 				break;

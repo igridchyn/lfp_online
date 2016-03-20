@@ -60,7 +60,6 @@ void Spike::init(int pkg_id, int tetrode) {
 	cluster_id_ = num_channels_ = -1;
 
 	discarded_ = false;
-	aligned_ = false;
 
 	x =y = speed = nanf("");
 

@@ -58,7 +58,6 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
 
         int num_of_ch = buffer->tetr_info_->channels_number(spike->tetrode_);
         buffer->AllocateWaveshapeMemory(spike);
-//        spike->waveshape = new int*[num_of_ch];
         spike->num_channels_ = num_of_ch;
         
         int tetrode = spike->tetrode_;
@@ -122,7 +121,6 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
     	{
 			// !!!  This is the EARLIEST point when the spike is accepted for further analysis
             if (prev_spike_[tetrode] != nullptr){
-                prev_spike_[tetrode]->aligned_ = true;
                 prev_spike_[tetrode]->power_ = prev_max_val_[tetrode];
 
                 // ADD spike to buffer's population window and use for ISI estimation
@@ -186,23 +184,6 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
 		buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until end of temporal shift check in SpikeAlign\n");
 
 		spike_buf_ptr++;
-    }
-
-    // mark all spikes with last pkg_id beyond their refractory as aligned to be available for further processing
-    // before the next spike at their tetrode arrives
-    if (tetrode_to_process < 0){
-		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-			// WORKAROUND:
-			// last condition - to protect from acessing spikes long ago that could have been deleted
-			if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD && buffer->last_pkg_id - prev_spike_pos_[t] < buffer->SAMPLING_RATE){
-				prev_spike_[t]->aligned_ = true;
-			}
-		}
-    } else{
-    	unsigned int t = tetrode_to_process;
-		if (prev_spike_[t] != nullptr && buffer->last_pkg_id - prev_spike_pos_[t] > REFRACTORY_PERIOD && buffer->last_pkg_id - prev_spike_pos_[t] < buffer->SAMPLING_RATE){
-			prev_spike_[t]->aligned_ = true;
-		}
     }
 }
 

@@ -289,7 +289,7 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	clu_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.clu");
 	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
 		Spike *spike = buffer->spike_buffer_[i];
-		if (spike != nullptr && spike->cluster_id_ > 0){
+		if (spike->cluster_id_ > 0){
 			*(res_global) << spike->pkg_id_ << "\n";
 			*(clu_global) << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
 		}

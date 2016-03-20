@@ -111,13 +111,7 @@ void SDLPCADisplayProcessor::process(){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
 
-		// TODO !!! no nullptr spikes, report and prevent by architecture (e.g. rewind to start level)
         // TODO add filtering by power threshold capability
-        if (spike == nullptr){
-            buffer->spike_buf_no_disp_pca++;
-            continue;
-        }
-
         // TODO !!! take channel with the spike peak (save if not available)
         double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[spike->tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 
@@ -720,7 +714,7 @@ void SDLPCADisplayProcessor::deleteCluster() {
 		// update spikes
 		for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 			Spike *spike = buffer->spike_buffer_[sind];
-			if (spike == nullptr || spike->tetrode_ != target_tetrode_)
+			if (spike->tetrode_ != target_tetrode_)
 				continue;
 
 			if (spike -> cluster_id_ == user_context_.SelectedCluster2()){
@@ -745,7 +739,7 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 		// TODO either implement polygon intersection or projections logical operations
 		for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 			Spike *spike = buffer->spike_buffer_[sind];
-			if (spike == nullptr || spike->tetrode_ != target_tetrode_)
+			if (spike->tetrode_ != target_tetrode_)
 				continue;
 
 			if (spike -> cluster_id_ == user_context_.SelectedCluster2()){
@@ -831,7 +825,7 @@ void SDLPCADisplayProcessor::addCluster() {
 	int count = 0;
 	for (unsigned int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
 		Spike *spike = buffer->spike_buffer_[s];
-		if (spike == nullptr || spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ >= 0){
+		if (spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ >= 0){
 			continue;
 		}
 

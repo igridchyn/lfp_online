@@ -92,7 +92,7 @@ void FetFileWriterProcessor::process() {
 
 		Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_fet_writer_];
 
-		if (spike == nullptr || spike->discarded_){
+		if (spike->discarded_){
 			buffer->spike_buf_pos_fet_writer_++;
 			continue;
 		}
