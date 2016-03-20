@@ -761,7 +761,7 @@ void KDClusteringProcessor::process() {
 							spike_buf_pos_clust_++;
 							spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 						}
-						while (spike->pkg_id_ > buffer->swrs_[swr_pointer_][1]){
+						while (spike->pkg_id_ >= buffer->swrs_[swr_pointer_][1]){
 							spike_buf_pos_clust_--;
 							spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 						}
@@ -789,17 +789,19 @@ void KDClusteringProcessor::process() {
 					}
 
 					// for continuous prediction - adjustment be the generalized firing rate
-					for (unsigned int t = 0; t < tetr_info_->tetrodes_number();
-							++t) {
-						last_spike_pkg_ids_by_tetrode_[t] =
-								buffer->swrs_[swr_pointer_][0];
+					if (continuous_prediction_){
+						for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+							last_spike_pkg_ids_by_tetrode_[t] = buffer->swrs_[swr_pointer_][0];
+						}
 					}
 
 					pos_pred_.zeros();
-				}
+				} // if new SWR detected
 
-				// end SWR regime if the SWR is over
-				if (swr_regime_ && last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][2]) {
+				// end SWR regime if the SWR is over or single predicion has been made in the single prediction mode
+				if ( swr_regime_ &&
+						(last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][2] ||
+						(SINGLE_PRED_PER_SWR && last_pred_pkg_id_ > buffer->swrs_[swr_pointer_][0]) )) {
 					// DEBUG
 					buffer->Log( "Switch to theta prediction regime due to end of SWR at ", (int) buffer->swrs_[swr_pointer_][2]);
 					swr_regime_ = false;
@@ -812,7 +814,14 @@ void KDClusteringProcessor::process() {
 					swr_pointer_++;
 					swr_win_counter_ = 0;
 				}
-			}
+
+				// skip all spikes if no swr
+				if (!swr_regime_){
+					spike_buf_pos_clust_ = limit;
+					break;
+				}
+
+			} // if SWR_SWITCH
 
 			// at this points all tetrodes have pfs !
 			while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) {
@@ -829,8 +838,8 @@ void KDClusteringProcessor::process() {
 					continue;
 				}
 
-				// in the SWR regime - skip until the first spike in the SWR
-				if (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_) {
+				// in the SWR regime - skip until the first spike in the SWR, don't do this for single prediction per SWR - allow out of range !
+				if (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) {
 					spike_buf_pos_clust_++;
 					continue;
 				}
