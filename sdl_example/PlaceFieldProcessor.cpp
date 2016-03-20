@@ -142,13 +142,17 @@ void PlaceFieldProcessor::process(){
     while (buffer->spike_buf_pos_pf_ < buffer->spike_buf_pos_speed_){
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_pos_pf_];
         
-		if (spike->discarded_ || Utils::Math::Isnan(spike->x) || spike->cluster_id_ == -1){
+        unsigned int tetr = spike->tetrode_;
+        int clust = spike->cluster_id_;
+
+        if (clust > 0 &&  clust > (int)clusters_in_tetrode_[tetr]){
+        	clusters_in_tetrode_[tetr] = clust;
+        }
+
+		if (spike->discarded_ || Utils::Math::Isnan(spike->x) || clust == -1){
         	buffer->spike_buf_pos_pf_++;
             continue;
         }
-        
-        unsigned int tetr = spike->tetrode_;
-        unsigned int clust = spike->cluster_id_;
      
         // update current session number based on the spike id
         while (current_session_ <  N_SESSIONS - 1 && spike->pkg_id_ > buffer->config_->pf_sessions_[current_session_]){
@@ -162,10 +166,6 @@ void PlaceFieldProcessor::process(){
             	buffer->log_string_stream_ << "Spike with coordinates " << spike->x << ", " << spike->y << " not added.\n";
             	buffer->Log();
             }
-        }
-        
-        if (clust > clusters_in_tetrode_[tetr]){
-        	clusters_in_tetrode_[tetr] = clust;
         }
 
         buffer->spike_buf_pos_pf_++;
@@ -278,6 +278,8 @@ void PlaceFieldProcessor::switchSession(const unsigned int& session){
 }
 
 void PlaceFieldProcessor::dumpCluAndRes(){
+	calculateClusterNumberShifts();
+
 	Log("START SAVING CLU/RES");
 	Log("Global cluster number shifts: ", global_cluster_number_shfit_);
 
@@ -421,6 +423,21 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     }
 }
 
+void PlaceFieldProcessor::calculateClusterNumberShifts(){
+    Log("Clusters per tetrodes:");
+    unsigned int total_clusters = 0;
+    for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+    	std::stringstream ss;
+    	ss << "Clusters in tetrode " << t << " : " << clusters_in_tetrode_[t];
+    	Log(ss.str());
+
+    	global_cluster_number_shfit_[t] = total_clusters;
+    	total_clusters += clusters_in_tetrode_[t];
+    }
+
+    Log("Total clusters: ", total_clusters);
+}
+
 void PlaceFieldProcessor::smoothPlaceFields(){
 	Log("Smooth place fields");
 	Log("Minimal occupancy: ", MIN_OCCUPANCY);
@@ -465,19 +482,7 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     }
 
     Log("Done smoothing place fields");
-
-    Log("Clusters per tetrodes:");
-    unsigned int total_clusters = 0;
-    for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-    	std::stringstream ss;
-    	ss << "Clusters in tetrode " << t << " : " << clusters_in_tetrode_[t];
-    	Log(ss.str());
-
-    	global_cluster_number_shfit_[t] = total_clusters;
-    	total_clusters += clusters_in_tetrode_[t];
-    }
-
-    Log("Total clusters: ", total_clusters);
+    calculateClusterNumberShifts();
 }
 
 void PlaceFieldProcessor::cachePDF(){
