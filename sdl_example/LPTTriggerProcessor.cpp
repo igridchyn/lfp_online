@@ -152,7 +152,7 @@ void LPTTriggerProcessor::process() {
 				break;
 			case RegularFalshes:
 				if (LPT_is_high_){
-					if (buffer->last_pkg_id - last_trigger_time_ > pulse_length_){
+					if (buffer->last_pkg_id - last_trigger_time_ >= pulse_length_){
 						setLow();
 					}
 				}
@@ -174,7 +174,7 @@ void LPTTriggerProcessor::process() {
 	case LPTTriggerTarget::LPTTargetSpikes:
 		// check if inhibiting and has to stop
 		if (LPT_is_high_){
-			if (buffer->last_pkg_id - last_trigger_time_ > pulse_length_){
+			if (buffer->last_pkg_id - last_trigger_time_ >= pulse_length_){
 				setLow();
 				buffer->Log("STOP INHIBITION at ", buffer->last_pkg_id);
 			}
@@ -193,7 +193,7 @@ void LPTTriggerProcessor::process() {
 			switch(trigger_type_){
 
 			case LPTTriggerType::HighSynchronyTrigger:
-				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ > trigger_cooldown_){
+				if (buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_trigger_time_ >= trigger_cooldown_){
 					setHigh();
 					timestamp_log_ << (int)round((last_trigger_time_)) << "\n";
 					timestamp_log_.flush();
@@ -219,7 +219,7 @@ void LPTTriggerProcessor::process() {
 					}
 
 					// inhibition / allowance time out ?
-					if (buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_ > buffer->swrs_[swr_ptr_][0] + sync_max_duration_){
+					if (buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_ >= buffer->swrs_[swr_ptr_][0] + sync_max_duration_){
 						// have to decide now
 						buffer->Log("TIMEOUT for classification decision is reached with a spike at ", buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_);
 
@@ -281,7 +281,7 @@ void LPTTriggerProcessor::process() {
 					// otherwise keep collecting data
 				} else{ // not in synchrony (IDLE or INHIBITING)
 					// otherwise check for synchrony
-					if (!LPT_is_high_ && buffer->fr_estimated_ && buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_synchrony_ > trigger_cooldown_){
+					if (!LPT_is_high_ && buffer->fr_estimated_ && buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_synchrony_ >= trigger_cooldown_){
 						timestamp_log_ << (int)round((last_synchrony_)) << "\n";
 						timestamp_log_.flush();
 
