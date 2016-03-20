@@ -53,7 +53,7 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	// pointer to SWR / synchrony events
 	unsigned int swr_ptr_ = 0;
-	unsigned int sync_min_duration_ = std::numeric_limits<unsigned int>::max();
+	unsigned int sync_min_duration_ = 0;
 	unsigned int sync_max_duration_ = 0;
 
 	// depends on the strategy

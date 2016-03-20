@@ -281,7 +281,7 @@ void LPTTriggerProcessor::process() {
 					// otherwise keep collecting data
 				} else{ // not in synchrony (IDLE or INHIBITING)
 					// otherwise check for synchrony
-					if (!LPT_is_high_ && buffer->fr_estimated_ && buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_synchrony_ >= trigger_cooldown_){
+					if (!LPT_is_high_ && buffer->IsHighSynchrony(average_spikes_in_synchrony_tetrodes_) && buffer->last_pkg_id - last_synchrony_ >= trigger_cooldown_){
 						timestamp_log_ << (int)round((last_synchrony_)) << "\n";
 						timestamp_log_.flush();
 
@@ -291,10 +291,11 @@ void LPTTriggerProcessor::process() {
 
 						Log("Synchrony detected at (window start) ",sync_start);
 						buffer->swrs_.push_back(std::vector<unsigned int>());
+						// TODO make sure start-peak-end are in correct temporal order, WARN otherwise
 						buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start);
 						// set SW PEAK and end
-						buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start + sync_max_duration_ / 2);
-						buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start + sync_max_duration_);
+						buffer->swrs_[buffer->swrs_.size() - 1].push_back(buffer->last_pkg_id);
+						buffer->swrs_[buffer->swrs_.size() - 1].push_back(std::max(sync_start + sync_max_duration_, buffer->last_pkg_id));
 
 						last_synchrony_ = buffer->last_pkg_id;
 
