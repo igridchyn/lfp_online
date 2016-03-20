@@ -746,6 +746,8 @@ void KDClusteringProcessor::process() {
 
 					swr_regime_ = true;
 
+					// if predicting only once
+
 					PRED_WIN = SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]);
 
 					last_pred_pkg_id_ = buffer->swrs_[swr_pointer_][0];
@@ -754,14 +756,14 @@ void KDClusteringProcessor::process() {
 					// the following is required due to different possible order of SWR detection / spike processing
 
 					// if spikes have been processed before SWR detection - rewind until the first spike in the SW
-					while (spike_buf_pos_clust_ > 0 && spike != nullptr && spike->pkg_id_ > last_pred_pkg_id_) {
+					while (spike_buf_pos_clust_ > 0 && spike->pkg_id_ > last_pred_pkg_id_) {
 						spike_buf_pos_clust_--;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 
 					// !!! if spikes have not been processed yet - rewind until the first spieks in the SWR
-					while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ && spike != nullptr && spike->pkg_id_ < last_pred_pkg_id_) {
+					while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_ && spike->pkg_id_ < last_pred_pkg_id_) {
 						spike_buf_pos_clust_++;
 						spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 					}
