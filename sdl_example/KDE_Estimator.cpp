@@ -484,7 +484,7 @@ int main(int argc, char **argv){
 	for (int p=0; p < 12; ++p){
 		log_string_ << parnames[p] << "=" << *pars[p] << ", ";
 	}
-	log_string_ << "SAMPLING_RATE = " << SAMPLING_RATE << ", BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << "SIGMA_X = " << SIGMA_X << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_string_ << "SAMPLING_RATE = " << SAMPLING_RATE << ", BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << ", SIGMA_X = " << SIGMA_X << ", SIGMA_XX = " << SIGMA_XX << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 	log_string_ << "\tstart KDE estimation\n";
 	Log();
 
