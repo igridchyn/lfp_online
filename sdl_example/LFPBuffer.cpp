@@ -180,6 +180,19 @@ void LFPBuffer::Reset(Config* config)
 
 	user_context_.Init(tetr_info_->tetrodes_number());
 
+	if (fr_load_){
+		std::ifstream fsrs(fr_path_);
+		fr_estimated_ = true;
+		for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t){
+			double fr;
+			fsrs >> fr;
+			fr_estimates_.push_back(fr);
+			//tetrode_sampling_rates_.push_back(sr);
+		}
+
+		Log("Loaded sampling rates");
+	}
+
 	log_stream << "INFO: BUFFER CREATED\n";
 	log_stream.flush();
 }
@@ -261,9 +274,12 @@ LFPBuffer::LFPBuffer(Config* config)
 , target_buf_pos_(config->getInt("debug.target.bufpos", 0))
 , SPEED_ESTIMATOR_WINDOW_(config->getInt("speed.est.window", 16))
 , spike_waveshape_pool_size_(config->getInt("waveshape.pool.size", SPIKE_BUF_LEN))
-, FR_ESTIMATE_DELAY(config->getInt("kd.frest.delay"))
+, FR_ESTIMATE_DELAY(config->getInt("buf.frest.delay"))
 , REWIND_GUARD(config->getInt("buf.rewind.guard", 1000000))
 , POS_SAMPLING_RATE(config->getInt("pos.sampling.rate", 480))
+, fr_path_(config->getString("out.path.base") + config->getString("buf.fr.path", "frates.txt"))
+, fr_save_(config->getBool("buf.fr.save", false))
+, fr_load_(config->getBool("buf.fr.load", false))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -810,6 +826,14 @@ void LFPBuffer::estimate_firing_rates() {
 
 			fr_estimates_.push_back(firing_rate);
 			Log(ss.str());
+		}
+
+		// write sampling rates to file
+		if (fr_save_){
+			std::ofstream fsampling_rates(fr_path_);
+			for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
+				fsampling_rates << fr_estimates_[t] << "\n";//tetrode_sampling_rates_[t] << "\n";
+			}
 		}
 
 		fr_estimated_ = true;

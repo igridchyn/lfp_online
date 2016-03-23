@@ -371,6 +371,12 @@ public:
 	// average number of spikes in the synchrony window
 	double sync_spikes_window_ = .0;
 
+
+	// sampling rates path / save / load
+	std::string fr_path_ = "";
+	const bool fr_save_ = false;
+	const bool fr_load_ = false;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);

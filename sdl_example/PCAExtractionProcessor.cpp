@@ -397,6 +397,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 				for (size_t w=0; w < waveshape_samples_; ++w) {
 					// STANDARDIZED OR NOT
 					// spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
+					// TODO no division, incorporate into feature scale
 					spike->pc[c * num_pc_ + pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w] / feature_scale_;
 				}
 				spike->num_pc_ = num_pc_;
