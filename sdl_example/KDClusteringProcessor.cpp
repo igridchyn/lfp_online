@@ -264,10 +264,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	if (sr_load_){
 		std::ifstream fsrs(sr_path_);
+		buffer->fr_estimated_ = true;
 		for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
-			unsigned int sr;
-			fsrs >> sr;
-			tetrode_sampling_rates_.push_back(sr);
+			double fr;
+			fsrs >> fr;
+			buffer->fr_estimates_.push_back(fr);
+			//tetrode_sampling_rates_.push_back(sr);
 		}
 
 		Log("Loaded sampling rates");
@@ -596,7 +598,7 @@ void KDClusteringProcessor::process() {
 				if (sr_save_){
 					std::ofstream fsampling_rates(sr_path_);
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-						fsampling_rates << tetrode_sampling_rates_[t] << "\n";
+						fsampling_rates << buffer->fr_estimates_[t] << "\n";//tetrode_sampling_rates_[t] << "\n";
 					}
 				}
 
