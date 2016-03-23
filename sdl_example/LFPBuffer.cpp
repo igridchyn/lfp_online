@@ -422,7 +422,9 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
     population_vector_stack_.push(spike);
 
     if (ISIEstimators_ != nullptr){
-    	ISIEstimators_[spike->tetrode_]->push((spike->pkg_id_ - previous_spikes_pkg_ids_[spike->tetrode_]) / (float)SAMPLING_RATE);
+		if (previous_spikes_pkg_ids_[spike->tetrode_] > 0){
+			ISIEstimators_[spike->tetrode_]->push((spike->pkg_id_ - previous_spikes_pkg_ids_[spike->tetrode_]) / (float)SAMPLING_RATE);
+		}
 
     	// ??? do outside if prev_spikes used anywhere else
     	previous_spikes_pkg_ids_[spike->tetrode_] = spike->pkg_id_;
@@ -459,9 +461,13 @@ void LFPBuffer::AddSpike(Spike* spike, bool rewind) {
 double LFPBuffer::AverageSynchronySpikesWindow(){
 	double average_spikes_window = .0f;
 
+	std::stringstream ss;
+	ss << "Package id = " << last_pkg_id << ", estimate average number of spikes in synchrony tetrodes in synchrony window:\n";
 	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+		ss << "    Mean number of spikes in tetrode " << t << ":" << ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate() << "\n";
 		average_spikes_window += 1.0 / ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate();
 	}
+	Log(ss.str());
 	average_spikes_window *= POP_VEC_WIN_LEN / 1000.0f;
 
 	return average_spikes_window;
@@ -486,8 +492,6 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 //		}
 //	}
 //	return nhigh > 6;
-
-	// TODO !!! cache
 
 	// whether have at least synchrony.factor X average spikes at all tetrodes
 	return (high_synchrony_tetrode_spikes_ >= sync_spikes_window_ * high_synchrony_factor_);
@@ -767,7 +771,7 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 }
 
 void LFPBuffer::estimate_firing_rates() {
-	// estimate firing rates => spike sampling rates if model has not been loaded
+	// estimate firing rates => spike sampling rates if model has not been loaded AND PCA EXTRACTION STARTED
 	if (!fr_estimated_ && last_pkg_id > FR_ESTIMATE_DELAY && spike_buf_pos_unproc_ > 0){
 		std::stringstream ss;
 		ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
@@ -813,7 +817,6 @@ void LFPBuffer::estimate_firing_rates() {
 		for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
 			sync_spikes_window_ += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0;
 		}
-
 	}
 }
 
