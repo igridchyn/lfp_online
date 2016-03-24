@@ -113,10 +113,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 						"kd.prediction.windows.overlap.percentage")
 						* prediction_window_spike_number_ / 100), BINARY_CLASSIFIER(
 				buf->config_->getBool("kd.binary", false)), MAX_KDE_JOBS(
-				buf->config_->getInt("kd.max.jobs", 5)), sr_path_(
-				buf->config_->getString("out.path.base") + buf->config_->getString("kd.sr.path", "sampling_rates.txt")), sr_save_(
-				buf->config_->getBool("kd.sr.save", false)), sr_load_(
-				buf->config_->getBool("kd.sr.load", false)), SINGLE_PRED_PER_SWR(
+				buf->config_->getInt("kd.max.jobs", 5)), SINGLE_PRED_PER_SWR(
 				buf->config_->getBool("kd.single.pred.per.swr", false))
 	{
 
@@ -247,7 +244,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	buffer->last_predictions_[processor_number] = pos_pred_;
 
 	dec_bayesian_.open("dec_bay.txt");
-	window_spike_counts_.open("../out/window_spike_counts.txt");
+	//window_spike_counts_.open("../out/window_spike_counts.txt");
 
 	pnt_ = annAllocPt(max_dim);
 
@@ -261,19 +258,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	neighbour_dists_.resize(neighb_num_);
 	neighbour_inds_.resize(neighb_num_);
-
-	if (sr_load_){
-		std::ifstream fsrs(sr_path_);
-		buffer->fr_estimated_ = true;
-		for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
-			double fr;
-			fsrs >> fr;
-			buffer->fr_estimates_.push_back(fr);
-			//tetrode_sampling_rates_.push_back(sr);
-		}
-
-		Log("Loaded sampling rates");
-	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -593,15 +577,6 @@ void KDClusteringProcessor::process() {
 					ss << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 					Log(ss.str());
 				}
-
-				// write sampling rates to file
-				if (sr_save_){
-					std::ofstream fsampling_rates(sr_path_);
-					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-						fsampling_rates << buffer->fr_estimates_[t] << "\n";//tetrode_sampling_rates_[t] << "\n";
-					}
-				}
-
 			} else {
 				break;
 			}
@@ -1011,18 +986,6 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		exit(564879);
 	}
 
-	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
-	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
-	kdstream.close();
-
-	// dump obs_mat
-	obs_mats_[tetr].resize(total_spikes_[tetr], obs_mats_[tetr].n_cols);
-	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat", arma::raw_ascii);
-
-	// free resources
-	obs_mats_[tetr].clear();
-	delete kdtrees_[tetr];
-
 	// create pos_buf and dump (first count points)
 	unsigned int npoints = 0;
 	arma::Mat<float> pos_buf(2, buffer->pos_buf_pos_);
@@ -1077,8 +1040,23 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 	Log("Number of pos samples: ", npoints);
 
+	// lock while writing to avoid errors
+	kde_mutex_.lock();
+	std::ofstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
+	kdtrees_[tetr]->Dump(ANNtrue, kdstream);
+	kdstream.close();
+
+	// dump obs_mat
+	obs_mats_[tetr].resize(total_spikes_[tetr], obs_mats_[tetr].n_cols);
+	obs_mats_[tetr].save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs.mat", arma::raw_ascii);
+
+	// free resources
+	obs_mats_[tetr].clear();
+	delete kdtrees_[tetr];
+
 	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat", arma::raw_ascii);
+	kde_mutex_.lock();
 
 	unsigned int last_pkg_id = buffer->last_pkg_id;
 	// if using intervals, provide sum of interval lengths until last_pkg_id

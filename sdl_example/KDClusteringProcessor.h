@@ -238,11 +238,6 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const unsigned int MAX_KDE_JOBS = 5;
 
-	// sampling rates path / save / load
-	std::string sr_path_ = "";
-	const bool sr_save_ = false;
-	const bool sr_load_ = false;
-
 	const bool SINGLE_PRED_PER_SWR = false;
 
 	void update_hmm_prediction();
