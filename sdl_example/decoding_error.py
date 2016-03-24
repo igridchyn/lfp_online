@@ -2,7 +2,8 @@ from math import *
 from sys import argv
 import os, time
 import numpy as np
-import pylab as P
+#import pylab as P
+from matplotlib import pyplot as P
 from subprocess import call, Popen
 import datetime
 
