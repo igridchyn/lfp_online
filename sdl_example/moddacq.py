@@ -40,6 +40,7 @@ def proxy_Globals():
 	  // new
 	  LFPPipeline *pipeline = NULL;
 	  LFPBuffer *buf = NULL;
+	  Config *config = NULL;
 	  unsigned char *block = NULL;
 	  FILE *f = NULL;
 	  int CHUNK_SIZE;
@@ -141,16 +142,18 @@ DWORD attributes, HANDLE templ )
 			  
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
-				 //MessageBoxW(0, filename, L"Creating BIN W!", 0);
+				 MessageBoxW(0, filename, L"Creating BIN W!", 0);
 				 if (check_bin > 2){
 					if(pipeline){
 						delete pipeline;
 						pipeline = nullptr;
 						delete buf;
 						buf = nullptr;
+						delete config;
+						config = nullptr;
 					}
 				 
-					Config *config = new Config("d:/Igor/soft/lfp_online/sdl_example/Res/online.conf");
+					config = new Config("d:/Igor/soft/lfp_online/sdl_example/Res/online.conf");
 					buf = new LFPBuffer(config);
 					pipeline = new LFPPipeline(buf);
 				 }
