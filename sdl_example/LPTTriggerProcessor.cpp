@@ -23,6 +23,8 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.high.right", 0.1))
 	, inhibit_nonconf_(buffer->config_->getBool("lpt.trigger.inhibit.nonconf", false))
 	, swap_environments_(buffer->config_->getInt("lpt.swap.environments", false))
+	, inhibition_map_path_(buffer->config_->getOutPath("lpt.trigger.inhibition.map", ""))
+	, use_inhibition_map_(buffer->config_->getBool("lpt.trigger.use.map", false))
 {
 	Log("Constructor start");
 
@@ -69,6 +71,18 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 #endif
 
 	setLow();
+
+	if (use_inhibition_map_){
+		Utils::FS::CheckFileExistsWithError(inhibition_map_path_, (Utils::Logger*)this);
+
+		inhibition_map_.load(inhibition_map_path_, arma::raw_ascii);
+
+		std::stringstream ss;
+		ss << "Loaded inhibition map, with size : " << inhibition_map_.n_rows << " X " << inhibition_map_.n_cols;
+		ss << " Number of bins to be inhibited: " << arma::sum(inhibition_map_);
+		Log(ss.str());
+	}
+
 	Log("Constructor done");
 }
 
@@ -324,6 +338,14 @@ void LPTTriggerProcessor::process() {
 
 double LPTTriggerProcessor::environment_dominance_confidence_() {
 	const arma::fmat & pred = buffer->last_predictions_[0];
+
+	if (use_inhibition_map_){
+		unsigned int maxy, maxx;
+		double maxprob = pred.max(maxy, maxx);
+		Log("Inh maxx: ", maxx);
+		Log("Inh maxy: ", maxy);
+		return (inhibition_map_(maxx, maxy) - 0.5) * maxprob;
+	}
 
 	// separation by X
 	arma::fmat pred1 = pred.submat(0, 0, pred.n_rows / 2 - 1, pred.n_cols - 1);

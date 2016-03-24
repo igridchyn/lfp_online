@@ -79,6 +79,10 @@ class LPTTriggerProcessor: public LFPProcessor {
 
 	bool swap_environments_ = false;
 
+	std::string inhibition_map_path_;
+	bool use_inhibition_map_ = false;
+	arma::mat inhibition_map_;
+
 #ifdef _WIN32
 	typedef void(__stdcall *lpOut32)(short, short);
 	typedef short(__stdcall *lpInp32)(short);
