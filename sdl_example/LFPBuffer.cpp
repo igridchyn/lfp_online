@@ -182,15 +182,23 @@ void LFPBuffer::Reset(Config* config)
 
 	if (fr_load_){
 		std::ifstream fsrs(fr_path_);
+		Log("Loading firing rate estimates\n");
 		fr_estimated_ = true;
+		std::stringstream ss;
 		for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t){
 			double fr;
 			fsrs >> fr;
 			fr_estimates_.push_back(fr);
 			//tetrode_sampling_rates_.push_back(sr);
+			ss << "Firing rate at tetrode " << t << ": " << fr << "\n";
 		}
 
-		Log("Loaded sampling rates");
+		for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+			sync_spikes_window_ += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0;
+		}
+
+		ss << "Number of synchorny spikes in window of length " << POP_VEC_WIN_LEN << ": "  << sync_spikes_window_ << "\n";
+		Log(ss.str());
 	}
 
 	log_stream << "INFO: BUFFER CREATED\n";
@@ -476,6 +484,13 @@ void LFPBuffer::AddSpike(Spike* spike, bool rewind) {
 
 double LFPBuffer::AverageSynchronySpikesWindow(){
 	double average_spikes_window = .0f;
+
+	if (fr_estimated_){
+		for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
+			average_spikes_window += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0f;
+		}
+		return average_spikes_window;
+	}
 
 	std::stringstream ss;
 	ss << "Package id = " << last_pkg_id << ", estimate average number of spikes in synchrony tetrodes in synchrony window:\n";
