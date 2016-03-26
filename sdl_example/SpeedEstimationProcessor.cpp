@@ -30,6 +30,7 @@ void SpeedEstimationProcessor::process(){
 
 	// SPEED is estimated as a mean displacement in the range of 16 position samples across few subsequent displacements
 
+	// TODO !!! : report upoon the pipeline end if did not do but collected data
 	if (ESTIMATE_WINDOW_SPIKE_NUMBER && buffer->last_pkg_id > SN_ESTIMATE_END && !sn_estimate_reported_){
 		sn_estimate_reported_ = true;
 		std::stringstream ss;
