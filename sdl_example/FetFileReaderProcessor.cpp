@@ -537,6 +537,9 @@ Spike* FetFileReaderProcessor::readSpikeFromFile(const unsigned int tetr){
 	}
 	else{
 		fet_stream.read((char*)spike->pc, fetn * sizeof(float));
+		for (unsigned int fet=0; fet < fetn; ++fet) {
+			spike->pc[fet] /= FET_SCALING; // default = 5.0
+		}
 	}
 
 	spike->num_pc_ = fetn / chno;
