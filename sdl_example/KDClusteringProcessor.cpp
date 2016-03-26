@@ -1056,7 +1056,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 	pos_buf = pos_buf.cols(0, npoints - 1);
 	pos_buf.save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_pos_buf.mat", arma::raw_ascii);
-	kde_mutex_.lock();
+	kde_mutex_.unlock();
 
 	unsigned int last_pkg_id = buffer->last_pkg_id;
 	// if using intervals, provide sum of interval lengths until last_pkg_id
