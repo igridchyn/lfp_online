@@ -250,6 +250,9 @@ void LPTTriggerProcessor::process() {
 							// DEBUG
 							buffer->CheckPkgIdAndReportTime(buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_, "INHIBITION started\n");
 
+//							timestamp_log_ << buffer->last_pkg_id << "\n";
+//							timestamp_log_.flush();
+
 						} else {
 							events_allowed_timeout_ ++;
 
@@ -281,6 +284,10 @@ void LPTTriggerProcessor::process() {
 						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 						buffer->buf_pos_trig_ = buffer->last_pkg_id;
 						swr_ptr_ ++;
+
+						//timestamp_log_ << buffer->last_pkg_id << "\n";
+						//timestamp_log_.flush();
+
 						continue;
 					} else if (envdomconf < confidence_high_left_){
 						buffer->log_string_stream_ << "environment dominance confidence = " << environment_dominance_confidence_() <<
@@ -312,6 +319,8 @@ void LPTTriggerProcessor::process() {
 						buffer->swrs_[buffer->swrs_.size() - 1].push_back(std::max(sync_start + sync_max_duration_, buffer->last_pkg_id));
 
 						last_synchrony_ = buffer->last_pkg_id;
+
+						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 
 						// prediction has to be evaluated for newly created event first before continuing
 						break_cycle_ = true;
