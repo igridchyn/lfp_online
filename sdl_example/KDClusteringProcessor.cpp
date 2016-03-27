@@ -838,6 +838,7 @@ void KDClusteringProcessor::process() {
 						pos_pred_ += 1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
 					}
 				} else {
+
 					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
 				}
 //				std::cout << "kd time = " << clock() - kds << "\n";
@@ -882,6 +883,10 @@ void KDClusteringProcessor::process() {
 			// if prediction is final and end of window has been reached (last spike is beyond the window)
 			// 		or prediction will be finalized in subsequent iterations
 			if (spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN) {
+
+				std::stringstream ss;
+				ss << "WINDOW OVER AT " <<  last_pred_pkg_id_ + PRED_WIN << " with spike pkg id " << spike->pkg_id_ << ", finalize prediction\n";
+				Log(ss.str());
 
 				// DEBUG
 				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in KD at the prediction start\n");
@@ -942,7 +947,9 @@ void KDClusteringProcessor::process() {
 					// TODO what should be here
 					// was: (SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]))
 					// should not limit becase of potential unlimited rewinds
-					PRED_WIN = swr_regime_ ? 24000000 : THETA_PRED_WIN;
+
+					// should not be limited ? in both swr / non-swr regime
+					PRED_WIN = 24000000;//swr_regime_ ? 24000000 : THETA_PRED_WIN;
 				}
 
 				// rewind back to get predictions of the overlapping windows
