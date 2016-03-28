@@ -142,7 +142,7 @@ DWORD attributes, HANDLE templ )
 			  
               if ( !wcscmp(fileext, ebin) || !wcscmp(fileext, L".bin")){
 				 check_bin++;
-				 MessageBoxW(0, filename, L"Creating BIN W!", 0);
+				 //MessageBoxW(0, filename, L"Creating BIN W!", 0);
 				 if (check_bin > 2){
 					if(pipeline){
 						delete pipeline;
