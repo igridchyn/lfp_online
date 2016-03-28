@@ -122,7 +122,8 @@ void LPTTriggerProcessor::setHigh() {
 
 void LPTTriggerProcessor::process() {
 	// check if need to turn off first
-	if (LPT_is_high_ && buffer->last_pkg_id - last_trigger_time_ > pulse_length_){
+	// TODO !!! remove 2nd check later
+	if (LPT_is_high_ && buffer->last_pkg_id - last_trigger_time_ >= pulse_length_){
 		Log("STOP INHIBITION at ", buffer->last_pkg_id);
 		setLow();
 		LPT_is_high_ = false;
