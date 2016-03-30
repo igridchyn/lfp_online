@@ -85,3 +85,33 @@ void Utils::FS::CheckFileExistsWithError(const std::string& filename, Utils::Log
 	}
 
 }
+
+Utils::NewtonSolver::NewtonSolver(const double& target_f,
+		const unsigned int& update_frequency, const double& alpha,
+		const double& init_x)
+: target_f_(target_f)
+, update_frequency_(update_frequency)
+, alpha_(alpha)
+, current_x_(init_x)
+, last_update_(0){
+}
+
+double Utils::NewtonSolver::Update(const unsigned int& time,
+		const double& f_value_, Utils::Logger* logger) {
+	if (time > last_update_ + update_frequency_){
+		std::stringstream ss;
+		ss << "Target function value: " << target_f_ << ", current value: " << f_value_ << ", current argument value: " << current_x_ << ", ";
+		current_x_ += (target_f_ - f_value_) * alpha_;
+		ss << "new argument value: " << current_x_;
+
+		logger->Log(ss.str());
+
+		last_update_ = time;
+	}
+
+	return current_x_;
+}
+
+bool Utils::NewtonSolver::NeedUpdate(const unsigned int& time) {
+	return time > last_update_ + update_frequency_;
+}

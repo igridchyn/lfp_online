@@ -70,6 +70,22 @@ public:
             }
         }
     };
+
+    // solving f(x) = taget(f) for monotonous function f
+    class NewtonSolver{
+    	double target_f_;
+    	unsigned int update_frequency_;
+    	double alpha_;
+    	double current_x_;
+
+    public:
+    	unsigned int last_update_;
+
+    public:
+    	NewtonSolver(const double & target_f_, const unsigned int & udpate_frequency, const double & alpha, const double & init_x_);
+    	double Update(const unsigned int & time, const double & f_value_, Utils::Logger* logger);
+    	bool NeedUpdate(const unsigned int & time);
+    };
 };
 
 #endif
