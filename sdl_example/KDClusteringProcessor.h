@@ -240,6 +240,10 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const bool SINGLE_PRED_PER_SWR = false;
 
+	const double POS_OOR_LIMIT = .0001;
+
+	const bool IGNORE_LX;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

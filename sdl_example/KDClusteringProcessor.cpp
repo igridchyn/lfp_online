@@ -114,7 +114,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 						* prediction_window_spike_number_ / 100), BINARY_CLASSIFIER(
 				buf->config_->getBool("kd.binary", false)), MAX_KDE_JOBS(
 				buf->config_->getInt("kd.max.jobs", 5)), SINGLE_PRED_PER_SWR(
-				buf->config_->getBool("kd.single.pred.per.swr", false))
+				buf->config_->getBool("kd.single.pred.per.swr", false)), IGNORE_LX(
+				buf->config_->getBool("kd.ignore.lx", false))
 	{
 
 	Log("Construction started");
@@ -160,11 +161,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	for (unsigned int t = 0; t < tetrn; ++t) {
 		const unsigned int dim = buf->feature_space_dims_[t];
 
-		ann_points_[t] = annAllocPts(MIN_SPIKES * 2, dim);
-		spike_place_fields_[t].reserve(MIN_SPIKES * 2);
+		// TODO !!! allow to be extended
+		unsigned int maxPoints = MIN_SPIKES * 3;
+
+		ann_points_[t] = annAllocPts(maxPoints, dim);
+		spike_place_fields_[t].reserve(maxPoints);
 
 		// tmp
-		obs_mats_[t] = arma::fmat(MIN_SPIKES * 2,
+		obs_mats_[t] = arma::fmat(maxPoints,
 				buffer->feature_space_dims_[t] + 2);
 
 		if (buffer->feature_space_dims_[t] > max_dim)
@@ -177,9 +181,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	if (LOAD) {
 		// load occupancy
-		Utils::FS::CheckFileExistsWithError(BASE_PATH + "pix_log.mat",
-				(Utils::Logger*) this);
+		Utils::FS::CheckFileExistsWithError(BASE_PATH + "pix_log.mat", (Utils::Logger*) this);
 		pix_log_.load(BASE_PATH + "pix_log.mat");
+
+		if (pix_log_.n_rows != NBINSX || pix_log_.n_cols!= NBINSY){
+			buffer->processing_over_ = true;
+			Log("ERROR: NBINSX / NBINSY mismatch");
+			return;
+		}
 
 		for (unsigned int t = 0; t < tetrn; ++t) {
 			load_laxs_tetrode(t);
@@ -847,8 +856,9 @@ void KDClusteringProcessor::process() {
 				if (continuous_prediction_) {
 					// from last spike at the current tetrode
 					const double DE_SEC = (spike->pkg_id_ - last_spike_pkg_ids_by_tetrode_[stetr]) / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
-					// !!! TODO !!!
-					pos_pred_ -= DE_SEC * lxs_[stetr];
+
+					if (!IGNORE_LX)
+						pos_pred_ -= DE_SEC * lxs_[stetr];
 
 					// TODO !!! make a reference for speed
 					buffer->last_predictions_[processor_number_] = pos_pred_;
@@ -884,18 +894,18 @@ void KDClusteringProcessor::process() {
 			// 		or prediction will be finalized in subsequent iterations
 			if (spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN) {
 
-				std::stringstream ss;
-				ss << "WINDOW OVER AT " <<  last_pred_pkg_id_ + PRED_WIN << " with spike pkg id " << spike->pkg_id_ << ", finalize prediction\n";
-				Log(ss.str());
+//				std::stringstream ss;
+//				ss << "WINDOW OVER AT " <<  last_pred_pkg_id_ + PRED_WIN << " with spike pkg id " << spike->pkg_id_ << ", finalize prediction\n";
+//				Log(ss.str());
 
 				// DEBUG
 				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in KD at the prediction start\n");
 
 				// edges of the window
 				// account for the increase in the firing rate during high synchrony with additional factor
-				const double DE_SEC = PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
+				const double DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
 
-				if (!continuous_prediction_) {
+				if (!continuous_prediction_ && !IGNORE_LX) {
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 						// TODO ? subtract even if did not spike
 						if (tetr_spiked_[t]) {
@@ -1032,6 +1042,19 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 			pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
 		}
 		npoints++;
+	}
+
+	// OOR check
+	unsigned int nout = 0;
+	for (unsigned int i=0; i < pos_buf.n_cols; ++i){
+		if (pos_buf(0, i) > NBINSX * BIN_SIZE || pos_buf(1, i) > NBINSY * BIN_SIZE){
+			nout ++;
+		}
+	}
+	if (nout / double(pos_buf.n_cols) > POS_OOR_LIMIT){
+		Log("ERROR: limit of positoins out of range exceeded, check NBINS X / NBINS Y / BIN SIZE!");
+		buffer->processing_over_ = true;
+		exit(235325);
 	}
 
 	// DEBUG
