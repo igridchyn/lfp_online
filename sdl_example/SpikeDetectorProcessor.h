@@ -26,7 +26,7 @@ class SpikeDetectorProcessor : public LFPProcessor{
     // after process() should be equal to buf_pos
     unsigned int & filt_pos;
 
-    int *thresholds_;
+    unsigned int *thresholds_;
     
     std::vector<Spike*> spikes;
     
@@ -51,8 +51,8 @@ public:
 private:
     void filter_channel(unsigned int channel);
     void update_threshold(unsigned int channel);
-    void detect_spike_pos(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process, const unsigned int & dpos, const unsigned int & spike_pos);
-    void detect_spikes(const unsigned int & channel, const int & threshold, const int & tetrode, const int & tetrode_to_process);
+    void detect_spike_pos(const unsigned int & channel, const unsigned int & threshold, const int & tetrode, const int & tetrode_to_process, const unsigned int & dpos, const unsigned int & spike_pos);
+    void detect_spikes(const unsigned int & channel, const unsigned int & threshold, const int & tetrode, const int & tetrode_to_process);
     void set_spike_positions();
 };
 
