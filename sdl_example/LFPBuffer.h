@@ -279,7 +279,7 @@ public:
 
 	signal_type **signal_buf;
 	std::vector<ws_type *> filtered_signal_buf;
-	std::vector<int *> power_buf;
+	std::vector<unsigned int *> power_buf;
 
 	// ??? for all arrays ?
 	unsigned int buf_pos;
@@ -376,6 +376,8 @@ public:
 	std::string fr_path_ = "";
 	const bool fr_save_ = false;
 	const bool fr_load_ = false;
+
+	Utils::NewtonSolver *synchronyThresholdAdapter_;
 
 	//====================================================================================================
 

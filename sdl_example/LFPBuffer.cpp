@@ -137,11 +137,11 @@ void LFPBuffer::Reset(Config* config)
     	if (is_valid_channel_[c]){
     		signal_buf[c] = new signal_type[LFP_BUF_LEN + WS_SHIFT];
     		filtered_signal_buf[c] = new ws_type[LFP_BUF_LEN + WS_SHIFT];
-    		power_buf[c] = new int[LFP_BUF_LEN + WS_SHIFT];
+    		power_buf[c] = new unsigned int[LFP_BUF_LEN + WS_SHIFT];
 
 	        memset(signal_buf[c], 0, (LFP_BUF_LEN + WS_SHIFT) * sizeof(signal_type));
 	        memset(filtered_signal_buf[c], 0, LFP_BUF_LEN * sizeof(ws_type));
-	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(int));
+	        memset(power_buf[c], 0, LFP_BUF_LEN * sizeof(unsigned int));
     	}
     }
 
@@ -348,6 +348,9 @@ LFPBuffer::LFPBuffer(Config* config)
     chunk_buf_ptr_in_ = 0;
 
     debug_stream_.open("debug.txt");
+
+    // TODO !!! PARAMETRIZE
+    synchronyThresholdAdapter_ = new Utils::NewtonSolver(1.0, 24000*60, -0.5, high_synchrony_factor_);
 }
 
 template <class T>
@@ -514,6 +517,18 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 
 	if (fr_estimates_.empty())
 		return false;
+
+	// try update
+	if (synchronyThresholdAdapter_->NeedUpdate(last_pkg_id)){
+		// find number of events and calculate last frequency
+		unsigned i = swrs_.size() - 1;
+		while (i > 0 and swrs_[i-1][0] > synchronyThresholdAdapter_->last_update_){
+			i --;
+		}
+
+		double frequency =  (swrs_.size() - i + 1) * SAMPLING_RATE / float((last_pkg_id -  synchronyThresholdAdapter_->last_update_));
+		high_synchrony_factor_ = synchronyThresholdAdapter_->Update(last_pkg_id, frequency, (Utils::Logger*)this);
+	}
 
 	// TETRODE-WISE increase + # of synchronous tetrodes
 //	int nhigh = 0;
