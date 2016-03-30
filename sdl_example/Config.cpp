@@ -151,6 +151,19 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 			ReadList<unsigned int>(fconf, pf_sessions_);
 			continue;
 		}
+		if (line == std::string("#include")){
+			std::string confPath;
+			std::getline(fconf, confPath);
+
+			Utils::FS::CheckFileExistsWithError(confPath, (Utils::Logger*)this);
+
+			Config includedConf(confPath);
+			params_.insert(includedConf.params_.begin(), includedConf.params_.end());
+			log_string_stream_ << "Include params from file: " << confPath << "\n";
+			log_string_stream_ << includedConf.params_.size() << " params included\n";
+			Log();
+			continue;
+		}
 
 		parse_line(fconf, line);
 	}
