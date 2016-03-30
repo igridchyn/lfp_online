@@ -83,6 +83,9 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 		Log(ss.str());
 	}
 
+	 // TODO !!! PARAMETRIZE
+	inhibitionThresholdAdapter_ = new Utils::NewtonSolver(0.9, 24000*60*3, -120, confidence_avg_);
+
 	Log("Constructor done");
 }
 
@@ -133,6 +136,20 @@ void LPTTriggerProcessor::process() {
 				<< events_allowed_thold_ << " / " << events_allowed_timeout_ << "; "
 				<< (events_inhibited_thold_ + events_inhibited_timeout_) << " / " << (events_allowed_thold_ + events_allowed_timeout_) << "\n";
 		buffer->Log();
+
+		// adjust inhibition threshold
+		if (inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
+			// calculate inhibition frequency in the last 1 minute
+			unsigned int i=buffer->swrs_.size() - 1;
+			unsigned int inhibited = inhibition_history_[i];
+			while (i > 0 && buffer->swrs_[i-1][0] > inhibitionThresholdAdapter_->last_update_){
+				i --;
+				inhibited += inhibition_history_[i];
+			}
+
+			double frequency =  inhibited / double(buffer->swrs_.size() - i + 1);
+			confidence_avg_ = inhibitionThresholdAdapter_->Update(buffer->last_pkg_id, frequency, (Utils::Logger*)this);
+		}
 	}
 
 	// TODO detect start not since 0 but since first package id
@@ -254,10 +271,13 @@ void LPTTriggerProcessor::process() {
 //							timestamp_log_ << buffer->last_pkg_id << "\n";
 //							timestamp_log_.flush();
 
+							inhibition_history_.push_back(1);
+
 						} else {
 							events_allowed_timeout_ ++;
 
 							buffer->Log("\t decision: DON'T INHIBIT, start at ", buffer->last_pkg_id);
+							inhibition_history_.push_back(0);
 						}
 
 						debug_log_ << env_dom_conf_ << "\n";
@@ -286,6 +306,8 @@ void LPTTriggerProcessor::process() {
 						buffer->buf_pos_trig_ = buffer->last_pkg_id;
 						swr_ptr_ ++;
 
+						inhibition_history_.push_back(1);
+
 						//timestamp_log_ << buffer->last_pkg_id << "\n";
 						//timestamp_log_.flush();
 
@@ -299,6 +321,8 @@ void LPTTriggerProcessor::process() {
 						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 						buffer->buf_pos_trig_ = buffer->last_pkg_id;
 						swr_ptr_ ++;
+
+						inhibition_history_.push_back(0);
 					}
 					// otherwise keep collecting data
 				} else{ // not in synchrony (IDLE or INHIBITING)
