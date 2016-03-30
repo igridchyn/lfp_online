@@ -395,7 +395,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 			for (size_t pc=0; pc < num_pc_; ++pc) {
 				spike->pc[c * num_pc_ + pc] = 0;
 				for (size_t w=0; w < waveshape_samples_; ++w) {
-					// STANDARDIZED OR NOT
+					// !! STANDARDIZED OR NOT
 					// spike->pc[c][pc] += spike->waveshape_final[c][w] / stdf_[chan][w] * pc_transform_[chan][w][pc];
 					// TODO no division, incorporate into feature scale
 					spike->pc[c * num_pc_ + pc] += spike->waveshape_final[c][w] * pc_transform_[chan][pc][w] / feature_scale_;
@@ -407,15 +407,9 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 					spike->pc[c * num_pc_ + pc] *= sqrt(4 / (double)spike->num_channels_);
 				}
 			}
-//			if (cleanup_ws_){
-//				delete spike->waveshape_final[c];
-//				spike->waveshape_final[c] = nullptr;
-//			}
         }
         if (cleanup_ws_){
         	buffer->FreeFinalWaveshapeMemory(spike);
-//        	delete spike->waveshape_final;
-//        	spike->waveshape_final = nullptr;
         }
     }
 }

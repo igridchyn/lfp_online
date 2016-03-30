@@ -34,7 +34,11 @@ void SpeedEstimationProcessor::process(){
 	if (ESTIMATE_WINDOW_SPIKE_NUMBER && buffer->last_pkg_id > SN_ESTIMATE_END && !sn_estimate_reported_){
 		sn_estimate_reported_ = true;
 		std::stringstream ss;
-		ss << "Mean number of spikes int the " << WIN_LEN << " window and speed threshold " << RUNNING_SPEED_THOLD << " equals " << mean_spike_number_estimator_.get_mean_estimate();
+		if (mean_spike_number_estimator_.n_samples() == 0){
+			ss << "WARNING: cannot estimate number of spikes because no data points have been collected (probably, due to lack of tracking)\n";
+		}else{
+			ss << "Mean number of spikes int the " << WIN_LEN << " window and speed threshold " << RUNNING_SPEED_THOLD << " equals " << mean_spike_number_estimator_.get_mean_estimate();
+		}
 		Log(ss.str());
 	}
 
