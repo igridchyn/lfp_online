@@ -155,6 +155,8 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 			std::string confPath;
 			std::getline(fconf, confPath);
 
+			confPath = evaluate_variables("#include", confPath);
+
 			Utils::FS::CheckFileExistsWithError(confPath, (Utils::Logger*)this);
 
 			Config includedConf(confPath);
