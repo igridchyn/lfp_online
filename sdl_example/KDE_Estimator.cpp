@@ -476,7 +476,7 @@ int main(int argc, char **argv){
 	BASE_PATH = argv[21];
 
 	if (DIM < 8){
-		SIGMA_A *= sqrt(DIM / (double)12);
+		SIGMA_A *= sqrt(DIM / 8.0);
 	}
 
 	log_.open(BASE_PATH + "KDE_tetr_" + Utils::NUMBERS[tetr] + ".log");
