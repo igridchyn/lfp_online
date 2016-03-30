@@ -843,7 +843,7 @@ void FetFileReaderProcessor::process() {
 	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
 
 	if (last_spike_pkg_id - last_reported_ > report_rate_){
-		buffer->log_string_stream_ << "Loaded spikes for the first " << last_reported_ / report_rate_ * 2 << " minutes of recording...\n";
+		buffer->log_string_stream_ << "Loaded spikes for the first " << last_spike_pkg_id / report_rate_ * 2 << " minutes of recording...\n";
 		buffer->Log();
 		last_reported_ = last_spike_pkg_id;
 	}
