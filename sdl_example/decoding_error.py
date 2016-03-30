@@ -211,6 +211,7 @@ if plot_distr:
 
 	im=P.imshow(predmap, cmap='hot', interpolation='none')
 	P.title('Predicted locations')
+	P.colorbar()	
 	P.show()
 	
 	#imocc=P.imshow(occmap, cmap='hot', interpolation='none')
@@ -218,6 +219,7 @@ if plot_distr:
 
 	P.title('Error map')
 	imerr=P.imshow(errmap, cmap='hot', interpolation='none')
+	P.colorbar()
 	P.show()
 
 # print errmap
