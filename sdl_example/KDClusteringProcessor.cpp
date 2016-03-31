@@ -1009,12 +1009,15 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	unsigned int pos_interval = 0;
 	int nskip = 0;
 	for (unsigned int n = 0; n < buffer->pos_buf_pos_; ++n) {
-		if (buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
-			nskip++;
-		}
+		const SpatialInfo & si = buffer->positions_buf_[n];
 
 		// if pos is unknown or speed is below the threshold - ignore
-		if (Utils::Math::Isnan(buffer->positions_buf_[n].x_pos()) || buffer->positions_buf_[n].speed_ < SPEED_THOLD) {
+		if (Utils::Math::Isnan(si.x_pos()) || si.pkg_id_ < SAMPLING_DELAY || si.pkg_id_ > SAMPLING_END) {
+			continue;
+		}
+
+		if (si.speed_ < SPEED_THOLD) {
+			nskip++;
 			continue;
 		}
 
@@ -1035,11 +1038,12 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		}
 
 		if (BINARY_CLASSIFIER) {
-			pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos() > 140 ? 1.5 : 0.5;
+			// TODO !! parametrize environment threshold
+			pos_buf(0, npoints) = si.x_pos() > 140 ? 1.5 : 0.5;
 			pos_buf(1, npoints) = 0.5;
 		} else {
-			pos_buf(0, npoints) = buffer->positions_buf_[n].x_pos();
-			pos_buf(1, npoints) = buffer->positions_buf_[n].y_pos();
+			pos_buf(0, npoints) = si.x_pos();
+			pos_buf(1, npoints) = si.y_pos();
 		}
 		npoints++;
 	}

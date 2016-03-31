@@ -26,6 +26,7 @@ double BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
+// TODO !!
 const double MIN_OCC = 0.002;
 
 int MIN_SPIKES;
@@ -486,6 +487,7 @@ int main(int argc, char **argv){
 	}
 	log_string_ << "SAMPLING_RATE = " << SAMPLING_RATE << ", BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << ", SIGMA_X = " << SIGMA_X << ", SIGMA_XX = " << SIGMA_XX << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
 	log_string_ << "\tstart KDE estimation\n";
+	log_string_ << "MIN_OCC = " << MIN_OCC << "\n";
 	Log();
 
 	// load trees, extract points, load mats
@@ -539,6 +541,11 @@ int main(int argc, char **argv){
 	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
 	log_string_ << "std of x  = " << stdx << "\n";
 	log_string_ << "std of y  = " << stdy << "\n";
+
+	// SHOULD BE THE SAME INDEPENDENTLY ON ENVIRONMENT SHAPEbuil!
+	stdx = std::min(stdx, stdy);
+	stdy = std::min(stdx, stdy);
+
 	Log();
 	// normalize coords to have the average feature std
 	for (int s = 0; s < total_spikes; ++s) {
