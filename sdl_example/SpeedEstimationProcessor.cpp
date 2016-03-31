@@ -11,8 +11,8 @@
 SpeedEstimationProcessor::SpeedEstimationProcessor(LFPBuffer *buffer)
 : LFPProcessor(buffer)
 , ESTIMATE_WINDOW_SPIKE_NUMBER(buffer->config_->getBool("speed.est.estimate.meansn", false))
-, WIN_LEN(buffer->config_->getInt("speed.est.meansn.win", buffer->config_->getInt("kd.pred.win")))
-, RUNNING_SPEED_THOLD(buffer->config_->getInt("speed.est.meansn.thold", buffer->config_->getInt("kd.speed.thold")))
+, WIN_LEN(buffer->config_->getInt("speed.est.meansn.win"))
+, RUNNING_SPEED_THOLD(buffer->config_->getInt("speed.est.meansn.thold"))
 , SN_ESTIMATE_START(buffer->config_->getInt("speed.est.meansn.start", 0))
 , SN_ESTIMATE_END(buffer->config_->getInt("speed.est.meansn.end")){
 	dump_.open("../spike_speed.txt");
