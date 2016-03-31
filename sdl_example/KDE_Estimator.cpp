@@ -642,15 +642,21 @@ int main(int argc, char **argv){
 
 	// compute generalized rate function lambda(x)
 	// TODO !!! uniform + parametrize
+	unsigned int skipped = 0;
 	double pisum = arma::sum(arma::sum(pix));
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
 			// absolute value of this function matter, but constant near p(x) and pi(x) is the same (as the same kernel K_H_x is used)
 			if (pix(xb, yb) > MIN_OCC * pisum){
 				lx(xb, yb) = mu * px(xb, yb) / pix(xb, yb);
+			} else {
+				skipped ++;
 			}
 		}
 	}
+
+	log_string_ << "Skippped " << skipped << " bins out of "<< lx.n_rows * lx.n_cols << " du to low occupancy\n";
+	Log();
 
 	if (SAVE){
 		pix_log.save(BASE_PATH + "pix_log.mat", arma::raw_ascii);
