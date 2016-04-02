@@ -655,7 +655,7 @@ int main(int argc, char **argv){
 		}
 	}
 
-	log_string_ << "Skippped " << skipped << " bins out of "<< lx.n_rows * lx.n_cols << " du to low occupancy\n";
+	log_string_ << "Skippped " << skipped << " bins out of "<< lx.n_rows * lx.n_cols << " due to low occupancy\n";
 	Log();
 
 	if (SAVE){
