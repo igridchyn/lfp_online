@@ -138,18 +138,18 @@ void LPTTriggerProcessor::process() {
 		buffer->Log();
 
 		// adjust inhibition threshold
-		if (inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
-			// calculate inhibition frequency in the last 1 minute
-			unsigned int i=buffer->swrs_.size() - 1;
-			unsigned int inhibited = inhibition_history_[i];
-			while (i > 0 && buffer->swrs_[i-1][0] > inhibitionThresholdAdapter_->last_update_){
-				i --;
-				inhibited += inhibition_history_[i];
-			}
+		//if (inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
+		//	// calculate inhibition frequency in the last 1 minute
+		//	unsigned int i=buffer->swrs_.size() - 1;
+		//	unsigned int inhibited = inhibition_history_[i];
+		//	while (i > 0 && buffer->swrs_[i-1][0] > inhibitionThresholdAdapter_->last_update_){
+		//		i --;
+		//		inhibited += inhibition_history_[i];
+		//	}
 
-			double frequency =  inhibited / double(buffer->swrs_.size() - i + 1);
-			confidence_avg_ = inhibitionThresholdAdapter_->Update(buffer->last_pkg_id, frequency, (Utils::Logger*)this);
-		}
+		//	double frequency =  inhibited / double(buffer->swrs_.size() - i + 1);
+		//	confidence_avg_ = inhibitionThresholdAdapter_->Update(buffer->last_pkg_id, frequency, (Utils::Logger*)this);
+		//}
 	}
 
 	// TODO detect start not since 0 but since first package id

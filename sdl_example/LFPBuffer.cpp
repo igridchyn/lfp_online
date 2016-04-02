@@ -522,7 +522,7 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 	if (synchronyThresholdAdapter_->NeedUpdate(last_pkg_id)){
 		// find number of events and calculate last frequency
 		unsigned i = swrs_.size() - 1;
-		while (i > 0 and swrs_[i-1][0] > synchronyThresholdAdapter_->last_update_){
+		while (i > 0 && swrs_[i-1][0] > synchronyThresholdAdapter_->last_update_){
 			i --;
 		}
 
