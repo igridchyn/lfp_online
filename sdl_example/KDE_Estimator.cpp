@@ -405,7 +405,7 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 			for (int ni = 0; ni < NN_K; ++ni) {
 				double spikex = obs_mat(nn_idx[ni], N_FEAT);
-				if (abs(spikex - 1023) < 1){
+				if (nn_idx[ni] == spikei || abs(spikex - 1023) < 1){
 					continue;
 				}
 
