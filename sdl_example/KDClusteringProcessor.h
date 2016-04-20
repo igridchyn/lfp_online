@@ -244,6 +244,9 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	const bool IGNORE_LX;
 
+	// use interleaving windows : odd - for training, even - for validation
+	const bool INTERLEAVING_WINDOWS;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

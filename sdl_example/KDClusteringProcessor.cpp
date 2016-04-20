@@ -115,7 +115,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getBool("kd.binary", false)), MAX_KDE_JOBS(
 				buf->config_->getInt("kd.max.jobs", 5)), SINGLE_PRED_PER_SWR(
 				buf->config_->getBool("kd.single.pred.per.swr", false)), IGNORE_LX(
-				buf->config_->getBool("kd.ignore.lx", false))
+				buf->config_->getBool("kd.ignore.lx", false)), INTERLEAVING_WINDOWS(
+				buf->config_->getBool("kd.interleaving.windows", false))
 	{
 
 	Log("Construction started");
@@ -420,6 +421,10 @@ void KDClusteringProcessor::reset_hmm() {
 
 void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 		const unsigned int& my) {
+	if (INTERLEAVING_WINDOWS && ((last_pred_pkg_id_ / PRED_WIN) % 2) == 1){
+		return;
+	}
+
 	if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END) {
 		// DEBUG
 		if (!dump_delay_reach_reported_) {
@@ -662,6 +667,11 @@ void KDClusteringProcessor::process() {
 					continue;
 				}
 				missed_spikes_[tetr] = 0;
+
+				if (INTERLEAVING_WINDOWS && ((spike->pkg_id_ / PRED_WIN) % 2 == 0)){
+					spike_buf_pos_clust_++;
+					continue;
+				}
 
 				// copy features and coords to ann_points_int and obs_mats
 				for (unsigned int fet = 0; fet < nfeat; ++fet) {
