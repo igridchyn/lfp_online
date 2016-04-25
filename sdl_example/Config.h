@@ -59,7 +59,7 @@ public:
 
 	void Log(bool nocout = false);
 
-	Config(std::string path, unsigned int nparams = 0, char **params = nullptr);
+	Config(std::string path, unsigned int nparams = 0, char **params = nullptr, std::map<std::string, std::string> *initMap = nullptr);
 
 	int getInt(std::string name);
 	int getInt(std::string name, const int def_val);

@@ -45,7 +45,7 @@ void Config::read_processors(std::ifstream& fconf) {
 
 
 
-Config::Config(std::string path, unsigned int nparams, char **params) {
+Config::Config(std::string path, unsigned int nparams, char **params, std::map<std::string, std::string> *initMap) {
 	// generate timestamp
 	time_t rawtime;
 	struct tm * timeinfo;
@@ -57,7 +57,11 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 	buffer[16] = '-';
 	timestamp_ = buffer;
 
-	params_["timestamp"] = timestamp_;
+	if (initMap == nullptr){
+		params_["timestamp"] = timestamp_;
+	} else {
+		params_.insert(initMap->begin(), initMap->end());
+	}
 
 	config_path_ = path;
 
@@ -159,7 +163,7 @@ Config::Config(std::string path, unsigned int nparams, char **params) {
 
 			Utils::FS::CheckFileExistsWithError(confPath, (Utils::Logger*)this);
 
-			Config includedConf(confPath);
+			Config includedConf(confPath, 0, nullptr, &params_);
 			params_.insert(includedConf.params_.begin(), includedConf.params_.end());
 			log_string_stream_ << "Include params from file: " << confPath << "\n";
 			log_string_stream_ << includedConf.params_.size() << " params included\n";
