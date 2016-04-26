@@ -524,15 +524,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         	// D: delete all clusters, d: delete last polygon point
         	case SDLK_d:
-        		if (kmod & KMOD_LSHIFT){
-        			deleteAllClusters();
-        		}else{
-        			if (polygon_x_.size() > 0){
-        				polygon_x_.erase(polygon_x_.end() - 1);
-        				polygon_y_.erase(polygon_y_.end() - 1);
-        			}
-        			// need_redraw = false;
-        		}
+				if (polygon_x_.size() > 0){
+					polygon_x_.erase(polygon_x_.end() - 1);
+					polygon_y_.erase(polygon_y_.end() - 1);
+				}
+				// need_redraw = false;
+
         		break;
 
         	// c: clear cluster -> show spikes in the refractory period
