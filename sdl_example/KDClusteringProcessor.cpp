@@ -41,6 +41,25 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 					BASE_PATH + Utils::NUMBERS[t] + "_"
 							+ Utils::Converter::int2str(s) + ".tmp",
 					arma::raw_ascii);
+
+		// CHECK FOR NANS
+		arma::fmat & smat = laxs_[t][laxs_[t].size() - 1];
+		float smatmin = std::numeric_limits<float>::max();
+		for (unsigned int bx = 0; bx < NBINSX; ++bx){
+			for (unsigned int by = 0; by < NBINSY; ++by){
+				if (!std::isinf(smat(bx,by)) && smat(bx, by) < smatmin){
+					smatmin = smat(bx, by);
+				}
+			}
+		}
+		for (unsigned int bx = 0; bx < NBINSX; ++bx){
+			for (unsigned int by = 0; by < NBINSY; ++by){
+				if (std::isinf(smat(bx, by))){
+					smat(bx,by) = smatmin;
+//					std::cout << "NAN at tetr " << t << " spike " << laxs_[t].size() << "\n";
+				}
+			}
+		}
 	}
 	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
@@ -258,8 +277,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	pnt_ = annAllocPt(max_dim);
 
-	last_spike_pkg_ids_by_tetrode_.resize(tetr_info_->tetrodes_number(), 0);
-
 	Log("Construction ready");
 
 	// DEBUG
@@ -268,6 +285,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	neighbour_dists_.resize(neighb_num_);
 	neighbour_inds_.resize(neighb_num_);
+
+	if (continuous_prediction_ && !IGNORE_LX) {
+		// from last spike at the current tetrode
+		const double DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
+
+		for (unsigned int stetr = 0; stetr < tetr_info_->tetrodes_number(); stetr++)
+			pos_pred_ -= DE_SEC * lxs_[stetr];
+	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -649,12 +674,7 @@ void KDClusteringProcessor::process() {
 					}
 
 					// out of intervals
-					if (current_interval_ >= interval_starts_.size()) {
-						spike_buf_pos_clust_++;
-						continue;
-					}
-
-					if (spike->pkg_id_ < interval_starts_[current_interval_]) {
+					if (current_interval_ >= interval_starts_.size() || spike->pkg_id_ < interval_starts_[current_interval_]) {
 						spike_buf_pos_clust_++;
 						continue;
 					}
@@ -784,13 +804,6 @@ void KDClusteringProcessor::process() {
 						reset_hmm();
 					}
 
-					// for continuous prediction - adjustment be the generalized firing rate
-					if (continuous_prediction_){
-						for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-							last_spike_pkg_ids_by_tetrode_[t] = buffer->swrs_[swr_pointer_][0];
-						}
-					}
-
 					pos_pred_.zeros();
 				} // if new SWR detected
 
@@ -829,13 +842,9 @@ void KDClusteringProcessor::process() {
 
 				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
 
-				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_) {
-					spike_buf_pos_clust_++;
-					continue;
-				}
-
 				// in the SWR regime - skip until the first spike in the SWR, don't do this for single prediction per SWR - allow out of range !
-				if (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) {
+				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_
+						|| (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR)) {
 					spike_buf_pos_clust_++;
 					continue;
 				}
@@ -855,20 +864,26 @@ void KDClusteringProcessor::process() {
 				if (neighb_num_ > 1) {
 					for (unsigned int i = 0; i < neighb_num_; ++i) {
 						pos_pred_ += 1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
+						if (continuous_prediction_)
+							last_spike_fields_.push(1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]]);
+
 					}
 				} else {
-
 					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
+					if (continuous_prediction_)
+						last_spike_fields_.push(laxs_[stetr][neighbour_inds_[0]]);
 				}
 //				std::cout << "kd time = " << clock() - kds << "\n";
 
 				// TODO: from window start if the spike was first
 				if (continuous_prediction_) {
-					// from last spike at the current tetrode
-					const double DE_SEC = (spike->pkg_id_ - last_spike_pkg_ids_by_tetrode_[stetr]) / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0);
-
-					if (!IGNORE_LX)
-						pos_pred_ -= DE_SEC * lxs_[stetr];
+					// subtract first in queue and enqueue current spike
+					while (last_spike_fields_.size() > neighb_num_ * prediction_window_spike_number_){
+						for (unsigned int n=0; n < neighb_num_; ++n){
+							pos_pred_ -= last_spike_fields_.front();
+							last_spike_fields_.pop();
+						}
+					}
 
 					// TODO !!! make a reference for speed
 					buffer->last_predictions_[processor_number_] = pos_pred_;
@@ -876,9 +891,8 @@ void KDClusteringProcessor::process() {
 
 					// DEBUG
 					buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Prediction ready\n");
-				}
 
-				last_spike_pkg_ids_by_tetrode_[stetr] = spike->pkg_id_;
+				}
 
 				spike_buf_pos_clust_++;
 				// spike may be without speed (the last one) - but it's not crucial
@@ -887,9 +901,9 @@ void KDClusteringProcessor::process() {
 				if (prediction_window_spike_number_ > 0 && spike_buf_pos_clust_ - spike_buf_pos_pred_start_ >= prediction_window_spike_number_) {
 					PRED_WIN = spike->pkg_id_ - last_pred_pkg_id_;
 					// DEBUG
-					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
-							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
-					buffer->Log();
+//					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
+//							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
+//					buffer->Log();
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 				}
 			}
@@ -911,11 +925,11 @@ void KDClusteringProcessor::process() {
 				// DEBUG
 				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in KD at the prediction start\n");
 
-				// edges of the window
-				// account for the increase in the firing rate during high synchrony with additional factor
-				const double DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
-
 				if (!continuous_prediction_ && !IGNORE_LX) {
+					// edges of the window
+					// account for the increase in the firing rate during high synchrony with additional factor
+					const double DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
+
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 						// TODO ? subtract even if did not spike
 						if (tetr_spiked_[t]) {
@@ -957,7 +971,8 @@ void KDClusteringProcessor::process() {
 				validate_prediction_window_bias();
 
 				// TODO ? WHY for every tetrode ?
-				pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
+				if (!continuous_prediction_)
+					pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)

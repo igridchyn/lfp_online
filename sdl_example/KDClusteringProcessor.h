@@ -203,8 +203,7 @@ class KDClusteringProcessor: public LFPProcessor {
 
 	// continuously support a prediction matrix from window start until last spike
 	const bool continuous_prediction_ = false;
-	// pointers to previous spikes in each of the tetrodes
-	std::vector<unsigned int> last_spike_pkg_ids_by_tetrode_;
+	std::queue<arma::fmat> last_spike_fields_;
 
 	unsigned int neighb_num_ = 1;
 	std::vector<int> neighbour_inds_;
