@@ -148,7 +148,11 @@ void LPTTriggerProcessor::process() {
 			}
 
 			double frequency =  inhibited / double(buffer->swrs_.size() - i + 1);
-			confidence_avg_ = inhibitionThresholdAdapter_->Update(buffer->last_pkg_id, frequency, (Utils::Logger*)this);
+			std::stringstream ss;
+			ss << "Target function value: " << 0.9 << ", current value: " << frequency << ", current threshold: " << inhibitionThresholdAdapter_->Current_x() << ", ";
+			confidence_avg_ = inhibitionThresholdAdapter_->Update(buffer->last_pkg_id, frequency);
+			ss << " new threshold: " <<inhibitionThresholdAdapter_->Current_x();
+			Log(ss.str());
 		}
 	}
 

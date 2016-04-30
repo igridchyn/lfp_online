@@ -527,7 +527,12 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 		}
 
 		double frequency =  (swrs_.size() - i + 1) * SAMPLING_RATE / float((last_pkg_id -  synchronyThresholdAdapter_->last_update_));
-		high_synchrony_factor_ = synchronyThresholdAdapter_->Update(last_pkg_id, frequency, (Utils::Logger*)this);
+		std::stringstream ss;
+		ss << "UPDATE HIGH SYNCHRONY THRESHOLD: target freqneucy = 1.0, current frequency = " << frequency << ", old threshold = " <<
+				high_synchrony_factor_;
+		high_synchrony_factor_ = synchronyThresholdAdapter_->Update(last_pkg_id, frequency);
+		ss << ", new threshold = " << high_synchrony_factor_;
+		Log(ss.str());
 	}
 
 	// TETRODE-WISE increase + # of synchronous tetrodes

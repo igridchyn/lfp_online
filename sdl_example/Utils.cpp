@@ -97,15 +97,9 @@ Utils::NewtonSolver::NewtonSolver(const double& target_f,
 }
 
 double Utils::NewtonSolver::Update(const unsigned int& time,
-		const double& f_value_, Utils::Logger* logger) {
+		const double& f_value_) {
 	if (time > last_update_ + update_frequency_){
-		std::stringstream ss;
-		ss << "Target function value: " << target_f_ << ", current value: " << f_value_ << ", current argument value: " << current_x_ << ", ";
 		current_x_ += (target_f_ - f_value_) * alpha_;
-		ss << "new argument value: " << current_x_;
-
-		logger->Log(ss.str());
-
 		last_update_ = time;
 	}
 

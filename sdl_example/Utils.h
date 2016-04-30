@@ -83,8 +83,9 @@ public:
 
     public:
     	NewtonSolver(const double & target_f_, const unsigned int & udpate_frequency, const double & alpha, const double & init_x_);
-    	double Update(const unsigned int & time, const double & f_value_, Utils::Logger* logger);
+    	double Update(const unsigned int & time, const double & f_value_);
     	bool NeedUpdate(const unsigned int & time);
+    	inline const double & Current_x() { return current_x_; };
     };
 };
 
