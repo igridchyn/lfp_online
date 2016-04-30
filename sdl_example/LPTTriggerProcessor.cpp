@@ -139,8 +139,6 @@ void LPTTriggerProcessor::process() {
 
 		// adjust inhibition threshold
 		if (inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
-			clock_t start = clock();
-
 			// calculate inhibition frequency in the last 1 minute
 			unsigned int i=buffer->swrs_.size() - 1;
 			unsigned int inhibited = inhibition_history_[i];
@@ -151,9 +149,6 @@ void LPTTriggerProcessor::process() {
 
 			double frequency =  inhibited / double(buffer->swrs_.size() - i + 1);
 			confidence_avg_ = inhibitionThresholdAdapter_->Update(buffer->last_pkg_id, frequency, (Utils::Logger*)this);
-
-			double interval = (clock() - start) * 1000 / double(CLOCKS_PER_SEC);
-			Log("THOLD ADJUSTMENT TIME, MS: ", interval);
 		}
 	}
 
