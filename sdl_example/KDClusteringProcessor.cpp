@@ -575,9 +575,7 @@ void KDClusteringProcessor::process() {
 
 	// DEBUG
 	if (buffer->spike_buf_pos_unproc_ > 0)
-		buffer->CheckPkgIdAndReportTime(
-				buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_,
-				"Time from after package extraction until arrival in KD proc\n");
+		buffer->CheckPkgIdAndReportTime(buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_, "... arrival in KD proc\n");
 
 	// need both speed and PCs
 	unsigned int limit =
@@ -591,8 +589,7 @@ void KDClusteringProcessor::process() {
 									buffer->spike_buf_pos_unproc_ - 1, 0));
 	while (spike_buf_pos_clust_ < limit) {
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
-		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_,
-				(unsigned int) spike->tetrode_);
+		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int) spike->tetrode_);
 		const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 
 		// wait until place fields are stabilized
@@ -836,6 +833,8 @@ void KDClusteringProcessor::process() {
 			while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) {
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 
+//				std::cout << spike-> pkg_id_ << "\n";
+
 				if (spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN) {
 					break;
 				}
@@ -923,7 +922,7 @@ void KDClusteringProcessor::process() {
 //				Log(ss.str());
 
 				// DEBUG
-				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until arrival in KD at the prediction start\n");
+				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "...  arrival in KD at the prediction start\n");
 
 				if (!continuous_prediction_ && !IGNORE_LX) {
 					// edges of the window
@@ -954,7 +953,7 @@ void KDClusteringProcessor::process() {
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG
-				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Time from after package extraction until prediction for the window ready\n");
+				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, " ... prediction for the window ready\n");
 
 				// updated in HMM
 				buffer->last_predictions_[processor_number_] = pos_pred_;
