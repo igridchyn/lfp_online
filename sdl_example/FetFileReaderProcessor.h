@@ -21,7 +21,7 @@ enum Whlformat{
 	WHL_FORMAT_LONG
 };
 
-class FetFileReaderProcessor: public LFPProcessor {
+class FetFileReaderProcessor: public virtual LFPProcessor {
 	std::string fet_path_base_;
 	std::vector< std::ifstream * > fet_streams_;
 
