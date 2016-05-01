@@ -77,7 +77,7 @@ public:
     inline bool is_over() { return targ_buf_pos_ + gt_data_shift_ >= gt_data_len_; }
 };
 
-class UnitTestingProcessor : public LFPProcessor{
+class UnitTestingProcessor : public virtual LFPProcessor{
     const std::string test_dir_;
     std::vector<ArrayValidator<float>*> float_array_validators_;
     std::vector<ArrayValidator<int>*> int_array_validators_;

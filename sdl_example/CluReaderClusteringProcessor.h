@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 
-class CluReaderClusteringProcessor : public LFPProcessor {
+class CluReaderClusteringProcessor : public virtual LFPProcessor {
 	const std::string clu_path_;
 	const std::string res_path_;
 

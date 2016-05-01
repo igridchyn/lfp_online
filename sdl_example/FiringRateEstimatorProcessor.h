@@ -10,7 +10,7 @@
 
 #include "LFPProcessor.h"
 
-class FiringRateEstimatorProcessor : public  LFPProcessor {
+class FiringRateEstimatorProcessor : public virtual LFPProcessor {
 	unsigned int fr_estimate_delay_ = 0;
 //	std::vector<unsigned int> spike_numbers_;
 	bool wait_speed_ = false;

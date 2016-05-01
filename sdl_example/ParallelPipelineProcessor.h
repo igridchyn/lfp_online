@@ -12,7 +12,7 @@
 #include <condition_variable>
 #include <atomic>
 
-class ParallelPipelineProcessor: public LFPProcessor {
+class ParallelPipelineProcessor: public virtual LFPProcessor {
 	unsigned int NGROUP = 0;
 
 	std::vector< LFPProcessor *> processors_;

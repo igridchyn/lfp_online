@@ -126,7 +126,7 @@ public:
 };
 
 //====================================================================================================
-class SDLControlInputMetaProcessor : public LFPProcessor{
+class SDLControlInputMetaProcessor : public virtual LFPProcessor{
     SDLControlInputProcessor* control_processor_ = nullptr;
     std::vector<SDLControlInputProcessor*> control_processors_;
     
@@ -152,7 +152,7 @@ public:
 
 //==========================================================================================
 
-class SpikeAlignmentProcessor : public LFPProcessor{
+class SpikeAlignmentProcessor : public virtual LFPProcessor{
     // for each tetrode
     unsigned int *prev_spike_pos_ = nullptr;
     int *prev_max_val_ = nullptr;
@@ -178,7 +178,7 @@ public:
 
 //==========================================================================================
 
-class WaveShapeReconstructionProcessor : public LFPProcessor{
+class WaveShapeReconstructionProcessor : public virtual LFPProcessor{
     unsigned int mul;
     
     double *sin_table = nullptr;
@@ -207,7 +207,7 @@ public:
 
 //==========================================================================================
 
-class BinaryPopulationClassifierProcessor : public LFPProcessor{
+class BinaryPopulationClassifierProcessor : public virtual LFPProcessor{
 
 public:
 	// list of clusters to be used

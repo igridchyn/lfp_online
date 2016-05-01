@@ -10,7 +10,7 @@
 
 #include "LFPProcessor.h"
 
-class SpeedEstimationProcessor: public LFPProcessor {
+class SpeedEstimationProcessor: public virtual LFPProcessor {
 public:
 	std::ofstream dump_;
 	const unsigned int ESTIMATION_RADIUS = 8;

@@ -10,7 +10,7 @@
 
 #include "LFPProcessor.h"
 
-class PackageExractorProcessor : public LFPProcessor{
+class PackageExractorProcessor : public virtual LFPProcessor{
 	// Axona package configuration in bytes
 	const int HEADER_LEN = 32;
 	const int TAIL_LEN = 16;

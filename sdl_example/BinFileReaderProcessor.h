@@ -10,7 +10,7 @@
 
 #include "LFPProcessor.h"
 
-class LFPONLINEAPI BinFileReaderProcessor : public LFPProcessor {
+class LFPONLINEAPI BinFileReaderProcessor : public virtual LFPProcessor {
 	std::string file_path_;
 	std::vector<std::string> files_list_;
 	const unsigned int chunk_size_;

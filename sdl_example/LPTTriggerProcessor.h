@@ -28,7 +28,7 @@ enum LPTTriggerTarget{
 	LPTTargetSpikes
 };
 
-class LPTTriggerProcessor: public LFPProcessor {
+class LPTTriggerProcessor: public virtual LFPProcessor {
 	unsigned int channel_;
 	LPTTriggerType trigger_type_;
 	LPTTriggerTarget trigger_target_ = LPTTriggerTarget::LPTTargetSpikes;

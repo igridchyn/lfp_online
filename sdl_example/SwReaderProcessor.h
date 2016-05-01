@@ -15,7 +15,7 @@ enum SWR_Format{
 	SWR_FORMAT_SYNCHRONY_START
 };
 
-class SwReaderProcessor: public LFPProcessor {
+class SwReaderProcessor: public virtual LFPProcessor {
 	std::vector<std::vector<unsigned int>> swrs_;
 
 	// current pkg_id is within or before this SW

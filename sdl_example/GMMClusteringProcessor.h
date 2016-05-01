@@ -12,7 +12,7 @@
 #include "mlpack/methods/gmm/gmm.hpp"
 #include <thread>
 
-class GMMClusteringProcessor : public LFPProcessor{
+class GMMClusteringProcessor : public virtual LFPProcessor{
 //    unsigned int dimensionality_;
 
     unsigned int min_observations_;

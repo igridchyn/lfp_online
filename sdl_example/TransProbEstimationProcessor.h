@@ -12,7 +12,7 @@
 
 #include <armadillo>
 
-class TransProbEstimationProcessor: public LFPProcessor {
+class TransProbEstimationProcessor: public virtual LFPProcessor {
 	const unsigned int NBINSX;
 	const unsigned int NBINSY;
 	const unsigned int BIN_SIZE;

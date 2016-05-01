@@ -11,7 +11,7 @@
 
 #include "LFPProcessor.h"
 
-class PCAExtractionProcessor : public LFPProcessor{
+class PCAExtractionProcessor : public virtual LFPProcessor{
     // projection matrix
     float ***prm = nullptr;
     

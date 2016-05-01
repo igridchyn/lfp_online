@@ -10,7 +10,7 @@
 
 #include "LFPProcessor.h"
 
-class WhlFileReaderProcessor: public LFPProcessor {
+class WhlFileReaderProcessor: public virtual LFPProcessor {
 	const std::string whl_path_;
 	std::ifstream whl_stream_;
 

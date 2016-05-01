@@ -11,7 +11,7 @@
 #include "LFPProcessor.h"
 
 // wait given amount of time at each iteration - for debugging and on-line output evaluation
-class SlowDownProcessor: public LFPProcessor {
+class SlowDownProcessor: public virtual LFPProcessor {
 	const unsigned int WAIT_TIME_MS;
 	const unsigned int SLOW_START;
 

@@ -11,7 +11,7 @@
 
 #include <mutex>
 
-class SpikeDetectorProcessor : public LFPProcessor{
+class SpikeDetectorProcessor : public virtual LFPProcessor{
     
     // int is not enough for convolution
     long long filter_int_ [ 2 << 7 ];

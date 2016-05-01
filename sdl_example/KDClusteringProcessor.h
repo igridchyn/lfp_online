@@ -17,7 +17,7 @@
 #include <fstream>
 #include <map>
 
-class KDClusteringProcessor: public LFPProcessor {
+class KDClusteringProcessor: public virtual LFPProcessor {
 	// per tetrode
 	std::vector<unsigned int> total_spikes_;
 	std::vector<arma::fmat> observations_;
