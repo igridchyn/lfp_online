@@ -673,13 +673,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 		if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != nullptr)
 		time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 
-		ReinitScreen();
+		RenderClear();
 	}
 }
 
 void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetrode) {
 	target_tetrode_ = display_tetrode;
-	ReinitScreen();
+	RenderClear();
 
 	comp1_ = 0;
 	comp2_ = 1;

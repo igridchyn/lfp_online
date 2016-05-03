@@ -42,7 +42,6 @@ protected:
 
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
-    virtual void ReinitScreen();
     virtual unsigned int GetWindowID();
 
 	virtual ~SDLSingleWindowDisplay();

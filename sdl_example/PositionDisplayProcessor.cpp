@@ -259,7 +259,7 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             buffer->spike_buf_pos_draw_xy = 0;
             buffer->pos_buf_disp_pos_ =  (disp_mode_ == POS_DISPLAY_ALL) ? 0 : buffer->pos_buf_pos_ - TAIL_LENGTH;
 
-            ReinitScreen();
+            RenderClear();
             Render();
             SDL_SetRenderTarget(renderer_, texture_);
         }

@@ -54,15 +54,6 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
     SDL_RenderPresent(renderer_);
 }
 
-
-void SDLSingleWindowDisplay::ReinitScreen(){
-    SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-    SDL_RenderClear(renderer_);
-    SDL_RenderPresent(renderer_);
-}
-
-
 unsigned int SDLSingleWindowDisplay::GetWindowID() {
 	return SDL_GetWindowID(window_);
 }
