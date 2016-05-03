@@ -94,7 +94,6 @@ void AutocorrelogramProcessor::process(){
 //				}
 //			}
 
-			// TODO !! extract start reset
 			reset_mode_ = true;
 			reset_cluster_ = ua->cluster_number_1_;
 			reset_mode_end_ = buffer->spike_buf_pos_auto_;

@@ -99,7 +99,7 @@ public:
 	virtual bool Empty() {
 		return free_pos_ == alloc_pos_;
 	}
-	// TODO !!! check alloc < free
+
 	virtual T GetMemoryPtr() {
 		T mem = pool_[alloc_pos_];
 		alloc_pos_ = (alloc_pos_ + 1) % pool_size_;
