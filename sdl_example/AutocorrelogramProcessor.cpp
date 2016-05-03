@@ -479,7 +479,7 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 	}
 
 	for (unsigned int b=0; b < NBINS; ++b) {
-		int height = (cross_corrs_[tetr][cluster1][cluster2][b]) * ypix_/ maxh;
+		int height = maxh > 0 ? (cross_corrs_[tetr][cluster1][cluster2][b]) * ypix_/ maxh : 0;
 
 		SDL_Rect rect;
 		rect.h = height;
@@ -491,7 +491,7 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 		SDL_RenderFillRect(renderer_, &rect);
 
 		// other side
-		height = (cross_corrs_[tetr][cluster2][cluster1][b]) * ypix_/ maxh;
+		height = maxh > 0 ? (cross_corrs_[tetr][cluster2][cluster1][b]) * ypix_/ maxh : 0;
 		rect.h = height;
 		rect.x = xsh - b * (CC_BWIDTH + 1);
 		rect.y = ysh - height;
@@ -545,7 +545,7 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 	}
 
 	for (unsigned int b=0; b < NBINS; ++b) {
-		int height = (autocorrs_[tetr][cluster][b]) * ypix_/ maxh;
+		int height = maxh > 0 ? (autocorrs_[tetr][cluster][b]) * ypix_/ maxh : 0;
 
 		SDL_Rect rect;
 		rect.h = height;

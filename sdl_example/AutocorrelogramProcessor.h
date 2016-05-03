@@ -40,7 +40,7 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     // tetrode / cluster / bin values
     std::vector<std::vector<std::vector<float> > > autocorrs_;
     // [tetrode] [ cluster 1] [cluster 2] [ bin ]
-    std::vector<std::vector<std::vector<std::vector<float> > > > cross_corrs_;
+    std::vector<std::vector<std::vector<std::vector<int> > > > cross_corrs_;
 
     AC_DISPLAY_MODE display_mode_ = AC_DISPLAY_MODE_CC;
 
