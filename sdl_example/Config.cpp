@@ -203,7 +203,7 @@ float Config::getFloat(std::string name) {
 	check_parameter(name);
 	//requested_params_.insert(name);
 
-	return atof(params_[name].c_str());
+	return (float)atof(params_[name].c_str());
 }
 
 bool Config::getBool(std::string name) {
