@@ -293,8 +293,8 @@ public:
 
 	std::mutex chunk_access_mtx_;
 	unsigned char *chunk_buf_ = nullptr;
-	// TODO !!! configurable
-	size_t chunk_buf_len_ = 10000 * 432;
+
+	size_t chunk_buf_len_ = 0;
 	size_t chunk_buf_ptr_in_ = 0;
 
 	std::vector<OnlineEstimator<float, float>* > powerEstimators_;
@@ -460,14 +460,11 @@ template<class T>
 inline void LFPBuffer::AllocatePoolMemory(T** pointer,
 		QueueInterface<T*>* queue) {
 	if (*pointer != nullptr) {
-		// TMPDEBUG
 		Log("ERROR: pointer requesting memory is non-zero");
 		throw std::string("ERROR: pointer requesting memory is non-zero");
 	}
 
 	if (queue->Empty()) {
-		//TMPDEBUG
-		// TODO : !!! error handling
 		Log("ERROR: pool empty");
 		throw std::string("ERROR: pool empty");
 	}

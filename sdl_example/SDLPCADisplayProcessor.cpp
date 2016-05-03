@@ -863,7 +863,6 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	user_context_.MergeClusters(polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()], polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()]);
 	buffer->ResetPopulationWindow();
 
-	// TODO !!! extract
 	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
 	Render();
 }
