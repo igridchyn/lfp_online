@@ -941,9 +941,6 @@ void KDClusteringProcessor::process() {
 				dump_swr_window_spike_count();
 
 				last_pred_probs_ = pos_pred_;
-				// to avoid OOR
-				double minpred = arma::max(arma::max(last_pred_probs_));
-				last_pred_probs_ -= minpred;
 
 				dump_prediction_if_needed(pos_pred_);
 
