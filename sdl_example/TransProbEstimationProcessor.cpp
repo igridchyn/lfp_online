@@ -37,7 +37,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, NEIGHB_SIZE(neighb_size)
 	, STEP(step)
 	, BASE_PATH(base_path)
-	, pos_buf_ptr_(STEP)
+	, pos_buf_ptr_(buf->pos_buf_trans_prob_est_)
 	, SAVE(save)
 	, LOAD(load)
 	, SMOOTH(smooth)
@@ -47,6 +47,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, SAMPLING_END_(buf->config_->getInt("tp.sampling.end", 15000000)){
 	assert(NEIGHB_SIZE % 2);
 	trans_probs_.resize(NBINSX * NBINSY, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
+
+	pos_buf_ptr_ += STEP;
 
 	if (LOAD){
 		buffer->log_string_stream_ << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";

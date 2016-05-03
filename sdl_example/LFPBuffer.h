@@ -251,8 +251,9 @@ public:
 	// last for speed estimatino
 	unsigned int pos_buf_pos_speed_est = 0;
 	// whl writer (within SpikeWriter)
-	// TODO !!! rewind
 	unsigned int pos_buf_pos_whl_writer_ = 0;
+	// trans prob estimation
+	unsigned int pos_buf_trans_prob_est_ = 0;
 
 	// pvw[tetrode][cluster] - number of spikes in window [last_pkg_id - POP_VEC_WIN_LEN, last_pkg_id]
 	// initialized by GMM clustering processor

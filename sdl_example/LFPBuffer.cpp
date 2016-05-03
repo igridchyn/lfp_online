@@ -896,6 +896,7 @@ void LFPBuffer::AdvancePositionBufferPointer(){
 		pos_buf_pos_spike_speed_ -= std::min(shift_new_start, (int)pos_buf_pos_spike_speed_);
 		pos_buf_pos_whl_writer_ -= std::min(shift_new_start, (int)pos_buf_pos_whl_writer_);
 		pos_buf_spike_pos_ -= std::min(shift_new_start, (int)pos_buf_spike_pos_);
+		pos_buf_trans_prob_est_ -= std::min(shift_new_start, (int)pos_buf_trans_prob_est_);
 
 		pos_buf_pos_ = POS_BUF_HEAD_LEN;
 

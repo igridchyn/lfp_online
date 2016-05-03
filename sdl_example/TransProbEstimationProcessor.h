@@ -21,8 +21,7 @@ class TransProbEstimationProcessor: public virtual LFPProcessor {
 	const unsigned int STEP;
 	const std::string BASE_PATH;
 
-	// TODO !!! sync rewind
-	unsigned int pos_buf_ptr_ = 0;
+	unsigned int & pos_buf_ptr_;
 
 	const bool SAVE;
 	const bool LOAD;
