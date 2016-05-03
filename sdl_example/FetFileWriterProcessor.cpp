@@ -25,8 +25,8 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 			spk_files_.push_back(new std::ofstream(spk_path_base+ Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));
 		}
 		if (!binary_){
-			// TODO !!! parametrize - number of entries
-			*(fet_files_[t]) << "17\n";
+			const unsigned int n_entries = buf->feature_space_dims_[t] + 5;
+			*(fet_files_[t]) << n_entries << "\n";
 		}
 	}
 
