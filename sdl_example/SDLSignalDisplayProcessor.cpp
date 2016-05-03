@@ -10,8 +10,6 @@
 #include "SDLSignalDisplayProcessor.h"
 
 void SDLSignalDisplayProcessor::SetDisplayTetrode(const unsigned  int& display_tetrode){
-    // TODO: configurableize
-
 	for (unsigned int c = 0; c < buffer->tetr_info_->channels_number(display_tetrode); ++c) {
         displayed_channels_.push_back(buffer->tetr_info_->tetrode_channels[display_tetrode][c]);
     }
@@ -194,7 +192,6 @@ void SDLSignalDisplayProcessor::process_SDL_control_input(const SDL_Event &e){
             case SDLK_ESCAPE:
             	buffer->processing_over_ = true;
                 break;
-                // TODO: check whether channels are available in the TetrodeInfo
 
             case SDLK_0:
 				display_tetrode_ = 0 + shift;
