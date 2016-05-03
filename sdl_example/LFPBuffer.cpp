@@ -329,7 +329,7 @@ LFPBuffer::LFPBuffer(Config* config)
     spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
     spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN + 100);
     // TODO !!!! use maximum dimension
-    // TODO !!!!!! pools with dynamic size for each unmber of features
+    // TODO pools with dynamic size for each number of features
     // extra pool size for local file reader objects
     spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN + 100);
     spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN + 100);
@@ -725,7 +725,6 @@ void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const 
 	y_big_LED_ = yb;
 }
 
-// TODO extract code
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
 	AllocatePoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
 }
@@ -777,7 +776,7 @@ void LFPBuffer::Rewind() {
 
 	const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;
 
-	// TODO !!! warn if some pointers loose spikes !!!
+	// TODO !!! warn if some pointers loose spikes !!! - but have to know which ones are really in use for this
 	spike_buf_no_rec -= std::min(shift_new_start, (int)spike_buf_no_rec);
 	spike_buf_nows_pos -= std::min(shift_new_start, (int)spike_buf_nows_pos);
 	spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
@@ -813,8 +812,7 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 
 	if (chunk_buf_ptr_in_ + data_size >= chunk_buf_len_){
 		Log("ERROR: input buffer overflow, cut the data, bytes: ", chunk_buf_ptr_in_ + data_size - chunk_buf_len_ );
-		// TODO : continue without data
-		data_size = chunk_buf_len_ - chunk_buf_ptr_in_;
+		data_size = chunk_buf_len_ - chunk_buf_ptr_in_ - 1;
 	}
 
 	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);

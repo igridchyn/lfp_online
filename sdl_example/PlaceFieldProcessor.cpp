@@ -314,8 +314,6 @@ void PlaceFieldProcessor::dumpPlaceFields(){
 }
 
 void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
-    // TODO: implement, abstract ClusterInfoDisplay
-    
     SDL_Keymod kmod = SDL_GetModState();
     
     int shift = 0;
