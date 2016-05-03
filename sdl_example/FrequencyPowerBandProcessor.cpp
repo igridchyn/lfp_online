@@ -58,11 +58,7 @@ void FrequencyPowerBandProcessor::process(){
     
     last_performed_an = buffer->last_pkg_id;
     
-    // DISPLAY
-    SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-    SDL_RenderClear(renderer_);
-    SDL_RenderPresent(renderer_);
+    RenderClear();
     
     // TODO: plot lines at landmark points
     SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
@@ -81,10 +77,7 @@ void FrequencyPowerBandProcessor::process(){
         prevy = y;
     }
 
-    // RENDER
-    SDL_SetRenderTarget(renderer_, nullptr);
-    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-    SDL_RenderPresent(renderer_);
+    Render();
 }
 
 void FrequencyPowerBandProcessor::process_SDL_control_input(

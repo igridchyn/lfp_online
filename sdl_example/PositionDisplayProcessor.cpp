@@ -37,9 +37,6 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 		estimate_speed_ = true;
 	}
 
-//    SDL_SetRenderTarget(renderer_, nullptr);
-//    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-//    SDL_RenderPresent(renderer_);
     display_cluster_.resize(200, false);
     
 }
@@ -192,9 +189,7 @@ void PositionDisplayProcessor::process(){
     		draw_circle(508, 185, 158);
     	}
 
-        SDL_SetRenderTarget(renderer_, nullptr);
-        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-        SDL_RenderPresent(renderer_);
+        Render();
     }
 }
 
@@ -265,11 +260,7 @@ void PositionDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
             buffer->pos_buf_disp_pos_ =  (disp_mode_ == POS_DISPLAY_ALL) ? 0 : buffer->pos_buf_pos_ - TAIL_LENGTH;
 
             ReinitScreen();
-            SDL_SetRenderTarget(renderer_, nullptr);
-            // without copying only part is displayed AND only before redrawing
-            SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-
-            SDL_RenderPresent(renderer_);
+            Render();
             SDL_SetRenderTarget(renderer_, texture_);
         }
     }

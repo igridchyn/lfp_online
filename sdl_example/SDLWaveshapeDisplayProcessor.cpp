@@ -63,10 +63,7 @@ void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int cluster_id) {
 }
 
 void SDLWaveshapeDisplayProcessor::reinit() {
-	SDL_SetRenderTarget(renderer_, texture_);
-	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-	SDL_RenderClear(renderer_);
-	SDL_RenderPresent(renderer_);
+	RenderClear();
 	buf_pointer_ = 0;
 }
 
@@ -232,9 +229,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         displayClusterCuts(disp_cluster_1_);
         displayClusterCuts(disp_cluster_2_);
 
-        SDL_SetRenderTarget(renderer_, nullptr);
-        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-        SDL_RenderPresent(renderer_);
+        Render();
     }
 }
 

@@ -90,13 +90,7 @@ void SDLSignalDisplayProcessor::process(){
             if (current_x == SCREEN_WIDTH - 1 && chani == displayed_channels_.size() - 1){
                 current_x = 1;
                 
-                // reset screen
-                SDL_SetRenderTarget(renderer_, texture_);
-                SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-                SDL_RenderClear(renderer_);
-                //SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-                //SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
-                SDL_RenderPresent(renderer_);
+                RenderClear();
             }
             
             last_disp_pos = pos;
@@ -108,9 +102,7 @@ void SDLSignalDisplayProcessor::process(){
     
     // whether to render
     if (unrendered > DISP_FREQ * plot_hor_scale){
-        SDL_SetRenderTarget(renderer_, nullptr);
-        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-        SDL_RenderPresent(renderer_);
+        Render();
         
         unrendered = 0;
     }
@@ -124,21 +116,13 @@ void SDLSignalDisplayProcessor::process(){
         
         // whether to render
         if (!(buffer->buf_pos % DISP_FREQ * plot_hor_scale)){
-            SDL_SetRenderTarget(renderer_, nullptr);
-            SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-            SDL_RenderPresent(renderer_);
+            Render();
         }
         
         if (current_x == SCREEN_WIDTH - 1){
             current_x = 1;
             
-            // reset screen
-            SDL_SetRenderTarget(renderer_, texture_);
-            SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-            SDL_RenderClear(renderer_);
-            //SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-            //SDL_RenderDrawLine(renderer_, 1, SHIFT/plot_scale, SCREEN_WIDTH, SHIFT/plot_scale);
-            SDL_RenderPresent(renderer_);
+            RenderClear();
         }
     }
 

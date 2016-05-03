@@ -229,7 +229,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	// posterior position probabilities map
 	// initialize with log of prior = pi(x)
 
-	// TODO !!! priors
 	reset_hmm();
 
 	hmm_traj_.resize(NBINSX * NBINSY);

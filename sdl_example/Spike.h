@@ -35,7 +35,6 @@ public:
     // power of a filter at the peak
     float power_ = 0;
 
-    // TODO !!! have one linear array, only users should know about features meaning
     float **extra_features_ = nullptr;
 
     int cluster_id_ = -1;

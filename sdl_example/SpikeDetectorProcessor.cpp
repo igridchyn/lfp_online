@@ -210,13 +210,6 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 		}
 		buffer->power_buf[channel][fpos] = sqrt(pw);
 
-		// TMPDEBUG
-//		if (channel == 0){
-			// buffer->debug_stream_  << "\n" << buffer->buf_pos << " / " << fpos << " : " << filtered << "\n";
-//			buffer->debug_stream_ << filtered << "\n";
-//		}
-
-		// TODO: !!! INVESTIGATE NEGITIVE THRESHOLD
 		buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
 	}
 }
@@ -241,7 +234,6 @@ void SpikeDetectorProcessor::detect_spike_pos(const unsigned int & channel, cons
 		Spike *spike = nullptr;
 		{
 			std::lock_guard<std::mutex> lk(spike_add_mtx_);
-			// TODO: !!! lock private and used withing AddSpike
 			spike = buffer->spike_buffer_[buffer->spike_buf_pos];
 			// in parallel mode - rewind is done at desync
 			buffer->AddSpike(spike, tetrode_to_process < 0);

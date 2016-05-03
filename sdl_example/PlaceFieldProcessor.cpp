@@ -211,10 +211,7 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
         }
     }
 
-    SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-    SDL_RenderClear(renderer_);
-    SDL_RenderPresent(renderer_);
+    RenderClear();
 
     for (unsigned int c = 0; c < mat.n_cols; ++c){
         for (unsigned int r = 0; r < mat.n_rows; ++r){

@@ -70,11 +70,17 @@ unsigned int SDLSingleWindowDisplay::GetWindowID() {
 
 void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y, int col, bool shift) {
 	TTF_Init();
+	// TODO: configurable
 #ifndef _WIN32
 	TTF_Font *font = TTF_OpenFont("FreeSerif.ttf", 15);
 #else
 	TTF_Font *font = TTF_OpenFont("../Res/FORTE.TTF", 15);
 #endif
+
+//	if (font == nullptr){
+//		Log(std::string("Font error: ") + TTF_GetError());
+//	}
+
 	SDL_Color color = { ColorPalette::getColorR(col), ColorPalette::getColorG(col), ColorPalette::getColorB(col) };
 	SDL_Surface * surface = TTF_RenderText_Solid(font, text.c_str(), color);
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer_,  surface);
@@ -127,4 +133,19 @@ void SDLSingleWindowDisplay::DrawRect(const int& x, const int& y, const int& w,
 
 void SDLSingleWindowDisplay::SetDrawColor(int cid) {
 	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
+}
+
+void SDLSingleWindowDisplay::RenderClear(){
+    SDL_SetRenderTarget(renderer_, texture_);
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
+}
+
+void SDLSingleWindowDisplay::Render(){
+	// doesn't draw with render OR texture target
+	SDL_SetRenderTarget(renderer_, nullptr);
+	// without copying only part is displayed AND only before redrawing
+	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SDL_RenderPresent(renderer_);
 }

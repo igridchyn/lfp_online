@@ -306,11 +306,7 @@ void SDLPCADisplayProcessor::process(){
 			}
 		}
 
-    	// doesn't draw with render OR texture target
-        SDL_SetRenderTarget(renderer_, nullptr);
-        // without copying only part is displayed AND only before redrawing
-        SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-		SDL_RenderPresent(renderer_);
+    	Render();
     }
 }
 
@@ -427,9 +423,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 						SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 0);
 						SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[last]), scale_y(polygon_y_[last]), scale_x(polygon_x_[last - 1]), scale_y(polygon_y_[last-1]));
 					}
-					SDL_SetRenderTarget(renderer_, NULL);
-					SDL_RenderCopy(renderer_, texture_, NULL, NULL);
-					SDL_RenderPresent(renderer_);
+					Render();
 				}else{
 					polygon_closed_ = false;
 					polygon_x_.clear();
@@ -447,9 +441,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 0);
 				SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[last]), scale_y(polygon_y_[last]), scale_x(polygon_x_[0]), scale_y(polygon_y_[0]));
 			}
-			SDL_SetRenderTarget(renderer_, NULL);
-			SDL_RenderCopy(renderer_, texture_, NULL, NULL);
-			SDL_RenderPresent(renderer_);
+			Render();
 		}
 	}
 
@@ -832,9 +824,7 @@ void SDLPCADisplayProcessor::addCluster() {
 	}
 	SDL_RenderDrawPoints(renderer_, points_, count - 1);
 
-	SDL_SetRenderTarget(renderer_, nullptr);
-	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-	SDL_RenderPresent(renderer_);
+	Render();
 }
 
 void SDLPCADisplayProcessor::mergeClusters() {
@@ -875,7 +865,5 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	// TODO !!! extract
 	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
-	SDL_SetRenderTarget(renderer_, nullptr);
-	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-	SDL_RenderPresent(renderer_);
+	Render();
 }
