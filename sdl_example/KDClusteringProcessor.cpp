@@ -67,7 +67,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	std::string lxs_path = BASE_PATH + Utils::NUMBERS[t] + "_lx.mat";
 	Utils::FS::CheckFileExistsWithError(lxs_path, (Utils::Logger*) this);
 	lxs_[t].load(lxs_path);
-	double maxval = arma::max(arma::max(lxs_[t]));
+	float maxval = arma::max(arma::max(lxs_[t]));
 	for (unsigned int xb = 0; xb < NBINSX; ++xb) {
 		for (unsigned int yb = 0; yb < NBINSY; ++yb) {
 			if (lxs_[t](xb, yb) == 0) {
@@ -115,7 +115,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getFloat(
 						"kd.spike.graph.cover.distance.threshold", 0)), SPIKE_GRAPH_COVER_NNEIGHB(
 				buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)), FR_ESTIMATE_DELAY(
-				buf->config_->getFloat("kd.frest.delay", 1000000)), DUMP_SPEED_THOLD(
+				buf->config_->getInt("kd.frest.delay", 1000000)), DUMP_SPEED_THOLD(
 				buf->config_->getFloat("kd.dump.speed.thold", .0)), WAIT_FOR_SPEED_EST(
 				getBool("kd.wait.speed")), RUN_KDE_ON_MIN_COLLECTED(
 				getBool("kd.run.on.min")), kde_path_(
@@ -288,7 +288,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	if (continuous_prediction_ && !IGNORE_LX) {
 		// from last spike at the current tetrode
-		const double DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
+		const float DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
 
 		for (unsigned int stetr = 0; stetr < tetr_info_->tetrodes_number(); stetr++)
 			pos_pred_ -= DE_SEC * lxs_[stetr];
@@ -466,7 +466,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 			}
 		}
 
-		unsigned int gtx = buffer->pos_unknown_, gty = buffer->pos_unknown_;
+		float gtx = (float)buffer->pos_unknown_, gty = (float)buffer->pos_unknown_;
 
 		const SpatialInfo &pose = buffer->PositionAt(last_pred_pkg_id_);
 		gtx = pose.x_pos();
@@ -474,8 +474,8 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 
 		// for output need non-nan value
 		if (Utils::Math::Isnan(gtx)) {
-			gtx = buffer->pos_unknown_;
-			gty = buffer->pos_unknown_;
+			gtx = (float)buffer->pos_unknown_;
+			gty = (float)buffer->pos_unknown_;
 		}
 
 		if (pose.speed_ >= DUMP_SPEED_THOLD) {
@@ -698,15 +698,15 @@ void KDClusteringProcessor::process() {
 
 				if (!Utils::Math::Isnan(spike->x)) {
 					if (BINARY_CLASSIFIER) {
-						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x > 140 ? 1.5 : 0.5;
-						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 0.5;
+						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x > 140 ? 1.5f : 0.5f;
+						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = 0.5f;
 					} else {
 						obs_mats_[tetr](total_spikes_[tetr], nfeat) = spike->x;
 						obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = spike->y;
 					}
 				} else {
-					obs_mats_[tetr](total_spikes_[tetr], nfeat) = buffer->pos_unknown_;
-					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = buffer->pos_unknown_;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat) = (float)buffer->pos_unknown_;
+					obs_mats_[tetr](total_spikes_[tetr], nfeat + 1) = (float)buffer->pos_unknown_;
 				}
 
 				total_spikes_[tetr]++;
@@ -923,7 +923,7 @@ void KDClusteringProcessor::process() {
 				if (!continuous_prediction_ && !IGNORE_LX) {
 					// edges of the window
 					// account for the increase in the firing rate during high synchrony with additional factor
-					const double DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
+					const float DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
 
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 						// TODO ? subtract even if did not spike
@@ -1059,8 +1059,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 
 		if (BINARY_CLASSIFIER) {
 			// TODO !! parametrize environment threshold
-			pos_buf(0, npoints) = si.x_pos() > 140 ? 1.5 : 0.5;
-			pos_buf(1, npoints) = 0.5;
+			pos_buf(0, npoints) = si.x_pos() > 140 ? 1.5f : 0.5f;
+			pos_buf(1, npoints) = 0.5f;
 		} else {
 			pos_buf(0, npoints) = si.x_pos();
 			pos_buf(1, npoints) = si.y_pos();

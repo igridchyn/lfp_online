@@ -23,7 +23,7 @@ FrequencyPowerBandProcessor::FrequencyPowerBandProcessor(LFPBuffer *buf)
 	 , SDLSingleWindowDisplay(window_name, window_width, window_height)
 	 , FACTOR(buf->config_->getInt("freqpow.factor"))
 	 , BUF_LEN(buf->config_->getInt("freqpow.factor") * buf->SAMPLING_RATE)
-	 , ANAL_RATE(buf->config_->getFloat("freqpow.anal.rate.frac") * buf->config_->getInt("sampling.rate"))
+	 , ANAL_RATE(int(buf->config_->getFloat("freqpow.anal.rate.frac") * buf->config_->getInt("sampling.rate")))
 	 , channel_(buf->config_->getInt("freqpow.channel", 0))
 	 , SCALE(buf->config_->getInt("freqpow.scale", 1000000))
 {

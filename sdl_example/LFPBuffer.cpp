@@ -531,7 +531,7 @@ bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 		std::stringstream ss;
 		ss << "UPDATE HIGH SYNCHRONY THRESHOLD: target freqneucy = 1.0, current frequency = " << frequency << ", old threshold = " <<
 				high_synchrony_factor_;
-		high_synchrony_factor_ = synchronyThresholdAdapter_->Update(last_pkg_id, frequency);
+		high_synchrony_factor_ = (float)synchronyThresholdAdapter_->Update(last_pkg_id, frequency);
 		ss << ", new threshold = " << high_synchrony_factor_;
 		Log(ss.str());
 	}
@@ -691,7 +691,7 @@ float AverageLEDs(const float & smallLED, const float & bigLED, const bool & val
 		return smallLED;
 	}
 	else{
-		return (smallLED + bigLED) / 2.0;
+		return (smallLED + bigLED) / 2.0f;
 	}
 }
 

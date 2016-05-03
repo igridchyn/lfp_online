@@ -276,7 +276,7 @@ void GMMClusteringProcessor::process(){
                 if (first_class_after_clust){
                 	// re-cluster units with bad autocorrelation and high firing rate
                 	for (size_t clust = 0; clust < gmm_[tetr].Gaussians(); ++clust) {
-                		float clust_rate = buffer->SAMPLING_RATE / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
+                		double clust_rate = buffer->SAMPLING_RATE / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
                 		if (clust_rate > 40){
                 			// 2nd iteration of clustering
                 			// TODO !!! implement 2nd iteration

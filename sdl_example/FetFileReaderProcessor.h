@@ -54,7 +54,7 @@ class FetFileReaderProcessor: public virtual LFPProcessor {
 	int shift_ = 0;
 	std::vector<unsigned int> shifts_;
 
-	double FET_SCALING;
+	float FET_SCALING;
 
 	const unsigned int pos_sampling_rate_;
 

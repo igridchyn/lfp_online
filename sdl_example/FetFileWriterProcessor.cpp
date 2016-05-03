@@ -76,12 +76,12 @@ void FetFileWriterProcessor::process() {
 		float xb = pos_rec.x_big_LED_;
 		float yb = pos_rec.y_big_LED_;
 		if (Utils::Math::Isnan(xs)){
-			xs = buffer->pos_unknown_;
-			ys = buffer->pos_unknown_;
+			xs = (float)buffer->pos_unknown_;
+			ys = (float)buffer->pos_unknown_;
 		}
 		if (Utils::Math::Isnan(xb)){
-			xb = buffer->pos_unknown_;
-			yb = buffer->pos_unknown_;
+			xb = (float)buffer->pos_unknown_;
+			yb = (float)buffer->pos_unknown_;
 		}
 		(*whl_file_) << xs << " " << ys << " " << xb << " " << yb << " " << pos_rec.pkg_id_ << " " << pos_rec.valid << "\n";
 		buffer->pos_buf_pos_whl_writer_++;

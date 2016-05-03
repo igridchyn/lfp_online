@@ -737,8 +737,8 @@ void FetFileReaderProcessor::process() {
 
 			last_pos_pkg_id_ = pos_entry->pkg_id_;
 		} else {
-			double x;
-			double y;
+			float x;
+			float y;
 			(*whl_file_) >> x >> y;
 			bool valid = true;
 			// in short: -1 instead of 1023 means invalid
