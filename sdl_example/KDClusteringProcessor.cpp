@@ -608,8 +608,8 @@ void KDClusteringProcessor::process() {
 							/ buffer->SAMPLING_RATE;
 					std::stringstream ss;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
-					tetrode_sampling_rates_.push_back(
-							std::max<int>(0, (int) round( est_sec_left * buffer->fr_estimates_[t] / MIN_SPIKES) - 1));
+					unsigned int interleaving_windows_factor = INTERLEAVING_WINDOWS ? 2 : 1;
+					tetrode_sampling_rates_.push_back(std::max<int>(0, (int) round( est_sec_left * buffer->fr_estimates_[t] / MIN_SPIKES / interleaving_windows_factor) - 1));
 					ss << "\t sampling rate (with speed thold) set to: " << tetrode_sampling_rates_[t] << "\n";
 					Log(ss.str());
 				}
