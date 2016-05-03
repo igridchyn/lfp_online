@@ -2,7 +2,7 @@
  * KDClusteringProcessor.cpp
  *
  *  Created on: Jun 18, 2014
- *      Author: igor
+ *      Author: Igor Gridchyn
  */
 
 #include "KDClusteringProcessor.h"
@@ -135,7 +135,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.max.jobs", 5)), SINGLE_PRED_PER_SWR(
 				buf->config_->getBool("kd.single.pred.per.swr", false)), IGNORE_LX(
 				buf->config_->getBool("kd.ignore.lx", false)), INTERLEAVING_WINDOWS(
-				buf->config_->getBool("kd.interleaving.windows", false))
+				buf->config_->getBool("kd.interleaving.windows", false)), MIN_POS_SAMPLES(
+				buf->config_->getInt("kd.min.pos,samples", 1000))
 	{
 
 	Log("Construction started");
@@ -874,7 +875,6 @@ void KDClusteringProcessor::process() {
 				}
 //				std::cout << "kd time = " << clock() - kds << "\n";
 
-				// TODO: from window start if the spike was first
 				if (continuous_prediction_) {
 					// subtract first in queue and enqueue current spike
 					while (last_spike_fields_.size() > neighb_num_ * prediction_window_spike_number_){
@@ -884,9 +884,7 @@ void KDClusteringProcessor::process() {
 						}
 					}
 
-					// TODO !!! make a reference for speed
 					buffer->last_predictions_[processor_number_] = pos_pred_;
-//					buffer->last_predictions_[processor_number_] = arma::exp(pos_pred_ / display_scale_);
 
 					// DEBUG
 					buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "Prediction ready\n");
@@ -907,8 +905,7 @@ void KDClusteringProcessor::process() {
 				}
 			}
 
-			// if have to wait until the speed estimate
-			// TODO !!! VALIDATE THIS
+			// if have to wait until the speed estimate - e.g. in case of validation
 			if (WAIT_FOR_SPEED_EST &&  buffer->pos_buf_pos_speed_est <= buffer->PositionIndexByPacakgeId(last_pred_pkg_id_)){
 				return;
 			}
@@ -1090,8 +1087,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	Log("Tetrode: ", tetr);
 //	Log("Skipped due to speed according to counter: ", skipped_spikes_[tetr]);
 
-	// TODO: MINIMAL POSITION SAMPLES
-	if (npoints == 0) {
+	if (npoints < MIN_POS_SAMPLES) {
 		Log("ERROR: number of position samples == 0");
 		exit(91824);
 	}

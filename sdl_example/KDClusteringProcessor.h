@@ -246,6 +246,9 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	// use interleaving windows : odd - for training, even - for validation
 	const bool INTERLEAVING_WINDOWS;
 
+	// minimal number of position samples required to bulid the model
+	const unsigned int MIN_POS_SAMPLES;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 
