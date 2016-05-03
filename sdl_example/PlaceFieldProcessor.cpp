@@ -181,7 +181,7 @@ void PlaceFieldProcessor::process(){
 
     // if prediction display requested and at least prediction_rate_ time has passed since last prediction
     if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_){
-    	arma::fmat pred = buffer->last_predictions_[processor_number_].t();
+    	arma::fmat pred = arma::exp(buffer->last_predictions_[processor_number_].t() / 50);
     	drawMat(pred);
     	last_predicted_pkg_ = buffer->last_pkg_id;
     }
