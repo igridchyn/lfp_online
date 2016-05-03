@@ -329,8 +329,8 @@ public:
 	unsigned int target_pkg_id_ = 0;
 	unsigned int target_buf_pos_ = 0;
 
-	int coord_shift_x_ = 0;
-	int coord_shift_y_ = 0;
+	float coord_shift_x_ = .0;
+	float coord_shift_y_ = .0;
 
 	static const unsigned int TETRODE_UNKNOWN = 1000000;
 	static const unsigned int CLUSTER_UNKNOWN = 1000000;
