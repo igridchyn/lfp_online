@@ -148,7 +148,6 @@ class LFPONLINEAPI LFPBuffer : public virtual Utils::Logger {
 public:
 	LFPPipelineStatus pipeline_status_ = PIPELINE_STATUS_ONLINE;
 
-	// TODO use instead of string literals
 	class POS_BUF_POINTER_NAMES {
 	public:
 		const std::string POS_BUF_POS = "pos";
@@ -236,13 +235,11 @@ public:
 	// TODO: size ?
 	std::vector<unsigned int> spike_buf_pos_clusts_;
 
-	// TODO ? messaging between processors
 	bool ac_reset_ = false;
 	int ac_reset_tetrode_ = -1;
 	int ac_reset_cluster_ = -1;
 
 	// POSITION BUFFER
-	// TODO rewind ??? [max = 8h]
 	SpatialInfo *positions_buf_;
 	// main poiter - where the next position will be put
 	unsigned int pos_buf_pos_ = 0;
@@ -312,7 +309,6 @@ public:
 
 	arma::fmat cluster_spike_counts_;
 
-	// TODO !WORKAOURD! implement exchange through interface between processors
 	// ? predictions buffer ?
 	// in case there are few processors, using processors are responsible for resizing
 	std::vector<arma::fmat> last_predictions_;
@@ -426,8 +422,6 @@ public:
 			const std::string msg, bool set_checkpoint = false);
 	void CheckBufPosAndReportTime(const unsigned int& buf_pos,
 			const std::string msg);
-
-	// TODO !!! unviersal intreface - tempalte-based
 
 	template<class T>
 	void AllocatePoolMemory(T **ponter, QueueInterface<T*> *queue);

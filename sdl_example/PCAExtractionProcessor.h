@@ -25,7 +25,6 @@ class PCAExtractionProcessor : public virtual LFPProcessor{
     // ??? workaround to avoid overflow
     float scale_ = 100.0f;
     
-    // TODO: use online estimators
     // [channel][ws1][ws2]
     int ***cor_ = nullptr;
     // [channel][ws1]
@@ -53,8 +52,6 @@ class PCAExtractionProcessor : public virtual LFPProcessor{
     // [channel][ws][pc]
     float ***pc_transform_;
     
-    // WORKAROUND
-    // TODO: recalc PCA periodically using online estimators
 	bool *pca_done_ = nullptr;
 	unsigned int npcdone_ = 0;
 

@@ -179,7 +179,6 @@ LFPProcessor *LFPPipeline::get_processor(const unsigned int& index){
 }
 
 std::vector<SDLControlInputProcessor *> LFPPipeline::GetSDLControlInputProcessors(){
-    // TODO: use vector
     std::vector<SDLControlInputProcessor *> control_processors;
     
     for (size_t p=0; p<processors.size(); ++p) {

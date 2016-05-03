@@ -15,7 +15,6 @@
 class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     
     ColorPalette palette_;
-    // TODO: display for multiple tetrodes with ability to switch
     int target_tetrode_;
     
     // displayed components, can be changed by the control keys

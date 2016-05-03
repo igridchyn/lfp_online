@@ -25,7 +25,6 @@ SpeedEstimationProcessor::~SpeedEstimationProcessor() {
 
 void SpeedEstimationProcessor::process(){
 	// speed estimation
-	// TODO: use average of bx, sx or alike
 	// TODO: deal with missing points
 
 	// SPEED is estimated as a mean displacement in the range of 16 position samples across few subsequent displacements

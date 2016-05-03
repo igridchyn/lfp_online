@@ -427,8 +427,7 @@ void saveArray(std::string path, float ** array, const unsigned int& dim1, const
     fpc.close();
 }
 
-// CURRENT POLICY: wait for sufficien amount of spikes, cluster, assign clusters for past and future spikes
-// TODO: update
+// CURRENT POLICY: wait for sufficient amount of spikes, cluster, assign clusters for past and future spikes
 void PCAExtractionProcessor::process(){
     // CURRENT LOGIC: PCA is computed once after required number of spikes has been collected,
     //  computed for all spikes and all new-coming

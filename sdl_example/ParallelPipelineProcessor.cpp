@@ -79,7 +79,6 @@ void ParallelPipelineProcessor::process_thread(const int group) {
 }
 
 ParallelPipelineProcessor::~ParallelPipelineProcessor() {
-	// TODO Auto-generated destructor stub
 }
 
 void ParallelPipelineProcessor::add_processor(LFPProcessor* processor) {

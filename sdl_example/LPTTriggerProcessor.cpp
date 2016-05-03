@@ -238,8 +238,6 @@ void LPTTriggerProcessor::process() {
 				break;
 
 			case LPTTriggerType::EnvironmentDominance:
-				// TODO: extract synchrony detection to a separate processor
-
 				// it is assumed that avilable prediction matrix in buffer is up to the (spike_buf_limit_ptr_ - 1)-th
 				// 	spike inclusively
 
@@ -259,7 +257,6 @@ void LPTTriggerProcessor::process() {
 						// have to decide now
 						buffer->Log("TIMEOUT for classification decision is reached with a spike at ", buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_);
 
-						// TODO configurable threshold
 						double env_dom_conf_ = environment_dominance_confidence_();
 
 						if (env_dom_conf_ > confidence_avg_ || inhibit_nonconf_){
@@ -341,7 +338,6 @@ void LPTTriggerProcessor::process() {
 
 						Log("Synchrony detected at (window start) ",sync_start);
 						buffer->swrs_.push_back(std::vector<unsigned int>());
-						// TODO make sure start-peak-end are in correct temporal order, WARN otherwise
 						buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start);
 						// set SW PEAK and end
 						buffer->swrs_[buffer->swrs_.size() - 1].push_back(buffer->last_pkg_id);

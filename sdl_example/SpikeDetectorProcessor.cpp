@@ -190,12 +190,7 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 		// SSE implementation with 8-bit filter and signal
 
 		int filtered_long = 0;
-		// TODO !!! unroll
 		for (unsigned int j=0; j < filter_len; ++j, chan_sig_buf++) {
-			// TMPDEBUG
-//			if (channel == 0){
-//				buffer->debug_stream_ << filtered_long << " ";
-//			}
 			filtered_long += *(chan_sig_buf) * filter_int_[j];
 		}
 

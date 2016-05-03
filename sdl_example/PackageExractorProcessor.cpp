@@ -207,7 +207,7 @@ void PackageExractorProcessor::process(){
 //		Log("pkg value (chan 4) = ", (unsigned int)buffer->signal_buf[4][buffer->buf_pos - 1]);
 //	}
     
-    // TODO: use filter width !!!
+    // TODO: use spike filter width / 2
     buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
 
 	//Log("Package extraction done");

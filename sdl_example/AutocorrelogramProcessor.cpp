@@ -207,7 +207,6 @@ void AutocorrelogramProcessor::process(){
 		}
 
 		// fill cross-correlograms - no need to delete here, start from end until
-		// TODO number of clusters ?
 		for (unsigned int c = 0; c < MAX_CLUST; ++c) {
 			if (c == (unsigned int)spike->cluster_id_)
 				continue;
@@ -361,8 +360,6 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 }
 
 void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
-	// TODO: implement
-
 	SDL_Keymod kmod = SDL_GetModState();
 
 	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){

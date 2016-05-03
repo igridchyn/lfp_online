@@ -122,7 +122,6 @@ void SDLWaveshapeDisplayProcessor::process() {
     		case UA_DELETE_CLUSTER:
     			break;
 
-    			// TODO: show in which dimensions cluster has projections
     		case UA_ADD_INCLUSIVE_PROJECTION:
     			break;
 
@@ -137,14 +136,12 @@ void SDLWaveshapeDisplayProcessor::process() {
     while(buf_pointer_ < buffer->spike_buf_no_disp_pca){
         Spike *spike = buffer->spike_buffer_[buf_pointer_];
         
-        // TODO warn ?
         if (spike->waveshape == nullptr){
         	buf_pointer_++;
 			continue;
         }
 
-        // !!! PLOTTING EVERY N-th spike
-        // TODO: plot only one cluster [switch !!!]
+        // PLOTTING EVERY N-th spike
 		if ((unsigned int)spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 ||
 				((unsigned int)spike->cluster_id_ != disp_cluster_1_ && (unsigned int)spike->cluster_id_ != disp_cluster_2_) ||
 				spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
@@ -310,7 +307,6 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         				float yw2 = YToPower(selected_channel_, y2_);
 
         				// add to cuts list to cut coming spikes
-        				// TODO display cuts
         				if (user_context_.SelectedCluster1() > 0)
         					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster1()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
         				if (user_context_.SelectedCluster2() > 0)

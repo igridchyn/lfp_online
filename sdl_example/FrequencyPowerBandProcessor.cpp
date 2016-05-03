@@ -59,7 +59,6 @@ void FrequencyPowerBandProcessor::process(){
     last_performed_an = buffer->last_pkg_id;
     
     // DISPLAY
-    // TODO: extract a separate processor
     SDL_SetRenderTarget(renderer_, texture_);
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);

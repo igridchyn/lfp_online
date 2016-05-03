@@ -324,7 +324,6 @@ void cache_spike_and_bin_neighbours(){
 				xy_pnt[1] = BIN_SIZE * (yb + 0.5);
 				ANNidx *nn_idx = new ANNidx[NN_CACHE];
 				ANNdist *dd = new ANNdist[NN_CACHE];
-				// TODO relax eps ? ()
 				kd_tree_coords_->annkSearch(xy_pnt, NN_CACHE, nn_idx, dd, NN_EPS);
 				cache_xy_bin_spikes_.push_back(nn_idx);
 				cache_xy_bin_spikes_dists_.push_back(dd);

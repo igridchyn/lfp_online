@@ -829,8 +829,6 @@ void FetFileReaderProcessor::process() {
 			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
 			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();
 		}
-
-		// TODO: buffer rewind
 	}
 
 	// for next processor - clustering

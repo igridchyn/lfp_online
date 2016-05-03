@@ -39,7 +39,6 @@ void WhlFileReaderProcessor::process(){
 
 		last_pos_pkg_id_ += sampling_rate_;
 
-		// TODO: rewind (also for spike buffer in fet reader)
 		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
 
 		// otherwise remains unknown (valid = false) with coords set to -1

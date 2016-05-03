@@ -20,7 +20,6 @@ ArrayValidator<T>::ArrayValidator(std::string array_path, std::string name, T* t
     f_filt_sig >> gt_data_len_;
     gt_data_ = new int[gt_data_len_];
     
-    // TODO: read value of type T from file (write integrers from Matlab)
     float dum;
     for (int i=0; i<gt_data_len_; ++i) {
         f_filt_sig >> dum;

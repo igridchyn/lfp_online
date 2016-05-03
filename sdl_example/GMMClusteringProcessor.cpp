@@ -147,7 +147,6 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
         
         // = # mixing probabilities + # means + # covariances
         int nparams = (nclust - 1) + nclust * dimensionality + nclust * dimensionality * (dimensionality + 1) / 2;
-        // !!! TODO: check
         double BIC = -2 * likelihood + nparams * log(dimensionality);
         
         if (BIC < BIC_min){
@@ -297,7 +296,6 @@ void GMMClusteringProcessor::process(){
                 
                 // classify new spikes and draw
                 total_observations_[tetr] = 0;
-                // TODO: optimize (use fixed dize)
                 obs_spikes_[tetr].clear();
                 observations_[tetr] = arma::mat(num_princomp_ * nchan, classification_rate_, arma::fill::zeros);
             }

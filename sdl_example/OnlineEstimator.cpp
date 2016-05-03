@@ -34,7 +34,6 @@ void OnlineEstimator<T, S>::push(T value){
 	if (Utils::Math::Isnan(value))
 		return;
 
-    // TODO: ignore to optimize ?
     if (num_samples < BUF_SIZE){
         num_samples ++;
     }
