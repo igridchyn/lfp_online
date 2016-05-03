@@ -693,6 +693,11 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 
 	user_context_.SelectCluster1(-1);
 	user_context_.SelectCluster2(-1);
+
+	buffer->spike_buf_no_disp_pca = 0;
+	time_start_ = buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN] == nullptr ? 0 : buffer->spike_buffer_[buffer->SPIKE_BUF_HEAD_LEN]->pkg_id_;
+	if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != nullptr)
+	time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 }
 
 void SDLPCADisplayProcessor::deleteCluster() {
