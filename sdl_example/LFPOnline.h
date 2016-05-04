@@ -8,6 +8,8 @@
 			#else // outside DLL
 				#   define LFPONLINEAPI   __declspec(dllimport)
 			#endif  // LFP_ONLINE_LIB_EXPORT
+
+			#pragma warning( disable: 4251 )
 		#else
 			#define LFPONLINEAPI
 		#endif
