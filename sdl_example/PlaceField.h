@@ -34,7 +34,7 @@ public:
     static const int MAX_SPIKES = 20;
     
     PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy, const unsigned int& spread);
-    PlaceField(const arma::mat& mat, const double& sigma, const double& bin_size, const unsigned int& spread);
+    PlaceField(const arma::mat mat, const double& sigma, const double& bin_size, const unsigned int& spread);
 
     // PlaceField doesn't know about its identity and doesn't check spikes
     bool AddSpike(Spike *spike);

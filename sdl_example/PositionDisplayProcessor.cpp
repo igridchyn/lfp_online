@@ -173,7 +173,7 @@ void PositionDisplayProcessor::process(){
         	continue;
         }
 
-        FillRect(spike->x * scale_, spike->y * scale_, spike->cluster_id_);
+        FillRect(int(spike->x * scale_), int(spike->y * scale_), spike->cluster_id_);
         buffer->spike_buf_pos_draw_xy++;
 
         if (!(buffer->spike_buf_pos_draw_xy % (rend_freq * 10))){

@@ -16,7 +16,7 @@ WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer* buffer)
 ) {
 }
 
-WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const unsigned int& sampling_rate,
+WhlFileReaderProcessor::WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const float& sampling_rate,
 		const float sub_x, const float sub_y)
 : LFPProcessor(buffer)
 , whl_path_(whl_path)
@@ -37,7 +37,7 @@ void WhlFileReaderProcessor::process(){
 		float x,y;
 		whl_stream_ >> x >> y;
 
-		last_pos_pkg_id_ += sampling_rate_;
+		last_pos_pkg_id_ += (int)sampling_rate_;
 
 		SpatialInfo &pos_rec = buffer->positions_buf_[buffer->pos_buf_pos_];
 

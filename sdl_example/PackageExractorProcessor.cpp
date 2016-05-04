@@ -218,7 +218,7 @@ void PackageExractorProcessor::process(){
     if (buffer->last_pkg_id - last_reported_ > report_rate_){
     	last_reported_ = buffer->last_pkg_id;
     	Log(std::string("Processed ") + Utils::Converter::int2str(last_reported_ / (buffer->SAMPLING_RATE * 60)) + " minutes of data...");
-    	unsigned int check_time_ = (time(0) - last_check_point_);
+    	unsigned int check_time_ = (unsigned int)(time(0) - last_check_point_);
     	last_check_point_ = time(0);
     	Log(std::string("\tin ") + Utils::Converter::int2str(check_time_) + " seconds");
     	Log("With # of spikes: ", buffer->spike_buf_pos);

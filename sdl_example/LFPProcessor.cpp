@@ -245,34 +245,33 @@ bool IsFromRightWave(float x1, float y1, float x2, float y2, float x3, float y3)
 	return cossig < 0;
 }
 
-bool Spike::crossesWaveShapeFinal(unsigned int channel, int x1, int y1, int x2, int y2) {
+bool Spike::crossesWaveShapeFinal(unsigned int channel, float x1, float y1, float x2, float y2) {
 
-	int w1 = (int)floor(x1);
-	int w2 = (int)floor(x2);
+	float w1 = floor(x1);
+	float w2 = floor(x2);
 
 	// TODO parametrize
 	if (w1 > 16 || w2 > 16)
 		return false;
 
-	bool down1 = IsFromRightWave((float)w1, waveshape_final[channel][w1], (float)w1 + 1.f, waveshape_final[channel][w1 + 1], (float)x1, (float)y1);
-	bool down2 = IsFromRightWave((float)w2, waveshape_final[channel][w2], (float)w2 + 1.f, waveshape_final[channel][w2 + 1], (float)x2, (float)y2);
+	bool down1 = IsFromRightWave(w1, (float)waveshape_final[channel][(int)w1], w1 + 1.f, (float)waveshape_final[channel][(int)w1 + 1], x1, y1);
+	bool down2 = IsFromRightWave(w2, (float)waveshape_final[channel][(int)w2], w2 + 1.f, (float)waveshape_final[channel][(int)w2 + 1], x2, y2);
 
 	return down1 ^ down2;
 }
 
-bool Spike::crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1,
-		int x2, int y2) {
-	int w1 = (int)floor(x1);
-	int w2 = (int)floor(x2);
+bool Spike::crossesWaveShapeReconstructed(unsigned int channel, float x1, float y1, float x2, float y2) {
+	float w1 = floor(x1);
+	float w2 = floor(x2);
 
 	// TODO parametrize
 	if (w1 > 128 || w2 > 128)
 		return false;
 
-	bool down1 = IsFromRightWave((float)w1, waveshape[channel][w1], (float)w1 + 1.f, waveshape[channel][w1 + 1], (float)x1, (float)y1);
+	bool down1 = IsFromRightWave(w1, (float)waveshape[channel][(int)w1], w1 + 1.f, (float)waveshape[channel][(int)w1 + 1], x1, y1);
 
-	for (int w = w1 + 1; w <= w2; ++w){
-		if (down1 ^ !IsFromRightWave((float)x1, (float)y1, (float)x2, (float)y2, (float)w, waveshape[channel][w]))
+	for (int w = (int)w1 + 1; w <= (int)w2; ++w){
+		if (down1 ^ !IsFromRightWave(x1, y1, x2, y2, (float)w, waveshape[channel][w]))
 			return true;
 	}
 

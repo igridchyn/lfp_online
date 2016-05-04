@@ -31,7 +31,7 @@ class TransProbEstimationProcessor: public virtual LFPProcessor {
 	const float SIGMA;
 	const int SPREAD;
 
-	std::vector<arma::mat> trans_probs_;
+	std::vector<arma::fmat> trans_probs_;
 
 	//DEBUG
 	bool saved = false;

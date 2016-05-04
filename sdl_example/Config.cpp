@@ -210,7 +210,7 @@ bool Config::getBool(std::string name) {
 	check_parameter(name);
 	//requested_params_.insert(name);
 
-	return (bool)atoi(params_[name].c_str());
+	return atoi(params_[name].c_str()) != 0;
 }
 
 std::string Config::getString(std::string name) {

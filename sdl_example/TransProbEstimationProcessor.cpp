@@ -46,13 +46,13 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, SPREAD(spread)
 	, SAMPLING_END_(buf->config_->getInt("tp.sampling.end", 15000000)){
 	assert(NEIGHB_SIZE % 2);
-	trans_probs_.resize(NBINSX * NBINSY, arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
+	trans_probs_.resize(NBINSX * NBINSY, arma::fmat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 
 	pos_buf_ptr_ += STEP;
 
 	if (LOAD){
 		buffer->log_string_stream_ << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
-		arma::mat tps;
+		arma::fmat tps;
 		tps.load(BASE_PATH + "tps.mat");
 
 		if (USE_PARAMETRIC){
@@ -69,19 +69,19 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			// TODO do the following in the estimation stage, before saving
 			// SMOOTH NON-PAREMETRIC ESTIMATE (counts)
 			if (SMOOTH){
-				PlaceField tp_pf(trans_probs_[b], SIGMA, BIN_SIZE, SPREAD);
-				trans_probs_[b] = tp_pf.Smooth().Mat();
+				PlaceField tp_pf(arma::conv_to<arma::mat>::from(trans_probs_[b]), SIGMA, BIN_SIZE, SPREAD);
+				trans_probs_[b] = arma::conv_to<arma::fmat>::from(tp_pf.Smooth().Mat());
 			}
 
 			// PARAMETRIC: GAUSSIAN
 			if (USE_PARAMETRIC){
 				PlaceField tp_pf(arma::mat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros), SIGMA, BIN_SIZE, SPREAD);
 				tp_pf(NEIGHB_SIZE/2, NEIGHB_SIZE/2) = 1;
-				trans_probs_[b] = tp_pf.Smooth().Mat();
+				trans_probs_[b] = arma::conv_to<arma::fmat>::from(tp_pf.Smooth().Mat());
 			}
 
 			// normalize
-			double sum = arma::sum(arma::sum(trans_probs_[b]));
+			float sum = arma::sum(arma::sum(trans_probs_[b]));
 
 			trans_probs_[b] /= sum;
 
@@ -124,9 +124,9 @@ void TransProbEstimationProcessor::process() {
 		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_].x_pos() - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos()) / (float)BIN_SIZE);
 		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_].y_pos() - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos()) / (float)BIN_SIZE);
 
-		unsigned int tmpx = buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos();
+		unsigned int tmpx = (unsigned int)buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos();
 		int xb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos() / (float)BIN_SIZE - 0.5);
-		unsigned int tmpy = buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos();
+		unsigned int tmpy = (unsigned int)buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos();
 		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos() / (float)BIN_SIZE - 0.5);
 
 		if (tmpx == 0)
@@ -149,10 +149,10 @@ void TransProbEstimationProcessor::process() {
 	if (buffer->last_pkg_id > SAMPLING_END_ && !saved && SAVE){
 		buffer->Log("save tps...");
 
-		arma::mat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
+		arma::fmat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
 
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
-			double psum = arma::sum(arma::sum(trans_probs_[b]));
+			float psum = arma::sum(arma::sum(trans_probs_[b]));
 			trans_probs_[b] /= psum;
 			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) = trans_probs_[b];
 		}

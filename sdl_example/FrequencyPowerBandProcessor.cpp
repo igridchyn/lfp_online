@@ -72,7 +72,7 @@ void FrequencyPowerBandProcessor::process(){
         }
         mag /= FACTOR + 1 - (FACTOR % 2);
         
-        int y = window_height_ * (1-mag/SCALE);
+        int y = int(window_height_ * (1-mag/SCALE));
         SDL_RenderDrawLine(renderer_, 2*i, prevy, 2*i+4, y);
         prevy = y;
     }

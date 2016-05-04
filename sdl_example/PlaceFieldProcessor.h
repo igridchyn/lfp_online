@@ -33,7 +33,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     double bin_size_;
     unsigned int nbinsx_;
     unsigned int nbinsy_;
-    double spread_;
+    unsigned int spread_;
     
     // [session]
     std::vector<PlaceField> occupancy_;

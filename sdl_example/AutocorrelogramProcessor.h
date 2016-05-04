@@ -38,7 +38,7 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     const unsigned int ypix_ = 100;
 
     // tetrode / cluster / bin values
-    std::vector<std::vector<std::vector<float> > > autocorrs_;
+    std::vector<std::vector<std::vector<unsigned int> > > autocorrs_;
     // [tetrode] [ cluster 1] [cluster 2] [ bin ]
     std::vector<std::vector<std::vector<std::vector<int> > > > cross_corrs_;
 

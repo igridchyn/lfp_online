@@ -61,8 +61,8 @@ public:
     void init(int pkg_id, int tetrode);
 
     float getWidth(float level, int chan);
-    bool crossesWaveShapeFinal(unsigned int channel, int x1, int y1, int x2, int y2);
-    bool crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1, int x2, int y2);
+    bool crossesWaveShapeFinal(unsigned int channel, float x1, float y1, float x2, float y2);
+    bool crossesWaveShapeReconstructed(unsigned int channel, float x1, float y1, float x2, float y2);
 
     void find_one_peak(int *ptmout,int peakp,int peakgit,int *ptmval);
     void find_valleys(int ptm, int ptv);

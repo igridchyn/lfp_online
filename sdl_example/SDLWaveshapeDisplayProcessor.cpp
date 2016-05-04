@@ -24,7 +24,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	: LFPProcessor(buf)
 	, SDLControlInputProcessor(buf)
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
-	, scale_(buf->config_->getInt("waveshapedisp.scale", 25))
+	, scale_((float)buf->config_->getInt("waveshapedisp.scale", 25))
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
 	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 1))
 	, display_final_(buf->config_->getBool("waveshapedisp.final", false))
@@ -186,11 +186,11 @@ void SDLWaveshapeDisplayProcessor::process() {
 
 		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
         for (int chan=0; chan < 4; ++chan) {
-            int prev_smpl = transform(spike->waveshape[chan][0], chan);
+            int prev_smpl = (int)transform((float)spike->waveshape[chan][0], chan);
 
 			if (display_final_){
 				for (int smpl = 1; smpl < 16; ++smpl) {
-					int tsmpl = transform(spike->waveshape_final[chan][smpl], chan);
+					int tsmpl = (int)transform((float)spike->waveshape_final[chan][smpl], chan);
 					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
 					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
 					prev_smpl = tsmpl;
@@ -198,7 +198,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 			}
 			else{
 				for (int smpl = 1; smpl < 128; ++smpl) {
-					int tsmpl = transform(spike->waveshape[chan][smpl], chan);
+					int tsmpl = (int)transform(spike->waveshape[chan][smpl], chan);
 					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
 					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
 					prev_smpl = tsmpl;
@@ -338,11 +338,11 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
                 
             // change scale
             case SDLK_KP_PLUS:
-            	scale_ /= 1.1;
+            	scale_ /= 1.1f;
             	buf_pointer_ = 0;
             	break;
             case SDLK_KP_MINUS:
-            	scale_ *= 1.1;
+            	scale_ *= 1.1f;
             	buf_pointer_ = 0;
             	break;
 

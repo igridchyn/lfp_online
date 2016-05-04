@@ -121,7 +121,7 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
     	{
 			// !!!  This is the EARLIEST point when the spike is accepted for further analysis
             if (prev_spike_[tetrode] != nullptr){
-                prev_spike_[tetrode]->power_ = prev_max_val_[tetrode];
+                prev_spike_[tetrode]->power_ = (float)prev_max_val_[tetrode];
 
                 // ADD spike to buffer's population window and use for ISI estimation
                 // TODO !!!!!! synchronous !!!!!!

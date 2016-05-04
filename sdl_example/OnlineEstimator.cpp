@@ -17,7 +17,7 @@ OnlineEstimator<T, S>::OnlineEstimator(unsigned int buf_size)
 
 template<class T, class S>
 T OnlineEstimator<T, S>::get_mean_estimate(){
-    return sum / num_samples;
+    return T(sum / num_samples);
 }
 
 template<class T, class S>
@@ -31,7 +31,7 @@ void OnlineEstimator<T, S>::push(T value){
     // printf("push %f\n", value);
     
 	// TODO LOG ERROR
-	if (Utils::Math::Isnan(value))
+	if (Utils::Math::Isnan((float)value))
 		return;
 
     if (num_samples < BUF_SIZE){

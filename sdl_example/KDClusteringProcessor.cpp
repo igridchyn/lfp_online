@@ -288,7 +288,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	if (continuous_prediction_ && !IGNORE_LX) {
 		// from last spike at the current tetrode
-		const float DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
+		const float DE_SEC = float((prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0)));
 
 		for (unsigned int stetr = 0; stetr < tetr_info_->tetrodes_number(); stetr++)
 			pos_pred_ -= DE_SEC * lxs_[stetr];
@@ -428,7 +428,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	}
 
 	buffer->last_predictions_[processor_number_] = arma::exp(
-			hmm_prediction_ / display_scale_);
+			hmm_prediction_ / (float)display_scale_);
 }
 
 void KDClusteringProcessor::reset_hmm() {
@@ -916,7 +916,7 @@ void KDClusteringProcessor::process() {
 				if (!continuous_prediction_ && !IGNORE_LX) {
 					// edges of the window
 					// account for the increase in the firing rate during high synchrony with additional factor
-					const float DE_SEC = (prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0));
+					const float DE_SEC = float((prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0)));
 
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 						// TODO ? subtract even if did not spike
@@ -957,7 +957,7 @@ void KDClusteringProcessor::process() {
 
 				// TODO ? WHY for every tetrode ?
 				if (!continuous_prediction_)
-					pos_pred_ = USE_PRIOR ? (tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
+					pos_pred_ = USE_PRIOR ? ((float)tetr_info_->tetrodes_number() * pix_log_) : arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 
 				// return to display prediction etc...
 				//		(don't need more spikes at this stage)

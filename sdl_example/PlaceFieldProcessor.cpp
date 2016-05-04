@@ -218,16 +218,16 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
             unsigned int x = c * binw;
             unsigned int y = r * binh;
 
-            unsigned int order = MIN(mat(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
+            unsigned int order = (unsigned int)MIN(mat(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
 
             FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
         }
     }
 
     // draw actual position tail
-    unsigned int end = MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
+    unsigned int end = (unsigned int)MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
     for (unsigned int pos = end - 100; pos < end; ++pos) {
-    	FillRect(buffer->positions_buf_[pos].x_pos() * binw / bin_size_, buffer->positions_buf_[pos].y_pos() * binh / bin_size_, 0, 2, 2);
+    	FillRect(int(buffer->positions_buf_[pos].x_pos() * binw / bin_size_), int(buffer->positions_buf_[pos].y_pos() * binh / bin_size_), 0, 2, 2);
     }
 
     ResetTextStack();
@@ -318,8 +318,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
         shift = 10;
     }
     
-    bool change_session = kmod & KMOD_RSHIFT;
-
+    bool change_session = ((kmod & KMOD_RSHIFT) != 0);
 
     bool need_redraw = false;
     bool display_occupancy = false;
@@ -577,8 +576,8 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     unsigned int rmax, cmax;
     reconstructed_position_.max(rmax, cmax);
 
-    buffer->positions_buf_[buffer->pos_buf_pos_].Init((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX,
-    		(rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX,
-    		(cmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX,
-    		(rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2) * (bin_size_) / 2 / RAND_MAX);
+	buffer->positions_buf_[buffer->pos_buf_pos_].Init(float((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2) * (bin_size_) / 2 / RAND_MAX),
+    		float((rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2.f) * (bin_size_) / 2.f / RAND_MAX),
+			float((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2.f) * (bin_size_) / 2.f / RAND_MAX),
+			float((rmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2.f) * (bin_size_) / 2.f / RAND_MAX));
 }

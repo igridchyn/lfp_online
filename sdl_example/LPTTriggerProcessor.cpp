@@ -22,7 +22,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, confidence_high_left_(buffer->config_->getFloat("lpt.trigger.confidence.high.left", -0.1f))
 	, confidence_high_right_(buffer->config_->getFloat("lpt.trigger.confidence.high.right", 0.1f))
 	, inhibit_nonconf_(buffer->config_->getBool("lpt.trigger.inhibit.nonconf", false))
-	, swap_environments_(buffer->config_->getInt("lpt.swap.environments", false))
+	, swap_environments_(buffer->config_->getBool("lpt.swap.environments", false))
 	, inhibition_map_path_(buffer->config_->getOutPath("lpt.trigger.inhibition.map", ""))
 	, use_inhibition_map_(buffer->config_->getBool("lpt.trigger.use.map", false))
 {
@@ -328,7 +328,7 @@ void LPTTriggerProcessor::process() {
 
 						// create new synchrony event in the buffer
 						// TODO detect exactly with last processed spike ???
-						unsigned int sync_start = buffer->last_pkg_id - buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0;
+						unsigned int sync_start = buffer->last_pkg_id - unsigned int(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
 
 						Log("Synchrony detected at (window start) ",sync_start);
 						buffer->swrs_.push_back(std::vector<unsigned int>());

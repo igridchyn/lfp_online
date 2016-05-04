@@ -19,7 +19,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 : LFPProcessor(buf)
 , SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Autocorrelograms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
-, BIN_SIZE(buf->SAMPLING_RATE/1000 * bin_size_ms)
+, BIN_SIZE(int(buf->SAMPLING_RATE/1000 * bin_size_ms))
 , MAX_CLUST(buffer->config_->getInt("ac.max.clust", 30))
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true)){
@@ -251,7 +251,7 @@ void AutocorrelogramProcessor::process(){
 
 // center if the cluster autocorrelograms
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
-	return ((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 0.5);
+	return unsigned int(((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 0.5));
 }
 
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {
@@ -287,7 +287,7 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 }
 
 int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x, const unsigned int& y) {
-	int cx = round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
+	int cx = (int)round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
 
 	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx;

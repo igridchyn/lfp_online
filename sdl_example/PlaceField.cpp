@@ -60,7 +60,7 @@ PlaceField PlaceField::Smooth(){
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_; dy <= spread_; ++dy) {
                 	// TODO validate consistency of downstream usage
-					if (y + dy <0 || x + dx < 0 || y + dy >= (int)place_field_.n_rows || x + dx >= (int)place_field_.n_cols || isinf(place_field_(y + dy, x + dx)) || Utils::Math::Isnan(place_field_(y + dy, x + dx))){
+					if (y + dy <0 || x + dx < 0 || y + dy >= (int)place_field_.n_rows || x + dx >= (int)place_field_.n_cols || isinf((float)place_field_(y + dy, x + dx)) || Utils::Math::Isnan((float)place_field_(y + dy, x + dx))){
                 		ignored_part += gauss_(dy+spread_, dx+spread_);
                 		continue;
                 	}
@@ -97,7 +97,7 @@ void PlaceField::CachePDF(const PlaceField& occupancy, const double& occupancy_f
     // TODO: cache log of occupancy_smoothed
 }
 
-PlaceField::PlaceField(const arma::mat& mat, const double& sigma,
+PlaceField::PlaceField(const arma::mat mat, const double& sigma,
 		const double& bin_size, const unsigned int& spread)
 	: place_field_(mat)
 	, sigma_(sigma)

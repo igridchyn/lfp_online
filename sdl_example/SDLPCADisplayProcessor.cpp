@@ -203,15 +203,15 @@ void SDLPCADisplayProcessor::process(){
         // polygon vertices
         for(size_t i=0; i < polygon_x_.size(); ++i){
         	SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
-        	int x = polygon_x_[i] / scale_ + shift_x_;
-        	int y = polygon_y_[i] / scale_ + shift_y_;
+        	int x = int(polygon_x_[i] / scale_ + shift_x_);
+        	int y = int(polygon_y_[i] / scale_ + shift_y_);
         	int w = 3;
         	SDL_RenderDrawLine(renderer_, x-w, y, x+w, y);
         	SDL_RenderDrawLine(renderer_, x, y-w, x, y+w);
 
         	if (i > 0){
-        		int px = polygon_x_[i-1] / scale_ + shift_x_;
-        		int py = polygon_y_[i-1] / scale_ + shift_y_;
+				int px = int(polygon_x_[i - 1] / scale_ + shift_x_);
+        		int py = int(polygon_y_[i-1] / scale_ + shift_y_);
         		SDL_RenderDrawLine(renderer_, px, py, x, y);
         	}
         }
@@ -224,20 +224,20 @@ void SDLPCADisplayProcessor::process(){
         		if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
         			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
         			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
-        				int x = scale_x(proj.coords1_[pt-1]);
-        				int y = scale_y(proj.coords2_[pt-1]);
-        				int x2 = scale_x(proj.coords1_[pt]);
-        				int y2 = scale_y(proj.coords2_[pt]);
+        				int x = (int)scale_x(proj.coords1_[pt-1]);
+						int y = (int)scale_y(proj.coords2_[pt - 1]);
+						int x2 = (int)scale_x(proj.coords1_[pt]);
+						int y2 = (int)scale_y(proj.coords2_[pt]);
         				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
         			}
         		}
         		if ((unsigned int)proj.dim1_ == comp2_ && (unsigned int)proj.dim2_ == comp1_){
         			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
         			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
-        				int x = scale_x(proj.coords2_[pt-1]);
-        				int y = scale_y(proj.coords1_[pt-1]);
-        				int x2 = scale_x(proj.coords2_[pt]);
-        				int y2 = scale_y(proj.coords1_[pt]);
+						int x = (int)scale_x(proj.coords2_[pt - 1]);
+						int y = (int)scale_y(proj.coords1_[pt - 1]);
+						int x2 = (int)scale_x(proj.coords2_[pt]);
+						int y2 = (int)scale_y(proj.coords1_[pt]);
         				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
         			}
         		}
@@ -249,20 +249,20 @@ void SDLPCADisplayProcessor::process(){
                 		if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
                 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
                 			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
-                				int x = scale_x(proj.coords1_[pt-1]);
-                				int y = scale_y(proj.coords2_[pt-1]);
-                				int x2 = scale_x(proj.coords1_[pt]);
-                				int y2 = scale_y(proj.coords2_[pt]);
+								int x = (int)scale_x(proj.coords1_[pt - 1]);
+								int y = (int)scale_y(proj.coords2_[pt - 1]);
+								int x2 = (int)scale_x(proj.coords1_[pt]);
+								int y2 = (int)scale_y(proj.coords2_[pt]);
                 				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
                 			}
                 		}
                 		if ((unsigned int)proj.dim1_ == comp2_ && (unsigned int)proj.dim2_ == comp1_){
                 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
                 			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
-                				int x = scale_x(proj.coords2_[pt-1]);
-                				int y = scale_y(proj.coords1_[pt-1]);
-                				int x2 = scale_x(proj.coords2_[pt]);
-                				int y2 = scale_y(proj.coords1_[pt]);
+								int x = (int)scale_x(proj.coords2_[pt - 1]);
+								int y = (int)scale_y(proj.coords1_[pt - 1]);
+								int x2 = (int)scale_x(proj.coords2_[pt]);
+								int y2 = (int)scale_y(proj.coords1_[pt]);
                 				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
                 			}
                 		}
@@ -271,7 +271,7 @@ void SDLPCADisplayProcessor::process(){
 
 		if (polygon_closed_ && polygon_x_.size() > 0){
 			SDL_SetRenderDrawColor(renderer_, 0, 255, 0,255);
-        	SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[0]), scale_y(polygon_y_[0]), scale_x(polygon_x_[polygon_x_.size() - 1]), scale_y(polygon_y_[polygon_y_.size() - 1]));
+			SDL_RenderDrawLine(renderer_, (int)scale_x(polygon_x_[0]), (int)scale_y(polygon_y_[0]), (int)scale_x(polygon_x_[polygon_x_.size() - 1]), (int)scale_y(polygon_y_[polygon_y_.size() - 1]));
         }
 
 		// too slow, don't display during load
@@ -336,19 +336,19 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 void SDLPCADisplayProcessor::getSpikeCoords(const Spike *const spike, int& x, int& y) {
 	 // time
 	if (comp1_ == spike->num_pc_ * spike->num_channels_){
-		x = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+		x = int((spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_);
 	}
 	else{
 		float rawx = spike->getFeature(comp1_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-		x = rawx / scale_ + shift_x_;
+		x = int(rawx / scale_ + shift_x_);
 
 	}
 	if (comp2_ == spike->num_pc_ * spike->num_channels_){
-		y = (spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_;
+		y = int((spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_);
 	}
 	else{
 		float rawy = spike->getFeature(comp2_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
-		y = rawy / scale_ + shift_y_;
+		y = int(rawy / scale_ + shift_y_);
 	}
 }
 
@@ -421,7 +421,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					if (polygon_x_.size() > 1){
 						int last = polygon_x_.size() - 1;
 						SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 0);
-						SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[last]), scale_y(polygon_y_[last]), scale_x(polygon_x_[last - 1]), scale_y(polygon_y_[last-1]));
+						SDL_RenderDrawLine(renderer_, (int)scale_x(polygon_x_[last]), (int)scale_y(polygon_y_[last]), (int)scale_x(polygon_x_[last - 1]), (int)scale_y(polygon_y_[last - 1]));
 					}
 					Render();
 				}else{
@@ -439,14 +439,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			if (polygon_x_.size() > 1){
 				int last = polygon_x_.size() - 1;
 				SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 0);
-				SDL_RenderDrawLine(renderer_, scale_x(polygon_x_[last]), scale_y(polygon_y_[last]), scale_x(polygon_x_[0]), scale_y(polygon_y_[0]));
+				SDL_RenderDrawLine(renderer_, (int)scale_x(polygon_x_[last]), (int)scale_y(polygon_y_[last]), (int)scale_x(polygon_x_[0]), (int)scale_y(polygon_y_[0]));
 			}
 			Render();
 		}
 	}
 
 	if (e.type == SDL_MOUSEWHEEL){
-		scale_ *= pow(1.1, e.wheel.y);
+		scale_ *= pow(1.1f, e.wheel.y);
 		need_redraw = true;
 		need_clust_check_ = false;
 	}
@@ -622,10 +622,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 kp_pressed_ = true;
                 break;
             case SDLK_KP_MINUS:
-            	scale_ *= 1.1;
+            	scale_ *= 1.1f;
             	break;
             case SDLK_KP_PLUS:
-            	scale_ /= 1.1;
+            	scale_ /= 1.1f;
             	break;
             case SDLK_RIGHT:
             	shift_x_ -= 50;

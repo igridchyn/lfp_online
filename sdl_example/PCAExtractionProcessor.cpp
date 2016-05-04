@@ -96,28 +96,28 @@ int PCAExtractionProcessor::tqli(float d[],float e[],int n,float **z) {
             if (m != l) {
                 if (iter++ == 1000){ printf("too many iteration in TQLI");
                     return 1; }
-                g=(d[l+1]-d[l])/(2.0*e[l]);
-                r=sqrt((g*g)+1.0);
+                g=(d[l+1]-d[l])/(2.0f*e[l]);
+                r=sqrt((g*g)+1.0f);
                 g=d[m]-d[l]+e[l]/(g+SIGN(r,g));
-                s=c=1.0;
+                s=c=1.0f;
                 p=0.0;
                 for (i=m-1;i>=l;i--) {
                     f=s*e[i];
                     b=c*e[i];
                     if (fabs(f) >= fabs(g)) {
                         c=g/f;
-                        r=sqrt((c*c)+1.0);
+                        r=sqrt((c*c)+1.0f);
                         e[i+1]=f*r;
-                        c *= (s=1.0/r);
+                        c *= (s=1.0f/r);
                     }
                     else {
                         s=f/g;
-                        r=sqrt((s*s)+1.0);
+                        r=sqrt((s*s)+1.0f);
                         e[i+1]=g*r;
-                        s *= (c=1.0/r);
+                        s *= (c=1.0f/r);
                     }
                     g=d[i+1]-p;
-                    r=(d[i]-g)*s+2.0*c*b;
+                    r=(d[i]-g)*s+2.0f*c*b;
                     p=s*r;
                     d[i+1]=g+p;
                     g=c*r-b;
@@ -129,7 +129,7 @@ int PCAExtractionProcessor::tqli(float d[],float e[],int n,float **z) {
                 }  
                 d[l]=d[l]-p;
                 e[l]=g;
-                e[m]=0.0;
+                e[m]=0.0f;
             }
         } while( m!=l);
     }
@@ -404,7 +404,7 @@ void PCAExtractionProcessor::compute_pcs(Spike *spike){
 
 				// TODO !!! WORKAROUND
 				if (spike->num_channels_ < 4){
-					spike->pc[c * num_pc_ + pc] *= sqrt(4 / (double)spike->num_channels_);
+					spike->pc[c * num_pc_ + pc] *= sqrt(4.f / (float)spike->num_channels_);
 				}
 			}
         }
@@ -447,11 +447,11 @@ void PCAExtractionProcessor::process(){
                 int chan = buffer->tetr_info_->tetrode_channels[spike->tetrode_][chani];
                 
                 for (size_t w=0; w < waveshape_samples_; ++w) {
-                    mean_[chan][w] += spike->waveshape_final[chani][w] / scale_;
-                    sumsq_[chan][w] += spike->waveshape_final[chani][w] / scale_ * spike->waveshape_final[chani][w] / scale_;
+                    mean_[chan][w] += int(spike->waveshape_final[chani][w] / scale_);
+                    sumsq_[chan][w] += int(spike->waveshape_final[chani][w] / scale_ * spike->waveshape_final[chani][w] / scale_);
                     
                     for (size_t w2=w; w2 < waveshape_samples_; ++w2) {
-                        cor_[chan][w][w2] += spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2] / ( scale_ * scale_ );
+                        cor_[chan][w][w2] += int(spike->waveshape_final[chani][w] * spike->waveshape_final[chani][w2] / ( scale_ * scale_ ));
                     }
                 }
             }
@@ -479,10 +479,10 @@ void PCAExtractionProcessor::process(){
                 
                 // copy cor and mean to float arrays
                 for (size_t w = 0; w < waveshape_samples_; ++w){
-                    meanf_[w] = mean_[channel][w];
+                    meanf_[w] = (float)mean_[channel][w];
                     for (size_t w2 = w; w2 < waveshape_samples_; ++w2){
                         corf_[w][w2] = (float)cor_[channel][w][w2];
-                        corf_[w2][w] = cor_[channel][w][w2];
+                        corf_[w2][w] = (float)cor_[channel][w][w2];
                     }
                     
                     // STD

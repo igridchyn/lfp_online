@@ -109,6 +109,7 @@
       <AdditionalIncludeDirectories>../../third\SDL2_ttf-2.0.12\include;../../third\libiconv-1.9.2-1-lib\include\;../../third\ann_1.1.2\include\;../../third\libxml2-2.9.1-win32-x86_64\include\libxml2\;c:\local\boost_1_56_0_32\;../../sdl_lpt_vs;../../third\mlpack-1.0.9\src\;../../third\armadillo-4.320.0\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>DLL_EXPORTS;LFP_ONLINE_LIB_EXPORT;ARMA_USE_LAPACK;ARMA_USE_BLAS;WIN32;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalOptions>-D _USE_MATH_DEFINES %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

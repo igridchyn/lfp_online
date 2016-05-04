@@ -22,7 +22,7 @@ class WhlFileReaderProcessor: public virtual LFPProcessor {
 
 public:
 	WhlFileReaderProcessor(LFPBuffer *buffer);
-	WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const unsigned int& sampling_rate,
+	WhlFileReaderProcessor(LFPBuffer *buffer, const std::string& whl_path, const float& sampling_rate,
 			const float sub_x, const float sub_y);
 	virtual ~WhlFileReaderProcessor();
 

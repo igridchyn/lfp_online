@@ -42,7 +42,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     while(!filter_stream.eof()){
         filter_stream >> filter[fpos++];
         
-        filter_int_[fpos - 1] = 8192 * filter[fpos - 1];
+        filter_int_[fpos - 1] = long long (8192 * filter[fpos - 1]);
         
         // DEBUG
         // printf("filt: %f\n", filter[fpos-1]);
@@ -208,9 +208,9 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 		for(int i=0; i<4 ;++i){
 			pw += buffer->filtered_signal_buf[channel][fpos-i] * buffer->filtered_signal_buf[channel][fpos-i];
 		}
-		buffer->power_buf[channel][fpos] = sqrt(pw);
+		buffer->power_buf[channel][fpos] = (unsigned int)sqrt(pw);
 
-		buffer->powerEstimatorsMap_[channel]->push(buffer->power_buf[channel][fpos]);
+		buffer->powerEstimatorsMap_[channel]->push(float(buffer->power_buf[channel][fpos]));
 	}
 }
 
