@@ -82,7 +82,50 @@ void FrequencyPowerBandProcessor::process(){
 
 void FrequencyPowerBandProcessor::process_SDL_control_input(
 		const SDL_Event& e) {
-	// TODO: implement
+
+	if( e.type == SDL_KEYDOWN ){
+
+		switch(e.key.keysym.sym){
+			case SDLK_0:{
+				channel_ = 0;
+				break;
+			}
+			case SDLK_1:{
+				channel_ = 1;
+				break;
+			}
+			case SDLK_2:{
+				channel_ = 2;
+				break;
+			}
+			case SDLK_3:{
+				channel_ = 3;
+				break;
+			}
+			case SDLK_4:{
+				channel_ = 4;
+				break;
+			}
+
+			case SDLK_5:{
+				channel_ = 5;
+				break;
+			}
+
+			case SDLK_6:{
+				channel_ = 6;
+				break;
+			}
+
+			case SDLK_7:{
+				channel_ = 7;
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
 }
 
 void FrequencyPowerBandProcessor::SetDisplayTetrode(
