@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c++0x -g -O3 -Wall
+CFLAGS = -std=c++0x -g -O3 -Wall -Wextra -Wno-ignored-qualifiers
 LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
 	
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o
