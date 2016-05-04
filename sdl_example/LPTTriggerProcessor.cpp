@@ -328,7 +328,7 @@ void LPTTriggerProcessor::process() {
 
 						// create new synchrony event in the buffer
 						// TODO detect exactly with last processed spike ???
-						unsigned int sync_start = buffer->last_pkg_id - unsigned int(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
+						unsigned int sync_start = buffer->last_pkg_id - (unsigned int)(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
 
 						Log("Synchrony detected at (window start) ",sync_start);
 						buffer->swrs_.push_back(std::vector<unsigned int>());

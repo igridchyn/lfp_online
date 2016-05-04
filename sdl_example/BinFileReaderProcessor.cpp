@@ -112,7 +112,7 @@ void BinFileReaderProcessor::process() {
 }
 
 std::string BinFileReaderProcessor::axonaFileDuration(std::string file_path) {
-	unsigned int nsamples = unsigned int(boost::filesystem::file_size(file_path) * 3 / chunk_size_);
+	unsigned int nsamples = (unsigned int)(boost::filesystem::file_size(file_path) * 3 / chunk_size_);
 	return axonaFileDurationFromNSampes(nsamples);
 }
 
@@ -133,7 +133,7 @@ unsigned int BinFileReaderProcessor::totalAxonaPackages(
 		std::vector<std::string> file_list) {
 	unsigned int total_duration = 0;
 	for (unsigned int f = 0; f < file_list.size(); ++f) {
-		total_duration += unsigned int(boost::filesystem::file_size(file_list[f]) * 3 / chunk_size_);
+		total_duration += (unsigned int)(boost::filesystem::file_size(file_list[f]) * 3 / chunk_size_);
 	}
 	return total_duration;
 }

@@ -251,7 +251,7 @@ void AutocorrelogramProcessor::process(){
 
 // center if the cluster autocorrelograms
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
-	return unsigned int(((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 0.5));
+	return (unsigned int)(((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 0.5));
 }
 
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {

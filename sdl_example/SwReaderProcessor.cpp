@@ -16,8 +16,8 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf)
 
 SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 	: LFPProcessor(buf)
-	, start_to_peak_(unsigned int(buf->config_->getFloat("swr.reader.start.to.peak.ms") * buf->SAMPLING_RATE / 1000.0))
-	, peak_to_end_(unsigned int(buf->config_->getFloat("swr.reader.peak.to.end.ms") * buf->SAMPLING_RATE / 1000.0)){
+	, start_to_peak_((unsigned int)(buf->config_->getFloat("swr.reader.start.to.peak.ms") * buf->SAMPLING_RATE / 1000.0))
+	, peak_to_end_((unsigned int)(buf->config_->getFloat("swr.reader.peak.to.end.ms") * buf->SAMPLING_RATE / 1000.0)){
 
 	Utils::FS::CheckFileExistsWithError(path, buf);
 	std::ifstream swr_stream(path);

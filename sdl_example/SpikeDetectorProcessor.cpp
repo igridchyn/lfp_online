@@ -42,7 +42,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
     while(!filter_stream.eof()){
         filter_stream >> filter[fpos++];
         
-        filter_int_[fpos - 1] = long long (8192 * filter[fpos - 1]);
+        filter_int_[fpos - 1] = (long long)(8192 * filter[fpos - 1]);
         
         // DEBUG
         // printf("filt: %f\n", filter[fpos-1]);
