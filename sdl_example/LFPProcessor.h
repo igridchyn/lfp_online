@@ -93,7 +93,6 @@ public:
 
     virtual std::string name();
     virtual void process() = 0;
-    virtual void process_tetrode(int tetrode) { process(); };
     LFPProcessor(LFPBuffer *buf, const unsigned int& processor_number = 0)
     : buffer(buf)
     , processor_number_(processor_number){ spike_buf_tetrodewise_ptrs_.resize(buffer->tetr_info_->tetrodes_number()); }

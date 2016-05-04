@@ -59,7 +59,7 @@ void ParallelPipelineProcessor::process_thread(const int group) {
 //		clock_t start = clock();
 
 		for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
-			(*piter)->process_tetrode(group);
+			(*piter)->process();
 		}
 
 		{

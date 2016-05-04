@@ -22,7 +22,7 @@ class SDLSignalDisplayProcessor : virtual public SDLControlInputProcessor, virtu
     int *prev_vals_ = nullptr;
     
     int transform_to_y_coord(int voltage);
-    void drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2);
+    void drawLine(int x1, int y1, int x2, int y2);
     unsigned int current_x;
     
     // last disaplued position in buffer

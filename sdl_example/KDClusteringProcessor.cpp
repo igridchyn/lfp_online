@@ -336,10 +336,8 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			float best_to_xb_yb = -1000.0f * 100000000.0f;
 			int bestx = 0, besty = 0;
 
-			for (unsigned int x = MAX(0, xb - HMM_NEIGHB_RAD);
-					x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
-				for (unsigned int y = MAX(0, yb - HMM_NEIGHB_RAD);
-						y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
+			for (unsigned int x = (unsigned int)std::max<int>(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
+				for (unsigned int y = (unsigned int)std::max<int>(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
 					// TODO weight
 					// split for DEBUG
 					float prob_xy = hmm_prediction_(x, y);
@@ -399,16 +397,13 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// for consistency of comparison
 	if (last_pred_pkg_id_ > DUMP_DELAY) {
 		// STATS - dump best HMM trajectory by backtracking
-		std::ofstream dec_hmm(
-				std::string("dec_hmm_") + Utils::NUMBERS[processor_number_]
-						+ ".txt");
+		std::ofstream dec_hmm(std::string("dec_hmm_") + Utils::NUMBERS[processor_number_] + ".txt");
 		int t = hmm_traj_[0].size() - 1;
 		// best last x,y
 		unsigned int x, y;
 		hmm_prediction_.max(x, y);
 		while (t >= 0) {
-			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5)
-					<< " ";
+			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << " ";
 			const SpatialInfo& gt_pos = buffer->PositionAt(t * PRED_WIN + PREDICTION_DELAY);
 			corrx = gt_pos.x_pos();
 			corry = gt_pos.y_pos();
@@ -419,8 +414,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 				y = b / NBINSX;
 				x = b % NBINSX;
 			} else {
-				buffer->log_string_stream_ << "Trajectory is screwed up at "
-						<< t << ", keep the previous position\n";
+				buffer->log_string_stream_ << "Trajectory is screwed up at " << t << ", keep the previous position\n";
 				buffer->Log();
 			}
 
@@ -502,8 +496,7 @@ void KDClusteringProcessor::dump_swr_window_spike_count() {
 //				}
 }
 
-void KDClusteringProcessor::dump_prediction_if_needed(
-		const arma::fmat& pos_pred) {
+void KDClusteringProcessor::dump_prediction_if_needed() {
 	// DEBUG save prediction
 	if (pred_dump_) {
 		if (swr_regime_) {
@@ -942,7 +935,7 @@ void KDClusteringProcessor::process() {
 
 				last_pred_probs_ = pos_pred_;
 
-				dump_prediction_if_needed(pos_pred_);
+				dump_prediction_if_needed();
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG

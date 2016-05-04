@@ -198,7 +198,7 @@ void AutocorrelogramProcessor::process(){
 			}
 
 			unsigned int bin = (stime - *si) / (BIN_SIZE );
-			if (bin >= NBINS || bin < 0){
+			if (bin >= NBINS){
 				continue;
 			}
 
@@ -217,7 +217,7 @@ void AutocorrelogramProcessor::process(){
 				}
 
 				unsigned int bin = (stime - *si) / (BIN_SIZE );
-				if (bin >= NBINS || bin < 0){
+				if (bin >= NBINS){
 					continue;
 				}
 
@@ -259,8 +259,7 @@ unsigned int AutocorrelogramProcessor::getYShift(int clust) {
 }
 
 
-unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1,
-		const unsigned int& clust2) {
+unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1) {
 	// TODO below
 	// 	+ set corresponding when a pair is chosen
 	//  + cluster select
@@ -268,8 +267,7 @@ unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1,
 	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * (((int)clust1) % XCLUST_CC) + (CC_BWIDTH + 1) * NBINS;
 }
 
-unsigned int AutocorrelogramProcessor::getCCYShift(const unsigned int& clust1,
-		const unsigned int& clust2) {
+unsigned int AutocorrelogramProcessor::getCCYShift(const unsigned int& clust2) {
 	unsigned int shift = (((int)clust2 % YCLUST_CC)) * ypix_ + 100;
 	return shift;
 }
@@ -288,8 +286,7 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 	SDL_RenderDrawRect(renderer_, &rect);
 }
 
-int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x,
-		const unsigned int& y) {
+int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x, const unsigned int& y) {
 	int cx = round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
 
@@ -318,9 +315,6 @@ void AutocorrelogramProcessor::clearACandCCs(const unsigned int& clu) {
 			cross_corrs_[display_tetrode_][c][clu][i] = 0;
 		}
 	}
-}
-
-void AutocorrelogramProcessor::resetACandCCs(const unsigned int& clu) {
 }
 
 void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
@@ -460,8 +454,8 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 
 	// shift for the plot
 
-	const int xsh = getCCXShift(cluster1, cluster2);
-	const int ysh = getCCYShift(cluster1, cluster2);
+	const int xsh = getCCXShift(cluster1);
+	const int ysh = getCCYShift(cluster2);
 
 	ColorPalette palette_ = ColorPalette::BrewerPalette12;
 

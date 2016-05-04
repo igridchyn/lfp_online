@@ -255,7 +255,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	void load_laxs_tetrode(unsigned int tetrode);
 	void dump_positoins_if_needed(const unsigned int& mx, const unsigned int& my);
 	void dump_swr_window_spike_count();
-	void dump_prediction_if_needed(const arma::fmat& pos_pred);
+	void dump_prediction_if_needed();
 	void validate_prediction_window_bias();
 
 public:

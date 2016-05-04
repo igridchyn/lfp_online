@@ -56,7 +56,7 @@ public:
 	inline int NProj() { return projections_inclusive_.size() + projections_exclusive_.size(); };
 	bool ContainsConvex(float x, float y);
 	bool Contains(float x, float y);
-	bool Contains(Spike *s, const unsigned int& nchan);
+	bool Contains(Spike *s);
 	void Serialize(std::ofstream& file);
 	bool Empty();
 	void Invalidate();

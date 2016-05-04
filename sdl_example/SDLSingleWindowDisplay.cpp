@@ -72,7 +72,7 @@ void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y, int col, bo
 //		Log(std::string("Font error: ") + TTF_GetError());
 //	}
 
-	SDL_Color color = { ColorPalette::getColorR(col), ColorPalette::getColorG(col), ColorPalette::getColorB(col) };
+	SDL_Color color = { ColorPalette::getColorR(col), ColorPalette::getColorG(col), ColorPalette::getColorB(col), 255 };
 	SDL_Surface * surface = TTF_RenderText_Solid(font, text.c_str(), color);
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer_,  surface);
 	int texW = 0;

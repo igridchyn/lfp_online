@@ -404,7 +404,7 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 }
 
 void Config::setTetrodes(const unsigned int& tetrodes_count){
-	if (tetrodes.size() < 0){
+	if (tetrodes.size() > 0){
 		log_string_stream_ << "WARNING: tetrodes list not empty. Overriding old entries.\n";
 		Log();
 	}

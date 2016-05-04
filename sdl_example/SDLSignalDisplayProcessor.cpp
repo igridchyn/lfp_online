@@ -84,7 +84,7 @@ void SDLSignalDisplayProcessor::process(){
 			//Log(SDL_GetError());
             SDL_SetRenderTarget(renderer_, texture_);
 			//Log(SDL_GetError());
-            drawLine(renderer_, current_x, prev_vals_[channel], current_x + 1, val);
+            drawLine(current_x, prev_vals_[channel], current_x + 1, val);
 			//Log("done");
 
             if (current_x == SCREEN_WIDTH - 1 && chani == displayed_channels_.size() - 1){
@@ -139,7 +139,7 @@ int SDLSignalDisplayProcessor::transform_to_y_coord(int voltage){
     return val;
 }
 
-void SDLSignalDisplayProcessor::drawLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2){
+void SDLSignalDisplayProcessor::drawLine(int x1, int y1, int x2, int y2){
     SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
     SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
 	//SDL_RenderDrawPoint(renderer_, x1, y1);

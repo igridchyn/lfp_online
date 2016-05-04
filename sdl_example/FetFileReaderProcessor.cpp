@@ -787,7 +787,7 @@ void FetFileReaderProcessor::process() {
 
 		// add the earliest spike to the buffer and
 		// UPDATE pkg_id to inuclude the shift
-		buffer->AddSpike(bspike);
+		buffer->AddSpike();
 		last_spike_pkg_id = earliest_spike_time_;
 
         // SHUFFLING - exchanges last spike with random in the buffer

@@ -216,13 +216,6 @@ void SpikeDetectorProcessor::filter_channel(unsigned int channel) {
 
 void SpikeDetectorProcessor::update_threshold(unsigned int channel) {
 	thresholds_[channel] = (unsigned int)(buffer->powerEstimatorsMap_[channel]->get_std_estimate() * nstd_);
-
-	 // TMPDEBUG
-	 if (thresholds_[channel] < 0){
-		 thresholds_[channel] = std::numeric_limits<int>::max();
-		 Log("WARNING: THRESHOLD < 0 at channel", channel);
-		 Log("WARNING: THRESHOLD set to int::max", channel);
-	 }
 }
 
 void SpikeDetectorProcessor::detect_spike_pos(const unsigned int & channel, const unsigned int & threshold, const int & tetrode,
@@ -236,7 +229,7 @@ void SpikeDetectorProcessor::detect_spike_pos(const unsigned int & channel, cons
 			std::lock_guard<std::mutex> lk(spike_add_mtx_);
 			spike = buffer->spike_buffer_[buffer->spike_buf_pos];
 			// in parallel mode - rewind is done at desync
-			buffer->AddSpike(spike, tetrode_to_process < 0);
+			buffer->AddSpike(tetrode_to_process < 0);
 		}
 
 		buffer->FreeFeaturesMemory(spike);

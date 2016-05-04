@@ -47,7 +47,7 @@ bool PolygonCluster::Contains(float x, float y) {
 	return true;
 }
 
-bool PolygonCluster::Contains(Spike* spike, const unsigned int& nchan) {
+bool PolygonCluster::Contains(Spike* spike) {
 	bool inclusive = false;
 
 	for (size_t p=0; p < projections_inclusive_.size(); ++p){

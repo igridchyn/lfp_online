@@ -134,7 +134,7 @@ void SDLPCADisplayProcessor::process(){
         // polygon cluster
         if (spike->cluster_id_ == -1 && need_clust_check_){
         	for (size_t i=0; i < polygon_clusters_[spike->tetrode_].size(); ++i){
-        		int contains = polygon_clusters_[spike->tetrode_][i].Contains(spike, nchan_);
+        		int contains = polygon_clusters_[spike->tetrode_][i].Contains(spike);
         		if (contains){
         			spike->cluster_id_ = i;
         		}
@@ -816,7 +816,7 @@ void SDLPCADisplayProcessor::addCluster() {
 			continue;
 		}
 
-		if (new_clust_.Contains(spike, spike->num_channels_)){
+		if (new_clust_.Contains(spike)){
 			int x, y;
 			getSpikeCoords(spike, x, y);
 			spike->cluster_id_ = clun;

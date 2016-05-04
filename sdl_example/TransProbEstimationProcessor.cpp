@@ -138,7 +138,7 @@ void TransProbEstimationProcessor::process() {
 		unsigned int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
 		unsigned int shift_coord_y = b_shift_y + (int)NEIGHB_SIZE / 2;
 
-		if (shift_coord_x >=0 && shift_coord_x < NEIGHB_SIZE && shift_coord_y >=0 && shift_coord_y < NEIGHB_SIZE){
+		if (shift_coord_x < NEIGHB_SIZE && shift_coord_y < NEIGHB_SIZE){
 			trans_probs_[NBINSX * yb + xb](shift_coord_x, shift_coord_y) += 1;
 		}
 

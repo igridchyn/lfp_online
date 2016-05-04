@@ -53,14 +53,14 @@ PlaceField PlaceField::Smooth(){
 
     // smooth place field
     // TODO: smoothing on the edge corners
-    for (size_t x=0; x < place_field_.n_cols; ++x) {
-        for (size_t y=0; y < place_field_.n_rows; ++y) {
+    for (int x=0; x < (int)place_field_.n_cols; ++x) {
+        for (int y=0; y < (int)place_field_.n_rows; ++y) {
         	// part of the gaussian that was not accounted for because of nans and infs and has to be noramlized by
         	double ignored_part = .0;
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_; dy <= spread_; ++dy) {
                 	// TODO validate consistency of downstream usage
-					if (y + dy <0 || x + dx < 0 || y + dy >= place_field_.n_rows || x + dx >= place_field_.n_cols || isinf(place_field_(y + dy, x + dx)) || Utils::Math::Isnan(place_field_(y + dy, x + dx))){
+					if (y + dy <0 || x + dx < 0 || y + dy >= (int)place_field_.n_rows || x + dx >= (int)place_field_.n_cols || isinf(place_field_(y + dy, x + dx)) || Utils::Math::Isnan(place_field_(y + dy, x + dx))){
                 		ignored_part += gauss_(dy+spread_, dx+spread_);
                 		continue;
                 	}
@@ -78,7 +78,7 @@ PlaceField PlaceField::Smooth(){
     return spf;
 }
 
-void PlaceField::CachePDF(PlaceField::PDFType pdf_type, const PlaceField& occupancy, const double& occupancy_factor){
+void PlaceField::CachePDF(const PlaceField& occupancy, const double& occupancy_factor){
     pdf_cache_ = arma::cube(place_field_.n_rows, place_field_.n_cols, MAX_SPIKES, arma::fill::zeros);
     
     for (size_t r=0; r < place_field_.n_rows; ++r) {

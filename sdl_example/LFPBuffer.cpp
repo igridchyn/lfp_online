@@ -463,7 +463,7 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 }
 
 
-void LFPBuffer::AddSpike(Spike* spike, bool rewind) {
+void LFPBuffer::AddSpike(bool rewind) {
 	// the spike is re-initialized rather than deleted and created again
 //	if (spike_buffer_[spike_buf_pos] != nullptr){
 //		FreeWaveshapeMemory(spike_buffer_[spike_buf_pos]);
@@ -508,12 +508,7 @@ double LFPBuffer::AverageSynchronySpikesWindow(){
 	return average_spikes_window;
 }
 
-// whether current population window represents high synchrony activity
 bool LFPBuffer::IsHighSynchrony() {
-	return IsHighSynchrony(AverageSynchronySpikesWindow());
-}
-
-bool LFPBuffer::IsHighSynchrony(double average_spikes_window) {
 	RemoveSpikesOutsideWindow(last_pkg_id);
 
 	if (fr_estimates_.empty())

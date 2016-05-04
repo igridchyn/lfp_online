@@ -66,8 +66,8 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     unsigned int shift_xx_x_ = 0;
     unsigned int shift_xx_y_ = 0;
 
-    unsigned int getCCXShift(const unsigned int& clust1, const unsigned int& clust2);
-    unsigned int getCCYShift(const unsigned int& clust1, const unsigned int& clust2);
+    unsigned int getCCXShift(const unsigned int& clust1);
+    unsigned int getCCYShift(const unsigned int& clust2);
 
     unsigned int getXShift(int clust);
     unsigned int getYShift(int clust);
@@ -79,7 +79,6 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     void plotACorCCs(int tetrode, int cluster);
 
     void clearACandCCs(const unsigned int& clu);
-    void resetACandCCs(const unsigned int& clu);
 
 public:
     AutocorrelogramProcessor(LFPBuffer *buf);

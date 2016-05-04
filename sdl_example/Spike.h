@@ -65,7 +65,7 @@ public:
     bool crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1, int x2, int y2);
 
     void find_one_peak(int *ptmout,int peakp,int peakgit,int *ptmval);
-    void find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_time_2, float *intervalley);
+    void find_valleys(int ptm, int ptv);
     void set_peak_valley_features();
 
     const float& getFeature(const unsigned int& index) const;

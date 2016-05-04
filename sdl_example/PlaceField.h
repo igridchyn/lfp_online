@@ -33,11 +33,6 @@ class PlaceField{
 public:
     static const int MAX_SPIKES = 20;
     
-    enum PDFType{
-        Poisson,
-        Gaussian
-    };
-    
     PlaceField(const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy, const unsigned int& spread);
     PlaceField(const arma::mat& mat, const double& sigma, const double& bin_size, const unsigned int& spread);
 
@@ -54,7 +49,7 @@ public:
     
     PlaceField Smooth();
     
-    void CachePDF(PDFType pdf_type, const PlaceField& occupancy, const double& occupancy_factor);
+    void CachePDF(const PlaceField& occupancy, const double& occupancy_factor);
 
     inline const double& Prob(unsigned int r, unsigned int c, unsigned int s) { return pdf_cache_(r, c, s); }
     

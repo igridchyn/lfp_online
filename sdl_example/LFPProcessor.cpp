@@ -254,15 +254,10 @@ bool Spike::crossesWaveShapeFinal(unsigned int channel, int x1, int y1, int x2, 
 	if (w1 > 16 || w2 > 16)
 		return false;
 
-	for (int c = 0; c < num_channels_; ++c) {
-		bool down1 = IsFromRightWave((float)w1, waveshape_final[c][w1], (float)w1 + 1.f, waveshape_final[c][w1 + 1], (float)x1, (float)y1);
-		bool down2 = IsFromRightWave((float)w2, waveshape_final[c][w2], (float)w2 + 1.f, waveshape_final[c][w2 + 1], (float)x2, (float)y2);
+	bool down1 = IsFromRightWave((float)w1, waveshape_final[channel][w1], (float)w1 + 1.f, waveshape_final[channel][w1 + 1], (float)x1, (float)y1);
+	bool down2 = IsFromRightWave((float)w2, waveshape_final[channel][w2], (float)w2 + 1.f, waveshape_final[channel][w2 + 1], (float)x2, (float)y2);
 
-		if (down1 ^ down2)
-			return true;
-	}
-
-	return false;
+	return down1 ^ down2;
 }
 
 bool Spike::crossesWaveShapeReconstructed(unsigned int channel, int x1, int y1,
@@ -304,7 +299,7 @@ void Spike::find_one_peak(int* ptmout, int peakp, int peakgit, int* ptmval) {
     *ptmval=pmax;
 }
 
-void Spike::find_valleys(int ptm, int ptv, float *valley_time_1, float *valley_time_2, float *intervalley)
+void Spike::find_valleys(int ptm, int ptv)
 {
   ws_type **avb = waveshape;
   // TODO configurableize
@@ -341,7 +336,7 @@ void Spike::set_peak_valley_features() {
 
 	// TODO parametrize
 	find_one_peak(&peak_time, 64, 16, &peak_value);
-	find_valleys(peak_time, peak_value, &peak_to_valley_1_, &peak_to_valley_2_, &intervalley_);
+	find_valleys(peak_time, peak_value);
 }
 
 const float& Spike::getFeature(const unsigned int& index) const {
