@@ -99,6 +99,9 @@ def log(s):
 
 #========================================================================================================
 def gradient_descent():
+	ma = 2.0
+	me = 1.0
+
 	# read param names, starting values and steps
 	pnames=[]
 	pvals=[]
@@ -129,6 +132,9 @@ def gradient_descent():
 	errthold = 7.4#mederr
 	errbest = mederr
 	prevbest = -1
+
+	crit_best = ma * classprec - me * mederr
+
 	# iteratively find new best set of parameters while have improvement
 	while True:
 		while precbest > prevbest:
@@ -150,15 +156,19 @@ def gradient_descent():
 					log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
 					log('Number of error records: %d' % len(errs))
 	
-					if classprec > precbest and mederr < errthold:
+					crit = ma * classprec - me * mederr
+					
+					if crit > crit_best:
+					# if classprec > precbest and mederr < errthold:
 					#if classprec >= precthold and mederr < errbest:
 					# if mederr < errbest:
-						log('New BEST! (absolute error)')
+						log('New BEST! (2*ACC - ERR)')
 						log('')
 						precbest = classprec
 						parbest = pvals[:]
 						errbest = mederr
-					        psteps = psteps_min[:]	
+					        psteps = psteps_min[:]
+						crit = ma * classprec - me * mederr
 	
 					# return old param value
 					pvals[p] -= dp
@@ -189,7 +199,7 @@ errmap = np.zeros((nbinsy, nbinsx))
 if len(argv) == 8:
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
-	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
+	flog.write('\n\nOPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
 
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
