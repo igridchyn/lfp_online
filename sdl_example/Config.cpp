@@ -138,7 +138,7 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 			continue;
 		}
 
-		if (line == std::string("lfpdisp.channels")){
+		if (line == std::string("lfpdisplay.channels")){
 			ReadList<unsigned int>(fconf, lfp_disp_channels_);
 			continue;
 		}
@@ -168,6 +168,38 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 			log_string_stream_ << "Include params from file: " << confPath << "\n";
 			log_string_stream_ << includedConf.params_.size() << " params included\n";
 			Log();
+
+			if (includedConf.synchrony_tetrodes_.size() > 0){
+				if (synchrony_tetrodes_.size() > 0){
+					Log("WARNING: override list content");
+				}
+				synchrony_tetrodes_ = includedConf.synchrony_tetrodes_;
+			}
+			if (includedConf.lfp_disp_channels_.size() > 0){
+				if (lfp_disp_channels_.size() > 0){
+					Log("WARNING: override list content");
+				}
+				lfp_disp_channels_ = includedConf.lfp_disp_channels_;
+			}
+			if (includedConf.discriminators_.size() > 0){
+				if (discriminators_.size() > 0){
+					Log("WARNING: override list content");
+				}
+				discriminators_ = includedConf.discriminators_;
+			}
+			if (includedConf.pf_sessions_.size() > 0){
+				if (pf_sessions_.size() > 0){
+					Log("WARNING: override list content");
+				}
+				pf_sessions_ = includedConf.pf_sessions_;
+			}
+			if ( includedConf.spike_files_.size() > 0){
+				if (spike_files_.size() > 0){
+					Log("WARNING: override list content");
+				}
+				spike_files_ = includedConf.spike_files_;
+			}
+
 			continue;
 		}
 
