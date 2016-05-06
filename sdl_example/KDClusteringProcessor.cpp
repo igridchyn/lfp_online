@@ -444,20 +444,20 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 		return;
 	}
 
+	if (last_pred_pkg_id_ + PRED_WIN >= DUMP_END && !dump_end_reach_reported_) {
+		dump_end_reach_reported_ = true;
+		Log("Dump end reached: ", (int) DUMP_END);
+		if (DUMP_END_EXIT) {
+			Log("EXIT upon dump end reached");
+			buffer->processing_over_ = true;
+		}
+	}
+
 	if (last_pred_pkg_id_ > DUMP_DELAY && last_pred_pkg_id_ < DUMP_END) {
 		// DEBUG
 		if (!dump_delay_reach_reported_) {
 			dump_delay_reach_reported_ = true;
 			Log("Dump delay reached: ", (int) DUMP_DELAY);
-		}
-		if (last_pred_pkg_id_ + PRED_WIN >= DUMP_END
-				&& !dump_end_reach_reported_) {
-			dump_end_reach_reported_ = true;
-			Log("Dump end reached: ", (int) DUMP_END);
-			if (DUMP_END_EXIT) {
-				Log("EXIT upon dump end reached");
-				buffer->processing_over_ = true;
-			}
 		}
 
 		float gtx = (float)buffer->pos_unknown_, gty = (float)buffer->pos_unknown_;
