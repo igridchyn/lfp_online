@@ -98,10 +98,10 @@ void usleep(__int64 usec)
     	config = new Config(argv[1], argc - 2, argv + 2);
     } else {
 
-//    	config = new Config("../Res/assembly_inhibition_jc157.conf");
-//    	config = new Config("../Res/build_model_jc157.conf");
-//    	config = new Config("../Res/decoding_online_jc157.conf");
-    	config = new Config("../Res/spike_display_jc157.conf");
+//    	config = new Config("../Res/assembly_inhibition_jc164.conf");
+//    	config = new Config("../Res/build_model_jc164.conf");
+//    	config = new Config("../Res/decoding_online_jc164.conf");
+    	config = new Config("../Res/spike_display_jc164.conf");
 //    	config = new Config("../Res/spike_dump_128.conf");
 
 //		config = new Config("../Res/spike_detection_build_model_jc118_1003_8l.conf");
@@ -143,7 +143,7 @@ void usleep(__int64 usec)
 			pipeline->data_added_ = true;
 		}
 		pipeline->cv_data_added_.notify_one();
-		// TODO: wait to simulate real-time [1 25 us for 24 kHz]
+		//wait to simulate real-time [1 25 us for 24 kHz]
 		usleep(10);
 #else
 		pipeline->process();
