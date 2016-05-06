@@ -77,7 +77,7 @@ def decoding_errors():
 #========================================================================================================
 def run_model_and_decoding(pnames, pvals):
 	parstring = ['./lfp_online']
-	parstring.append(argv[3])
+	parstring.append(argv[6])
 	for p in range(0, len(pnames)):
 		parstring.append(pnames[p] + '=' + str(pvals[p]) + ' ')
 	
@@ -86,7 +86,7 @@ def run_model_and_decoding(pnames, pvals):
 	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
 	subp.wait()
 	# run decoding
-	parstring[1] = argv[4]
+	parstring[1] = argv[7]
 	log('Start decoding with params ' + str(parstring))
 	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
 	subp.wait()
@@ -103,7 +103,7 @@ def gradient_descent():
 	pnames=[]
 	pvals=[]
 	psteps=[]
-	fpar = open(argv[2])
+	fpar = open(argv[5])
 	pnum = int(fpar.readline())
 	for p in range(0, pnum):
 		pnames.append(fpar.readline()[:-1])
@@ -125,7 +125,8 @@ def gradient_descent():
 
 	parbest = pvals[:]
 	precbest = classprec
-	errthold = 25
+	precthold = classprec
+	errthold = 7.4#mederr
 	errbest = mederr
 	prevbest = -1
 	# iteratively find new best set of parameters while have improvement
@@ -149,8 +150,9 @@ def gradient_descent():
 					log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
 					log('Number of error records: %d' % len(errs))
 	
-					# if classprec > precbest and mederr < errthold:
-					if mederr < errbest:
+					if classprec > precbest and mederr < errthold:
+					#if classprec >= precthold and mederr < errbest:
+					# if mederr < errbest:
 						log('New BEST! (absolute error)')
 						log('')
 						precbest = classprec
@@ -173,22 +175,22 @@ def gradient_descent():
 #============================================================================================================
 if len(argv) < 5:
 	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not>'
-	print 'Or:    decoding_error.py (1)<error_file_name> (2)<opt_config> (3)<initial_build_model_config> (4)<initial_decoding_config>'
+	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config>'
 	exit(0)
 
-if len(argv) == 5:
-	flog = open('log_opt.txt', 'a')
-	dt = datetime.datetime.now()
-	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
-	gradient_descent()
-		
-envlimit = int(argv[4])
 bsize = 4
+envlimit = int(argv[4])
 nbinsx = int(argv[2])
 nbinsy = int(argv[3])
 predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
+
+if len(argv) == 8:
+	flog = open('log_opt.txt', 'a')
+	dt = datetime.datetime.now()
+	flog.write('OPTIMIZATION SESSION: ' + str(dt) + '\n')
+	gradient_descent()
 
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 errmap = np.divide(errmap, occmap)
