@@ -352,7 +352,7 @@ long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 	return - sum / 2;
 }
 
-void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma::mat& occupancy, const double& avg_firing_rate) {
+void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const double& avg_firing_rate) {
 	arma::fmat pf(NBINSX, NBINSY, arma::fill::zeros);
 
 	const double occ_sum = arma::sum(arma::sum(occupancy));
@@ -404,7 +404,7 @@ void build_pax_(const unsigned int& tetr, const unsigned int& spikei, const arma
 
 			for (int ni = 0; ni < NN_K; ++ni) {
 				double spikex = obs_mat(nn_idx[ni], N_FEAT);
-				if (nn_idx[ni] == spikei || abs(spikex - 1023) < 1){
+				if (nn_idx[ni] == (int)spikei || abs(spikex - 1023) < 1){
 					continue;
 				}
 
@@ -536,8 +536,10 @@ int main(int argc, char **argv){
 
 	Log("WARNING: features will be standardized\n");
 
-	float stdx = arma::stddev(obs_mat.col(N_FEAT));
-	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
+//	float stdx = arma::stddev(obs_mat.col(N_FEAT));
+//	float stdy = arma::stddev(obs_mat.col(N_FEAT + 1));
+	float stdx = arma::stddev(pos_buf.row(0));
+	float stdy = arma::stddev(pos_buf.row(1));
 	log_string_ << "std of x  = " << stdx << "\n";
 	log_string_ << "std of y  = " << stdy << "\n";
 
@@ -654,7 +656,7 @@ int main(int argc, char **argv){
 		}
 	}
 
-	log_string_ << "Skippped " << skipped << " bins out of "<< lx.n_rows * lx.n_cols << " due to low occupancy\n";
+	log_string_ << "Skipped " << skipped << " bins out of "<< lx.n_rows * lx.n_cols << " due to low occupancy\n";
 	Log();
 
 	if (SAVE){
@@ -710,7 +712,7 @@ int main(int argc, char **argv){
 			start = clock();
 		}
 
-		build_pax_(tetr, p, pix, mu);
+		build_pax_(p, pix, mu);
 	}
 
 	// if save - concatenate all matrices laxs_[tetr] and save (along with individual, for fast visualization)
