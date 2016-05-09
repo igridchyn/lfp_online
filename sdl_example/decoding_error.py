@@ -99,8 +99,8 @@ def log(s):
 
 #========================================================================================================
 def gradient_descent():
-	ma = 2.0
-	me = 1.0
+	ma = 1.0
+	me = 2.0
 
 	# read param names, starting values and steps
 	pnames=[]
@@ -131,14 +131,16 @@ def gradient_descent():
 	precthold = classprec
 	errthold = 7.4#mederr
 	errbest = mederr
-	prevbest = -1
 
 	crit_best = ma * classprec - me * mederr
+	log('BASELINE crit = %.3f' % crit_best)
+	stepfac = 1
 
 	# iteratively find new best set of parameters while have improvement
 	while True:
-		while precbest > prevbest:
-			prevbest = precbest
+		better_found = True
+		while better_found:
+			better_found = False
 			for p in range(0, pnum):
 				# run with changed p-th param (+/-)
 				for dp in (-psteps[p], psteps[p]):
@@ -168,20 +170,30 @@ def gradient_descent():
 						parbest = pvals[:]
 						errbest = mederr
 					        psteps = psteps_min[:]
-						crit = ma * classprec - me * mederr
+						stepfac = 1
+						log('Old best crit: %.3f, New best crit: %.3f' % (crit_best, crit))
+						crit_best = ma * classprec - me * mederr
+						better_found = True
 	
 					# return old param value
 					pvals[p] -= dp
 	
 			log('Iteration over, new best params: ' + str(parbest))
-			log('BEST Med. error / classification error: %.2f / %.1f%%' %(errbest, precbest))
+			log('BEST Med. error / classification error / crit: %.2f / %.1f%% / %.3f' %(errbest, precbest, crit_best))
 
 			pvals = parbest[:]
-		log('No better params found, restart with steps 2X');
+		log('No better params found, restart with steps %dX' % (stepfac * 2));
 		# increase steps 2X and continue
 		for i in range(0, len(psteps)):
 			psteps[i] = psteps[i] * 2
-		prevbest = precbest - 1
+
+		stepfac *= 2
+		if stepfac > 8:
+			log('STEP limit reached (8X), OPTIMIZATION SESSION OVER')
+			log('BEST PARAMS: ' + str(parbest))
+			log('BEST Med. error / classification error / crit: %.2f / %.1f%% / %.3f' %(errbest, precbest, crit_best))
+			log('\n')
+			exit(0)
 #============================================================================================================
 if len(argv) < 5:
 	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not>'
