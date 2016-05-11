@@ -9,6 +9,7 @@
 #define FETFILEREADERPROCESSOR_H_
 
 #include "LFPProcessor.h"
+#include "Utils.h"
 
 #include <fstream>
 #include <iostream>

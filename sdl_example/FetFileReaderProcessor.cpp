@@ -456,30 +456,40 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 		buffer->AllocateFinalWaveshapeMemory(last_spikies_[t]);
 	}
 
-	openNextFile();
-
 	// find out duration from first spike file in binary case
-	if (binary_){
-		// TODO sum up dirations of multiple files
+	if (binary_) {
 		const unsigned int fetn = buffer->feature_space_dims_[0];
 		std::vector<float> tmpf;
 		tmpf.resize(fetn + 4, .0f);
-		int stime;
+		int total_time = 0;
 
-		while (!fet_streams_[0]->eof()){
-			fet_streams_[0]->read((char*)(&tmpf[0]), (fetn + 4) * sizeof(float));
-			fet_streams_[0]->read((char*)&stime, sizeof(int));
+		for (unsigned int f = 0; f < buffer->config_->spike_files_.size(); ++f){
+			int ftime = 0;
+		std::string f0path = buffer->config_->spike_files_[f] + "fetb.0";
+			if (!Utils::FS::FileExists(f0path)){
+				Log("Spike file does not exist!");
+				exit(42340);
+				return;
+			}
+			std::ifstream fet_stream(f0path, std::ios_base::binary);
+
+			while (!fet_stream.eof()) {
+				fet_stream.read((char*) (&tmpf[0]),
+						(fetn + 4) * sizeof(float));
+				fet_stream.read((char*) &ftime, sizeof(int));
+			}
+
+			fet_stream.close();
+			total_time += ftime;
 		}
 
-		fet_streams_[0]->clear();
-		fet_streams_[0]->seekg(0, std::ios::beg);
-
-		buffer->input_duration_ = stime;
-		Log("WARNING: ONLY FIRST INPUT FILE DURATION IS PROVIDED");
-		unsigned int dur_sec = stime / buffer->SAMPLING_RATE;
+		buffer->input_duration_ = total_time;
+		unsigned int dur_sec = total_time / buffer->SAMPLING_RATE;
 		buffer->log_string_stream_ << name() << ": Input duration: " << dur_sec / 60 << " min, " << dur_sec % 60 << " sec\n";
 		buffer->Log();
 	}
+
+	openNextFile();
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
@@ -735,6 +745,7 @@ void FetFileReaderProcessor::process() {
 				pos_entry->y_big_LED_ = nanf("");
 			}
 
+			pos_entry->pkg_id_ += shift_;
 			last_pos_pkg_id_ = pos_entry->pkg_id_;
 		} else {
 			float x;
@@ -749,8 +760,9 @@ void FetFileReaderProcessor::process() {
 			pos_entry->x_big_LED_ = pos_entry->x_small_LED_ = x;
 			pos_entry->y_big_LED_ = pos_entry->y_small_LED_ = y;
 			pos_entry->valid = valid;
-			last_pos_pkg_id_ += 512;
+			last_pos_pkg_id_ += 512; // ???
 			pos_entry->pkg_id_ = last_pos_pkg_id_;
+			pos_entry->pkg_id_ += shift_;
 		}
 
 		buffer->AdvancePositionBufferPointer();
