@@ -55,6 +55,7 @@ public:
     int getB(int order) const;
     int getColor(int order) const;
     
+    static const ColorPalette BrewerPalette24;
     static const ColorPalette BrewerPalette12;
     static const ColorPalette MatlabJet256;
     

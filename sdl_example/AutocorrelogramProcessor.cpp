@@ -20,7 +20,7 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 , SDLControlInputProcessor(buf)
 , SDLSingleWindowDisplay("Autocorrelograms", buf->config_->getInt("ac.window.width"), buf->config_->getInt("ac.window.height"))
 , BIN_SIZE(int(buf->SAMPLING_RATE/1000 * bin_size_ms))
-, MAX_CLUST(buffer->config_->getInt("ac.max.clust", 30))
+, MAX_CLUST(buffer->config_->getInt("ac.max.clust", 60))
 , NBINS(nbins)
 , wait_clustering_(buffer->config_->getBool("ac.wait.clust", true)){
 
@@ -457,7 +457,7 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 	const int xsh = getCCXShift(cluster1);
 	const int ysh = getCCYShift(cluster2);
 
-	ColorPalette palette_ = ColorPalette::BrewerPalette12;
+	ColorPalette palette_ = ColorPalette::BrewerPalette24;
 
 	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
 	SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
@@ -483,8 +483,8 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 
 		SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster1 % palette_.NumColors()), palette_.getG(cluster1 % palette_.NumColors()), palette_.getB(cluster1 % palette_.NumColors()), 255);
 		SDL_RenderFillRect(renderer_, &rect);
-
 		// other side
+
 		height = maxh > 0 ? (cross_corrs_[tetr][cluster2][cluster1][b]) * ypix_/ maxh : 0;
 		rect.h = height;
 		rect.x = xsh - b * (CC_BWIDTH + 1);
