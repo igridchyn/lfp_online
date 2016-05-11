@@ -99,8 +99,8 @@ def log(s):
 
 #========================================================================================================
 def gradient_descent():
-	ma = 1.0
-	me = 2.0
+	ma = 0.0
+	me = 1.0
 
 	# read param names, starting values and steps
 	pnames=[]
@@ -125,6 +125,7 @@ def gradient_descent():
         classprec = classcorr * 100 / classn
 	log('BASELINE (starting precision): %.2f / %.1f%%' %(mederr, classprec))
 	log('Number of error records: %d' % len(errs))
+	log('Criteria multipliers: ACC = %.2f, ERR = %.2f' % (ma, me))
 
 	parbest = pvals[:]
 	precbest = classprec
@@ -155,7 +156,7 @@ def gradient_descent():
 						log('Model buliding / decoding has likely failed')
 	
 					log('Done estimation for params ' + str(pvals))
-					log('Med. error / classification error: %.2f / %.1f%%' %(mederr, classprec))
+					log('Med. error / classification accuracy: %.2f / %.1f%%' %(mederr, classprec))
 					log('Number of error records: %d' % len(errs))
 	
 					crit = ma * classprec - me * mederr
@@ -164,14 +165,14 @@ def gradient_descent():
 					# if classprec > precbest and mederr < errthold:
 					#if classprec >= precthold and mederr < errbest:
 					# if mederr < errbest:
-						log('New BEST! (2*ACC - ERR)')
-						log('')
+						log('NEW BEST! (%.1f * ACC - %.1f * ERR)' % (ma, me))
+						log('Steps will be reset to initial values!')
 						precbest = classprec
 						parbest = pvals[:]
 						errbest = mederr
 					        psteps = psteps_min[:]
 						stepfac = 1
-						log('Old best crit: %.3f, New best crit: %.3f' % (crit_best, crit))
+						log('OLD BEST CRIT VALUE: %.3f, NEW BEST CRIT VALUE: %.3f' % (crit_best, crit))
 						crit_best = ma * classprec - me * mederr
 						better_found = True
 	
@@ -181,8 +182,9 @@ def gradient_descent():
 			log('Iteration over, new best params: ' + str(parbest))
 			log('BEST Med. error / classification error / crit: %.2f / %.1f%% / %.3f' %(errbest, precbest, crit_best))
 
-			pvals = parbest[:]
-		log('No better params found, restart with steps %dX' % (stepfac * 2));
+			pvals = parbest[:] # while better_found
+
+		log('NO IMPROVEMENT, START WITH STEPS %dX' % (stepfac * 2));
 		# increase steps 2X and continue
 		for i in range(0, len(psteps)):
 			psteps[i] = psteps[i] * 2
@@ -193,7 +195,7 @@ def gradient_descent():
 			log('BEST PARAMS: ' + str(parbest))
 			log('BEST Med. error / classification error / crit: %.2f / %.1f%% / %.3f' %(errbest, precbest, crit_best))
 			log('\n')
-			exit(0)
+			exit(0) # while True
 #============================================================================================================
 if len(argv) < 5:
 	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not>'
