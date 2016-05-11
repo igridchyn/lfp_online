@@ -293,6 +293,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		for (unsigned int stetr = 0; stetr < tetr_info_->tetrodes_number(); stetr++)
 			pos_pred_ -= DE_SEC * lxs_[stetr];
 	}
+
+	swr_dec_dump_.open(buffer->config_->getString("out.path.base") + "swr_dec_dump_" + buffer->config_->timestamp_ + ".txt");
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -460,6 +462,8 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 			Log("Dump delay reached: ", (int) DUMP_DELAY);
 		}
 
+		float confidence = arma::max(arma::max(pos_pred_.rows(0, NBINSX/2 - 1))) - arma::max(arma::max(pos_pred_.rows(NBINSX/2, NBINSX - 1)));
+
 		float gtx = (float)buffer->pos_unknown_, gty = (float)buffer->pos_unknown_;
 
 		const SpatialInfo &pose = buffer->PositionAt(last_pred_pkg_id_);
@@ -474,7 +478,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 
 		if (pose.speed_ >= DUMP_SPEED_THOLD) {
 			double mult = BINARY_CLASSIFIER ? 100 : 1.0;
-			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << "\n";
+			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << " " << confidence << "\n";
 			dec_bayesian_.flush();
 		}
 	}
@@ -506,15 +510,23 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 					<< " and window center at "
 					<< last_pred_pkg_id_ + PRED_WIN / 2 << "\n";
 			buffer->Log();
-			pos_pred_.save(
-					pred_dump_pref_ + "swr_"
-							+ Utils::Converter::int2str(swr_pointer_) + "_"
-							+ Utils::Converter::int2str(swr_win_counter_) + "_"
-							+ Utils::Converter::int2str(
-									last_pred_pkg_id_ + PRED_WIN / 2) + "_"
-							+ Utils::Converter::int2str(processor_number_)
-							+ ".mat", arma::raw_ascii);
+//			pos_pred_.save(
+//					pred_dump_pref_ + "swr_"
+//							+ Utils::Converter::int2str(swr_pointer_) + "_"
+//							+ Utils::Converter::int2str(swr_win_counter_) + "_"
+//							+ Utils::Converter::int2str(
+//									last_pred_pkg_id_ + PRED_WIN / 2) + "_"
+//							+ Utils::Converter::int2str(processor_number_)
+//							+ ".mat", arma::raw_ascii);
 			swr_win_counter_++;
+
+			arma::fmat sub1 = pos_pred_.rows(0, 50);
+			arma::fmat sub2 = pos_pred_.rows(51, NBINSX - 1);
+			float mx1 = sub1.max();
+			float mx2 = sub2.max();
+			float sm1 = arma::sum(arma::sum(sub1));
+			float sm2 =arma::sum( arma::sum(sub2));
+			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << "\n";
 		} else {
 			if (!SWR_SWITCH) {
 				pos_pred_.save(
@@ -890,9 +902,14 @@ void KDClusteringProcessor::process() {
 				if (prediction_window_spike_number_ > 0 && spike_buf_pos_clust_ - spike_buf_pos_pred_start_ >= prediction_window_spike_number_) {
 					PRED_WIN = spike->pkg_id_ - last_pred_pkg_id_;
 					// DEBUG
-//					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
-//							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
-//					buffer->Log();
+					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
+							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
+					buffer->Log();
+
+					// DEBUG
+					buffer->log_string_stream_ << "PRED WIN FROM (SPIKE BUF POS) " << spike_buf_pos_pred_start_ << " TILL " << spike_buf_pos_clust_ << "\n";
+					buffer->Log();
+
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 				}
 			}
@@ -930,6 +947,11 @@ void KDClusteringProcessor::process() {
 				unsigned int mx = 0, my = 0;
 				pos_pred_.max(mx, my);
 
+				// !!! NORM TO SUM UP TO 1 !!!
+//				pos_pred_ = arma::exp(pos_pred_);
+//				pos_pred_ /= arma::sum(arma::sum(pos_pred_));
+//				pos_pred_ = arma::log(pos_pred_);
+
 				dump_positoins_if_needed(mx, my);
 				dump_swr_window_spike_count();
 
@@ -963,6 +985,7 @@ void KDClusteringProcessor::process() {
 				//		(don't need more spikes at this stage)
 
 				if (prediction_window_spike_number_ > 0) {
+					// ??? already done above
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 					// TODO what should be here
 					// was: (SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]))
