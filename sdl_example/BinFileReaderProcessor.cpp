@@ -71,18 +71,33 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 
 	Log("WARNING: SKIP 1 PKG");
 	fread((void*)block_, 1, chunk_size_, bin_file_);
+
+	// write sessoin shifts
+	std::ofstream fsession_shifts(buffer->config_->getString("out.path.base") + "session_shifts.txt");
+	unsigned int shift = 0;
+	for (unsigned int i=0; i < files_list_.size(); ++i){
+		unsigned int nsamples = (unsigned int)(boost::filesystem::file_size(files_list_[i]) * 3 / chunk_size_);
+		if (buffer->CHANNEL_NUM == 128){
+			nsamples /= 2;
+		}
+		// -3 because first and last chunks are ignored
+		shift += nsamples - 3;
+		fsession_shifts << shift << "\n";
+	}
+	fsession_shifts.close();
 }
 
 void BinFileReaderProcessor::process() {
 	if (!feof(bin_file_)) {
-		fread((void*)block_, 1, chunk_size_ * nblock_, bin_file_);
+		size_t bytes_read = fread((void*)block_, 1, chunk_size_ * nblock_, bin_file_);
 
-		buffer->add_data(block_, chunk_size_ * nblock_);
+		buffer->add_data(block_, bytes_read);
 	}
 	else if (current_file_ < files_list_.size() - 1)
 	{
 		current_file_ ++;
 		Log(std::string("File ") + file_path_ + " over, open next one:\n\t" + files_list_[current_file_]);
+		Log("Current last package id: ", buffer->last_pkg_id);
 		file_path_ = files_list_[current_file_];
 		fclose(bin_file_);
 		bin_file_ = fopen(file_path_.c_str(), "rb");
@@ -97,15 +112,20 @@ void BinFileReaderProcessor::process() {
 			buffer->coord_shift_x_ = 0;
 			buffer->coord_shift_y_ = 0;
 		}
+
+		Log("WARNING: SKIP 1 PKG");
+		fread((void*)block_, 1, chunk_size_, bin_file_);
 	}
 	else if	(!end_bin_file_reported_){
 		// if last data has not been read yet
 		if (buffer->chunk_buf_ptr_in_ > 0)
 			return;
 
+		Log("Current last package id: ", buffer->last_pkg_id);
 		end_bin_file_reported_ = true;
 		buffer->pipeline_status_ = PIPELINE_STATUS_INPUT_OVER;
 		Log("Out of data packages. Press ESC to exit...\n");
+		// ??? destructor ?
 		delete buffer->chunk_buf_;
 		buffer->chunk_buf_ = nullptr;
 	}
@@ -113,6 +133,9 @@ void BinFileReaderProcessor::process() {
 
 std::string BinFileReaderProcessor::axonaFileDuration(std::string file_path) {
 	unsigned int nsamples = (unsigned int)(boost::filesystem::file_size(file_path) * 3 / chunk_size_);
+	if (buffer->CHANNEL_NUM == 128){
+		nsamples /= 2;
+	}
 	return axonaFileDurationFromNSampes(nsamples);
 }
 
@@ -124,8 +147,7 @@ std::string BinFileReaderProcessor::axonaFilesDuration(
 std::string BinFileReaderProcessor::axonaFileDurationFromNSampes(
 	const unsigned int& nsamples) {
 	std::stringstream ss;
-	double factor = 64 / (double)buffer->CHANNEL_NUM;
-	ss << int(factor * nsamples) / (buffer->SAMPLING_RATE * 60) << " min " <<  int(factor * nsamples) / (buffer->SAMPLING_RATE) % 60 << " sec @ " << buffer->SAMPLING_RATE << " samples / sec";
+	ss << nsamples / (buffer->SAMPLING_RATE * 60) << " min " <<  nsamples / (buffer->SAMPLING_RATE) % 60 << " sec @ " << buffer->SAMPLING_RATE << " samples / sec";
 	return ss.str();
 }
 
@@ -134,6 +156,9 @@ unsigned int BinFileReaderProcessor::totalAxonaPackages(
 	unsigned int total_duration = 0;
 	for (unsigned int f = 0; f < file_list.size(); ++f) {
 		total_duration += (unsigned int)(boost::filesystem::file_size(file_list[f]) * 3 / chunk_size_);
+	}
+	if (buffer->CHANNEL_NUM == 128){
+		total_duration /= 2;
 	}
 	return total_duration;
 }
