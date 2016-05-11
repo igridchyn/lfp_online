@@ -137,7 +137,7 @@ void LPTTriggerProcessor::process() {
 		buffer->Log();
 
 		// adjust inhibition threshold
-		if (inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
+		if (trigger_type_ == LPTTriggerType::EnvironmentDominance && inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
 			// calculate inhibition frequency in the last 1 minute
 			unsigned int i=buffer->swrs_.size() - 1;
 			unsigned int inhibited = inhibition_history_[i];
@@ -227,6 +227,15 @@ void LPTTriggerProcessor::process() {
 					setHigh();
 					timestamp_log_ << (int)round((last_trigger_time_)) << "\n";
 					timestamp_log_.flush();
+
+					// TODO: extract (also available below)
+					unsigned int sync_start = buffer->last_pkg_id - (unsigned int)(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
+					Log("Synchrony detected at (window start) ",sync_start);
+					buffer->swrs_.push_back(std::vector<unsigned int>());
+					buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start);
+					// set SW PEAK and end
+					buffer->swrs_[buffer->swrs_.size() - 1].push_back(buffer->last_pkg_id);
+					buffer->swrs_[buffer->swrs_.size() - 1].push_back(std::max(sync_start + sync_max_duration_, buffer->last_pkg_id));
 				}
 				buffer->spike_buf_pos_lpt_ ++;
 				break;
