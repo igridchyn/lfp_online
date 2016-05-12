@@ -43,6 +43,7 @@ public:
         static std::vector<int> GetRange(const unsigned int& from, const unsigned int& to);
         static std::vector<int> MergeRanges(const std::vector<int>& a1, const std::vector<int>& a2);
 		static bool Isnan(float f);
+		static int randInt(int from, int to);
     };
     
     class Output{

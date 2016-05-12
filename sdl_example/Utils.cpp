@@ -63,6 +63,11 @@ std::vector<int> Utils::Math::MergeRanges(const std::vector<int>& a1, const std:
     return merged;
 }
 
+int Utils::Math::randInt(int from, int to){
+	srand (time(NULL));
+	return from + (rand() % (to - from + 1));
+}
+
 bool Utils::Math::Isnan(float f){
 #ifdef _WIN32
 	return std::isnan<float>(f);
