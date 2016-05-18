@@ -197,15 +197,15 @@ def gradient_descent():
 			log('\n')
 			exit(0) # while True
 #============================================================================================================
-if len(argv) < 5:
-	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not>'
+if len(argv) < 6:
+	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not> (6)<bin size>'
 	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config>'
 	exit(0)
 
-bsize = 4
-envlimit = int(argv[4])
 nbinsx = int(argv[2])
 nbinsy = int(argv[3])
+envlimit = int(argv[4])
+bsize = float(argv[6])
 predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
@@ -237,7 +237,7 @@ if plot_distr:
 
 	im=P.imshow(predmap, cmap='hot', interpolation='none')
 	P.title('Predicted locations')
-	P.colorbar()	
+	P.colorbar(orientation='horizontal')	
 	P.show()
 	
 	#imocc=P.imshow(occmap, cmap='hot', interpolation='none')
@@ -245,7 +245,7 @@ if plot_distr:
 
 	P.title('Error map')
 	imerr=P.imshow(errmap, cmap='hot', interpolation='none')
-	P.colorbar()
+	P.colorbar(orientation='horizontal')
 	P.show()
 
 # print errmap
