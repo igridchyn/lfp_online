@@ -467,7 +467,7 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 			int ftime = 0;
 		std::string f0path = buffer->config_->spike_files_[f] + "fetb.0";
 			if (!Utils::FS::FileExists(f0path)){
-				Log("Spike file does not exist!");
+				Log("Spike file does not exist: " + f0path);
 				exit(42340);
 				return;
 			}
