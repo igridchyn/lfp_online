@@ -37,7 +37,7 @@ def decoding_errors():
 
 		dist = sqrt( (px-gtx)**2 + (py-gty)**2 )
 
-		if gtx > 1000 or px < 5 or gtx < 0:
+		if gtx > 1000 or gtx < 0: # or px < 5
 			continue
 
 		distsb1 = sqrt((gtx-sbs[0][0])**2 + (gty-sbs[0][1])**2)
@@ -70,8 +70,13 @@ def decoding_errors():
 		# classification
 		classn += 1
 		# was : nbinsx/2*bsize
-		if (vals[0] - envlimit) * (gtx - envlimit) > 0:
+		#if (vals[0] - envlimit) * (gtx - envlimit) > 0:
+		#	classcorr += 1
+		egt = int(floor(gtx / envlimit))
+		edec = int(floor(vals[0] / envlimit))
+		if (edec - egt) % 2 == 0:
 			classcorr += 1
+
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)
 #========================================================================================================
@@ -199,18 +204,18 @@ def gradient_descent():
 #============================================================================================================
 if len(argv) < 6:
 	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not> (6)<bin size>'
-	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config>'
+	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size>'
 	exit(0)
 
 nbinsx = int(argv[2])
 nbinsy = int(argv[3])
 envlimit = int(argv[4])
-bsize = float(argv[6])
+bsize = float(argv[6 if len(argv) < 9 else 8])
 predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
 
-if len(argv) == 8:
+if len(argv) == 9:
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
 	flog.write('\n\nOPTIMIZATION SESSION: ' + str(dt) + '\n')
