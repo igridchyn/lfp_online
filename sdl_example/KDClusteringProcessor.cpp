@@ -137,7 +137,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getBool("kd.single.pred.per.swr", false)), IGNORE_LX(
 				buf->config_->getBool("kd.ignore.lx", false)), INTERLEAVING_WINDOWS(
 				buf->config_->getBool("kd.interleaving.windows", false)), MIN_POS_SAMPLES(
-				buf->config_->getInt("kd.min.pos,samples", 1000))
+				buf->config_->getInt("kd.min.pos,samples", 1000)), KD_MIN_OCC(
+				buf->config_->getFloat("kd.min.occ", .001))
 	{
 
 	Log("Construction started");
@@ -239,14 +240,14 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		std::string parpath = BASE_PATH + "params.txt";
 		std::ofstream fparams(parpath);
 		fparams
-				<< "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINSX, NBINSY, BIN_SIZE, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB, NN_EPS\n"
+				<< "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINSX, NBINSY, BIN_SIZE, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB, NN_EPS, MIN_OCC\n"
 				<< SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " "
 				<< MULT_INT << " " << SAMPLING_RATE << " " << NN_K << " "
 				<< NN_K_COORDS << " " << MIN_SPIKES << " " << SAMPLING_RATE
 				<< " " << SAMPLING_DELAY << " " << NBINSX << " " << NBINSY
 				<< " " << BIN_SIZE << " "
 				<< SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " "
-				<< SPIKE_GRAPH_COVER_NNEIGHB << " " << NN_EPS << "\n";
+				<< SPIKE_GRAPH_COVER_NNEIGHB << " " << NN_EPS << " " << KD_MIN_OCC << "\n";
 		fparams.close();
 		Log(std::string("Running params written to") + parpath);
 
@@ -1160,8 +1161,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 	os << kde_path_ << " " << tetr << " " << nfeat << " " << NN_K << " " << NN_K_COORDS << " " << nfeat << " " << MULT_INT << " " << NBINSX << " " << NBINSY << " " << total_spikes_[tetr] << " " << buffer->SAMPLING_RATE << " " << last_pkg_id << " "
 			<< SAMPLING_DELAY << " " << effective_rate_factor * (tetrode_sampling_rates_[tetr] + 1) << " " << BIN_SIZE << " " << NN_EPS << " " << SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " "
-			<< SPIKE_GRAPH_COVER_NNEIGHB << " " << BASE_PATH;
-	buffer->log_string_stream_ << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb)\n\t" << os.str() << "\n";
+			<< SPIKE_GRAPH_COVER_NNEIGHB << " " << KD_MIN_OCC << " " << BASE_PATH;
+	buffer->log_string_stream_ << "t " << tetr << ": Start external kde_estimator with command (tetrode, dim, nn_k, nn_k_coords, n_feat, mult_int,  bin_size, n_bins. min_spikes, sampling_rate, buffer_sampling_rate, last_pkg_id, sampling_delay, nn_eps, sigma_x, sigma_a, sigma_xx, vc_dist_thold, vc_nneighb, kd_min_occ)\n\t" << os.str() << "\n";
 	buffer->Log();
 
 	int retval = system(os.str().c_str());

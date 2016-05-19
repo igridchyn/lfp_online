@@ -251,6 +251,8 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	// minimal number of position samples required to bulid the model
 	const unsigned int MIN_POS_SAMPLES;
 
+	const double KD_MIN_OCC;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

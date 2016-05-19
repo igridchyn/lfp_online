@@ -26,8 +26,7 @@ double BIN_SIZE;
 int NBINSX;
 int NBINSY;
 
-// TODO !!
-double MIN_OCC = 0.002;
+double MIN_OCC;
 
 int MIN_SPIKES;
 double SAMPLING_RATE;
@@ -472,8 +471,8 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 int main(int argc, char **argv){
 	// read the following variables and perform KDE estimation and tree building
 
-	if (argc != 22){
-		Log("Exactly 21 parameters should be provided (starting with tetrode, ending with BASE_PATH)!");
+	if (argc != 23){
+		Log("Exactly 22 parameters should be provided (starting with tetrode, ending with BASE_PATH)!");
 		exit(1);
 	}
 	int *pars[] = {&tetr, &DIM, &NN_K, &NN_K_COORDS, &N_FEAT, &MULT_INT, &NBINSX, &NBINSY, &MIN_SPIKES, &BUFFER_SAMPLING_RATE, &BUFFER_LAST_PKG_ID, &SAMPLING_DELAY};
@@ -490,7 +489,8 @@ int main(int argc, char **argv){
 	SIGMA_XX = atof(argv[18]);
 	SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD = atof(argv[19]);
 	SPIKE_GRAPH_COVER_NNEIGHB = atof(argv[20]);
-	BASE_PATH = argv[21];
+	MIN_OCC = atof(argv[21]);
+	BASE_PATH = argv[22];
 
 	if (DIM < 8){
 		SIGMA_A *= sqrt(DIM / 8.0);
@@ -501,14 +501,14 @@ int main(int argc, char **argv){
 	for (int p=0; p < 12; ++p){
 		log_string_ << parnames[p] << "=" << *pars[p] << ", ";
 	}
-	log_string_ << "SAMPLING_RATE = " << SAMPLING_RATE << ", BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << ", SIGMA_X = " << SIGMA_X << ", SIGMA_XX = " << SIGMA_XX << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << "\n";
+	log_string_ << "SAMPLING_RATE = " << SAMPLING_RATE << ", BIN_SIZE = " << BIN_SIZE << ", NN_EPS = " << NN_EPS << ", SIGMA_X = " << SIGMA_X
+			<< ", SIGMA_XX = " << SIGMA_XX << ", SIGMA_A = " << SIGMA_A << ", VC_THOLD = " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD
+			<< ", VC_NNEIGHB = " << SPIKE_GRAPH_COVER_NNEIGHB << ", MIN_OCC = " << MIN_OCC << "\n";
 	log_string_ << "\tstart KDE estimation\n";
-	log_string_ << "MIN_OCC = " << MIN_OCC << "\n";
 	Log();
 
 	if (NBINSY == 1){
 		LINEAR = true;
-		MIN_OCC = 0.001;
 	}
 
 	// load trees, extract points, load mats
