@@ -27,7 +27,7 @@ int NBINSX;
 int NBINSY;
 
 // TODO !!
-const double MIN_OCC = 0.002;
+double MIN_OCC = 0.002;
 
 int MIN_SPIKES;
 double SAMPLING_RATE;
@@ -84,6 +84,7 @@ std::ofstream log_;
 
 unsigned int NUSED = 0;
 
+bool LINEAR = false;
 
 void Log(std::string s){
 	log_ << "t" << tetr << ": " << s;
@@ -346,7 +347,10 @@ long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 	// Y coordinate
 	int neighby = spike_coords_int(spikei2, 1);
 	int ydiff = (neighby - y);
-	sum += ydiff * ydiff;
+	if (!LINEAR)
+		sum += ydiff * ydiff;
+	else
+		sum += xdiff * xdiff;
 
 	// order : ~ 10^9 for 12 features scaled by 2^10 = 10^3
 	return - sum / 2;
@@ -443,11 +447,24 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 		}
 	}
 
-	// normalize to sum up to 1 - did
-//	arma::mat pfexp = arma::exp(pf);
-//	double pfsum = arma::sum(arma::sum(pfexp));
-//	pfexp /= pfsum;
-//	pf = arma::log(pfexp);
+	// MAKES SENSE BUT DOES NOT GIVE SIGNIFICANT IMPROVEMENT
+	// FIRST - no lower contribution of low - firing cells
+	//		needs more analysis of sleep decoding
+	// SECOND - for equal contribution independent on the firing rates
+
+//	float pfmax = pf.max();
+//	log_string_ <<  << "\n";
+//	Log();
+//	if (pfmax < 0.05){
+//		pf.zeros();
+//	} else {
+		// normalize to sum up to 1 - did
+		// TODO !!! test on other animals / days and decide if its worth
+//		arma::fmat pfexp = arma::exp(pf);
+//		double pfsum = arma::sum(arma::sum(pfexp));
+//		pfexp /= pfsum;
+//		pf = arma::log(pfexp);
+//	}
 
 	lax[spikei] = pf;
 }
@@ -488,6 +505,11 @@ int main(int argc, char **argv){
 	log_string_ << "\tstart KDE estimation\n";
 	log_string_ << "MIN_OCC = " << MIN_OCC << "\n";
 	Log();
+
+	if (NBINSY == 1){
+		LINEAR = true;
+		MIN_OCC = 0.001;
+	}
 
 	// load trees, extract points, load mats
 	std::ifstream kdstream(BASE_PATH + Utils::Converter::int2str(tetr) + ".kdtree");
@@ -543,9 +565,14 @@ int main(int argc, char **argv){
 	log_string_ << "std of x  = " << stdx << "\n";
 	log_string_ << "std of y  = " << stdy << "\n";
 
-	// SHOULD BE THE SAME INDEPENDENTLY ON ENVIRONMENT SHAPEbuil!
-	stdx = std::min(stdx, stdy);
-	stdy = std::min(stdx, stdy);
+	// LINEAR
+	if (LINEAR){
+		stdy = BIN_SIZE / 2;
+	} else {
+		// SHOULD BE THE SAME INDEPENDENTLY ON ENVIRONMENT SHAPEbuil!
+		stdx = std::min(stdx, stdy);
+		stdy = std::min(stdx, stdy);
+	}
 
 	Log();
 	// normalize coords to have the average feature std
@@ -595,7 +622,11 @@ int main(int argc, char **argv){
 				double xdiff = (xc - obs_mat(n, N_FEAT)) / stdx / SIGMA_XX;
 				sum += xdiff * xdiff;
 				double ydiff = (yc - obs_mat(n, N_FEAT + 1)) / stdy / SIGMA_XX;
-				sum += ydiff * ydiff;
+				if (!LINEAR){
+					sum += ydiff * ydiff;
+				} else {
+					sum += xdiff * xdiff;
+				}
 
 				kde_sum += exp(- sum / 2);
 			}
@@ -628,7 +659,11 @@ int main(int argc, char **argv){
 				double ydiff = (yc - pos_buf(1, n)) / stdy / SIGMA_XX;
 
 				sum += xdiff * xdiff;
-				sum += ydiff * ydiff;
+				if (!LINEAR){
+					sum += ydiff * ydiff;
+				} else {
+					sum += xdiff * xdiff;
+				}
 
 				kde_sum += exp(- sum / 2);
 			}
