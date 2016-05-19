@@ -111,7 +111,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.hmm.reset.rate", 60000000)), use_intervals_(
 				buf->config_->getBool("kd.use.intervals", false)), spike_buf_pos_clust_(
 				buf->spike_buf_pos_clusts_[processor_number]), THETA_PRED_WIN(
-				buf->config_->getInt("kd.pred.win", 2000)), SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(
+				buf->config_->getInt("kd.pred.win", 2400)), SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(
 				buf->config_->getFloat(
 						"kd.spike.graph.cover.distance.threshold", 0)), SPIKE_GRAPH_COVER_NNEIGHB(
 				buf->config_->getInt("kd.spike.graph.cover.nneighb", 1)), FR_ESTIMATE_DELAY(
@@ -119,7 +119,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getFloat("kd.dump.speed.thold", .0)), WAIT_FOR_SPEED_EST(
 				getBool("kd.wait.speed")), RUN_KDE_ON_MIN_COLLECTED(
 				getBool("kd.run.on.min")), kde_path_(
-				buf->config_->getString("kd.path", "./kde_estimator")), continuous_prediction_(
+				buf->config_->getString("kd.path", "./kde_estimator")), swr_dec_dump_path_(
+				buf->config_->getOutPath("kd.swrdec.path", std::string("swr_dec_dump") + buf->config_->timestamp_ + ".txt")), continuous_prediction_(
 				buf->config_->getBool("kd.pred.continuous", false)), neighb_num_(
 				buf->config_->getInt("kd.neighb.num", 1)), display_scale_(
 				buf->config_->getInt("kd.display.scale", 50)), SWR_COMPRESSION_FACTOR(
@@ -294,7 +295,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 			pos_pred_ -= DE_SEC * lxs_[stetr];
 	}
 
-	swr_dec_dump_.open(buffer->config_->getString("out.path.base") + "swr_dec_dump_" + buffer->config_->timestamp_ + ".txt");
+	if (pred_dump_){
+		swr_dec_dump_.open(swr_dec_dump_path_);
+	}
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -476,7 +479,7 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 			gty = (float)buffer->pos_unknown_;
 		}
 
-		if (pose.speed_ >= DUMP_SPEED_THOLD) {
+		if (pose.speed_ >= DUMP_SPEED_THOLD) { // && pose.dirvar_ < 0.5) {
 			double mult = BINARY_CLASSIFIER ? 100 : 1.0;
 			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << " " << confidence << "\n";
 			dec_bayesian_.flush();
@@ -520,20 +523,22 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 //							+ ".mat", arma::raw_ascii);
 			swr_win_counter_++;
 
-			arma::fmat sub1 = pos_pred_.rows(0, 50);
-			arma::fmat sub2 = pos_pred_.rows(51, NBINSX - 1);
-			float mx1 = sub1.max();
-			float mx2 = sub2.max();
+			arma::fmat sub1 = pos_pred_.rows(0, pos_pred_.n_rows / 2);
+			arma::fmat sub2 = pos_pred_.rows(pos_pred_.n_rows / 2 + 1, NBINSX - 1);
+
+			unsigned int xm1, ym1, xm2, ym2;
+			float mx1 = sub1.max(xm1, ym1);
+			float mx2 = sub2.max(xm2, ym2);
 			float sm1 = arma::sum(arma::sum(sub1));
-			float sm2 =arma::sum( arma::sum(sub2));
-			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << "\n";
+			float sm2 = arma::sum(arma::sum(sub2));
+
+			xm2 += pos_pred_.n_rows / 2 + 1;
+
+			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " " << BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5) << "\n";
+
 		} else {
 			if (!SWR_SWITCH) {
-				pos_pred_.save(
-						pred_dump_pref_
-								+ Utils::Converter::int2str(
-										last_pred_pkg_id_ + PRED_WIN) + ".mat",
-						arma::raw_ascii);
+				pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
 				swr_win_counter_++;
 			}
 		}
@@ -1049,7 +1054,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 			continue;
 		}
 
-		if (si.speed_ < SPEED_THOLD) {
+		if (si.speed_ < SPEED_THOLD) { // || Utils::Math::Isnan(si.dirvar_) || si.dirvar_ > 0.5) {
 			nskip++;
 			continue;
 		}

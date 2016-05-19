@@ -196,6 +196,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	// DUMP
 	std::ofstream dec_bayesian_;
 	std::ofstream window_spike_counts_;
+	std::string swr_dec_dump_path_;
 	std::ofstream swr_dec_dump_;
     
 	unsigned int last_hmm_reset_ = 0;
