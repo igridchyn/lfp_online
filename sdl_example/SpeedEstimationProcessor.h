@@ -25,6 +25,7 @@ public:
 	const unsigned int SN_ESTIMATE_START;
 	const unsigned int SN_ESTIMATE_END;
 	bool sn_estimate_reported_ = false;
+	bool estimate_directional_variance_ = false;
 
 	SpeedEstimationProcessor(LFPBuffer *buffer);
 	virtual ~SpeedEstimationProcessor();

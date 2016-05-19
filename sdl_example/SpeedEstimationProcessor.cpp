@@ -14,7 +14,8 @@ SpeedEstimationProcessor::SpeedEstimationProcessor(LFPBuffer *buffer)
 , WIN_LEN(buffer->config_->getInt("speed.est.meansn.win"))
 , RUNNING_SPEED_THOLD(buffer->config_->getInt("speed.est.meansn.thold"))
 , SN_ESTIMATE_START(buffer->config_->getInt("speed.est.meansn.start", 0))
-, SN_ESTIMATE_END(buffer->config_->getInt("speed.est.meansn.end")){
+, SN_ESTIMATE_END(buffer->config_->getInt("speed.est.meansn.end"))
+, estimate_directional_variance_(buffer->config_->getBool("speed.est.estimate.dirvar", false)){
 	dump_.open("../spike_speed.txt");
 
 	last_window_end_ = SN_ESTIMATE_START;
@@ -49,6 +50,30 @@ void SpeedEstimationProcessor::process(){
 			float dx = bx - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].x_pos();
 			float dy = by - buffer->positions_buf_[buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS].y_pos();
 
+			// calculate head direction (dump if need)
+			if (estimate_directional_variance_){
+				float sinsum = .0f;
+				float cossum = .0f;
+				unsigned int nsamples = 0;
+				for (unsigned int hdpos = buffer->pos_buf_pos_speed_est - ESTIMATION_RADIUS; hdpos < buffer->pos_buf_pos_speed_est + ESTIMATION_RADIUS; ++hdpos){
+					SpatialInfo *si = &buffer->positions_buf_[hdpos], *sinext =&buffer->positions_buf_[hdpos + 1];
+					if (Utils::Math::Isnan(si->x_pos()) || Utils::Math::Isnan(sinext->x_pos())){
+						continue;
+					}
+
+					float angle = atan2(sinext->x_pos() - si->x_pos(), sinext->y_pos() - si->y_pos());
+					sinsum += sin(angle);
+					cossum += cos(angle);
+					nsamples ++;
+				}
+
+				if (nsamples > 4){
+					float dirvar = 1 - sqrt(sinsum * sinsum + cossum * cossum) / nsamples;
+	//				dump_ << dirvar << " " << bx << " " << by << " " << buffer->speedEstimator_->get_mean_estimate() << "\n";
+					buffer->positions_buf_[buffer->pos_buf_pos_speed_est].dirvar_ = dirvar;
+				}
+			}
+
 			buffer->speedEstimator_->push(sqrt(dx * dx + dy * dy));
 			buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ = buffer->speedEstimator_->get_mean_estimate();
 
@@ -73,7 +98,7 @@ void SpeedEstimationProcessor::process(){
 				float w_aft = 1/(float)(diff_aft + 1);
 				spike->speed = ( buffer->positions_buf_[buffer->pos_buf_pos_spike_speed_].speed_ * w_bef + buffer->positions_buf_[buffer->pos_buf_pos_speed_est].speed_ * w_aft) / (float)(w_bef + w_aft);
 
-				dump_ << spike->x << " " << spike->y << " " << spike->speed << "\n";
+				// dump_ << spike->x << " " << spike->y << " " << spike->speed << "\n";
 
 				buffer->spike_buf_pos_speed_ ++;
 

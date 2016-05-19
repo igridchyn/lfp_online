@@ -67,6 +67,8 @@ public:
 	float y_big_LED_ = .0;
 	unsigned int pkg_id_ = 0;
 	float speed_ = .0;
+	// direction variance - to distinguish fast head rotation from running
+	float dirvar_ = nanf("");
 	// valid if at least one LED is known
 	bool valid = false;
 
