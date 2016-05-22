@@ -35,7 +35,7 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
 , window_height_(window_height)
 , name_(window_name)
 //, palette_(12, new int[12]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928}){
-, palette_(ColorPalette::BrewerPalette12){
+, palette_(ColorPalette::BrewerPalette24){
     
     window_ = SDL_CreateWindow(window_name.c_str(), 50,50,window_width, window_height, 0);
 #ifdef _WIN32
