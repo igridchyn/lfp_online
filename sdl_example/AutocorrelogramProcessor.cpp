@@ -526,7 +526,7 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 	const int xsh = getXShift(cluster);
 	const int ysh = getYShift(cluster);
 
-	ColorPalette palette_ = ColorPalette::BrewerPalette12;
+	ColorPalette palette_ = ColorPalette::BrewerPalette24;
 
 	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
 	SDL_RenderDrawLine(renderer_, xsh, 0, xsh, window_height_);
@@ -557,6 +557,12 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 		SDL_RenderFillRect(renderer_, &rect);
 		SDL_RenderFillRect(renderer_, &rectmir);
 	}
+
+	double crate = std::accumulate(autocorrs_[tetr][cluster].begin(), autocorrs_[tetr][cluster].end(), 0) / double(buffer->last_pkg_id) * buffer->SAMPLING_RATE;
+	std::stringstream ss;
+	ss.precision(2);
+	ss << cluster << ", " << crate << " Hz";
+	TextOut(ss.str(), xsh, ysh - ypix_ / 2, 0xFFFFFF, false);
 }
 
 
