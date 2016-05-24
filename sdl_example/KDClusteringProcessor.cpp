@@ -44,10 +44,10 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 
 		// CHECK FOR NANS
 		arma::fmat & smat = laxs_[t][laxs_[t].size() - 1];
-		float smatmin = std::numeric_limits<float>::max();
+		float smatmin = std::numeric_limits<float>::min();
 		for (unsigned int bx = 0; bx < NBINSX; ++bx){
 			for (unsigned int by = 0; by < NBINSY; ++by){
-				if (!std::isinf(smat(bx,by)) && smat(bx, by) < smatmin){
+				if (!std::isinf(smat(bx,by)) && smat(bx, by) > smatmin){
 					smatmin = smat(bx, by);
 				}
 			}
