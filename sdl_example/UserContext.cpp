@@ -36,11 +36,6 @@ void UserContext::CutSpikes(const int& clu) {
 int UserContext::CreateClsuter(const int& maxclu, PolygonClusterProjection proj) {
 	int clun = maxclu;
 
-	if (!invalid_cluster_numbers_[active_tetrode_].empty()){
-		clun = invalid_cluster_numbers_[active_tetrode_].front();
-		invalid_cluster_numbers_[active_tetrode_].pop_front();
-	}
-
 	action_list_.push_back(UserAction(UA_CREATE_CLUSTER, clun, proj));
 
 	return clun;
@@ -124,8 +119,4 @@ const UserAction* UserContext::GetNextAction(
 	else{
 		return nullptr;
 	}
-}
-
-void UserContext::Init(int tetrodes_number) {
-	invalid_cluster_numbers_.resize(tetrodes_number);
 }

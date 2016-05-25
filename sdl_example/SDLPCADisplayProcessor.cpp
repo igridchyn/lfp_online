@@ -68,7 +68,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 					for (unsigned int c=0; c < nclust; ++c){
 						polygon_clusters_[t].push_back(PolygonCluster(fpoly));
 						if (polygon_clusters_[t][c].projections_inclusive_.size() == 0 && c > 0){
-							user_context_.invalid_cluster_numbers_[t].push_back(c);
+							Log("WARNING: empty cluster number ", c);
+							Log("	in tetrode", t);
 						}
 					}
 				}

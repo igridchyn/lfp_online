@@ -97,8 +97,6 @@ public:
 
 	UserContext();
 	virtual ~UserContext();
-
-	void Init(int tetrodes_number);
 };
 
 #endif /* USERCONTEXT_H_ */
