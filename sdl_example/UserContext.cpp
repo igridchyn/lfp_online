@@ -24,7 +24,6 @@ void UserContext::SelectCluster2(const int& clu) {
 
 void UserContext::MergeClusters(PolygonCluster& clu1, PolygonCluster& clu2) {
 	action_list_.push_back(UserAction(UA_MERGE_CLUSTERS, selected_cluster1_, selected_cluster2_, clu1, clu2));
-	invalid_cluster_numbers_[active_tetrode_].push_back(selected_cluster2_);
 	clu2.Invalidate();
 
 	selected_cluster2_ = -1;
@@ -49,7 +48,6 @@ int UserContext::CreateClsuter(const int& maxclu, PolygonClusterProjection proj)
 
 void UserContext::DelleteCluster(PolygonCluster& cluster) {
 	cluster.Invalidate();
-	invalid_cluster_numbers_[active_tetrode_].push_back(selected_cluster2_);
 
 	action_list_.push_back(UserAction(UA_DELETE_CLUSTER, selected_cluster2_, cluster));
 	selected_cluster2_ = -1;
