@@ -89,6 +89,10 @@ void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y, int col, bo
 		text_stack_height_ += texH;
 		text_stack_width_ = 0;
 	}
+
+	SDL_FreeSurface(surface);
+
+	last_text_width_ = texW;
 }
 
 void SDLSingleWindowDisplay::TextOut(std::string text, int col, bool shift) {
