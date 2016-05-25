@@ -111,10 +111,18 @@ void AutocorrelogramProcessor::process(){
 			break;
 		case UA_DELETE_CLUSTER:
 			clearACandCCs(ua->cluster_number_1_);
+			// move cluster number up
+			for (unsigned int c = ua->cluster_number_1_; c < MAX_CLUST - 1; ++c){
+				autocorrs_[display_tetrode_][c] = autocorrs_[display_tetrode_][c + 1];
+				for (unsigned int c2 = 0; c2 < MAX_CLUST; ++c2) {
+					cross_corrs_[display_tetrode_][c][c2] = cross_corrs_[display_tetrode_][c + 1][c2];
+					cross_corrs_[display_tetrode_][c2][c] = cross_corrs_[display_tetrode_][c2][c + 1];
+				}
+			}
 			SetDisplayTetrode(display_tetrode_);
 			break;
 		case UA_MERGE_CLUSTERS:{
-			// cluster 1 was deleted and cluster 2 has to be updated
+			// cluster 2 was deleted and cluster 1 has to be updated
 			int clun = ua->cluster_number_1_;
 			SetDisplayTetrode(display_tetrode_);
 
@@ -133,6 +141,15 @@ void AutocorrelogramProcessor::process(){
 			}
 
 			clearACandCCs(ua->cluster_number_2_);
+
+			// move cluster number up
+			for (unsigned int c = ua->cluster_number_2_; c < MAX_CLUST - 1; ++c){
+				autocorrs_[display_tetrode_][c] = autocorrs_[display_tetrode_][c + 1];
+				for (unsigned int c2 = 0; c2 < MAX_CLUST; ++c2) {
+					cross_corrs_[display_tetrode_][c][c2] = cross_corrs_[display_tetrode_][c + 1][c2];
+					cross_corrs_[display_tetrode_][c2][c] = cross_corrs_[display_tetrode_][c2][c + 1];
+				}
+			}
 
 			break;
 		}
@@ -191,18 +208,20 @@ void AutocorrelogramProcessor::process(){
 
 		unsigned int max_diff = BIN_SIZE * NBINS;
 
-		// update autocorrs for new spike`
-		for (std::list<unsigned int>::iterator si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
-			if (stime - *si > max_diff){
-				continue;
-			}
+		// update autocorrs for new spike
+		if (!reset_mode_ || (reset_mode_ && (unsigned int)spike->cluster_id_ == reset_cluster_)){
+			for (std::list<unsigned int>::iterator si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
+				if (stime - *si > max_diff){
+					continue;
+				}
 
-			unsigned int bin = (stime - *si) / (BIN_SIZE );
-			if (bin >= NBINS){
-				continue;
-			}
+				unsigned int bin = (stime - *si) / (BIN_SIZE );
+				if (bin >= NBINS){
+					continue;
+				}
 
-			autocorrs_[tetrode][cluster_id][bin]++;
+				autocorrs_[tetrode][cluster_id][bin]++;
+			}
 		}
 
 		// fill cross-correlograms - no need to delete here, start from end until
@@ -255,7 +274,7 @@ unsigned int AutocorrelogramProcessor::getXShift(int clust) {
 }
 
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {
-	return (clust / (XCLUST / 2)) * ypix_ + 100;
+	return ((clust % 20) / (XCLUST / 2)) * ypix_ + 100;
 }
 
 
@@ -290,12 +309,12 @@ int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x, co
 	int cx = (int)round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
 
-	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx;
+	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx + (display_mode_ == AC_DISPLAY_MODE_AC ? shift_xx_x_ * 20 : 0);
 }
 
 void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
 	if (display_mode_ == AC_DISPLAY_MODE_AC){
-		plotAC(tetrode, cluster);
+		plotAC(tetrode, cluster + shift_xx_x_ * 20);
 	}
 	else{
 		for (int c = 0; c < std::min<int>(YCLUST_CC, MAX_CLUST - shift_xx_y_ * YCLUST_CC); ++c){
@@ -329,7 +348,7 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 	SDL_RenderClear(renderer_);
 
-	const unsigned int YCLUST = (window_height_ - 100)/ ypix_;
+	const unsigned int YCLUST = (window_height_)/ ypix_;
 	int limit = (display_mode_ == AC_DISPLAY_MODE_AC ? (unsigned int)(XCLUST / 2 * YCLUST ) : (std::min<int>(XCLUST_CC, (int)MAX_CLUST - XCLUST_CC * shift_xx_x_)));
 	for (int c=0; c < limit; ++c) {
 		plotACorCCs(display_tetrode_, c);
@@ -449,7 +468,7 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 
 void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 		const unsigned int& cluster1, const unsigned int& cluster2) {
-	if (tetr != display_tetrode_)
+	if (tetr != display_tetrode_ || cluster1 >= MAX_CLUST || cluster2 >= MAX_CLUST)
 			return;
 
 	// shift for the plot
@@ -518,7 +537,7 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 
 // plot the autocorrelogramms function
 void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned int cluster){
-	if (tetr != display_tetrode_)
+	if (tetr != display_tetrode_ || cluster >= MAX_CLUST)
 		return;
 
 	// shift for the plot
