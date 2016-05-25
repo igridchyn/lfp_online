@@ -505,6 +505,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			break;
         		else{
         			mergeClusters();
+        			need_redraw = true;
         		}
 
         		break;
@@ -513,6 +514,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         	case SDLK_s:{
         		addCluster();
         		need_redraw = false;
+        		break;
+        	}
+
+        	// show Two selected clusters only
+        	case SDLK_t:{
+        		for (unsigned int c=0; c < MAX_CLUST; ++c){
+        			display_cluster_[c] = (c == (unsigned int)user_context_.SelectedCluster1() || c == (unsigned int)user_context_.SelectedCluster2());
+        		}
+        		need_redraw = true;
         		break;
         	}
 
@@ -530,11 +540,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
         	}
 
-        	case SDLK_u:
+        	case SDLK_u:{
         		// toggle unclustered display
         		display_cluster_[0] = ! display_cluster_[0];
         		need_redraw = true;
         		break;
+        	}
 
         	// D: delete all clusters, d: delete last polygon point
         	case SDLK_d:
