@@ -76,6 +76,9 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 
     const unsigned int MAX_CLUST = 40;
 
+    // x coordidate -> cluster number
+    std::vector<unsigned int> number_panel_mapping_;
+
     void save_polygon_clusters();
     inline float scale_x(float x) { return x / scale_ + shift_x_; }
     inline float scale_y(float y) { return y / scale_ + shift_y_; }
@@ -85,7 +88,6 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	// cluster operations
 	void addCluster();
 	void mergeClusters();
-	void deleteAllClusters();
 	void deleteCluster();
 	void addExclusiveProjection();
 
