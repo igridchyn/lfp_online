@@ -232,7 +232,7 @@ print classcorr, classn
 print "Average error: ", sum/ndist
 print "Median error: ", np.median(np.array(errs))
 print "Average error outside of SB: ", sumnosb/nnosb
-print ("Classification precision: %.1f%%") % (classcorr * 100 / classn)
+print ("Classification precision: %.2f%%") % (classcorr * 100 / classn)
 print "Binning error: ", errb/ndist
 
 plot_distr = int(argv[5])
@@ -245,8 +245,9 @@ if plot_distr:
 	P.colorbar(orientation='horizontal')	
 	P.show()
 	
-	#imocc=P.imshow(occmap, cmap='hot', interpolation='none')
-	#P.show()
+	imocc=P.imshow(occmap, cmap='hot', interpolation='none')
+	P.title('Occupancy')
+	P.show()
 
 	P.title('Error map')
 	imerr=P.imshow(errmap, cmap='hot', interpolation='none')
