@@ -62,8 +62,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     place_fields_.resize(tetrn);
     place_fields_smoothed_.resize(tetrn);
 
-    occupancy_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsy, nbinsx, spread));
-    occupancy_smoothed_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsy, nbinsx, spread));
+    occupancy_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsx, nbinsy, spread));
+    occupancy_smoothed_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsx, nbinsy, spread));
 
     for (size_t t=0; t < tetrn; ++t) {
     	place_fields_[t].resize(MAX_CLUST);
@@ -98,8 +98,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
-    unsigned int xb = (unsigned int)round(x / bin_size_);
-    unsigned int yb = (unsigned int)round(y / bin_size_);
+    unsigned int xb = (unsigned int)round(x / bin_size_ - 0.5);
+    unsigned int yb = (unsigned int)round(y / bin_size_ - 0.5);
     
     // unknown coord
 	if (Utils::Math::Isnan(x) || Utils::Math::Isnan(y)){
@@ -113,7 +113,8 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     }
 
     // TODO check correctness
-    occupancy_[current_session_](yb, xb) += 1.f;
+    PlaceField& pf = occupancy_[current_session_];
+    pf(yb, xb) += 1.f;
     
     // normalizer
 //    double norm = .0f;
@@ -445,8 +446,8 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     for (unsigned int x=0; x < nbinsx_; ++x)
     	for (unsigned int y =0; y < nbinsy_; ++y)
     		for (size_t s = 0; s < N_SESSIONS; ++s) {
-				if (occupancy_smoothed_[s](x, y) < MIN_OCCUPANCY){
-					occupancy_smoothed_[s](x, y) = .0f;
+				if (occupancy_smoothed_[s](y, x) < MIN_OCCUPANCY){
+					occupancy_smoothed_[s](y, x) = .0f;
 					less_than_min[s] ++;
 				}
     		}

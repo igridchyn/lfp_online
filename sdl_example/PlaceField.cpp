@@ -14,7 +14,7 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
 , spread_(spread)
 , NBINSX(nbinsx)
 , NBINSY(nbinsy){
-    place_field_ = arma::mat(nbinsx, nbinsy, arma::fill::zeros);
+    place_field_ = arma::mat(nbinsy, nbinsx, arma::fill::zeros);
 
     gauss_ = arma::mat(spread_*2 + 1, spread_*2 + 1, arma::fill::zeros);
     double g_sum = .0f;
@@ -37,10 +37,10 @@ void PlaceField::Load(const std::string path, arma::file_type ft){
 }
 
 bool PlaceField::AddSpike(Spike *spike){
-    int xb = (int)round(spike->x / bin_size_);
-    int yb = (int)round(spike->y / bin_size_);
+    int xb = (int)round(spike->x / bin_size_ - 0.5);
+    int yb = (int)round(spike->y / bin_size_ - 0.5);
 
-    if (xb >= NBINSY || yb >= NBINSX){
+    if (xb >= NBINSX || yb >= NBINSY){
     	return false;
     }
 
@@ -49,7 +49,7 @@ bool PlaceField::AddSpike(Spike *spike){
 }
 
 PlaceField PlaceField::Smooth(){
-    PlaceField spf(sigma_, bin_size_, place_field_.n_rows, place_field_.n_cols, spread_);
+    PlaceField spf(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
 
     // smooth place field
     // TODO: smoothing on the edge corners
