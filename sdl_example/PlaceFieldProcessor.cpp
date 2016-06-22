@@ -107,7 +107,7 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     }
 
     if (xb >= nbinsx_ || yb >= nbinsy_){
-    	buffer->log_string_stream_ << "WARNING: overflow x/y: " << xb << ", " << yb;
+    	buffer->log_string_stream_ << "WARNING: overflow x/y: " << xb << ", " << yb << "\n";
     	buffer->Log();
     	return;
     }
@@ -162,6 +162,10 @@ void PlaceFieldProcessor::process(){
         }
 
         if (spike->speed > SPEED_THOLD){
+        	if (spike->y < 0 or spike->x < 0){
+        		Log("WARNING: negative x or y coordinates of spikes, not added");
+        	}
+
             bool spike_added = place_fields_[tetr][clust][current_session_].AddSpike(spike);
             if (!spike_added){
             	buffer->log_string_stream_ << "Spike with coordinates " << spike->x << ", " << spike->y << " not added.\n";
