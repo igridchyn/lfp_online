@@ -427,7 +427,8 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 			// scaled by MULT_INT ^ 2
 //			pf(xb, yb) = (double)kern_sum / (MULT_INT * MULT_INT) / nspikes;
 			if (occupancy(xb, yb)/occ_sum >= MIN_OCC){
-				pf(xb, yb) = log(kern_sum / nspikes / occupancy(xb, yb) * avg_firing_rate);
+//				pf(xb, yb) = log(kern_sum / nspikes / occupancy(xb, yb) * avg_firing_rate);
+				pf(xb, yb) = kern_sum / nspikes;
 			}
 		}
 	}
@@ -436,15 +437,37 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 	p_bin_spike[N_FEAT] = x_s;
 	p_bin_spike[N_FEAT + 1] = y_s;
 
-	float occ_min = pf.min();
+	float pf_min = pf.min();
 	// set min at low occupancy
 	for (int xb = 0; xb < NBINSX; ++xb) {
 		for (int yb = 0; yb < NBINSY; ++yb) {
 			if (occupancy(xb, yb)/occ_sum < MIN_OCC){
-				pf(xb, yb) = occ_min;
+				pf(xb, yb) = pf_min;
 			}
 		}
 	}
+
+	// normalize
+	double pfsum = arma::sum(arma::sum(pf));
+	pf /= pfsum;
+
+	for (int xb = 0; xb < NBINSX; ++xb) {
+		for (int yb = 0; yb < NBINSY; ++yb) {
+			if (occupancy(xb, yb)/occ_sum < MIN_OCC){
+				continue;
+			}
+			pf(xb, yb) = log(pf(xb, yb) / occupancy(xb, yb) * avg_firing_rate);
+		}
+	}
+
+	 pf_min = pf.min();
+	 for (int xb = 0; xb < NBINSX; ++xb) {
+	 		for (int yb = 0; yb < NBINSY; ++yb) {
+	 			if (occupancy(xb, yb)/occ_sum < MIN_OCC){
+	 				pf(xb, yb) = pf_min;
+	 			}
+	 		}
+	 }
 
 	// MAKES SENSE BUT DOES NOT GIVE SIGNIFICANT IMPROVEMENT
 	// FIRST - no lower contribution of low - firing cells
@@ -459,10 +482,12 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 //	} else {
 		// normalize to sum up to 1 - did
 		// TODO !!! test on other animals / days and decide if its worth
+
 //		arma::fmat pfexp = arma::exp(pf);
 //		double pfsum = arma::sum(arma::sum(pfexp));
 //		pfexp /= pfsum;
 //		pf = arma::log(pfexp);
+
 //	}
 
 	lax[spikei] = pf;
@@ -636,6 +661,10 @@ int main(int argc, char **argv){
 			px(xb, yb) = kde_sum;
 		}
 	}
+
+	double px_sum = arma::sum(arma::sum(px));
+	px /= px_sum;
+
 	if (SAVE){
 		px.save(BASE_PATH + Utils::NUMBERS[tetr] + "_px.mat", arma::raw_ascii);
 	}
@@ -675,6 +704,10 @@ int main(int argc, char **argv){
 		}
 	}
 	Log("done pix\n");
+
+	double pix_sum = arma::sum(arma::sum(pix));
+	pix = pix / pix_sum;
+	pix_log = arma::log(pix);
 
 	// compute generalized rate function lambda(x)
 	// TODO !!! uniform + parametrize
@@ -716,8 +749,34 @@ int main(int argc, char **argv){
 	std::vector<unsigned int> used_ids_ = ver_solv.Reduce(*kdtree_, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB);// form new tree with only used points
 	log_string_ << "done vertex cover, # of points in reduced tree: " << used_ids_.size() << "\n";
 	Log();
-	NUSED = used_ids_.size();
 
+	// calculate densities at the pivot spikes, discard too dense (INs)
+	std::vector<unsigned int> dense_ids_;
+	for (size_t i=0; i < used_ids_.size(); ++i){
+		double dens = .0;
+		for (int s = 0; s < total_spikes; ++s) {
+			double ksum = .0;
+			for (int f=0; f < DIM; ++f){
+				ksum += (ax_points_[s][f] - ax_points_[used_ids_[i]][f]) * (ax_points_[s][f] - ax_points_[used_ids_[i]][f]);
+			}
+			dens += exp(-ksum / (MULT_INT * MULT_INT));
+		}
+		dens /= total_spikes;
+//		log_string_ << "Dens. " << i << "=" << dens / total_spikes << "\n";
+		if (dens > 0.00025){
+			dense_ids_.push_back(i);
+		}
+//		Log();
+	}
+
+	// Remove dense points
+//	log_string_ << "Remove " << dense_ids_.size() << " dense points\n";
+//	Log();
+//	for (int i = dense_ids_.size() - 1; i>=0; --i){
+//		used_ids_.erase(used_ids_.begin() + dense_ids_[i]);
+//	}
+
+	NUSED = used_ids_.size();
 	// construct and save the reduced tree
 	ANNpointArray tree_points = kdtree_->thePoints();
 	ANNpointArray reduced_array = annAllocPts(used_ids_.size(), DIM);
