@@ -297,6 +297,12 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	}
 
 	if (pred_dump_){
+		if (Utils::FS::FileExists(swr_dec_dump_path_)){
+			Log("ERROR: SWR DUMP FILE EXISTS, EXITING!");
+			Log(swr_dec_dump_path_);
+			exit(235453);
+		}
+
 		swr_dec_dump_.open(swr_dec_dump_path_);
 	}
 }
@@ -505,7 +511,6 @@ void KDClusteringProcessor::dump_swr_window_spike_count() {
 }
 
 void KDClusteringProcessor::dump_prediction_if_needed() {
-	// DEBUG save prediction
 	if (pred_dump_) {
 		if (swr_regime_) {
 			buffer->log_string_stream_ << "Save SWR starting at "
@@ -514,28 +519,28 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 					<< " and window center at "
 					<< last_pred_pkg_id_ + PRED_WIN / 2 << "\n";
 			buffer->Log();
-//			pos_pred_.save(
-//					pred_dump_pref_ + "swr_"
-//							+ Utils::Converter::int2str(swr_pointer_) + "_"
-//							+ Utils::Converter::int2str(swr_win_counter_) + "_"
-//							+ Utils::Converter::int2str(
-//									last_pred_pkg_id_ + PRED_WIN / 2) + "_"
-//							+ Utils::Converter::int2str(processor_number_)
-//							+ ".mat", arma::raw_ascii);
 			swr_win_counter_++;
 
-			arma::fmat sub1 = pos_pred_.rows(0, pos_pred_.n_rows / 2);
-			arma::fmat sub2 = pos_pred_.rows(pos_pred_.n_rows / 2 + 1, NBINSX - 1);
+//			double uprior = 1.0 / (NBINSX * NBINSY);
+			arma::fmat sub1 = pos_pred_.rows(0, NBINSX / 2 - 1);
+			arma::fmat sub2 = pos_pred_.rows(NBINSX / 2, NBINSX - 1);
+
+			double mx = pos_pred_.max();
 
 			unsigned int xm1, ym1, xm2, ym2;
 			float mx1 = sub1.max(xm1, ym1);
 			float mx2 = sub2.max(xm2, ym2);
-			float sm1 = arma::sum(arma::sum(sub1));
-			float sm2 = arma::sum(arma::sum(sub2));
+			xm2 += NBINSX / 2 + 1;
 
-			xm2 += pos_pred_.n_rows / 2 + 1;
+			long double sm1 = log(arma::sum(arma::sum(arma::exp(sub1 - mx)))) + mx;
+			long double sm2 = log(arma::sum(arma::sum(arma::exp(sub2 - mx)))) + mx;
 
-			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " " << BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5) << "\n";
+			// UNIFORM P(X) !
+			long double logsum = log(arma::sum(arma::sum(arma::exp(pos_pred_ - mx)))) + mx;
+
+			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
+					<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
+					<< " " << logsum <<  "\n";
 
 		} else {
 			if (!SWR_SWITCH) {
