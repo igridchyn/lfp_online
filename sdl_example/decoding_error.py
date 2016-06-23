@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib import pyplot as P
 from subprocess import call, Popen
 import datetime
+import random
 
 def decoding_errors():
 	print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
@@ -77,6 +78,12 @@ def decoding_errors():
 		if (edec - egt) % 2 == 0:
 			classcorr += 1
 
+
+		# ALLOW TOLERANCE REGION (IF SEPARATION NOT PRECISE)
+		#if abs(gtx - envlimit) < 20:
+		#	classn -= 1
+		#	if (edec - egt) % 2 == 0:
+                #       	classcorr -= 1	
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)
 #========================================================================================================
@@ -165,7 +172,12 @@ def gradient_descent():
 					log('Number of error records: %d' % len(errs))
 	
 					crit = ma * classprec - me * mederr
-					
+				
+					print 'Crit = %.2f, best crit = %.2f' % (crit, crit_best)
+					prob = exp((crit - crit_best) / 10)
+					r = random.random()
+					print 'Transition probability = %.2f, random value = %.2f, decision = %s' % (prob, r, 'TRANSIT' if (r > prob) else 'STOP')
+	
 					if crit > crit_best:
 					# if classprec > precbest and mederr < errthold:
 					#if classprec >= precthold and mederr < errbest:
@@ -204,7 +216,7 @@ def gradient_descent():
 #============================================================================================================
 if len(argv) < 6:
 	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not> (6)<bin size>'
-	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size>'
+	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size> (9)<stochastic: 0/1>'
 	exit(0)
 
 nbinsx = int(argv[2])
@@ -215,7 +227,7 @@ predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
 
-if len(argv) == 9:
+if len(argv) == 10:
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
 	flog.write('\n\nOPTIMIZATION SESSION: ' + str(dt) + '\n')
@@ -240,18 +252,33 @@ if plot_distr:
 	#n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
 	#P.show()
 
+	mng = P.get_current_fig_manager()
+	mxsz = mng.window.maxsize()
+	mxsz = [s/2 for s in mxsz]
+	mng.resize(*mxsz)
 	im=P.imshow(predmap, cmap='hot', interpolation='none')
 	P.title('Predicted locations')
 	P.colorbar(orientation='horizontal')	
 	P.show()
 	
+	mng = P.get_current_fig_manager()
 	imocc=P.imshow(occmap, cmap='hot', interpolation='none')
 	P.title('Occupancy')
+	mng.resize(*mxsz)
 	P.show()
 
+	mng = P.get_current_fig_manager()
 	P.title('Error map')
 	imerr=P.imshow(errmap, cmap='hot', interpolation='none')
 	P.colorbar(orientation='horizontal')
+	mng.resize(*mxsz)
+	P.show()
+
+	mng = P.get_current_fig_manager()
+	P.title('Predicted / Occupancy')
+	P.imshow(predmap / errmap, cmap = 'hot', interpolation = 'none')
+	P.colorbar()
+	mng.resize(*mxsz)
 	P.show()
 
 # print errmap
