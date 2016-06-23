@@ -253,6 +253,10 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	const double KD_MIN_OCC;
 
+	// spikes not used for current prediction for various reasons (i.e. distance from pivot spikes too large)
+	std::vector<unsigned int> prediction_skipped_spikes_;
+	std::vector<unsigned int> window_spikes_;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 

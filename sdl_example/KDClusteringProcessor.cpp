@@ -56,7 +56,6 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 			for (unsigned int by = 0; by < NBINSY; ++by){
 				if (std::isinf(smat(bx, by))){
 					smat(bx,by) = smatmin;
-//					std::cout << "NAN at tetr " << t << " spike " << laxs_[t].size() << "\n";
 				}
 			}
 		}
@@ -305,6 +304,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 		swr_dec_dump_.open(swr_dec_dump_path_);
 	}
+
+	prediction_skipped_spikes_.resize(tetr_info_->tetrodes_number(), 0);
+	window_spikes_.resize(tetr_info_->tetrodes_number(), 0);
 }
 
 KDClusteringProcessor::~KDClusteringProcessor() {
@@ -849,8 +851,6 @@ void KDClusteringProcessor::process() {
 			while (spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) {
 				spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 
-//				std::cout << spike-> pkg_id_ << "\n";
-
 				if (spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN) {
 					break;
 				}
@@ -878,6 +878,13 @@ void KDClusteringProcessor::process() {
 				// add 'place field' of the spike with the closest wave shape
 				if (neighb_num_ > 1) {
 					for (unsigned int i = 0; i < neighb_num_; ++i) {
+						window_spikes_[stetr] ++;
+
+//						if (neighbour_dists_[i] > 200){
+//							prediction_skipped_spikes_[stetr] ++;
+//							continue;
+//						}
+
 						pos_pred_ += 1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
 						if (continuous_prediction_)
 							last_spike_fields_.push(1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]]);
@@ -948,8 +955,9 @@ void KDClusteringProcessor::process() {
 
 					for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
 						// TODO ? subtract even if did not spike
+//						double skipped_spikes_factor = (window_spikes_[t] - prediction_skipped_spikes_[t]) / double(window_spikes_[t]);
 						if (tetr_spiked_[t]) {
-							pos_pred_ -= DE_SEC * lxs_[t];
+							pos_pred_ -= DE_SEC * lxs_[t]; // * skipped_spikes_factor;
 						}
 					}
 				}
@@ -1021,6 +1029,11 @@ void KDClusteringProcessor::process() {
 					Log("Rewind to get overlapping windows until position: ", spike_buf_pos_clust_);
 					Log("	Update last_pred_pkg_id : ", buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_);
 					Log("	Update spike_buf_pos_pred_start_ : ", spike_buf_pos_pred_start_);
+				}
+
+				for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
+					prediction_skipped_spikes_[t] = 0;
+					window_spikes_[t] = 0;
 				}
 
 				return;
