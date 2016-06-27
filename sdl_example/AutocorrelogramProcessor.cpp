@@ -7,6 +7,7 @@
 //
 
 #include "AutocorrelogramProcessor.h"
+#include <numeric>
 
 AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer* buf)
 :AutocorrelogramProcessor(buf,
