@@ -76,7 +76,7 @@ ANNpointArray ann_points_;
 ANNpointArray ax_points_;
 ANNpointArray ann_points_coords;
 
-int total_spikes = 0;
+unsigned int total_spikes = 0;
 
 std::stringstream log_string_;
 std::ofstream log_;
@@ -299,39 +299,6 @@ VertexNode::VertexNode(const VertexNode& ref) {
 	neighbour_ids_ = ref.neighbour_ids_;
 }
 
-void cache_spike_and_bin_neighbours(){
-
-	// CACHE spikes with closest WS
-	// number of neihgbours to be cached - both for spikes and bin centers
-	const unsigned int NN_CACHE = 1000;
-	// cache spike neighbours
-	ANNpointArray ann_points_ws = kdtree_->thePoints();
-	for (int s = 0; s < total_spikes; ++s) {
-		ANNidx *nn_idx = new ANNidx[NN_CACHE];
-		ANNdist *dd = new ANNdist[NN_CACHE];
-		kdtree_->annkSearch(ann_points_ws[s], NN_CACHE, nn_idx, dd, NN_EPS);
-		cache_sim_spikes_.push_back(nn_idx);
-		cache_sim_spikes_dists_.push_back(dd);
-	}
-
-	// build kd-tree in the (x, y) space
-	kd_tree_coords_ = new ANNkd_tree(ann_points_coords, total_spikes, 2);
-	// cache neighbours for each bin center
-	for (int xb = 0; xb < NBINSX; ++xb) {
-			for (int yb = 0; yb < NBINSY; ++yb) {
-				ANNpoint xy_pnt = annAllocPt(2);
-				xy_pnt[0] = BIN_SIZE * (xb + 0.5);
-				xy_pnt[1] = BIN_SIZE * (yb + 0.5);
-				ANNidx *nn_idx = new ANNidx[NN_CACHE];
-				ANNdist *dd = new ANNdist[NN_CACHE];
-				kd_tree_coords_->annkSearch(xy_pnt, NN_CACHE, nn_idx, dd, NN_EPS);
-				cache_xy_bin_spikes_.push_back(nn_idx);
-				cache_xy_bin_spikes_dists_.push_back(dd);
-			}
-	}
-	Log("Done (x_b, y_b) neighbours and distances caching\n");
-}
-
 // compute value of joint distribution kernel for spike2 centered in spike1 with NORMALIZED (and converted to integer with high precision) coordinates x and y
 long long kern_H_ax_(const unsigned int& spikei2, const int& x, const int& y) {
 	// TODO: check for the overlow (MULT order X DIM X MAX(coord order / feature sorder) X squared = (10 + 1 + 2) * 2 = 26 < 32 bit )
@@ -362,7 +329,7 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 
 	// pre-compute feature part of the sum (same for all coordinates)
 	std::vector<long long> feature_sum;
-	for (int ni = 0; ni < total_spikes; ++ni) {
+	for (unsigned int ni = 0; ni < total_spikes; ++ni) {
 		long long sum = 0;
 		int *pcoord1 = ann_points_int[spikei], *pcoord2 = ann_points_int[ni];
 		for (int d = 0; d < DIM; ++d, ++pcoord1, ++pcoord2) {
@@ -559,7 +526,6 @@ int main(int argc, char **argv){
 	pix_log = arma::mat(NBINSX, NBINSY, arma::fill::zeros);
 	lax.resize(MIN_SPIKES,  arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 
-	ann_points_coords = annAllocPts(MIN_SPIKES, 2);
 	spike_coords_int = arma::Mat<int>(total_spikes, 2);
 	coords_normalized = arma::Mat<int>(std::max(NBINSX, NBINSY), 2);
 	ann_points_int = new int*[MIN_SPIKES];
@@ -601,13 +567,10 @@ int main(int argc, char **argv){
 
 	Log();
 	// normalize coords to have the average feature std
-	for (int s = 0; s < total_spikes; ++s) {
+	for (unsigned int s = 0; s < total_spikes; ++s) {
 		// ... loss of precision 1) from rounding to int; 2) by dividing int on float
 		spike_coords_int(s, 0) = (int)(obs_mat(s, N_FEAT) * avg_feat_std / SIGMA_X * MULT_INT / stdx);  //= stdx / avg_feat_std;
 		spike_coords_int(s, 1) = (int)(obs_mat(s, N_FEAT + 1) * avg_feat_std / SIGMA_X * MULT_INT / stdy);  //= stdy / avg_feat_std;
-
-		ann_points_coords[s][0] = obs_mat(s, N_FEAT);
-		ann_points_coords[s][1] = obs_mat(s, N_FEAT + 1);
 
 		for (int f = 0; f < N_FEAT; ++f) {
 			ann_points_int[s][f] = (int)round(obs_mat(s, f) / SIGMA_A * MULT_INT / stds[f] );
@@ -619,7 +582,7 @@ int main(int argc, char **argv){
 	// BUILD TREE IN normalized (a, x) space
 	// first normalize coordinates in obs_mat
 	ax_points_ = annAllocPts(MIN_SPIKES, DIM + 2);
-	for (int s = 0; s < total_spikes; ++s) {
+	for (unsigned int s = 0; s < total_spikes; ++s) {
 		for (int f = 0; f < N_FEAT; ++f) {
 			ax_points_[s][f] = obs_mat(s, f) / SIGMA_A * MULT_INT / stds[f];
 		}
@@ -637,7 +600,7 @@ int main(int argc, char **argv){
 
 			double kde_sum = 0;
 			unsigned int npoints = 0;
-			for (int n = 0; n < total_spikes; ++n) {
+			for (unsigned int n = 0; n < total_spikes; ++n) {
 				if (abs(obs_mat(n, N_FEAT) - 1023) < 0.01){
 					continue;
 				}
@@ -754,37 +717,59 @@ int main(int argc, char **argv){
 	std::vector<unsigned int> dense_ids_;
 	for (size_t i=0; i < used_ids_.size(); ++i){
 		double dens = .0;
-		for (int s = 0; s < total_spikes; ++s) {
+		for (unsigned int s = 0; s < total_spikes; ++s) {
+			if (used_ids_[i] == s){
+				continue;
+			}
 			double ksum = .0;
 			for (int f=0; f < DIM; ++f){
 				ksum += (ax_points_[s][f] - ax_points_[used_ids_[i]][f]) * (ax_points_[s][f] - ax_points_[used_ids_[i]][f]);
 			}
-			dens += exp(-ksum / (MULT_INT * MULT_INT));
+			dens += exp(-ksum / (MULT_INT * MULT_INT) / 2 / 4.0);
 		}
-		dens /= total_spikes;
-//		log_string_ << "Dens. " << i << "=" << dens / total_spikes << "\n";
-		if (dens > 0.00025){
+		dens /= (total_spikes - 1);
+//		log_string_ << "Dens. " << i << "=" << dens << "\n";
+		if (dens > 0.01){ // 0.0002 for s = 0.5
 			dense_ids_.push_back(i);
 		}
 //		Log();
 	}
 
 	// Remove dense points
-//	log_string_ << "Remove " << dense_ids_.size() << " dense points\n";
+	log_string_ << "Found " << dense_ids_.size() << " dense points, saved\n";
 //	Log();
 //	for (int i = dense_ids_.size() - 1; i>=0; --i){
 //		used_ids_.erase(used_ids_.begin() + dense_ids_[i]);
 //	}
 
+	// save features of the filtered out spikes (to plot for validation)
+	arma::Col<unsigned int> columns_all(obs_mat.n_cols);
+	arma::Col<unsigned int> rows_dense(dense_ids_.size());
+	for (unsigned int c = 0; c < obs_mat.n_cols; ++c){
+		columns_all[c] = c;
+	}
+	for (unsigned int c = 0; c < dense_ids_.size(); ++c){
+		rows_dense[c] = used_ids_[dense_ids_[c]];
+	}
+	arma::fmat filtered_spikes = obs_mat.rows(rows_dense);
+    filtered_spikes  = filtered_spikes.cols(columns_all);
+    filtered_spikes.save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs_DENSE.mat", arma::raw_ascii);
+
+
 	NUSED = used_ids_.size();
 	// construct and save the reduced tree
 	ANNpointArray tree_points = kdtree_->thePoints();
 	ANNpointArray reduced_array = annAllocPts(used_ids_.size(), DIM);
+	arma::Col<unsigned int> rows_pivot(used_ids_.size());
 	for (size_t i=0; i < used_ids_.size(); ++i){
 		for (int f=0; f < DIM; ++f){
 			reduced_array[i][f] = tree_points[used_ids_[i]][f];
 		}
+		rows_pivot[i] = used_ids_[i];
 	}
+	arma::fmat pivot_spikes = obs_mat.rows(rows_pivot);
+	pivot_spikes  = pivot_spikes.cols(columns_all);
+	pivot_spikes.save(BASE_PATH + "tmp_" + Utils::NUMBERS[tetr] + "_obs_PIVOT.mat", arma::raw_ascii);
 
 	// save to be used during decoding
 	ANNkd_tree *reduced_tree = new ANNkd_tree(reduced_array, used_ids_.size(), DIM);
