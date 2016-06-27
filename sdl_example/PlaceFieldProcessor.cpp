@@ -73,6 +73,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				if (LOAD){
+					// TODO !!! update for new format with shifted cluster numbering
 					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
 				}
         	}
