@@ -275,7 +275,7 @@ void SDLPCADisplayProcessor::process(){
         }
 
 		// too slow, don't display during load
-		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
+		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER || buffer->pipeline_status_ == PIPELINE_STATUS_ONLINE){
 			ResetTextStack();
 			std::string text = std::string("Tetrode # ") + Utils::NUMBERS[target_tetrode_ + 1] + "( channels:";
 			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(target_tetrode_); ++c){
@@ -423,6 +423,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					unsigned int x = e.button.x;
 					unsigned int c = 0;
 					while (c < number_panel_mapping_.size() && x > number_panel_mapping_[c]) ++c;
+
+					if (c >= number_panel_mapping_.size())
+						return;
+
 					display_cluster_[c] = ! display_cluster_[c];
 					std::cout << "Toggle cluster " << c << "\n";
 					need_redraw = true;
