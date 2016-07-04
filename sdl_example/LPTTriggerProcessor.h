@@ -20,7 +20,9 @@ enum LPTTriggerType{
 	EnvironmentDominance,
 
 	DoubleThresholdCrossing,
-	RegularFalshes
+	RegularFalshes,
+
+	Position
 };
 
 enum LPTTriggerTarget{

@@ -41,8 +41,11 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	} else if (trigger_type_string == "threshold"){
 		trigger_type_ = LPTTriggerType::DoubleThresholdCrossing;
 		trigger_target_ = LPTTriggerTarget::LPTTargetLFP;
+	} else if (trigger_type_string == "position"){
+		trigger_type_ = LPTTriggerType::Position;
+		trigger_target_ = LPTTriggerTarget::LPTTargetSpikes;
 	} else {
-		Log("Invalid trigger type. Allowed values are: dominance / synchrony / threshold / regular");
+		Log("Invalid trigger type. Allowed values are: dominance / synchrony / threshold / regular / position");
 		exit(29875);
 	}
 
@@ -125,10 +128,9 @@ void LPTTriggerProcessor::setHigh() {
 
 void LPTTriggerProcessor::process() {
 	// check if need to turn off first
-	if (LPT_is_high_ && buffer->last_pkg_id - last_trigger_time_ >= pulse_length_){
+	if (LPT_is_high_ && buffer->last_pkg_id - last_trigger_time_ >= pulse_length_ && trigger_type_ != LPTTriggerType::Position){
 		Log("STOP INHIBITION at ", buffer->last_pkg_id);
 		setLow();
-		LPT_is_high_ = false;
 
 		Log("Statistics (ITH, ITO, ATH, ATO, TOT_I, TOT_A) :");
 		buffer->log_string_stream_ << "\t" << events_inhibited_thold_ << " / " << events_inhibited_timeout_ << " / "
@@ -208,7 +210,7 @@ void LPTTriggerProcessor::process() {
 
 	case LPTTriggerTarget::LPTTargetSpikes:
 		// check if inhibiting and has to stop
-		if (LPT_is_high_){
+		if (LPT_is_high_ && trigger_type_ != LPTTriggerType::Position){
 			buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 			return;
 		}
@@ -362,6 +364,39 @@ void LPTTriggerProcessor::process() {
 				// (more than 1 spike can be detected)
 				buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 				break;
+
+			case LPTTriggerType::Position: {
+					// consider last position only
+					SpatialInfo & si = buffer->positions_buf_[buffer->pos_buf_pos_ - 1];
+
+					if (use_inhibition_map_ && !Utils::Math::Isnan(si.x_pos())){
+						double bin_size = 4.0;
+						unsigned int binx = si.x_pos() / bin_size;
+						unsigned int biny = si.y_pos() / bin_size;
+
+//						std::cout << binx << " " << biny << "\n";
+
+						if (binx < inhibition_map_.n_cols && biny < inhibition_map_.n_rows){
+							if(inhibition_map_(biny, binx) > 0){
+								if (!LPT_is_high_){
+									Log("Enter inhibition zone at ", buffer->last_pkg_id);
+									std::cout << binx << " " << biny << "\n";
+								}
+								setHigh();
+							} else {
+								if (LPT_is_high_){
+									Log("Leave inhibition zone at ", buffer->last_pkg_id);
+									std::cout << binx << " " << biny << "\n";
+								}
+								setLow();
+							}
+						}
+					}
+
+					buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
+					break;
+			}
+
 			default:
 				Log("Chosen trigger type is not possible to use with spikes as a target");
 				break;
