@@ -179,6 +179,8 @@ void LFPBuffer::Reset(Config* config)
 	high_synchrony_tetrode_spikes_ = 0;
 
 	if (fr_load_){
+		Utils::FS::CheckFileExistsWithError(fr_path_, this);
+
 		std::ifstream fsrs(fr_path_);
 		Log("Loading firing rate estimates\n");
 		fr_estimated_ = true;
@@ -197,6 +199,9 @@ void LFPBuffer::Reset(Config* config)
 
 		ss << "Number of synchorny spikes in window of length " << POP_VEC_WIN_LEN << ": "  << sync_spikes_window_ << "\n";
 		Log(ss.str());
+	} else if (FR_ESTIMATE_DELAY < input_duration_){
+		Log("ERROR: FR estimate delay < input duration!");
+		exit(923459);
 	}
 
 	log_stream << "INFO: BUFFER CREATED\n";
