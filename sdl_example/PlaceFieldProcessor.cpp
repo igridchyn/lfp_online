@@ -163,7 +163,7 @@ void PlaceFieldProcessor::process(){
         }
 
         if (spike->speed > SPEED_THOLD){
-        	if (spike->y < 0 or spike->x < 0){
+        	if (spike->y < 0 || spike->x < 0){
         		Log("WARNING: negative x or y coordinates of spikes, not added");
         	}
 
