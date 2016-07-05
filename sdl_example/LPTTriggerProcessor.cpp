@@ -374,19 +374,15 @@ void LPTTriggerProcessor::process() {
 						unsigned int binx = si.x_pos() / bin_size;
 						unsigned int biny = si.y_pos() / bin_size;
 
-//						std::cout << binx << " " << biny << "\n";
-
 						if (binx < inhibition_map_.n_cols && biny < inhibition_map_.n_rows){
 							if(inhibition_map_(biny, binx) > 0){
 								if (!LPT_is_high_){
 									Log("Enter inhibition zone at ", buffer->last_pkg_id);
-									std::cout << binx << " " << biny << "\n";
 								}
 								setHigh();
 							} else {
 								if (LPT_is_high_){
 									Log("Leave inhibition zone at ", buffer->last_pkg_id);
-									std::cout << binx << " " << biny << "\n";
 								}
 								setLow();
 							}
