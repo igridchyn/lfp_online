@@ -83,7 +83,7 @@ protected:
     virtual void Log(std::string message, int num);
     virtual void Log(std::string message, double num);
     virtual void Log(std::string message, unsigned int num);
-    virtual void Log(std::string message, std::vector<unsigned int> num);
+    virtual void Log(std::string message, std::vector<unsigned int> num, bool print_order = false);
 
 public:
     virtual int getInt(std::string name);

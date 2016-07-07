@@ -157,10 +157,14 @@ void LFPProcessor::Log(std::string message, unsigned int num) {
 	buffer->Log(name() + ": " + message + Utils::Converter::int2str(num));
 }
 
-void LFPProcessor::Log(std::string message, std::vector<unsigned int> array){
+void LFPProcessor::Log(std::string message, std::vector<unsigned int> array, bool print_order){
 	buffer->Log(name() + ": " + message);
 	for (unsigned int i=0; i < array.size(); ++i){
-		buffer->Log(Utils::Converter::int2str(array[i]));
+		if (print_order)
+			buffer->Log(Utils::Converter::int2str(array[i]) + " (" + Utils::Converter::int2str(i) + ")");
+		else{
+			buffer->Log(Utils::Converter::int2str(array[i]));
+		}
 	}
 }
 

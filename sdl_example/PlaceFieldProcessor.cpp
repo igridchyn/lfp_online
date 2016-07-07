@@ -284,7 +284,7 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	calculateClusterNumberShifts();
 
 	Log("START SAVING CLU/RES");
-	Log("Global cluster number shifts: ", global_cluster_number_shfit_);
+	Log("Global cluster number shifts: ", global_cluster_number_shfit_, true);
 
 	std::ofstream *res_global, *clu_global;
 
