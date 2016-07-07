@@ -25,6 +25,11 @@ public:
 
 	std::thread *pipeline_thread_;
 
+	// PROFILE - DEBUG
+	double max_cycle_time_ = 0;
+	const unsigned int perf_delay_ = 2400000;
+	std::ofstream f_delays_;
+
     inline void add_processor(LFPProcessor* processor) {processors.push_back(processor);}
     void process();
     

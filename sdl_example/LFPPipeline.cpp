@@ -140,6 +140,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 		processors.erase(processors.begin() + sub_pipe_starts[sp], processors.begin() + sub_pipe_ends[sp] + 1);
 	}
 
+//	f_delays_.open(buf_->config_->getOutPath("log.path.prefix") + ".delays");
+
 #ifdef PIPELINE_THREAD
 	pipeline_thread_ = new std::thread(&LFPPipeline::process, this);
 #endif
@@ -162,9 +164,21 @@ void LFPPipeline::process(){
 		cv_data_added_.wait(lk, [this]{return data_added_;});
 #endif
 
+//		clock_t begin_time = clock();
+
 		for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
 			(*piter)->process();
 		}
+
+//		if (buf_-> last_pkg_id > perf_delay_){
+//			double cycle_time = clock() - begin_time;
+//			f_delays_ << cycle_time * 1000000 / CLOCKS_PER_SEC << "\n";
+//
+//			if (cycle_time > max_cycle_time_){
+//				max_cycle_time_ = cycle_time;
+//				buf_->Log("New max cycle time, us: ", cycle_time * 1000000 / CLOCKS_PER_SEC);
+//			}
+//		}
 
 #ifdef PIPELINE_THREAD
 		data_added_ = false;
