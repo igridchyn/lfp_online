@@ -355,6 +355,13 @@ LFPBuffer::LFPBuffer(Config* config)
 
     // TODO !!! PARAMETRIZE
     synchronyThresholdAdapter_ = new Utils::NewtonSolver(1.0, 24000*60, -0.5, high_synchrony_factor_);
+
+    for (unsigned int st = 0; st < config_->synchrony_tetrodes_.size(); ++st){
+    	if (config_->synchrony_tetrodes_[st] >= tetr_info_->tetrodes_number()){
+    		Log("ERROR: one of the  synchrony tetodes is beyond available tetrode range.");
+    		exit(23419);
+    	}
+    }
 }
 
 template <class T>
