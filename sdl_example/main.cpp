@@ -38,26 +38,21 @@ void usleep(__int64 usec)
 
 #ifdef _WIN32
 
-	//std::string cpath("../Res/signal_display_win_bin.conf");
-	// std::string cpath(R"(d:\Igor\soft\lfp_online\sdl_example\Res\signal_display_jc117_0919_4l_win.conf)");
-
-		// 1) dump spikes
-		std::string cpath(R"(../Res/spike_dump_win.conf)");
-		// 2) diplay
-		//// 3) build model
-		 //std::string cpath(R"(../Res/build_model_jc155_win.conf)");
-		// 4) detect assemplies online
-		//std::string cpath(R"(../Res/assembly_inhibition_jc155_win.conf)");
-		//std::string cpath(R"(../Res/spike_display_win.conf)");
-		//std::string cpath(R"(../Res/synchrony_detection_win.conf)");
-
+		// 0) delay test
 		//std::string cpath(R"(../Res/delay_test_win.conf)");
-		//std::string cpath(R"(../Res/spike_detection_build_model_jc118_1003_8l_shift_WIN.conf)");
-		//std::string cpath(R"(../Res/decoding_online_jc118_1003_shift_WIN.conf)");
-		//std::string cpath(R"(../Res/trigger_jc140_win.conf)");
-		//std::string cpath(R"(../Res/spike_detection_build_model_jc140_WIN.conf)");
-		//std::string cpath(R"(../Res/decoding_online_jc155_win.conf)");
-
+		// 1) dump spikes
+		//std::string cpath(R"(../Res/spike_dump_win.conf)");
+		// 2) diplay
+		//std::string cpath(R"(../Res/spike_display_win.conf)");
+		// 3) build model
+		//std::string cpath(R"(../Res/build_model_win.conf)");
+		// 4) test model - decode online
+		//std::string cpath(R"(../Res/decoding_online_win.conf)");
+		// 5) test synchrony detection
+		//std::string cpath(R"(../Res/synchrony_detection_win.conf)");
+		// 4) detect assemblies online
+		std::string cpath(R"(../Res/assembly_inhibition_win.conf)");
+		
 		Config *config = nullptr;
 
 		if (argc > 1){
