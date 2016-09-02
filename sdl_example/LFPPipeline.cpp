@@ -165,12 +165,13 @@ void LFPPipeline::process(){
 #endif
 
 //		clock_t begin_time = clock();
+//		unsigned int spike_ptr_before = buf_->spike_buf_pos;
 
 		for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
 			(*piter)->process();
 		}
 
-//		if (buf_-> last_pkg_id > perf_delay_){
+//		if (buf_-> last_pkg_id > perf_delay_ && buf_->spike_buf_pos != spike_ptr_before){
 //			double cycle_time = clock() - begin_time;
 //			f_delays_ << cycle_time * 1000000 / CLOCKS_PER_SEC << "\n";
 //
