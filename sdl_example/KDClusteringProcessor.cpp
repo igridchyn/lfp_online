@@ -157,8 +157,21 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		tetr_info_ = buf->alt_tetr_infos_[processor_number_];
 	}
 
-	const unsigned int tetrn = tetr_info_->tetrodes_number();
+	// which tetrodes out of the tetrode config are used to build the model / decode
+	use_tetrode_.resize(buffer->tetr_info_->tetrodes_number(), false);
+	for (unsigned int i = 0; i < buffer->config_->kd_tetrodes_.size(); ++i){
+		use_tetrode_[buffer->config_->kd_tetrodes_[i]] = true;
+	}
+	if (buffer->config_->kd_tetrodes_.size() == 0){
+		for (unsigned int i = 0; i < buffer->tetr_info_->tetrodes_number(); ++i){
+			use_tetrode_[i] = true;
+		}
+	}
+	n_pf_built_ =  buffer->tetr_info_->tetrodes_number() - buffer->config_->kd_tetrodes_.size();
+	Log("Number of tetrodes to be used in the KD processor: ", (int)buffer->config_->kd_tetrodes_.size());
 
+
+	const unsigned int tetrn = tetr_info_->tetrodes_number();
 	kdtrees_.resize(tetrn);
 	ann_points_.resize(tetrn);
 	total_spikes_.resize(tetrn);
@@ -172,7 +185,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	fitting_jobs_.resize(tetrn, nullptr);
 	fitting_jobs_running_.resize(tetrn, false);
 
-	Log("Allocate distributino matrices");
+	Log("Allocate distribution matrices");
 	laxs_.resize(tetrn);
 	pxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
 	lxs_.resize(tetrn, arma::fmat(NBINSX, NBINSY, arma::fill::zeros));
@@ -186,15 +199,17 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		// TODO !!! allow to be extended
 		unsigned int maxPoints = MIN_SPIKES * 3;
 
-		ann_points_[t] = annAllocPts(maxPoints, dim);
-		spike_place_fields_[t].reserve(maxPoints);
+		if (use_tetrode_[t]){
+			ann_points_[t] = annAllocPts(maxPoints, dim);
+			spike_place_fields_[t].reserve(maxPoints);
 
-		// tmp
-		obs_mats_[t] = arma::fmat(maxPoints,
-				buffer->feature_space_dims_[t] + 2);
+			// tmp
+			obs_mats_[t] = arma::fmat(maxPoints,
+					buffer->feature_space_dims_[t] + 2);
 
-		if (buffer->feature_space_dims_[t] > max_dim)
-			max_dim = buffer->feature_space_dims_[t];
+			if (buffer->feature_space_dims_[t] > max_dim)
+				max_dim = buffer->feature_space_dims_[t];
+		}
 	}
 
 	pf_built_.resize(tetrn);
@@ -213,7 +228,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		}
 
 		for (unsigned int t = 0; t < tetrn; ++t) {
-			load_laxs_tetrode(t);
+			if (use_tetrode_[t])
+				load_laxs_tetrode(t);
 		}
 
 		n_pf_built_ = tetrn;
@@ -292,7 +308,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		const float DE_SEC = float((prediction_window_spike_number_ > 0) ? (THETA_PRED_WIN / (float) buffer->SAMPLING_RATE ) :( PRED_WIN / (float) buffer->SAMPLING_RATE * (swr_regime_ ? SWR_COMPRESSION_FACTOR : 1.0)));
 
 		for (unsigned int stetr = 0; stetr < tetr_info_->tetrodes_number(); stetr++)
-			pos_pred_ -= DE_SEC * lxs_[stetr];
+			if (use_tetrode_[stetr])
+				pos_pred_ -= DE_SEC * lxs_[stetr];
 	}
 
 	if (pred_dump_){
@@ -569,7 +586,7 @@ void KDClusteringProcessor::validate_prediction_window_bias() {
 void KDClusteringProcessor::process() {
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER) {
 		for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr) {
-			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr] && kde_jobs_running_ < MAX_KDE_JOBS) {
+			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr] && kde_jobs_running_ < MAX_KDE_JOBS && use_tetrode_[tetr]) {
 				buffer->log_string_stream_ << "t " << tetr
 						<< ": build kd-tree for tetrode " << tetr << ", "
 						<< n_pf_built_ << " / " << tetr_info_->tetrodes_number()
@@ -612,7 +629,7 @@ void KDClusteringProcessor::process() {
 
 		// wait until place fields are stabilized
 		if (tetr == TetrodesInfo::INVALID_TETRODE
-				|| (spike->pkg_id_ < SAMPLING_DELAY && !LOAD)) {
+				|| (spike->pkg_id_ < SAMPLING_DELAY && !LOAD) || !use_tetrode_[tetr]) {
 			spike_buf_pos_clust_++;
 			continue;
 		}
@@ -859,7 +876,7 @@ void KDClusteringProcessor::process() {
 
 				// in the SWR regime - skip until the first spike in the SWR, don't do this for single prediction per SWR - allow out of range !
 				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_
-						|| (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR)) {
+						|| (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) || !use_tetrode_[stetr]) {
 					spike_buf_pos_clust_++;
 					continue;
 				}
