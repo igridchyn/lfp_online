@@ -155,6 +155,10 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 			ReadList<unsigned int>(fconf, pf_sessions_);
 			continue;
 		}
+		if (line == std::string("kd.tetrodes")){
+			ReadList<unsigned int>(fconf, kd_tetrodes_);
+			continue;
+		}
 		if (line == std::string("#include")){
 			std::string confPath;
 			std::getline(fconf, confPath);

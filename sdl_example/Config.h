@@ -44,6 +44,8 @@ public:
 
 	std::vector<unsigned int> pf_sessions_;
 
+	std::vector<unsigned int> kd_tetrodes_;
+
 	std::vector<unsigned int> parallel_;
 
 	std::vector<std::string> spike_files_;
@@ -53,6 +55,7 @@ public:
 	std::stringstream log_string_stream_;
 
 	std::string timestamp_;
+
 
 	template<class T>
 	void ReadList(std::ifstream& file, std::vector<T>& list);
