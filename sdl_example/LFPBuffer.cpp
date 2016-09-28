@@ -292,6 +292,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , fr_path_(config->getString("out.path.base") + config->getString("buf.fr.path", "frates.txt"))
 , fr_save_(config->getBool("buf.fr.save", false))
 , fr_load_(config->getBool("buf.fr.load", false))
+, adjust_synchrony_rate_(config->getBool("buf.adjust.synchrony.rate", true))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -525,7 +526,7 @@ bool LFPBuffer::IsHighSynchrony() {
 		return false;
 
 	// try update
-	if (synchronyThresholdAdapter_->NeedUpdate(last_pkg_id)){
+	if (adjust_synchrony_rate_ && synchronyThresholdAdapter_->NeedUpdate(last_pkg_id)){
 		// find number of events and calculate last frequency
 		unsigned i = swrs_.size() - 1;
 		while (i > 0 && swrs_[i-1][0] > synchronyThresholdAdapter_->last_update_){
