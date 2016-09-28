@@ -265,6 +265,8 @@ public:
 	std::vector<std::vector<unsigned int>> swrs_;
 	std::vector<int> swr_pointers_;
 
+	bool adjust_synchrony_rate_ = true;
+
 private:
 	std::ofstream log_stream;
 

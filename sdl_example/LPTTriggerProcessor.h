@@ -85,6 +85,14 @@ class LPTTriggerProcessor: public virtual LFPProcessor {
 	bool use_inhibition_map_ = false;
 	arma::mat inhibition_map_;
 
+	// trigger only at these locations
+	bool limit_trigger_area_ = false;
+	std::string trigger_at_path_;
+	arma::mat trigger_locations_;
+	double bin_size;
+
+	bool adjust_inhibition_rate_ = false;
+
 	Utils::NewtonSolver *inhibitionThresholdAdapter_;
 
 	// 0-non-inhibited, 1 - inhibited
