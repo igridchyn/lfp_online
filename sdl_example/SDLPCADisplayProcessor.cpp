@@ -112,7 +112,9 @@ void SDLPCADisplayProcessor::process(){
         // wait until cluster is assigned
 
         // TODO !!! take channel with the spike peak (save if not available)
-        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[spike->tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+//        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[spike->tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+        // TODO : configurable factor
+        double power_thold = 100 * power_threshold_factor_;
 
         if (abs(spike->power_) < power_thold){
         	buffer->spike_buf_no_disp_pca++;
@@ -298,7 +300,10 @@ void SDLPCADisplayProcessor::process(){
 				TextOut(dText, number_panel_mapping_[c - 1], 40, palette_.getColor(c % palette_.NumColors()), false);
 			}
 		}
-		double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+
+		// TODO : LOAD/SAVE powers after dump
+//		double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+		double power_thold = 100 * power_threshold_factor_;
 		std::stringstream ss;
 		ss << "Power threshold: " << power_thold;
 		if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER){
@@ -494,11 +499,15 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         	// change power threshold + udpate ACs
         	case SDLK_EQUALS:
         		power_threshold_factor_ *= power_threshold_factor_step_;
+        		need_redraw = true;
+        		Log("Power threshold set to: ", power_threshold_factor_);
         		buffer->ResetAC(target_tetrode_);
         		break;
 
         	case SDLK_MINUS:
         	    power_threshold_factor_ /= power_threshold_factor_step_;
+        	    need_redraw = true;
+        	    Log("Power threshold set to: ", power_threshold_factor_);
         	    buffer->ResetAC(target_tetrode_);
         	    break;
 
