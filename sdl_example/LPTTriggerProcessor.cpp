@@ -25,6 +25,10 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, swap_environments_(buffer->config_->getBool("lpt.swap.environments", false))
 	, inhibition_map_path_(buffer->config_->getOutPath("lpt.trigger.inhibition.map", ""))
 	, use_inhibition_map_(buffer->config_->getBool("lpt.trigger.use.map", false))
+	, limit_trigger_area_(buffer->config_->getBool("lpt.trigger.limit.area", false))
+	, trigger_at_path_(buffer->config_->getOutPath("lpt.trigger.limit.area.map", ""))
+	, bin_size(buffer->config_->getFloat("bin.size", 4.0))
+	, adjust_inhibition_rate_(buffer->config_->getBool("lpt.trigger.adjust.inhibition.rate", false))
 {
 	Log("Constructor start");
 
@@ -74,6 +78,16 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 #endif
 
 	setLow();
+
+	if (limit_trigger_area_){
+		Utils::FS::CheckFileExistsWithError(trigger_at_path_, (Utils::Logger*)this);
+
+		trigger_locations_.load(trigger_at_path_, arma::raw_ascii);
+		std::stringstream ss;
+		ss << "Loaded trigger limit area map, with size : " << trigger_locations_.n_rows << " X " << trigger_locations_.n_cols;
+		ss << " Number of bins to be inhibited: " << arma::sum(trigger_locations_);
+		Log(ss.str());
+	}
 
 	if (use_inhibition_map_){
 		Utils::FS::CheckFileExistsWithError(inhibition_map_path_, (Utils::Logger*)this);
@@ -139,7 +153,7 @@ void LPTTriggerProcessor::process() {
 		buffer->Log();
 
 		// adjust inhibition threshold
-		if (trigger_type_ == LPTTriggerType::EnvironmentDominance && inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
+		if (adjust_inhibition_rate_ && trigger_type_ == LPTTriggerType::EnvironmentDominance && inhibitionThresholdAdapter_->NeedUpdate(buffer->last_pkg_id)){
 			// calculate inhibition frequency in the last 1 minute
 			unsigned int i=buffer->swrs_.size() - 1;
 			unsigned int inhibited = inhibition_history_[i];
@@ -155,6 +169,20 @@ void LPTTriggerProcessor::process() {
 			ss << " new threshold: " <<inhibitionThresholdAdapter_->Current_x();
 			Log(ss.str());
 		}
+	}
+
+	if (limit_trigger_area_){
+		SpatialInfo lastSi = buffer->positions_buf_[buffer->pos_buf_pos_ - 1];
+		if (!lastSi.valid)
+			return;
+
+		// TODO: + 1/2 ?
+		int binx = lastSi.x_pos() / bin_size;
+		int biny = lastSi.y_pos() / bin_size;
+
+		// TODO
+		if (trigger_locations_(biny, binx) < 0.5f)
+			return;
 	}
 
 	// TODO detect start not since 0 but since first package id
