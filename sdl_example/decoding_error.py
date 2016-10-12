@@ -1,5 +1,5 @@
 from math import *
-from sys import argv
+from sys import argv, path
 import os, time
 import numpy as np
 #import pylab as P
@@ -7,6 +7,9 @@ from matplotlib import pyplot as P
 from subprocess import call, Popen
 import datetime
 import random
+
+path.append('/home/igor/bin/source/')
+from call_log import log_call, log_and_print
 
 def decoding_errors():
 	print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
@@ -105,9 +108,11 @@ def run_model_and_decoding(pnames, pvals):
 
 #========================================================================================================
 def log(s):
-	print s
-	flog.write(s + '\n')
-	flog.flush()
+	# print s
+	log_and_print(logdir, s)
+	if GD:
+		flog.write(s + '\n')
+		flog.flush()
 
 #========================================================================================================
 def gradient_descent():
@@ -173,10 +178,10 @@ def gradient_descent():
 	
 					crit = ma * classprec - me * mederr
 				
-					print 'Crit = %.2f, best crit = %.2f' % (crit, crit_best)
+					log('Crit = %.2f, best crit = %.2f' % (crit, crit_best))
 					prob = exp((crit - crit_best) / 10)
 					r = random.random()
-					print 'Transition probability = %.2f, random value = %.2f, decision = %s' % (prob, r, 'TRANSIT' if (r > prob) else 'STOP')
+					log('Transition probability = %.2f, random value = %.2f, decision = %s' % (prob, r, 'TRANSITION' if (r > prob) else 'NO TRANSITION'))
 	
 					if crit > crit_best:
 					# if classprec > precbest and mederr < errthold:
@@ -227,7 +232,11 @@ predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
 
+logdir = log_call(argv)
+
+GD = False
 if len(argv) == 10:
+	GD = True
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
 	flog.write('\n\nOPTIMIZATION SESSION: ' + str(dt) + '\n')
@@ -239,13 +248,12 @@ errmap = np.nan_to_num(errmap)
 
 # P.figure()
 
-print classcorr, classn
-
-print "Average error: ", sum/ndist
-print "Median error: ", np.median(np.array(errs))
-print "Average error outside of SB: ", sumnosb/nnosb
-print ("Classification precision: %.2f%%") % (classcorr * 100 / classn)
-print "Binning error: ", errb/ndist
+log( '%d %d' % (classcorr, classn))
+log("Average error: %.2f" % (sum/ndist))
+log( "Median error: %.2f" % np.median(np.array(errs)))
+log("Average error outside of SB: %.2f" % (sumnosb/nnosb))
+log("Classification precision: %.2f%%" % (classcorr * 100 / classn))
+log("Binning error: %.2f" % (errb/ndist))
 
 plot_distr = int(argv[5])
 if plot_distr:
@@ -284,5 +292,5 @@ if plot_distr:
 # print errmap
 sum1 = np.sum(errmap[:, 0:nbinsx/2])
 sum2 = np.sum(errmap[:, nbinsx/2:])
-print 'Error in env 1 = %f' % sum1
-print 'Error in env 2 = %f' % sum2
+log('Error in env 1 = %.2f' % sum1)
+log('Error in env 2 = %.2f' % sum2)
