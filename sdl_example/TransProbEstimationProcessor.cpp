@@ -45,8 +45,14 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	, SIGMA(sigma)
 	, SPREAD(spread)
 	, SAMPLING_END_(buf->config_->getInt("tp.sampling.end", 15000000)){
+
 	assert(NEIGHB_SIZE % 2);
-	trans_probs_.resize(NBINSX * NBINSY, arma::fmat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
+	if (nbinsy > 1){
+		trans_probs_.resize(NBINSX * NBINSY, arma::fmat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
+	} else {
+		Log("Trans probs: linear environment");
+		trans_probs_.resize(NBINSX * NBINSY, arma::fmat(NEIGHB_SIZE, 1, arma::fill::zeros));
+	}
 
 	pos_buf_ptr_ += STEP;
 
@@ -142,7 +148,7 @@ void TransProbEstimationProcessor::process() {
 			yb = 0;
 
 		unsigned int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
-		unsigned int shift_coord_y = b_shift_y + (int)NEIGHB_SIZE / 2;
+		unsigned int shift_coord_y = NBINSY > 1 ? b_shift_y + (int)NEIGHB_SIZE / 2 : 0;
 
 		if (shift_coord_x < NEIGHB_SIZE && shift_coord_y < NEIGHB_SIZE){
 			trans_probs_[NBINSX * yb + xb](shift_coord_x, shift_coord_y) += 1;
@@ -155,14 +161,16 @@ void TransProbEstimationProcessor::process() {
 	if (buffer->last_pkg_id > SAMPLING_END_ && !saved && SAVE){
 		buffer->Log("save tps...");
 
-		arma::fmat tps(NEIGHB_SIZE, NBINSX * NBINSY * NEIGHB_SIZE);
+		unsigned int dim2 = (NBINSY > 1 ? NEIGHB_SIZE : 1);
+		Log("Dim2 = ", dim2);
+		arma::fmat tps(NEIGHB_SIZE, NBINSX * NBINSY * dim2);
 
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			float psum = arma::sum(arma::sum(trans_probs_[b]));
 			trans_probs_[b] /= psum;
-			tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1) = trans_probs_[b];
+			tps.cols(b * dim2, (b+1) * dim2-1) = trans_probs_[b];
 		}
-		tps.save(BASE_PATH + "tps.mat");
+		tps.save(BASE_PATH + "tps.mat", arma::raw_ascii);
 		Log(std::string("Saved tps at ") + BASE_PATH + "tps.mat");
 
 		buffer->tps_ = trans_probs_;
