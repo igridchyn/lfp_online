@@ -165,6 +165,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	if (buffer->config_->kd_tetrodes_.size() == 0){
 		for (unsigned int i = 0; i < buffer->tetr_info_->tetrodes_number(); ++i){
 			use_tetrode_[i] = true;
+			buffer->config_->kd_tetrodes_.push_back(i);
 		}
 	}
 	n_pf_built_ =  buffer->tetr_info_->tetrodes_number() - buffer->config_->kd_tetrodes_.size();
@@ -1219,6 +1220,8 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	if (n_pf_built_ == tetr_info_->tetrodes_number()) {
 		Log("KDE at all tetrodes done, exiting...\n");
 		buffer->processing_over_ = true;
+	} else {
+		Log("Number of tetrodes built: ", n_pf_built_);
 	}
 }
 

@@ -241,7 +241,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	const bool SINGLE_PRED_PER_SWR = false;
 
-	const double POS_OOR_LIMIT = .0001;
+	const double POS_OOR_LIMIT = .003;
 
 	const bool IGNORE_LX;
 
