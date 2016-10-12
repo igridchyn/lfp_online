@@ -290,6 +290,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	buffer->last_predictions_[processor_number] = pos_pred_;
 
 	dec_bayesian_.open("dec_bay.txt");
+	dec_bayesian_ << buf->config_->getString("model.id") << "\n";
 	//window_spike_counts_.open("../out/window_spike_counts.txt");
 
 	pnt_ = annAllocPt(max_dim);

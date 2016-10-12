@@ -31,6 +31,10 @@ def decoding_errors():
 	classcorr = 0
 
 	for line in f:
+		if 'lax' in line:
+			log(line)
+			continue
+
 		vals = line.split(' ')
 		vals = [float(v) for v in vals]
 
