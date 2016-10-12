@@ -129,6 +129,12 @@ void TransProbEstimationProcessor::process() {
 		unsigned int tmpy = (unsigned int)buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos();
 		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos() / (float)BIN_SIZE - 0.5);
 
+		if (xb >= (int)NBINSX || yb >= (int)NBINSY){
+			Log("Position out of range, ignore");
+			pos_buf_ptr_ ++;
+			continue;
+		}
+
 		if (tmpx == 0)
 			xb = 0;
 
