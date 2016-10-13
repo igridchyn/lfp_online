@@ -369,13 +369,15 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			float best_to_xb_yb = -1000.0f * 100000000.0f;
 			int bestx = 0, besty = 0;
 
+			unsigned int HMM_NEIGHB_RAD_Y = NBINSY > 1 ? HMM_NEIGHB_RAD : 0;
 			for (unsigned int x = (unsigned int)std::max<int>(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
-				for (unsigned int y = (unsigned int)std::max<int>(0, yb - HMM_NEIGHB_RAD); y <= MIN(yb + HMM_NEIGHB_RAD, NBINSY - 1); ++y) {
+				for (unsigned int y = (unsigned int)std::max<int>(0, yb - HMM_NEIGHB_RAD_Y); y <= MIN(yb + HMM_NEIGHB_RAD_Y, NBINSY - 1); ++y) {
 					// TODO weight
 					// split for DEBUG
+
 					float prob_xy = hmm_prediction_(x, y);
 					int shx = xb - x + HMM_NEIGHB_RAD;
-					int shy = yb - y + HMM_NEIGHB_RAD;
+					int shy = yb - y + HMM_NEIGHB_RAD_Y;
 
 					prob_xy += buffer->tps_[y * NBINSX + x](shx, shy);
 					if (prob_xy > best_to_xb_yb) {
@@ -428,7 +430,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	float corry = gt_pos.y_pos();
 
 	// for consistency of comparison
-	if (last_pred_pkg_id_ > DUMP_DELAY) {
+	if (last_pred_pkg_id_ > DUMP_END) {
 		// STATS - dump best HMM trajectory by backtracking
 		std::ofstream dec_hmm(std::string("dec_hmm_") + Utils::NUMBERS[processor_number_] + ".txt");
 		int t = hmm_traj_[0].size() - 1;
@@ -440,7 +442,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			const SpatialInfo& gt_pos = buffer->PositionAt(t * PRED_WIN + PREDICTION_DELAY);
 			corrx = gt_pos.x_pos();
 			corry = gt_pos.y_pos();
-			dec_hmm << corrx << " " << corry << "\n";
+			dec_hmm << corrx << " " << corry << " " << t * PRED_WIN << "\n";
 			unsigned int b = hmm_traj_[y * NBINSX + x][t];
 
 			if (b < NBINSX * NBINSY) {
