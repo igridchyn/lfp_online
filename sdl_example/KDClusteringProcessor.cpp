@@ -433,6 +433,10 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	if (last_pred_pkg_id_ > DUMP_END) {
 		// STATS - dump best HMM trajectory by backtracking
 		std::ofstream dec_hmm(std::string("dec_hmm_") + Utils::NUMBERS[processor_number_] + ".txt");
+
+		dec_hmm << buffer->config_->getString("model.id") << "\n";
+		dec_hmm << "hmm\n";
+
 		int t = hmm_traj_[0].size() - 1;
 		// best last x,y
 		unsigned int x, y;
@@ -457,8 +461,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		}
 		dec_hmm.flush();
 
-		buffer->Log("Exit after dumping the HMM prediction :",
-				(int) DUMP_DELAY);
+		buffer->Log("Exit after dumping the HMM prediction :", (int) DUMP_END	);
 		buffer->processing_over_ = true;
 	}
 

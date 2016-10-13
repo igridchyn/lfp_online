@@ -31,7 +31,7 @@ def decoding_errors():
 	classcorr = 0
 
 	for line in f:
-		if 'lax' in line:
+		if 'lax' in line or 'hmm' in line:
 			log(line)
 			continue
 
