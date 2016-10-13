@@ -65,9 +65,11 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 			buffer->log_string_stream_ << "WARNING: parametric TPs used instead of loading estimates...\n";
 		}
 
+		unsigned int dim2 = NBINSY > 1 ? NEIGHB_SIZE :1;
+
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			// extract
-			trans_probs_[b] = tps.cols(b*NEIGHB_SIZE, (b+1)*NEIGHB_SIZE-1);
+			trans_probs_[b] = tps.cols(b*dim2, (b+1)*dim2-1);
 
 			// DEBUG
 //			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + "_raw.mat", arma::raw_ascii);
@@ -96,7 +98,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 
 			// replace nans with large negative value
 			for (unsigned int dx = 0; dx < NEIGHB_SIZE; ++dx) {
-				for (unsigned int dy = 0; dy < NEIGHB_SIZE; ++dy) {
+				for (unsigned int dy = 0; dy < dim2; ++dy) {
 					// WORKAROUND
 					if (Utils::Math::Isnan(trans_probs_[b](dx, dy))){ // || isinf(trans_probs_[b](dx, dy))){
 						trans_probs_[b](dx, dy) = -100000;
