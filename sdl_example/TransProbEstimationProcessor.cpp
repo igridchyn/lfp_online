@@ -59,6 +59,11 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 	if (LOAD){
 		buffer->log_string_stream_ << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
 		arma::fmat tps;
+		if (! Utils::FS::FileExists(BASE_PATH + "tps.mat")){
+			Log(std::string("ERROR: The following file wasn't found: ") + BASE_PATH + "tps.mat");
+			exit(23456);
+		}
+
 		tps.load(BASE_PATH + "tps.mat");
 
 		if (USE_PARAMETRIC){
