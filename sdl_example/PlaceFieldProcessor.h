@@ -83,6 +83,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     std::vector<unsigned int> global_cluster_number_shfit_;
     //================================
     
+    const double DISPLAY_SCALE;
+
     template <class T>
     void drawMat(const arma::Mat<T>& mat, const std::vector<std::string> text_output = std::vector<std::string>());
     

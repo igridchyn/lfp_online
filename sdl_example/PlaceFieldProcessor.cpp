@@ -55,7 +55,9 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , POS_SAMPLING_RATE(buf->config_->getFloat("pos.sampling.rate", 512.0))
 , MIN_OCCUPANCY(buf->config_->getFloat("pf.min.occupancy"))
 , SPEED_THOLD(buf->config_->getFloat("pf.speed.threshold"))
-, N_SESSIONS(buf->config_->pf_sessions_.size() + 1){
+, N_SESSIONS(buf->config_->pf_sessions_.size() + 1)
+, DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
+{
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
     const unsigned int MAX_CLUST = 30;
     
@@ -187,7 +189,7 @@ void PlaceFieldProcessor::process(){
 
     // if prediction display requested and at least prediction_rate_ time has passed since last prediction
     if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_){
-    	arma::fmat pred = arma::exp(buffer->last_predictions_[processor_number_].t() / 50);
+    	arma::fmat pred = arma::exp(buffer->last_predictions_[processor_number_].t() * DISPLAY_SCALE);
     	drawMat(pred);
     	last_predicted_pkg_ = buffer->last_pkg_id;
     }
