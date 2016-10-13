@@ -35,6 +35,10 @@ def decoding_errors():
 			log(line)
 			continue
 
+		if 'nan' in line:
+			log('Skip nan in line')
+			continue
+
 		vals = line.split(' ')
 		vals = [float(v) for v in vals]
 
