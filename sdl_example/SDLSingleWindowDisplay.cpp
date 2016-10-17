@@ -63,7 +63,7 @@ void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y, int col, bo
 	TTF_Init();
 	// TODO: configurable
 #ifndef _WIN32
-	TTF_Font *font = TTF_OpenFont("FreeSerif.ttf", 15);
+	TTF_Font *font = TTF_OpenFont("../Res/FreeSerif.ttf", 15);
 #else
 	TTF_Font *font = TTF_OpenFont("../Res/FORTE.TTF", 15);
 #endif
