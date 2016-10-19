@@ -300,12 +300,6 @@ public:
 
 	OnlineEstimator<float, float>* speedEstimator_;
 
-	// for ISI estimation - previous spike
-	// ??? initialize with fake spike to avoid checks
-	unsigned int *previous_spikes_pkg_ids_;
-
-	OnlineEstimator<float, float>** ISIEstimators_;
-
 	arma::fmat cluster_spike_counts_;
 
 	// ? predictions buffer ?
@@ -392,7 +386,6 @@ public:
 	void ResetPopulationWindow();
 
 	bool IsHighSynchrony();
-	double AverageSynchronySpikesWindow();
 
 	void AddSpike(bool rewind = true);
 	void Rewind();

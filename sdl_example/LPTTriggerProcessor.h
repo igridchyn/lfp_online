@@ -46,9 +46,6 @@ class LPTTriggerProcessor: public virtual LFPProcessor {
 	// in samples
 	unsigned int trigger_start_delay_ = 0;
 
-	// this is fixed after start delay and used for synchrony deteciton later
-	double average_spikes_in_synchrony_tetrodes_ = -1.0f;
-
 	std::ofstream timestamp_log_;
 	// DEBUG
 	std::ofstream debug_log_;

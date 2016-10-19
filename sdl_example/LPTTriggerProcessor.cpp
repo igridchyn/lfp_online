@@ -189,13 +189,6 @@ void LPTTriggerProcessor::process() {
 	if (buffer->last_pkg_id < trigger_start_delay_){
 		return;
 	}
-	else if (average_spikes_in_synchrony_tetrodes_ < 0){
-		average_spikes_in_synchrony_tetrodes_ = buffer->AverageSynchronySpikesWindow();
-
-		std::stringstream ss;
-		ss << "Start inhibition, average number of spikes on synchrony tetrodes in population window of length " << buffer->POP_VEC_WIN_LEN << " = " << average_spikes_in_synchrony_tetrodes_;
-		Log(ss.str());
-	}
 
 	int thold = 30;
 

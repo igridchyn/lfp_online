@@ -156,20 +156,6 @@ void LFPBuffer::Reset(Config* config)
 	// ??? rather init all spikes ???
 	// memset(spike_buffer_, 0, SPIKE_BUF_LEN * sizeof(Spike*));
 
-	ISIEstimators_ = new OnlineEstimator<float, float>*[tetr_info_->tetrodes_number()];
-	for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-		ISIEstimators_[t] = new OnlineEstimator<float, float>();
-	}
-
-	previous_spikes_pkg_ids_ = new unsigned int[tetr_info_->tetrodes_number()];
-	// fill with fake spikes to avoid unnnecessery checks because of the first time
-	// (memory for 1 spike per tetrode will be lost)
-	// TODO fix for package IDs starting not with nullptr
-	// TODO warn packages strating not with 0
-	for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-		previous_spikes_pkg_ids_[t] = 0;
-	}
-
 	is_high_synchrony_tetrode_ = new bool[tetr_info_->tetrodes_number()];
 	memset(is_high_synchrony_tetrode_, 0, sizeof(bool) * tetr_info_->tetrodes_number());
 	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
@@ -245,14 +231,10 @@ LFPBuffer::~LFPBuffer(){
 	 if (last_spike_pos_)
 	    	delete[] last_spike_pos_;
 
-	 Log("Buffer destructor: delete ISI estimators");
+	 Log("Buffer destructor: delete power estimators");
 	 for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-		 delete ISIEstimators_[t];
 		 delete powerEstimators_[t];
 	 }
-	 delete[] ISIEstimators_;
-
-	 delete[] previous_spikes_pkg_ids_;
 
 	 Log("Buffer destructor: delete high synchrony tetrodes info");
 	 delete[] is_high_synchrony_tetrode_;
@@ -460,15 +442,6 @@ void LFPBuffer::UpdateWindowVector(Spike *spike){
 
     population_vector_stack_.push(spike);
 
-    if (ISIEstimators_ != nullptr){
-		if (previous_spikes_pkg_ids_[spike->tetrode_] > 0){
-			ISIEstimators_[spike->tetrode_]->push((spike->pkg_id_ - previous_spikes_pkg_ids_[spike->tetrode_]) / (float)SAMPLING_RATE);
-		}
-
-    	// ??? do outside if prev_spikes used anywhere else
-    	previous_spikes_pkg_ids_[spike->tetrode_] = spike->pkg_id_;
-    }
-
     if (is_high_synchrony_tetrode_[spike->tetrode_])
     	high_synchrony_tetrode_spikes_ ++;
 }
@@ -495,28 +468,6 @@ void LFPBuffer::AddSpike(bool rewind) {
 	}
 
 	estimate_firing_rates();
-}
-
-double LFPBuffer::AverageSynchronySpikesWindow(){
-	double average_spikes_window = .0f;
-
-	if (fr_estimated_){
-		for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
-			average_spikes_window += fr_estimates_[config_->synchrony_tetrodes_[t]] * POP_VEC_WIN_LEN / 1000.0f;
-		}
-		return average_spikes_window;
-	}
-
-	std::stringstream ss;
-	ss << "Package id = " << last_pkg_id << ", estimate average number of spikes in synchrony tetrodes in synchrony window:\n";
-	for (size_t t = 0; t < config_->synchrony_tetrodes_.size(); ++t) {
-		ss << "    Mean number of spikes in tetrode " << t << ":" << ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate() << "\n";
-		average_spikes_window += 1.0 / ISIEstimators_[config_->synchrony_tetrodes_[t]]->get_mean_estimate();
-	}
-	Log(ss.str());
-	average_spikes_window *= POP_VEC_WIN_LEN / 1000.0f;
-
-	return average_spikes_window;
 }
 
 bool LFPBuffer::IsHighSynchrony() {
