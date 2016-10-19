@@ -34,7 +34,8 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	Utils::FS::CheckFileExistsWithError(laxs_path, (Utils::Logger*) this);
 	laxs_tetr_.load(laxs_path);
 	for (int s = 0; s < NUSED; ++s) {
-		laxs_[t].push_back(laxs_tetr_.cols(s * NBINSY, (s + 1) * NBINSY - 1));
+		// PRE-MULTIPLIED BY NUMBER OF NEIGHBROUS - AS AVERAGE IS NEEDED DURING DEOCDING
+		laxs_[t].push_back(laxs_tetr_.cols(s * NBINSY, (s + 1) * NBINSY - 1) * 1 / float(neighb_num_));
 
 		if (!(s % 50))
 			laxs_[t][laxs_[t].size() - 1].save(
@@ -899,26 +900,21 @@ void KDClusteringProcessor::process() {
 				// 5 us for eps = 0.1, 20 ms - for eps = 10.0, prediction quality - ???
 				kdtrees_[stetr]->annkSearch(pnt_, neighb_num_, &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
 
-				// add 'place field' of the spike with the closest wave shape
-				if (neighb_num_ > 1) {
-					for (unsigned int i = 0; i < neighb_num_; ++i) {
-						window_spikes_[stetr] ++;
+				// add 'place field' of the NIEGHHB_NUM spike(s) with the closest wave shape
+
+				for (unsigned int i = 0; i < neighb_num_; ++i) {
+					window_spikes_[stetr] ++;
 
 //						if (neighbour_dists_[i] > 200){
 //							prediction_skipped_spikes_[stetr] ++;
 //							continue;
 //						}
 
-						pos_pred_ += 1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]];
-						if (continuous_prediction_)
-							last_spike_fields_.push(1 / float(neighb_num_) * laxs_[stetr][neighbour_inds_[i]]);
-
-					}
-				} else {
-					pos_pred_ += laxs_[stetr][neighbour_inds_[0]];
+					pos_pred_ += laxs_[stetr][neighbour_inds_[i]];
 					if (continuous_prediction_)
-						last_spike_fields_.push(laxs_[stetr][neighbour_inds_[0]]);
+						last_spike_fields_.push(laxs_[stetr][neighbour_inds_[i]]);
 				}
+
 //				std::cout << "kd time = " << clock() - kds << "\n";
 
 				if (continuous_prediction_) {
