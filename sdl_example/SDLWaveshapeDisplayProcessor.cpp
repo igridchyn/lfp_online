@@ -324,6 +324,8 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         					}
         				}
 
+        				// reset AC / CC
+        				buffer->ResetAC(targ_tetrode_, user_context_.SelectedCluster1());
 
         			buf_pointer_ = 0;
 
