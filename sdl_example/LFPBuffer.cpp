@@ -777,7 +777,7 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 
 void LFPBuffer::estimate_firing_rates() {
 	// estimate firing rates => spike sampling rates if model has not been loaded AND PCA EXTRACTION STARTED
-	if (!fr_estimated_ && last_pkg_id > FR_ESTIMATE_DELAY && spike_buf_pos_unproc_ > 0){
+	if (!fr_estimated_ && last_pkg_id > FR_ESTIMATE_DELAY && spike_buf_no_rec > 0){
 		std::stringstream ss;
 		ss << "FR estimate delay over (" << FR_ESTIMATE_DELAY << "). Estimate firing rates => sampling rates and start spike collection";
 		Log(ss.str());
@@ -789,7 +789,7 @@ void LFPBuffer::estimate_firing_rates() {
 		spikes_discarded_.resize(tetr_info_->tetrodes_number());
 		// TODO which pointer ?
 		//				const unsigned int frest_pos = (WAIT_FOR_SPEED_EST ? spike_buf_pos_speed_ : spike_buf_pos_unproc_);
-		const unsigned int frest_pos = spike_buf_pos_unproc_;
+		const unsigned int frest_pos = spike_buf_no_rec;
 		Log("Estimate FR from spikes in buffer until position ", frest_pos);
 		// first spike pkg_id
 		const unsigned int first_spike_pkg_id = spike_buffer_[0]->pkg_id_;
