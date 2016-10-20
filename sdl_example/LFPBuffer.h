@@ -265,8 +265,6 @@ public:
 	std::vector<std::vector<unsigned int>> swrs_;
 	std::vector<int> swr_pointers_;
 
-	bool adjust_synchrony_rate_ = true;
-
 private:
 	std::ofstream log_stream;
 
@@ -344,8 +342,6 @@ public:
 
 	const unsigned int spike_waveshape_pool_size_;
 
-	std::ofstream debug_stream_;
-
 	const unsigned int FR_ESTIMATE_DELAY;
 
 	std::string timestamp_ = "";
@@ -365,6 +361,8 @@ public:
 	std::string fr_path_ = "";
 	const bool fr_save_ = false;
 	const bool fr_load_ = false;
+
+	bool adjust_synchrony_rate_ = true;
 
 	Utils::NewtonSolver *synchronyThresholdAdapter_;
 

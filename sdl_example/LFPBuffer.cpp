@@ -334,8 +334,6 @@ LFPBuffer::LFPBuffer(Config* config)
     chunk_buf_ = new unsigned char[chunk_buf_len_];
     chunk_buf_ptr_in_ = 0;
 
-    debug_stream_.open("debug.txt");
-
     // TODO !!! PARAMETRIZE
     synchronyThresholdAdapter_ = new Utils::NewtonSolver(1.0, 24000*60, -0.5, high_synchrony_factor_);
 
