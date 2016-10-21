@@ -17,6 +17,10 @@ void PolygonCluster::Serialize(std::ofstream& file) {
 	for (size_t i=0; i < projections_inclusive_.size(); ++i){
 		projections_inclusive_[i].Serialize(file);
 	}
+	file << projections_exclusive_.size() << "\n";
+	for (size_t i=0; i < projections_exclusive_.size(); ++i){
+		projections_exclusive_[i].Serialize(file);
+	}
 }
 
 PolygonCluster::PolygonCluster(std::ifstream& file) {
@@ -24,6 +28,10 @@ PolygonCluster::PolygonCluster(std::ifstream& file) {
 	file >> sz;
 	for (int i=0; i < sz; ++i){
 		projections_inclusive_.push_back(PolygonClusterProjection(file));
+	}
+	file >> sz;
+	for (int i=0; i < sz; ++i){
+		projections_exclusive_.push_back(PolygonClusterProjection(file));
 	}
 }
 
