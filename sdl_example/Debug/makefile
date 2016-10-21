@@ -2,10 +2,10 @@ CC = gcc
 CFLAGS = -std=c++0x -g -O3 -Wall -Wextra -Wno-ignored-qualifiers
 LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
 	
-AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o
+AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../AutocorrelogramProcessor.cpp
 	
-BinFileReaderProcessor.o: ../BinFileReaderProcessor.cpp ../BinFileReaderProcessor.h Utils.o
+BinFileReaderProcessor.o: ../BinFileReaderProcessor.cpp ../BinFileReaderProcessor.h Utils.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../BinFileReaderProcessor.cpp
 	
 CluReaderClusteringProcessor.o: ../CluReaderClusteringProcessor.cpp ../CluReaderClusteringProcessor.h
@@ -14,22 +14,22 @@ CluReaderClusteringProcessor.o: ../CluReaderClusteringProcessor.cpp ../CluReader
 Config.o: ../Config.cpp ../Config.h
 	${CC} ${CFLAGS} -c ../Config.cpp
 	
-FetFileReaderProcessor.o: ../FetFileReaderProcessor.cpp ../FetFileReaderProcessor.h
+FetFileReaderProcessor.o: ../FetFileReaderProcessor.cpp ../FetFileReaderProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../FetFileReaderProcessor.cpp
 
-FetFileWriterProcessor.o: ../FetFileWriterProcessor.cpp ../FetFileWriterProcessor.h LFPProcessor.o
+FetFileWriterProcessor.o: ../FetFileWriterProcessor.cpp ../FetFileWriterProcessor.h LFPProcessor.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../FetFileWriterProcessor.cpp
 	
-FiringRateEstimatorProcessor.o: ../FiringRateEstimatorProcessor.cpp ../FiringRateEstimatorProcessor.h LFPProcessor.o	
+FiringRateEstimatorProcessor.o: ../FiringRateEstimatorProcessor.cpp ../FiringRateEstimatorProcessor.h LFPProcessor.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../FiringRateEstimatorProcessor.cpp
 
-FrequencyPowerBandProcessor.o: ../FrequencyPowerBandProcessor.cpp
+FrequencyPowerBandProcessor.o: ../FrequencyPowerBandProcessor.cpp LFPBuffer.o
 	${CC} ${CFLAGS} -c ../FrequencyPowerBandProcessor.cpp
 	
-GMMClusteringProcessor.o: ../GMMClusteringProcessor.cpp ../GMMClusteringProcessor.h
+GMMClusteringProcessor.o: ../GMMClusteringProcessor.cpp ../GMMClusteringProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../GMMClusteringProcessor.cpp
 	
-KDClusteringProcessor.o: ../KDClusteringProcessor.cpp ../KDClusteringProcessor.h
+KDClusteringProcessor.o: ../KDClusteringProcessor.cpp ../KDClusteringProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../KDClusteringProcessor.cpp
 
 LFPBuffer.o: ../LFPBuffer.cpp ../LFPBuffer.h
@@ -41,64 +41,64 @@ LFPPipeline.o: ../LFPPipeline.cpp ../LFPPipeline.h
 LFPProcessor.o: ../LFPProcessor.cpp ../LFPProcessor.h LFPBuffer.o ../Spike.h
 	${CC} ${CFLAGS} -c ../LFPProcessor.cpp
 	
-LPTTriggerProcessor.o: ../LPTTriggerProcessor.cpp ../LPTTriggerProcessor.h
+LPTTriggerProcessor.o: ../LPTTriggerProcessor.cpp ../LPTTriggerProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../LPTTriggerProcessor.cpp
 	
-PackageExractorProcessor.o: ../PackageExractorProcessor.cpp ../PackageExtractorProcessor.h
+PackageExractorProcessor.o: ../PackageExractorProcessor.cpp ../PackageExtractorProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../PackageExractorProcessor.cpp
 	
-ParallelPipelineProcessor.o: ../ParallelPipelineProcessor.cpp ../ParallelPipelineProcessor.h
+ParallelPipelineProcessor.o: ../ParallelPipelineProcessor.cpp ../ParallelPipelineProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../ParallelPipelineProcessor.cpp
 	
-PCAExtractionProcessor.o: ../PCAExtractionProcessor.cpp ../PCAExtractionProcessor.h
+PCAExtractionProcessor.o: ../PCAExtractionProcessor.cpp ../PCAExtractionProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../PCAExtractionProcessor.cpp
 	
-PlaceField.o: ../PlaceField.cpp ../PlaceField.h
+PlaceField.o: ../PlaceField.cpp ../PlaceField.h 
 	${CC} ${CFLAGS} -c ../PlaceField.cpp
 	
-PlaceFieldProcessor.o: PlaceField.o ../PlaceFieldProcessor.cpp ../PlaceFieldProcessor.h
+PlaceFieldProcessor.o: PlaceField.o ../PlaceFieldProcessor.cpp ../PlaceFieldProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../PlaceFieldProcessor.cpp
 	
 PolygonCluster.o: ../PolygonCluster.cpp ../PolygonCluster.h
 	${CC} ${CFLAGS} -c ../PolygonCluster.cpp
 	
-PositionDisplayProcessor.o: ../PositionDisplayProcessor.cpp ../PositionDisplayProcessor.h
+PositionDisplayProcessor.o: ../PositionDisplayProcessor.cpp ../PositionDisplayProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../PositionDisplayProcessor.cpp
 	
 SDLControlInputMetaProcessor.o: ../SDLControlInputMetaProcessor.cpp
 	${CC} ${CFLAGS} -c ../SDLControlInputMetaProcessor.cpp
 	
-SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h UserContext.o SDLSingleWindowDisplay.o
+SDLPCADisplayProcessor.o: PolygonCluster.o ../SDLPCADisplayProcessor.cpp ../SDLPCADisplayProcessor.h UserContext.o SDLSingleWindowDisplay.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SDLPCADisplayProcessor.cpp
 	
-SDLSignalDisplayProcessor.o: ../SDLSignalDisplayProcessor.cpp ../SDLSignalDisplayProcessor.h
+SDLSignalDisplayProcessor.o: ../SDLSignalDisplayProcessor.cpp ../SDLSignalDisplayProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SDLSignalDisplayProcessor.cpp
 	
 SDLSingleWindowDisplay.o: ../SDLSingleWindowDisplay.cpp
 	${CC} ${CFLAGS} -c ../SDLSingleWindowDisplay.cpp
 	
-SDLWaveshapeDisplayProcessor.o: ../SDLWaveshapeDisplayProcessor.cpp ../SDLWaveshapeDisplayProcessor.h
+SDLWaveshapeDisplayProcessor.o: ../SDLWaveshapeDisplayProcessor.cpp ../SDLWaveshapeDisplayProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SDLWaveshapeDisplayProcessor.cpp
 	
-SlowDownProcessor.o: ../SlowDownProcessor.cpp ../SlowDownProcessor.h
+SlowDownProcessor.o: ../SlowDownProcessor.cpp ../SlowDownProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SlowDownProcessor.cpp
 	
-SpeedEstimationProcessor.o: ../SpeedEstimationProcessor.cpp ../SpeedEstimationProcessor.h
+SpeedEstimationProcessor.o: ../SpeedEstimationProcessor.cpp ../SpeedEstimationProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SpeedEstimationProcessor.cpp
 		
-SpikeAlignmentProcessor.o: ../SpikeAlignmentProcessor.cpp
+SpikeAlignmentProcessor.o: ../SpikeAlignmentProcessor.cpp LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SpikeAlignmentProcessor.cpp
 		
-SpikeDetectorProcessor.o: ../SpikeDetectorProcessor.cpp ../SpikeDetectorProcessor.h
+SpikeDetectorProcessor.o: ../SpikeDetectorProcessor.cpp ../SpikeDetectorProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SpikeDetectorProcessor.cpp
 		
-SwReaderProcessor.o: ../SwReaderProcessor.cpp ../SwReaderProcessor.h
+SwReaderProcessor.o: ../SwReaderProcessor.cpp ../SwReaderProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../SwReaderProcessor.cpp
 		
 TetrodesInfo.o: ../TetrodesInfo.cpp ../TetrodesInfo.h
 	${CC} ${CFLAGS} -c ../TetrodesInfo.cpp
 		
-TransProbEstimationProcessor.o: ../TransProbEstimationProcessor.cpp ../TransProbEstimationProcessor.h
+TransProbEstimationProcessor.o: ../TransProbEstimationProcessor.cpp ../TransProbEstimationProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../TransProbEstimationProcessor.cpp
 		
 UnitTestingProcessor.o: ../UnitTestingProcessor.cpp ../UnitTestingProcessor.h
@@ -110,10 +110,10 @@ UserContext.o: ../UserContext.cpp ../UserContext.h
 Utils.o: ../Utils.cpp ../Utils.h
 	${CC} ${CFLAGS} -c ../Utils.cpp
 		
-WaveshapeReconstructionProcessor.o: ../WaveshapeReconstructionProcessor.cpp UserContext.o
+WaveshapeReconstructionProcessor.o: ../WaveshapeReconstructionProcessor.cpp UserContext.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../WaveshapeReconstructionProcessor.cpp
 		
-WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcessor.h
+WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../WhlFileReaderProcessor.cpp
 	
 main.o: ../main.cpp
