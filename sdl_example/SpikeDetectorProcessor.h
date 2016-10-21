@@ -14,7 +14,7 @@
 class SpikeDetectorProcessor : public virtual LFPProcessor{
     
     // int is not enough for convolution
-    long long filter_int_ [ 2 << 7 ];
+    short filter_int_ [ 2 << 7 ];
     
     float filter[ 2 << 7];
     unsigned int filter_len;
