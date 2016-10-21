@@ -13,11 +13,6 @@
 void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 	buffer->Log("Load probability estimations for tetrode ", t);
 
-	// load l(a,x) for all spikes of the tetrode
-	//			for (int i = 0; i < MIN_SPIKES; ++i) {
-	//				laxs_[t][i].load(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(i) + ".mat");
-	//			}
-
 	// 	beware of inexation changes
 	std::string rtreepath = BASE_PATH + Utils::NUMBERS[t] + ".kdtree.reduced";
 	Utils::FS::CheckFileExistsWithError(rtreepath, (Utils::Logger*) this);
@@ -38,10 +33,7 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 		laxs_[t].push_back(laxs_tetr_.cols(s * NBINSY, (s + 1) * NBINSY - 1) * 1 / float(neighb_num_));
 
 		if (!(s % 50))
-			laxs_[t][laxs_[t].size() - 1].save(
-					BASE_PATH + Utils::NUMBERS[t] + "_"
-							+ Utils::Converter::int2str(s) + ".tmp",
-					arma::raw_ascii);
+			laxs_[t][laxs_[t].size() - 1].save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(s) + ".tmp", arma::raw_ascii);
 
 		// CHECK FOR NANS
 		arma::fmat & smat = laxs_[t][laxs_[t].size() - 1];
@@ -61,7 +53,6 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 			}
 		}
 	}
-	//laxs_tetr_.save(BASE_PATH + Utils::NUMBERS[t] + "_tetr.mat");
 
 	// load marginal rate function
 	std::string lxs_path = BASE_PATH + Utils::NUMBERS[t] + "_lx.mat";
@@ -152,8 +143,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	// load proper tetrode info
 	if (buf->alt_tetr_infos_.size() < processor_number_ + 1) {
 		tetr_info_ = buf->alt_tetr_infos_[0];
-		Log("WARNING: using default tetrode info for processor number",
-				(int) processor_number_);
+		Log("WARNING: using default tetrode info for processor number", (int) processor_number_);
 	} else {
 		tetr_info_ = buf->alt_tetr_infos_[processor_number_];
 	}
@@ -206,8 +196,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 			spike_place_fields_[t].reserve(maxPoints);
 
 			// tmp
-			obs_mats_[t] = arma::fmat(maxPoints,
-					buffer->feature_space_dims_[t] + 2);
+			obs_mats_[t] = arma::fmat(maxPoints, buffer->feature_space_dims_[t] + 2);
 
 			if (buffer->feature_space_dims_[t] > max_dim)
 				max_dim = buffer->feature_space_dims_[t];
@@ -258,13 +247,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		std::ofstream fparams(parpath);
 		fparams
 				<< "SIGMA_X, SIGMA_A, SIGMA_XX, MULT_INT, SAMPLING_RATE, NN_K, NN_K_SPACE(obsolete), MIN_SPIKES, SAMPLING_RATE, SAMPLING_DELAY, NBINSX, NBINSY, BIN_SIZE, SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD, SPIKE_GRAPH_COVER_NNEIGHB, NN_EPS, MIN_OCC\n"
-				<< SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " "
-				<< MULT_INT << " " << SAMPLING_RATE << " " << NN_K << " "
-				<< NN_K_COORDS << " " << MIN_SPIKES << " " << SAMPLING_RATE
-				<< " " << SAMPLING_DELAY << " " << NBINSX << " " << NBINSY
-				<< " " << BIN_SIZE << " "
-				<< SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " "
-				<< SPIKE_GRAPH_COVER_NNEIGHB << " " << NN_EPS << " " << KD_MIN_OCC << "\n";
+				<< SIGMA_X << " " << SIGMA_A << " " << SIGMA_XX << " " << MULT_INT << " " << SAMPLING_RATE << " " << NN_K << " " << NN_K_COORDS << " " << MIN_SPIKES << " " << SAMPLING_RATE
+				<< " " << SAMPLING_DELAY << " " << NBINSX << " " << NBINSY << " " << BIN_SIZE << " " << SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD << " " << SPIKE_GRAPH_COVER_NNEIGHB << " " << NN_EPS << " " << KD_MIN_OCC << "\n";
 		fparams.close();
 		Log(std::string("Running params written to") + parpath);
 
@@ -301,7 +285,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	// DEBUG
 //	skipped_spikes_.resize(tetr_info_->tetrodes_number(), 0);
-//	debug_.open("debug.txt");
 
 	neighbour_dists_.resize(neighb_num_);
 	neighbour_inds_.resize(neighb_num_);
@@ -343,12 +326,10 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	// TODO CONTROLLED reset, PARAMETRIZE
 	unsigned int prevmaxx = 0, prevmaxy = 0;
 
-	bool reset = buffer->last_preidction_window_ends_[processor_number_]
-			- last_hmm_reset_ > HMM_RESET_RATE;
+	bool reset = buffer->last_preidction_window_ends_[processor_number_] - last_hmm_reset_ > HMM_RESET_RATE;
 	if (reset) {
 		// DEBUG
-		buffer->Log("Reset HMM at ",
-				(int) buffer->last_preidction_window_ends_[processor_number_]);
+		buffer->Log("Reset HMM at ", (int) buffer->last_preidction_window_ends_[processor_number_]);
 
 		hmm_prediction_.max(prevmaxx, prevmaxy);
 
@@ -358,8 +339,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			hmm_prediction_ = arma::fmat(NBINSX, NBINSY, arma::fill::zeros);
 		}
 
-		last_hmm_reset_ =
-				buffer->last_preidction_window_ends_[processor_number_];
+		last_hmm_reset_ = buffer->last_preidction_window_ends_[processor_number_];
 	}
 
 	for (unsigned int xb = 0; xb < NBINSX; ++xb) {
@@ -393,8 +373,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 			if (reset) {
 				// all leading to the best before the reset
-				hmm_traj_[yb * NBINSX + xb].push_back(
-						prevmaxy * NBINSX + prevmaxx);
+				hmm_traj_[yb * NBINSX + xb].push_back(prevmaxy * NBINSX + prevmaxx);
 			} else {
 				hmm_traj_[yb * NBINSX + xb].push_back(besty * NBINSX + bestx);
 			}
@@ -403,17 +382,10 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 	// DEBUG - check that no window is skipped and the chain is broken
 	if (!(hmm_traj_[0].size() % 2000)) {
-		buffer->log_string_stream_ << "hmm bias control: "
-				<< hmm_traj_[0].size() << " / "
-				<< (int) round(
-						(last_pred_pkg_id_ - PREDICTION_DELAY)
-								/ (float) PRED_WIN) << "\n";
+		buffer->log_string_stream_ << "hmm bias control: " << hmm_traj_[0].size() << " / " << (int) round((last_pred_pkg_id_ - PREDICTION_DELAY) / (float) PRED_WIN) << "\n";
 		buffer->Log();
 		// DEBUG
-		hmm_prediction_.save(
-				BASE_PATH + "hmm_pred_"
-						+ Utils::Converter::int2str(hmm_traj_[0].size())
-						+ ".mat", arma::raw_ascii);
+		hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
 	}
 
 	// add Bayesian pos likelihood from evidence
@@ -466,8 +438,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 		buffer->processing_over_ = true;
 	}
 
-	buffer->last_predictions_[processor_number_] = arma::exp(
-			hmm_prediction_ / (float)display_scale_);
+	buffer->last_predictions_[processor_number_] = arma::exp(hmm_prediction_ / (float)display_scale_);
 }
 
 void KDClusteringProcessor::reset_hmm() {
@@ -595,22 +566,13 @@ void KDClusteringProcessor::process() {
 	if (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER) {
 		for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr) {
 			if (!pf_built_[tetr] && !fitting_jobs_running_[tetr] && kde_jobs_running_ < MAX_KDE_JOBS && use_tetrode_[tetr]) {
-				buffer->log_string_stream_ << "t " << tetr
-						<< ": build kd-tree for tetrode " << tetr << ", "
-						<< n_pf_built_ << " / " << tetr_info_->tetrodes_number()
-						<< " finished... ";
-				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr],
-						total_spikes_[tetr], buffer->feature_space_dims_[tetr]);
-				buffer->log_string_stream_ << "done\nt " << tetr << ": cache "
-						<< NN_K
-						<< " nearest neighbours for each spike in tetrode "
-						<< tetr << " (in a separate thread)...\n";
+				buffer->log_string_stream_ << "t " << tetr << ": build kd-tree for tetrode " << tetr << ", " << n_pf_built_ << " / " << tetr_info_->tetrodes_number() << " finished... ";
+				kdtrees_[tetr] = new ANNkd_tree(ann_points_[tetr], total_spikes_[tetr], buffer->feature_space_dims_[tetr]);
+				buffer->log_string_stream_ << "done\nt " << tetr << ": cache " << NN_K << " nearest neighbours for each spike in tetrode " << tetr << " (in a separate thread)...\n";
 				buffer->Log();
 
 				fitting_jobs_running_[tetr] = true;
-				fitting_jobs_[tetr] = new std::thread(
-						&KDClusteringProcessor::build_lax_and_tree_separate,
-						this, tetr);
+				fitting_jobs_[tetr] = new std::thread(&KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
 				buffer->Log();
 			}
 		}
@@ -622,22 +584,15 @@ void KDClusteringProcessor::process() {
 
 	// need both speed and PCs
 	unsigned int limit =
-			LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_, 0) : (
-					WAIT_FOR_SPEED_EST ?
-							MIN(buffer->spike_buf_pos_speed_,
-									(unsigned int )std::max<int>(
-											buffer->spike_buf_pos_unproc_ - 1,
-											0)) :
-							(unsigned int) std::max<int>(
-									buffer->spike_buf_pos_unproc_ - 1, 0));
+			LOAD ? std::max<int>(buffer->spike_buf_pos_unproc_, 0) : ( WAIT_FOR_SPEED_EST ? MIN(buffer->spike_buf_pos_speed_, (unsigned int)std::max<int>( buffer->spike_buf_pos_unproc_ - 1,0))
+					: (unsigned int) std::max<int>( buffer->spike_buf_pos_unproc_ - 1, 0));
 	while (spike_buf_pos_clust_ < limit) {
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
 		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int) spike->tetrode_);
 		const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 
 		// wait until place fields are stabilized
-		if (tetr == TetrodesInfo::INVALID_TETRODE
-				|| (spike->pkg_id_ < SAMPLING_DELAY && !LOAD) || !use_tetrode_[tetr]) {
+		if (tetr == TetrodesInfo::INVALID_TETRODE || (spike->pkg_id_ < SAMPLING_DELAY && !LOAD) || !use_tetrode_[tetr]) {
 			spike_buf_pos_clust_++;
 			continue;
 		}
@@ -646,9 +601,7 @@ void KDClusteringProcessor::process() {
 		if (!LOAD && (tetrode_sampling_rates_.empty())) {
 			if (buffer->fr_estimated_) {
 				for (size_t t = 0; t < tetr_info_->tetrodes_number(); ++t) {
-					unsigned int est_sec_left = (std::min(SAMPLING_END,
-							buffer->input_duration_) - SAMPLING_DELAY)
-							/ buffer->SAMPLING_RATE;
+					unsigned int est_sec_left = (std::min(SAMPLING_END, buffer->input_duration_) - SAMPLING_DELAY) / buffer->SAMPLING_RATE;
 					std::stringstream ss;
 					ss << "Estimated remaining data duration: " << est_sec_left / 60 << " min, " << est_sec_left % 60 << " sec\n";
 					unsigned int interleaving_windows_factor = INTERLEAVING_WINDOWS ? 2 : 1;
@@ -960,11 +913,6 @@ void KDClusteringProcessor::process() {
 			// if prediction is final and end of window has been reached (last spike is beyond the window)
 			// 		or prediction will be finalized in subsequent iterations
 			if (spike->pkg_id_ >= last_pred_pkg_id_ + PRED_WIN) {
-
-//				std::stringstream ss;
-//				ss << "WINDOW OVER AT " <<  last_pred_pkg_id_ + PRED_WIN << " with spike pkg id " << spike->pkg_id_ << ", finalize prediction\n";
-//				Log(ss.str());
-
 				// DEBUG
 				buffer->CheckPkgIdAndReportTime(spike->pkg_id_, "...  arrival in KD at the prediction start\n");
 
@@ -985,11 +933,6 @@ void KDClusteringProcessor::process() {
 				// DUMP decoded coordinate
 				unsigned int mx = 0, my = 0;
 				pos_pred_.max(mx, my);
-
-				// !!! NORM TO SUM UP TO 1 !!!
-//				pos_pred_ = arma::exp(pos_pred_);
-//				pos_pred_ /= arma::sum(arma::sum(pos_pred_));
-//				pos_pred_ = arma::log(pos_pred_);
 
 				dump_positoins_if_needed(mx, my);
 				dump_swr_window_spike_count();
