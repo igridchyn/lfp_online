@@ -36,7 +36,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , shift_x_(shift_x)
 , shift_y_(shift_y)
 , time_end_(buffer->SAMPLING_RATE * 60)
-, rend_freq_(buffer->config_->getInt("pcadisp.rend.rate", 5))
+, rend_freq_(buffer->config_->getInt("pcadisp.rend.rate", 1))
 , poly_save_(buffer->config_->getBool("pcadisp.poly.save", false))
 , poly_load_(buffer->config_->getBool("pcadisp.poly.load", false))
 , poly_path_(buffer->config_->getOutPath("pcadisp.poly.path", "poly.dat"))
@@ -114,13 +114,13 @@ void SDLPCADisplayProcessor::process(){
         // TODO !!! take channel with the spike peak (save if not available)
 //        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[spike->tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
         // TODO : configurable factor
-        double power_thold = 100 * power_threshold_factor_;
-
-        if (abs(spike->power_) < power_thold){
-        	buffer->spike_buf_no_disp_pca++;
-        	spike->cluster_id_ = -1;
-        	continue;
-        }
+//        double power_thold = 1000 * power_threshold_factor_;
+        // BUGGY -> DISABLED
+//        if (abs(spike->power_) < power_thold){
+//        	buffer->spike_buf_no_disp_pca++;
+//        	spike->cluster_id_ = -1;
+//        	continue;
+//        }
 
         if (spike->pc == nullptr || (spike->cluster_id_ == -1 && !display_unclassified_))
         {
@@ -140,7 +140,6 @@ void SDLPCADisplayProcessor::process(){
         		if (contains){
         			spike->cluster_id_ = i;
         		}
-
         	}
         }
 
