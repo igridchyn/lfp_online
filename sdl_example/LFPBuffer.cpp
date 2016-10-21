@@ -786,8 +786,6 @@ void LFPBuffer::estimate_firing_rates() {
 		spike_numbers_.resize(tetr_info_->tetrodes_number());
 		spikes_slow_.resize(tetr_info_->tetrodes_number());
 		spikes_discarded_.resize(tetr_info_->tetrodes_number());
-		// TODO which pointer ?
-		//				const unsigned int frest_pos = (WAIT_FOR_SPEED_EST ? spike_buf_pos_speed_ : spike_buf_pos_unproc_);
 		const unsigned int frest_pos = spike_buf_no_rec;
 		Log("Estimate FR from spikes in buffer until position ", frest_pos);
 		// first spike pkg_id
