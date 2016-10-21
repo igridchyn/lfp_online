@@ -486,6 +486,7 @@ int main(int argc, char **argv){
 
 	if (DIM < 8){
 		SIGMA_A *= sqrt(DIM / 8.0);
+		SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD *= sqrt(DIM / 8.0);
 	}
 
 	log_.open(BASE_PATH + "KDE_tetr_" + Utils::NUMBERS[tetr] + ".log");
