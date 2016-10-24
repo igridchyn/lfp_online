@@ -165,6 +165,7 @@ class SpikeAlignmentProcessor : public virtual LFPProcessor{
     const unsigned int NNOISE = 10;
     std::ofstream noise_stream_;
     unsigned int last_noise_pkg_id_ = 0;
+    bool sync_noise_filtering_ = false;
 
 public:
     SpikeAlignmentProcessor(LFPBuffer* buffer);

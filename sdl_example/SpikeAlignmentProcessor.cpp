@@ -28,7 +28,7 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
         }
 
         // check if there are not too many spikes in the noise removal queue and signal noise if yes
-        if (tetrode_to_process == -1){
+        if (tetrode_to_process == -1 && sync_noise_filtering_){
 			while (!noise_detection_queue_.empty()){
 				Spike *front = noise_detection_queue_.front();
 				if (front->pkg_id_ < spike->pkg_id_  - NOISE_WIN){
@@ -189,7 +189,9 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
 
 SpikeAlignmentProcessor::SpikeAlignmentProcessor(LFPBuffer* buffer)
 : LFPProcessor(buffer)
-, REFRACTORY_PERIOD(buffer->config_->getInt("spike.detection.refractory", 16)){
+, REFRACTORY_PERIOD(buffer->config_->getInt("spike.detection.refractory", 16))
+, sync_noise_filtering_(buffer->config_->getInt("spike.detection.sync.noise.filtering", false))
+{
     int tetr_num = buffer->tetr_info_->tetrodes_number();
     
     prev_spike_pos_ = new unsigned int[tetr_num];
