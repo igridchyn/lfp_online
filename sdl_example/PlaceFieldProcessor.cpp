@@ -238,16 +238,18 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
     	FillRect(int(buffer->positions_buf_[pos].x_pos() * binw / bin_size_), int(buffer->positions_buf_[pos].y_pos() * binh / bin_size_), 0, 2, 2);
     }
 
-    ResetTextStack();
-    TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), 0xFFFFFF, true);
-    TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
-    TextOut(Utils::Converter::Combine("Cluster global: ", int(global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
-    TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
-    TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, false);
-    TextOut(Utils::Converter::Combine(" / ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0x000000, true);
+    if (!display_prediction_){
+		ResetTextStack();
+		TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), 0xFFFFFF, true);
+		TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
+		TextOut(Utils::Converter::Combine("Cluster global: ", int(global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
+		TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
+		TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, false);
+		TextOut(Utils::Converter::Combine(" / ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0x000000, true);
 
-    for (auto const& line: text_output){
-    	TextOut(line, 0xFFFFFF, true);
+		for (auto const& line: text_output){
+			TextOut(line, 0xFFFFFF, true);
+		}
     }
 
     SDL_SetRenderTarget(renderer_, nullptr);
