@@ -87,7 +87,6 @@ void SpikeAlignmentProcessor::process_tetrode(int tetrode_to_process){
         int peak_time=0;
         int max_chan = 0;
         
-        // TODO: pointers
         for(int i=0;i<spike->num_channels_;i++){
             for(int j=1;j<Spike::WL_LENGTH-1;j++)
             {

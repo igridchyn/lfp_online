@@ -353,9 +353,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 			unsigned int HMM_NEIGHB_RAD_Y = NBINSY > 1 ? HMM_NEIGHB_RAD : 0;
 			for (unsigned int x = (unsigned int)std::max<int>(0, xb - HMM_NEIGHB_RAD); x <= MIN(xb + HMM_NEIGHB_RAD, NBINSX - 1); ++x) {
 				for (unsigned int y = (unsigned int)std::max<int>(0, yb - HMM_NEIGHB_RAD_Y); y <= MIN(yb + HMM_NEIGHB_RAD_Y, NBINSY - 1); ++y) {
-					// TODO weight
-					// split for DEBUG
-
 					float prob_xy = hmm_prediction_(x, y);
 					int shx = xb - x + HMM_NEIGHB_RAD;
 					int shy = yb - y + HMM_NEIGHB_RAD_Y;
@@ -967,14 +964,10 @@ void KDClusteringProcessor::process() {
 				//		(don't need more spikes at this stage)
 
 				if (prediction_window_spike_number_ > 0) {
-					// ??? already done above
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
-					// TODO what should be here
-					// was: (SWR_PRED_WIN > 0 ? SWR_PRED_WIN : (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]))
 					// should not limit becase of potential unlimited rewinds
-
 					// should not be limited ? in both swr / non-swr regime
-					PRED_WIN = 24000000;//swr_regime_ ? 24000000 : THETA_PRED_WIN;
+					PRED_WIN = 24000000;
 				}
 
 				// rewind back to get predictions of the overlapping windows

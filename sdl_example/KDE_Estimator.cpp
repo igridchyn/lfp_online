@@ -383,7 +383,6 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 //					break;
 //				}
 
-				// TODO: optimze kernel computation and don't compute (x_s - x_b) each time
 				long long logprob = kern_H_ax_(nn_idx[ni], coords_normalized(xb, 0), coords_normalized(yb, 1));
 				logprob += feature_sum[nn_idx[ni]];
 

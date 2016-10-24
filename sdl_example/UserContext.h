@@ -65,7 +65,6 @@ public:
 
 // ALL ACTIONS ARE PERFORMED FOR ACTIVE TETRODE !
 class UserContext {
-	// TODO unsigned + UNKNOWN CLUSTER
 	int selected_cluster1_ = -1;
 	int selected_cluster2_ = -1;
 

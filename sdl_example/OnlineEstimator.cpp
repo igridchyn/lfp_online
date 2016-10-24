@@ -30,7 +30,6 @@ template<class T, class S>
 void OnlineEstimator<T, S>::push(T value){
     // printf("push %f\n", value);
     
-	// TODO LOG ERROR
 	if (Utils::Math::Isnan((float)value))
 		return;
 

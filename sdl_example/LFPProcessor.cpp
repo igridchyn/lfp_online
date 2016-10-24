@@ -77,7 +77,6 @@ float Spike::getWidth(float level, int chan) {
 	float level_x = .0f;
 
 	// compute width
-	// TODO validate > or <
 	for (int w = 1; w < 128 - 1; ++w) {
 		if (! reached_val && waveshape[chan][w] > level){
 			reached_val = true;
@@ -117,7 +116,6 @@ Spike::~Spike() {
 //	delete[] extra_features_;
 }
 
-// !!! TODO: INTRODUCE PALETTE WITH LARGER NUMBER OF COLOURS (but categorical)
 const ColorPalette ColorPalette::BrewerPalette12(20, new int[20]{0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F,
 	0xFF7F00, 0xCAB2D6, 0x6A3D9A, 0xFFFF99, 0xB15928, 0xA6CEE3, 0x1F78B4, 0xB2DF8A, 0x33A02C, 0xFB9A99, 0xE31A1C, 0xFDBF6F, 0xFF7F00});
 
@@ -257,7 +255,6 @@ bool Spike::crossesWaveShapeFinal(unsigned int channel, float x1, float y1, floa
 	float w1 = floor(x1);
 	float w2 = floor(x2);
 
-	// TODO parametrize
 	if (w1 > 16 || w2 > 16)
 		return false;
 
@@ -271,7 +268,6 @@ bool Spike::crossesWaveShapeReconstructed(unsigned int channel, float x1, float 
 	float w1 = floor(x1);
 	float w2 = floor(x2);
 
-	// TODO parametrize
 	if (w1 > 128 || w2 > 128)
 		return false;
 
@@ -340,7 +336,6 @@ void Spike::find_valleys(int ptm, int ptv)
 void Spike::set_peak_valley_features() {
 	int peak_time, peak_value;
 
-	// TODO parametrize
 	find_one_peak(&peak_time, 64, 16, &peak_value);
 	find_valleys(peak_time, peak_value);
 }

@@ -150,8 +150,6 @@ void SDLWaveshapeDisplayProcessor::process() {
 		// check if falls under any cluster cuts
 		bool is_cut = false;
 		for(size_t c= 0; c < cluster_cuts_[targ_tetrode_][spike->cluster_id_].size(); ++c){
-			// TODO save cut with channel and transform
-
 			WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][spike->cluster_id_][c];
 
 

@@ -300,8 +300,6 @@ void SDLPCADisplayProcessor::process(){
 			}
 		}
 
-		// TODO : LOAD/SAVE powers after dump
-//		double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[target_tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
 		double power_thold = 100 * power_threshold_factor_;
 		std::stringstream ss;
 		ss << "Power threshold: " << power_thold;
@@ -763,9 +761,6 @@ void SDLPCADisplayProcessor::deleteCluster() {
 			}
 		}
 
-		// TODO : use acions list for synchronization
-		//sbuffer->ResetAC(target_tetrode_, user_context_.SelectedCluster2());
-
 		user_context_.DelleteCluster(polygon_clusters_[target_tetrode_][c2]);
 
 		// move polygon clusters up
@@ -881,8 +876,6 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()].projections_inclusive_.insert(polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()].projections_inclusive_.end(),
 			polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_inclusive_.begin(), polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_inclusive_.end());
 
-	// ??? change spike cluster from the beginning, redraw after
-	// TODO: just set to -1 ?
 	int scount = 0;
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(c1);

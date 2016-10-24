@@ -166,8 +166,6 @@ void PackageExractorProcessor::process(){
             		continue;
 
                 // !!!??? +1 to make similar to *.dat
-            	// TODO cut to char after PCA computation only ???
-            	// TODO validate OOB ?
 #ifdef CHAR_SIGNAL
                  buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + full_packages_read * 3 + block] = (*(sbin_ptr) + 1) / 256;
 #else

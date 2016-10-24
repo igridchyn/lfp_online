@@ -53,7 +53,6 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	const unsigned int NN_K ;
 	const unsigned int NN_K_COORDS;
 
-	// TODO: test for integer overflow in KDE operations
 	const unsigned int MULT_INT;
 	const double SIGMA_X;
 	const double SIGMA_A;

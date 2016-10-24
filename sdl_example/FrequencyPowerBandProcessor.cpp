@@ -60,7 +60,6 @@ void FrequencyPowerBandProcessor::process(){
     
     RenderClear();
     
-    // TODO: plot lines at landmark points
     SDL_SetRenderDrawColor(renderer_, 255,255,255,255);
     int prevy = 0;
     for (int i=FACTOR/2; i < 200 * FACTOR; i+=FACTOR/2){

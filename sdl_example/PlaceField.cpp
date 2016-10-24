@@ -57,14 +57,12 @@ PlaceField PlaceField::Smooth(){
     PlaceField spf(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
 
     // smooth place field
-    // TODO: smoothing on the edge corners
     for (int x=0; x < (int)place_field_.n_cols; ++x) {
         for (int y=0; y < (int)place_field_.n_rows; ++y) {
         	// part of the gaussian that was not accounted for because of nans and infs and has to be noramlized by
         	double ignored_part = .0;
             for (int dx=-spread_; dx <= spread_; ++dx) {
                 for (int dy=-spread_; dy <= spread_; ++dy) {
-                	// TODO validate consistency of downstream usage
 					if (y + dy <0 || x + dx < 0 || y + dy >= (int)place_field_.n_rows || x + dx >= (int)place_field_.n_cols || isinf((float)place_field_(y + dy, x + dx)) || Utils::Math::Isnan((float)place_field_(y + dy, x + dx))){
                 		ignored_part += gauss_(dy+spread_, dx+spread_);
                 		continue;

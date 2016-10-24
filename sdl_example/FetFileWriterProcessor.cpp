@@ -123,7 +123,6 @@ void FetFileWriterProcessor::process() {
 		if (write_spk_){
 			std::ofstream& spk_file = *(spk_files_[tetrode]);
 
-			// TODO parametrize
 			for (int c=0; c < spike->num_channels_; ++c){
 				if (binary_)
 					spk_file.write((char*)spike->waveshape[c], 128 * sizeof(ws_type));

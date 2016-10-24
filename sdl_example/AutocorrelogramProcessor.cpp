@@ -76,9 +76,6 @@ void AutocorrelogramProcessor::process(){
 		buffer->ac_reset_tetrode_ = -1;
 	}
 
-	// TODO process user actions (no need in reset above then)
-	// TODO don't process at every call
-
 	while(user_context_.HasNewAction(last_proc_ua_id_)){
 		// process new user action
 
@@ -261,7 +258,6 @@ void AutocorrelogramProcessor::process(){
 	}
 
 	// RESET
-	// TODO process only given cluster in the reset mode
 	if (reset_mode_ && buffer->spike_buf_pos_auto_ >= reset_mode_end_){
 		reset_mode_ = false;
 		reset_cluster_ = -1;
@@ -515,7 +511,6 @@ void AutocorrelogramProcessor::plotCC(const unsigned int& tetr,
 	}
 
 	// if refractoriness is good, mark couple with a frame
-	// TODO parametrize which bins are accounted for as refractory ac.refractory.bins=2 ...
 	int sum_total = 0;
 	int sum_refractory = cross_corrs_[tetr][cluster1][cluster2][0] + cross_corrs_[tetr][cluster1][cluster2][1] + cross_corrs_[tetr][cluster2][cluster1][0] + cross_corrs_[tetr][cluster2][cluster1][1];;
 	for (unsigned int b=0; b < NBINS; ++b){

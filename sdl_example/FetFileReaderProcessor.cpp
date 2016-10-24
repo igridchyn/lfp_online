@@ -249,7 +249,6 @@ void cluster_gaussian(){
 	HierarchicalCluster headclust = HierarchicalCluster::read_from_file("/hd1/data/processing/jc129/cluster_tree.txt");
 	headclust.print_clu();
 
-	// TODO read from cluster tree
 	int nclu = 200;
 
 	// for skipping fet

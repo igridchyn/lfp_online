@@ -228,7 +228,6 @@ public:
 	// first spike participating in current prediction
 	unsigned int spike_buf_pos_pred_start_;
 
-	// TODO: size ?
 	std::vector<unsigned int> spike_buf_pos_clusts_;
 
 	bool ac_reset_ = false;

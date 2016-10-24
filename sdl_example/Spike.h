@@ -39,7 +39,6 @@ public:
 
     int cluster_id_ = -1;
 
-    // TODO: unsigned int
     int tetrode_ = -1;
     int num_channels_ = -1;
 

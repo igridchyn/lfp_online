@@ -265,7 +265,6 @@ void SpikeDetectorProcessor::set_spike_positions() {
 			buffer->pos_buf_spike_pos_++;
 		}
 
-		// TODO: separate processor, interpolate optionally
 		if (buffer->pos_buf_spike_pos_ > 0){
 			spike->x = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].x_pos();
 			spike->y = buffer->positions_buf_[buffer->pos_buf_spike_pos_ - 1].y_pos();

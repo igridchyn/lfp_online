@@ -444,7 +444,6 @@ double LPTTriggerProcessor::environment_dominance_confidence_() {
 	/*arma::fmat pred1 = pred.submat(0, 0, pred.n_rows - 1, 22 - 1);
 	arma::fmat pred2 = pred.submat(0, 22, pred.n_rows - 1, pred.n_cols - 1);*/
 
-	// TODO: sum ?
 	double prob1 = pred1.max();
 	double prob2 = pred2.max();
 
