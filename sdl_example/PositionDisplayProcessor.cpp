@@ -31,6 +31,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 	, scale_(buf->config_->getFloat("posdisp.scale", 1.0f))
 	, speed_limit_(buf->config_->getFloat("posdisp.speed.limit", .0f))
 	, draw_circles_(buf->config_->getBool("posdisp.draw.circles", false))
+	, speed_treshold_(buf->config_->getFloat("posdisp.speed.display.threshold", 2.0f))
 {
 	std::string pos_buf_name = buf->config_->getString("posdisp.pointer.limit", "pos");
 	if (pos_buf_name == buf->pos_buf_pointer_names_.POS_BUF_SPEED_EST){
@@ -131,8 +132,7 @@ void PositionDisplayProcessor::process(){
         const unsigned int imm_level = estimate_speed_ ? 150 : 80;
         unsigned int grey_level = imm_level;
 
-        // TODO parametrize speed display parameters
-        if (estimate_speed_ && buffer->positions_buf_[buffer->pos_buf_disp_pos_].speed_ > 2.0f){
+        if (estimate_speed_ && buffer->positions_buf_[buffer->pos_buf_disp_pos_].speed_ > speed_treshold_){
             grey_level = MIN(255, (int)buffer->positions_buf_[buffer->pos_buf_disp_pos_].speed_ * 5 + 50);
         }
         
