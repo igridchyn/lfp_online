@@ -496,8 +496,7 @@ void PlaceFieldProcessor::cachePDF(){
 
 	// factor - number by which the
 
-	// TODO THIS GOT BROKE after introducing session-wise place fields
-	// TODO: !!! introduce counter (in case of buffer rewind)
+	// TODO:FIX TO USE SESSION-WISE PFS !!! introduce counter (in case of buffer rewind)
 //	float pos_sampling_rate = buffer->pos_buf_pos_ / (float)buffer->last_pkg_id * buffer->SAMPLING_RATE;
 //	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000.0f;
 //    for (size_t t=0; t < place_fields_.size(); ++t) {
@@ -571,8 +570,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     pos_updated_ = true;
     
     // update ID of last predicted package to control the frequency of prediction (more important for models with memory, for memory-less just for performance)
-    // TODO: use last clustered spike pkg_id ???
-    last_predicted_pkg_ = buffer->last_pkg_id;
+    last_predicted_pkg_ = buffer->population_vector_stack_.back()->pkg_id_;
 
 //    double lpmax = -reconstructed_position_.min();
     for (size_t r=0; r < reconstructed_position_.n_rows; ++r) {
