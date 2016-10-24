@@ -292,13 +292,13 @@ if plot_distr:
 
 	mng = P.get_current_fig_manager()
 	P.title('Predicted / Occupancy')
-	P.imshow(predmap / errmap, cmap = 'hot', interpolation = 'none')
+	P.imshow(np.log(predmap / errmap), cmap = 'hot', interpolation = 'none')
 	P.colorbar()
 	mng.resize(*mxsz)
 	P.show()
 
 # print errmap
-sum1 = np.sum(errmap[:, 0:nbinsx/2])
-sum2 = np.sum(errmap[:, nbinsx/2:])
+sum1 = np.sum(errmap[:, 0:nbinsx/2]) / (nbinsx / 2)
+sum2 = np.sum(errmap[:, nbinsx/2:]) / (nbinsx / 2)
 log('Error in env 1 = %.2f' % sum1)
 log('Error in env 2 = %.2f' % sum2)
