@@ -33,7 +33,6 @@
 #include "FetFileWriterProcessor.h"
 #include "PackageExtractorProcessor.h"
 #include "BinFileReaderProcessor.h"
-#include "FiringRateEstimatorProcessor.h"
 #include "ParallelPipelineProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
@@ -101,8 +100,6 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new FetFileWriterProcessor(buf));
 		} else if (proc_name == "BinFileReader"){
 			processors.push_back(new BinFileReaderProcessor(buf));
-		} else if(proc_name == "FiringRateEstimator"){
-			processors.push_back(new FiringRateEstimatorProcessor(buf));
 		} else if (proc_name == "BinaryPopulationClassifier"){
 			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
 		} else if (proc_name == "ParallelPipeline"){
