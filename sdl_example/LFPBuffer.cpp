@@ -310,8 +310,8 @@ LFPBuffer::LFPBuffer(Config* config)
 
     Reset(config);
 
-    spike_buf_pos_clusts_.resize(100);
-    last_preidction_window_ends_.resize(100);
+    spike_buf_pos_clusts_.resize(500);
+    last_preidction_window_ends_.resize(500);
 
     positions_buf_ = new SpatialInfo[POS_BUF_LEN];
     POS_BUF_HEAD_LEN = POS_BUF_LEN / 10;
