@@ -117,6 +117,12 @@ void LFPBuffer::Reset(Config* config)
     // create a map of pointers to tetrode power estimators for each electrode
     for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
         for (size_t ci = 0; ci < tetr_info_->channels_number(tetr); ++ci){
+        	// OOR with channel number?
+        	if (tetr_info_->tetrode_channels[tetr][ci] > CHANNEL_NUM){
+        		Log("ERROR: ONE OF THE CHANNELS IN THE TETRODE CONFIG IS BEYOND THE GIVEN CHANNEL NUMBER RANGE: ", CHANNEL_NUM);
+        		exit(9234);
+        	}
+
             powerEstimatorsMap_[tetr_info_->tetrode_channels[tetr][ci]] = powerEstimators_[tetr];
             is_valid_channel_[tetr_info_->tetrode_channels[tetr][ci]] = true;
 
