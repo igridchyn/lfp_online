@@ -46,7 +46,7 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 	float XToWaveshapeSampleNumber(int x);
 	float YToPower(int chan, int y);
 
-	void displayClusterCuts(const int & cluster_id);
+	void displayClusterCuts(const int & cluster_id, int highlight_number);
 	void reinit();
 
 	unsigned int last_ua_id_ = 0;
@@ -57,6 +57,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 
 	std::string cuts_file_path_;
 	bool cuts_save_, cuts_load_;
+
+	int current_cut_ = -1;
 
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);

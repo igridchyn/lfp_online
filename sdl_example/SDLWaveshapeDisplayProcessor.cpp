@@ -81,7 +81,7 @@ float SDLWaveshapeDisplayProcessor::YToPower(int chan, int y) {
 	return -(y - 100 - (float)y_mult_ * chan) * scale_;
 }
 
-void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int & cluster_id) {
+void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int & cluster_id, int highlight_number) {
 	if (cluster_id < 1 || (int)buffer->cells_[targ_tetrode_].size() <= cluster_id)
 		return;
 
@@ -97,6 +97,10 @@ void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int & cluster_id) {
 
 		DrawCross(2, x1, y1);
 		DrawCross(2, x2, y2);
+
+		if (highlight_number == (int)cu){
+			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+		}
 		SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
 	}
 }
@@ -228,8 +232,8 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // draw cuts
         // TODO 2 colors cuts for 2 clusters
-        displayClusterCuts(disp_cluster_1_);
-        displayClusterCuts(disp_cluster_2_);
+        displayClusterCuts(disp_cluster_1_, -1);
+        displayClusterCuts(disp_cluster_2_, current_cut_);
 
         Render();
     }
@@ -284,6 +288,16 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         		y1_ = -1;
         		x2_ = -1;
         		y2_ = -1;
+        		break;
+
+        	case SDLK_r:
+        		//remove cut
+        		if (current_cut_ >= 0){
+        			buffer->DeleteWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster2(), current_cut_);
+        			need_redraw = true;
+        			current_cut_ = -1;
+        			buffer->spike_buf_no_disp_pca = 0;
+        		}
         		break;
 
         	// clear cluster - remove spikes whose waveshape crosses line (x1,y1) -> (x2, y2)
@@ -409,6 +423,13 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             	disp_cluster_2 = 9 + shift;
             	break;
 
+            case SDLK_RIGHTBRACKET:
+            	if (disp_cluster_2 < (int)buffer->cells_[targ_tetrode_].size() && buffer->cells_[targ_tetrode_][disp_cluster_2].waveshape_cuts_.size() > 0){
+            		current_cut_ = (current_cut_ + 1) % buffer->cells_[targ_tetrode_][disp_cluster_2].waveshape_cuts_.size();
+            		need_redraw = true;
+            	}
+            	break;
+
             default:
                 need_redraw = false;
         }
@@ -418,6 +439,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         }
         if (disp_cluster_2 != user_context_.SelectedCluster2()){
         	user_context_.SelectCluster1(disp_cluster_2);
+        	current_cut_ = -1;
         }
     }
 
@@ -429,5 +451,6 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 void SDLWaveshapeDisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetrode){
     // duplicates functionality in process_SDL_control_input, but is supposed to be called in all displays simultaneously
     targ_tetrode_ = display_tetrode;
+    current_cut_ = -1;
     RenderClear();
 }
