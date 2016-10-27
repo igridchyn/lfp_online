@@ -101,6 +101,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	bool need_clust_check_ = true;
 	int current_projection_ = -1;
 
+	bool highlight_current_cluster_ = false;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,

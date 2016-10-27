@@ -166,6 +166,10 @@ void SDLPCADisplayProcessor::process(){
         // if not online, collect and draw in batches
         if (buffer->pipeline_status_ != PIPELINE_STATUS_ONLINE){
         	spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+        	if (highlight_current_cluster_ && (user_context_.SelectedCluster2() == (int)cid || user_context_.SelectedCluster1() == (int)cid)){
+        		spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x + 1, y + 1};
+        		spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x - 1, y + 1};
+        	}
         }
         else{
         	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
@@ -222,8 +226,11 @@ void SDLPCADisplayProcessor::process(){
         // TODO !!! don't redraw every time?
         // TODO ??? select unknown cluster
         if (user_context_.SelectedCluster1() > 0 && buffer->cells_[target_tetrode_].size() > (unsigned int)user_context_.SelectedCluster1()){
-        	for(size_t p=0; p < buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_.size(); ++p){
-        		PolygonClusterProjection& proj = buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_[p];
+        	std::vector<PolygonClusterProjection> & princ = buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_;
+        	std::vector<PolygonClusterProjection> & prex = buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_exclusive_;
+
+        	for(size_t p=0; p < princ.size() + prex.size(); ++p){
+        		PolygonClusterProjection& proj = p < princ.size() ? princ[p] :prex[p - princ.size()];
         		if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
         			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
         			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
@@ -247,30 +254,33 @@ void SDLPCADisplayProcessor::process(){
         	}
         }
         if (user_context_.SelectedCluster2() >= 0 && buffer->cells_[target_tetrode_].size() > (unsigned int)user_context_.SelectedCluster2()){
-                	for(size_t p=0; p < buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.size(); ++p){
-                		PolygonClusterProjection& proj = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_[p];
-                		if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
-                			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-                			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
-								int x = (int)scale_x(proj.coords1_[pt - 1]);
-								int y = (int)scale_y(proj.coords2_[pt - 1]);
-								int x2 = (int)scale_x(proj.coords1_[pt]);
-								int y2 = (int)scale_y(proj.coords2_[pt]);
-                				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
-                			}
-                		}
-                		if ((unsigned int)proj.dim1_ == comp2_ && (unsigned int)proj.dim2_ == comp1_){
-                			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-                			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
-								int x = (int)scale_x(proj.coords2_[pt - 1]);
-								int y = (int)scale_y(proj.coords1_[pt - 1]);
-								int x2 = (int)scale_x(proj.coords2_[pt]);
-								int y2 = (int)scale_y(proj.coords1_[pt]);
-                				SDL_RenderDrawLine(renderer_, x, y, x2, y2);
-                			}
-                		}
-                	}
-                }
+			std::vector<PolygonClusterProjection> & princ = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_;
+			std::vector<PolygonClusterProjection> & prex = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_exclusive_;
+
+			for(size_t p=0; p < princ.size() + prex.size(); ++p){
+				PolygonClusterProjection& proj = p < princ.size() ? princ[p] :prex[p - princ.size()];
+					if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
+						SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+						for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
+							int x = (int)scale_x(proj.coords1_[pt - 1]);
+							int y = (int)scale_y(proj.coords2_[pt - 1]);
+							int x2 = (int)scale_x(proj.coords1_[pt]);
+							int y2 = (int)scale_y(proj.coords2_[pt]);
+							SDL_RenderDrawLine(renderer_, x, y, x2, y2);
+						}
+					}
+					if ((unsigned int)proj.dim1_ == comp2_ && (unsigned int)proj.dim2_ == comp1_){
+						SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+						for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
+							int x = (int)scale_x(proj.coords2_[pt - 1]);
+							int y = (int)scale_y(proj.coords1_[pt - 1]);
+							int x2 = (int)scale_x(proj.coords2_[pt]);
+							int y2 = (int)scale_y(proj.coords1_[pt]);
+							SDL_RenderDrawLine(renderer_, x, y, x2, y2);
+						}
+					}
+				}
+			}
 
 		if (polygon_closed_ && polygon_x_.size() > 0){
 			SDL_SetRenderDrawColor(renderer_, 0, 255, 0,255);
@@ -498,6 +508,11 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         //Select surfaces based on key press
         switch( e.key.keysym.sym )
         {
+        	case SDLK_h:
+        		highlight_current_cluster_ = ! highlight_current_cluster_;
+        		need_redraw = true;
+        		break;
+
         	// change power threshold + udpate ACs
         	case SDLK_EQUALS:
         		power_threshold_factor_ *= power_threshold_factor_step_;
