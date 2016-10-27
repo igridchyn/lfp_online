@@ -304,8 +304,6 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         				float yw2 = YToPower(selected_channel_, y2_);
 
         				// add to cuts list to cut coming spikes
-        				if (user_context_.SelectedCluster1() > 0)
-        					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster1(), WaveshapeCut(xw1, yw1, xw2, yw2, selected_channel_, (WaveshapeType)display_final_));
         				if (user_context_.SelectedCluster2() > 0)
           					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster2(), WaveshapeCut(xw1, yw1, xw2, yw2, selected_channel_, (WaveshapeType)display_final_));
 
