@@ -894,4 +894,6 @@ void LFPBuffer::AddWaveshapeCut(const unsigned int & tetr, const unsigned int & 
 			spike->cluster_id_ = -1;
 		}
 	}
+
+	spike_buf_no_disp_pca = 0;
 }
