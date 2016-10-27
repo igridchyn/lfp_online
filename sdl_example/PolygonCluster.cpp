@@ -23,15 +23,17 @@ void PolygonCluster::Serialize(std::ofstream& file) {
 	}
 }
 
-PolygonCluster::PolygonCluster(std::ifstream& file) {
-	int sz = 0;
-	file >> sz;
-	for (int i=0; i < sz; ++i){
-		projections_inclusive_.push_back(PolygonClusterProjection(file));
-	}
-	file >> sz;
-	for (int i=0; i < sz; ++i){
-		projections_exclusive_.push_back(PolygonClusterProjection(file));
+PolygonCluster::PolygonCluster(std::ifstream& file, unsigned int version) {
+	if (version == 1){
+		int sz = 0;
+		file >> sz;
+		for (int i=0; i < sz; ++i){
+			projections_inclusive_.push_back(PolygonClusterProjection(file));
+		}
+		file >> sz;
+		for (int i=0; i < sz; ++i){
+			projections_exclusive_.push_back(PolygonClusterProjection(file));
+		}
 	}
 }
 

@@ -50,25 +50,34 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     	if (Utils::FS::FileExists(poly_path_)){
 
 			std::ifstream fpoly(poly_path_);
-			// n tetr / n polycs / polycs
-			unsigned int ntetr = 0;
-			fpoly >> ntetr;
 
-			if (ntetr == buffer->tetr_info_->tetrodes_number()){
-				for(unsigned int t=0; t < ntetr; ++t){
-					unsigned int nclust = 0;
-					fpoly >> nclust;
-					for (unsigned int c=0; c < nclust; ++c){
-						buffer->cells_[t].push_back(PutativeCell(PolygonCluster(fpoly)));
-						if (buffer->cells_[t][c].polygons_.projections_inclusive_.size() == 0 && c > 0){
-							Log("WARNING: empty cluster number ", c);
-							Log("	in tetrode", t);
+			// read version
+			std::string version;
+			std::getline(fpoly, version);
+			// version 1 - projections only, first inclusive, then exclusive, before 27.10.2016; or version 0 - inclusive projections only
+			if (version[0] != 'V'){
+				std::istringstream ss(version);
+
+				// n tetr / n polycs / polycs
+				unsigned int ntetr = 0;
+				ss >> ntetr;
+
+				if (ntetr == buffer->tetr_info_->tetrodes_number()){
+					for(unsigned int t=0; t < ntetr; ++t){
+						unsigned int nclust = 0;
+						fpoly >> nclust;
+						for (unsigned int c=0; c < nclust; ++c){
+							buffer->cells_[t].push_back(PutativeCell(PolygonCluster(fpoly, 1)));
+							if (buffer->cells_[t][c].polygons_.projections_inclusive_.size() == 0 && c > 0){
+								Log("WARNING: empty cluster number ", c);
+								Log("	in tetrode", t);
+							}
 						}
 					}
 				}
-			}
-			else{
-				buffer->Log("Number of tetrodes in clustering file is different from current number of tetrodes");
+				else{
+					buffer->Log("Number of tetrodes in clustering file is different from current number of tetrodes");
+				}
 			}
     	}else{
     		buffer->Log("ERROR: Polygon clusters file not found!");

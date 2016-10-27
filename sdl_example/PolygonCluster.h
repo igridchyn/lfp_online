@@ -63,7 +63,7 @@ public:
 
 	PolygonCluster();
 	PolygonCluster(const PolygonClusterProjection& proj);
-	PolygonCluster(std::ifstream& file);
+	PolygonCluster(std::ifstream& file, unsigned int version);
 	virtual ~PolygonCluster();
 };
 
