@@ -897,3 +897,16 @@ void LFPBuffer::AddWaveshapeCut(const unsigned int & tetr, const unsigned int & 
 
 	spike_buf_no_disp_pca = 0;
 }
+
+void LFPBuffer::DeleteWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, const unsigned int & at){
+	std::vector<WaveshapeCut>& cuts = cells_[tetr][cell].waveshape_cuts_;
+
+	cuts.erase(cuts.begin() + at, cuts.begin() + at + 1);
+
+	for (unsigned int i=0; i < spike_buf_pos; ++i){
+		Spike *spike = spike_buffer_[i];
+		if (cells_[tetr][cell].Contains(spike) && spike->cluster_id_ == -1){
+			spike->cluster_id_ = cell;
+		}
+	}
+}

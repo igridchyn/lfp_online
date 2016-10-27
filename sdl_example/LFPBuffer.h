@@ -446,6 +446,7 @@ public:
 	const unsigned int PacakgeIdByPositionIndex(const unsigned int& pos_index);
 
 	void AddWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, WaveshapeCut cut);
+	void DeleteWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, const unsigned int & at);
 };
 
 template<class T>
