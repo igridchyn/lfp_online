@@ -10,24 +10,7 @@
 #define sdl_example_SDLWaveshapeDisplayProcessor_h
 
 #include "SDLSingleWindowDisplay.h"
-
-class WaveshapeCut{
-public:
-	int x1_;
-	int y1_;
-	int x2_;
-	int y2_;
-
-	unsigned int channel_;
-
-	WaveshapeCut(int x1, int y1, int x2, int y2, const unsigned int& channel)
-		: x1_(x1)
-		, y1_(y1)
-		, x2_(x2)
-		, y2_(y2)
-		, channel_(channel)
-	{}
-};
+#include "PutativeCell.h"
 
 class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
     unsigned last_disp_pkg_id_ = 0;
@@ -52,9 +35,6 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
     int x2_ = -1;
     int y2_ = -1;
 
-    const unsigned int MAX_CLUST = 150;
-    // [tetr][clust][cut]
-    std::vector<std::vector<std::vector<WaveshapeCut> > > cluster_cuts_;
 	// if true, final waveshape (16 points) used for PCA is displayed
 	// otherwise - reconstructed 4x upsampled ws
 	bool display_final_ = false;
@@ -66,7 +46,7 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 	float XToWaveshapeSampleNumber(int x);
 	float YToPower(int chan, int y);
 
-	void displayClusterCuts(const int cluster_id);
+	void displayClusterCuts(const int & cluster_id);
 	void reinit();
 
 	unsigned int last_ua_id_ = 0;

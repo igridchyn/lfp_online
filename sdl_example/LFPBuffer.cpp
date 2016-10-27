@@ -52,6 +52,8 @@ void LFPBuffer::Reset(Config* config)
 		exit(LFPONLINE_BAD_TETRODES_CONFIG);
 	}
 
+	cells_.resize(tetr_info_->tetrodes_number());
+
 	// set dimensionalities for each number of channels per tetrode
 	std::vector<int> pc_per_chan;
 	pc_per_chan.push_back(0);
@@ -877,4 +879,19 @@ const unsigned int LFPBuffer::PositionIndexByPacakgeId(const unsigned int& pkg_i
 
 const unsigned int LFPBuffer::PacakgeIdByPositionIndex(const unsigned int& pos_index){
 	return (pos_index + pos_rewind_shift) * POS_SAMPLING_RATE;
+}
+
+void LFPBuffer::AddWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, WaveshapeCut cut){
+	if (cells_[tetr].size() <= cell){
+		cells_[tetr].resize(cell + 1);
+	}
+	cells_[tetr][cell].waveshape_cuts_.push_back(cut);
+
+	//update cluster identities
+	for (unsigned int i=0; i < spike_buf_pos; ++i){
+		Spike *spike = spike_buffer_[i];
+		if (spike->tetrode_ == (int)tetr && spike->cluster_id_ == (int)cell && cut.Contains(spike)){
+			spike->cluster_id_ = -1;
+		}
+	}
 }

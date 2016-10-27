@@ -9,7 +9,6 @@
 #ifndef sdl_example_TetrodesInfo_h
 #define sdl_example_TetrodesInfo_h
 
-#include "Spike.h"
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -17,7 +16,11 @@
 #include <assert.h>
 #include <string.h>
 #include <string>
+
+
+#include "Spike.h"
 #include "Utils.h"
+#include "PutativeCell.h"
 
 enum TetrodesInfoStatus{
 	TI_STATUS_LOADED,
@@ -62,6 +65,10 @@ public:
     // workaround for multiple tetrode configurations within one pipeline
     // to get tetrode index with the same channels in other config
     unsigned int Translate(const TetrodesInfo * const ti, const unsigned int& tetr);
+};
+
+class TetrodeCellInfo{
+	std::vector<PutativeCell> cells_;
 };
 
 #endif

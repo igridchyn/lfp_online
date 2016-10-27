@@ -33,11 +33,6 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, cuts_save_(buf->config_->getBool("waveshapedisp.cuts.save", false))
 	, cuts_load_(buf->config_->getBool("waveshapedisp.cuts.load", false))
 {
-	for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-		cluster_cuts_.push_back(std::vector<std::vector<WaveshapeCut> >());
-		cluster_cuts_[t].resize(MAX_CLUST);
-	}
-
 	// LOAD CUTS FROM FILE
 	if (cuts_load_){
 		if (!Utils::FS::FileExists(cuts_file_path_)){
@@ -48,9 +43,10 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 		std::ifstream cuts_file_(cuts_file_path_);
 		int cn, x1, x2, y1, y2;
 		unsigned int chan, t;
+		int waveshapeCutType;
 		while (!cuts_file_.eof()){
-			cuts_file_ >> t >> cn >> x1 >> y1 >> x2 >> y2 >> chan;
-			cluster_cuts_[t][cn].push_back(WaveshapeCut(x1, y1, x2, y2, chan));
+			cuts_file_ >> t >> cn >> x1 >> y1 >> x2 >> y2 >> chan >> waveshapeCutType;
+			buffer->cells_[t][cn].waveshape_cuts_.push_back(WaveshapeCut(x1, y1, x2, y2, chan, (WaveshapeType)waveshapeCutType));
 		}
 		cuts_file_.close();
 	}
@@ -61,9 +57,10 @@ void SDLWaveshapeDisplayProcessor::saveCuts(){
 		std::ofstream cuts_file_(cuts_file_path_);
 
 		for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-			for (unsigned int c=0; c < MAX_CLUST; ++c){
-				for (unsigned int cut=0; cut < cluster_cuts_[t][c].size(); ++cut){
-					cuts_file_ << t << " " << c << " " << cluster_cuts_[t][c][cut].x1_ << " " << cluster_cuts_[t][c][cut].y1_ << " " << cluster_cuts_[t][c][cut].x2_ << " " << cluster_cuts_[t][c][cut].y2_ << " " << cluster_cuts_[t][c][cut].channel_ << "\n";
+			for (unsigned int c=0; c < buffer->cells_[t].size(); ++c){
+				for (unsigned int cut=0; cut < buffer->cells_[t][c].waveshape_cuts_.size(); ++cut){
+					WaveshapeCut & wcut = buffer->cells_[t][c].waveshape_cuts_[cut];
+					cuts_file_ << t << " " << c << " " << wcut.x1_ << " " << wcut.y1_ << " " << wcut.x2_ << " " << wcut.y2_ << " " << wcut.channel_ << " " << (int)wcut.waveshapeType_ << "\n";
 				}
 			}
 		}
@@ -84,12 +81,12 @@ float SDLWaveshapeDisplayProcessor::YToPower(int chan, int y) {
 	return -(y - 100 - (float)y_mult_ * chan) * scale_;
 }
 
-void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int cluster_id) {
-	if (cluster_id < 1)
+void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int & cluster_id) {
+	if (cluster_id < 1 || (int)buffer->cells_[targ_tetrode_].size() <= cluster_id)
 		return;
 
-	for (size_t cu = 0; cu < cluster_cuts_[targ_tetrode_][cluster_id].size(); ++cu) {
-		WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][cluster_id][cu];
+	for (size_t cu = 0; cu < buffer->cells_[targ_tetrode_][cluster_id].waveshape_cuts_.size(); ++cu) {
+		WaveshapeCut& cut = buffer->cells_[targ_tetrode_][cluster_id].waveshape_cuts_[cu];
 		DrawCross(2, cut.x1_, cut.y1_);
 		DrawCross(2, cut.x2_, cut.y2_);
 		SDL_RenderDrawLine(renderer_, cut.x1_, cut.y1_, cut.x2_, cut.y2_);
@@ -122,8 +119,8 @@ void SDLWaveshapeDisplayProcessor::process() {
     SDL_SetRenderTarget(renderer_, texture_);
     const ColorPalette& colpal = ColorPalette::BrewerPalette12;
 
-    const unsigned int& disp_cluster_1_ = user_context_.SelectedCluster1();
-    const unsigned int& disp_cluster_2_ = user_context_.SelectedCluster2();
+    const int& disp_cluster_1_ = user_context_.SelectedCluster1();
+    const int& disp_cluster_2_ = user_context_.SelectedCluster2();
     
     while(user_context_.HasNewAction(last_ua_id_)){
     	const UserAction *ua = user_context_.GetNextAction(last_ua_id_);
@@ -174,47 +171,12 @@ void SDLWaveshapeDisplayProcessor::process() {
 
         // PLOTTING EVERY N-th spike
 		if ((unsigned int)spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 ||
-				((unsigned int)spike->cluster_id_ != disp_cluster_1_ && (unsigned int)spike->cluster_id_ != disp_cluster_2_) ||
+				(spike->cluster_id_ != disp_cluster_1_ && spike->cluster_id_ != disp_cluster_2_) ||
 				spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
             buf_pointer_++;
             tetrode_total_spikes_ ++;
             continue;
         }
-        
-		// check if falls under any cluster cuts
-		bool is_cut = false;
-		for(size_t c= 0; c < cluster_cuts_[targ_tetrode_][spike->cluster_id_].size(); ++c){
-			WaveshapeCut& cut = cluster_cuts_[targ_tetrode_][spike->cluster_id_][c];
-
-
-			float xw1 = XToWaveshapeSampleNumber(cut.x1_);
-			float yw1 = YToPower(cut.channel_, cut.y1_);
-			float xw2 = XToWaveshapeSampleNumber(cut.x2_);
-			float yw2 = YToPower(cut.channel_, cut.y2_);
-
-			if (display_final_){
-				if (spike->crossesWaveShapeFinal(cut.channel_, xw1, yw1, xw2, yw2)){
-					spike->cluster_id_ = 0;
-					is_cut = true;
-					break;
-				}
-			}
-			else{
-				if (spike->crossesWaveShapeReconstructed(cut.channel_, xw1, yw1, xw2, yw2)){
-					spike->cluster_id_ = 0;
-					is_cut = true;
-					break;
-				}
-			}
-
-			if (is_cut)
-				break;
-		}
-		if (is_cut){
-			 buf_pointer_++;
-			 tetrode_total_spikes_ ++;
-			 continue;
-		}
 
 		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
         for (int chan=0; chan < 4; ++chan) {
@@ -335,9 +297,9 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
         				// add to cuts list to cut coming spikes
         				if (user_context_.SelectedCluster1() > 0)
-        					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster1()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
+        					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster1(), WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_, (WaveshapeType)display_final_));
         				if (user_context_.SelectedCluster2() > 0)
-        					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster2()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
+          					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster2(), WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_, (WaveshapeType)display_final_));
 
         				saveCuts();
 

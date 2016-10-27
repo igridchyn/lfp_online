@@ -24,6 +24,7 @@
 #include "Config.h"
 #include "UserContext.h"
 #include "Utils.h"
+#include "PutativeCell.h"
 
 #include <armadillo>
 
@@ -365,6 +366,8 @@ public:
 
 	Utils::NewtonSolver *synchronyThresholdAdapter_;
 
+	std::vector< std::vector <PutativeCell> > cells_;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);
@@ -441,6 +444,8 @@ public:
 	const SpatialInfo& PositionAt(const unsigned int& pkg_id);
 	const unsigned int PositionIndexByPacakgeId(const unsigned int& pkg_id);
 	const unsigned int PacakgeIdByPositionIndex(const unsigned int& pos_index);
+
+	void AddWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, WaveshapeCut cut);
 };
 
 template<class T>
