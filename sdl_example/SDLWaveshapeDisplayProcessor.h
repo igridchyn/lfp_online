@@ -55,7 +55,6 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
     const unsigned int MAX_CLUST = 150;
     // [tetr][clust][cut]
     std::vector<std::vector<std::vector<WaveshapeCut> > > cluster_cuts_;
-
 	// if true, final waveshape (16 points) used for PCA is displayed
 	// otherwise - reconstructed 4x upsampled ws
 	bool display_final_ = false;
@@ -76,6 +75,9 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 	// [tetrode][cluster][channel][sample]
 	//unsigned int mean_waveshapes_[32][40][4][128] = {0};
 
+	std::string cuts_file_path_;
+	bool cuts_save_, cuts_load_;
+
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,
@@ -90,6 +92,8 @@ public:
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
 
     float transform(float smpl, int chan);
+
+    void saveCuts();
 };
 
 #endif

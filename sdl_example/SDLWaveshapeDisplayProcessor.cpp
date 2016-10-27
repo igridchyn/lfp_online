@@ -29,10 +29,44 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 1))
 	, display_final_(buf->config_->getBool("waveshapedisp.final", false))
 	, buf_pointer_(buf->spike_buf_pos_ws_disp_)
+	, cuts_file_path_(buf->config_->getOutPath("waveshapedisp.cuts.path"))
+	, cuts_save_(buf->config_->getBool("waveshapedisp.cuts.save", false))
+	, cuts_load_(buf->config_->getBool("waveshapedisp.cuts.load", false))
 {
 	for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
 		cluster_cuts_.push_back(std::vector<std::vector<WaveshapeCut> >());
 		cluster_cuts_[t].resize(MAX_CLUST);
+	}
+
+	// LOAD CUTS FROM FILE
+	if (cuts_load_){
+		if (!Utils::FS::FileExists(cuts_file_path_)){
+			Log(std::string("ERROR: Cuts file not found: ") + cuts_file_path_);
+			exit(81742);
+		}
+
+		std::ifstream cuts_file_(cuts_file_path_);
+		int cn, x1, x2, y1, y2;
+		unsigned int chan, t;
+		while (!cuts_file_.eof()){
+			cuts_file_ >> t >> cn >> x1 >> y1 >> x2 >> y2 >> chan;
+			cluster_cuts_[t][cn].push_back(WaveshapeCut(x1, y1, x2, y2, chan));
+		}
+		cuts_file_.close();
+	}
+}
+
+void SDLWaveshapeDisplayProcessor::saveCuts(){
+	if (cuts_save_){
+		std::ofstream cuts_file_(cuts_file_path_);
+
+		for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+			for (unsigned int c=0; c < MAX_CLUST; ++c){
+				for (unsigned int cut=0; cut < cluster_cuts_[t][c].size(); ++cut){
+					cuts_file_ << t << " " << c << " " << cluster_cuts_[t][c][cut].x1_ << " " << cluster_cuts_[t][c][cut].y1_ << " " << cluster_cuts_[t][c][cut].x2_ << " " << cluster_cuts_[t][c][cut].y2_ << " " << cluster_cuts_[t][c][cut].channel_ << "\n";
+				}
+			}
+		}
 	}
 }
 
@@ -304,6 +338,8 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster1()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
         				if (user_context_.SelectedCluster2() > 0)
         					cluster_cuts_[targ_tetrode_][user_context_.SelectedCluster2()].push_back(WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_));
+
+        				saveCuts();
 
         				for (unsigned int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
         					Spike *spike = buffer->spike_buffer_[s];
