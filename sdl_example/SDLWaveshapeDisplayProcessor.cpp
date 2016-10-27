@@ -46,7 +46,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 		int waveshapeCutType;
 		while (!cuts_file_.eof()){
 			cuts_file_ >> t >> cn >> x1 >> y1 >> x2 >> y2 >> chan >> waveshapeCutType;
-			buffer->cells_[t][cn].waveshape_cuts_.push_back(WaveshapeCut(x1, y1, x2, y2, chan, (WaveshapeType)waveshapeCutType));
+			buffer->AddWaveshapeCut(t, cn, WaveshapeCut(x1, y1, x2, y2, chan, (WaveshapeType)waveshapeCutType));
 		}
 		cuts_file_.close();
 	}
@@ -87,9 +87,17 @@ void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int & cluster_id) {
 
 	for (size_t cu = 0; cu < buffer->cells_[targ_tetrode_][cluster_id].waveshape_cuts_.size(); ++cu) {
 		WaveshapeCut& cut = buffer->cells_[targ_tetrode_][cluster_id].waveshape_cuts_[cu];
-		DrawCross(2, cut.x1_, cut.y1_);
-		DrawCross(2, cut.x2_, cut.y2_);
-		SDL_RenderDrawLine(renderer_, cut.x1_, cut.y1_, cut.x2_, cut.y2_);
+
+		float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+
+		x1 = cut.x1_ * ((cut.waveshapeType_ == WaveshapeTypeOriginal) ? x_mult_final_ : x_mult_reconstructed_);
+		x2 = cut.x2_ * ((cut.waveshapeType_ == WaveshapeTypeOriginal) ? x_mult_final_ : x_mult_reconstructed_);
+		y1 = (- cut.y1_ / scale_) + 100 + (float)y_mult_ * cut.channel_;
+		y2 = (- cut.y2_ / scale_) + 100 + (float)y_mult_ * cut.channel_;
+
+		DrawCross(2, x1, y1);
+		DrawCross(2, x2, y2);
+		SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
 	}
 }
 
@@ -297,28 +305,11 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
         				// add to cuts list to cut coming spikes
         				if (user_context_.SelectedCluster1() > 0)
-        					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster1(), WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_, (WaveshapeType)display_final_));
+        					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster1(), WaveshapeCut(xw1, yw1, xw2, yw2, selected_channel_, (WaveshapeType)display_final_));
         				if (user_context_.SelectedCluster2() > 0)
-          					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster2(), WaveshapeCut(x1_, y1_, x2_, y2_, selected_channel_, (WaveshapeType)display_final_));
+          					buffer->AddWaveshapeCut(targ_tetrode_, user_context_.SelectedCluster2(), WaveshapeCut(xw1, yw1, xw2, yw2, selected_channel_, (WaveshapeType)display_final_));
 
         				saveCuts();
-
-        				for (unsigned int s = 0; s < buffer->spike_buf_no_disp_pca; ++s) {
-        					Spike *spike = buffer->spike_buffer_[s];
-
-        					if ((unsigned int)spike->tetrode_ == targ_tetrode_ && user_context_.IsSelected(spike)){
-        						if (display_final_){
-        							if (spike->crossesWaveShapeFinal(selected_channel_, xw1, yw1, xw2, yw2)){
-        								spike->cluster_id_ = 0;
-        							}
-        						}
-        						else{
-        							if (spike->crossesWaveShapeReconstructed(selected_channel_, xw1, yw1, xw2, yw2)){
-        								spike->cluster_id_ = 0;
-        							}
-        						}
-        					}
-        				}
 
         				// reset AC / CC
         				buffer->ResetAC(targ_tetrode_, user_context_.SelectedCluster1());
