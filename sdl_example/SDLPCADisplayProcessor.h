@@ -99,6 +99,7 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	std::vector<bool> display_cluster_;
 
 	bool need_clust_check_ = true;
+	int current_projection_ = -1;
 
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);

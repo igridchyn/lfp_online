@@ -45,12 +45,6 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 {
     nchan_ = buffer->tetr_info_->channels_number(target_tetrode);
 
-    for(size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-    	polygon_clusters_.push_back(std::vector<PolygonCluster>());
-    	// insert fake 0 cluster (interpreted as artifact cluster)
-    	polygon_clusters_[t].push_back(PolygonCluster());
-    }
-
     if(poly_load_){
 
     	if (Utils::FS::FileExists(poly_path_)){
@@ -64,10 +58,9 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 				for(unsigned int t=0; t < ntetr; ++t){
 					unsigned int nclust = 0;
 					fpoly >> nclust;
-					polygon_clusters_[t].clear();
 					for (unsigned int c=0; c < nclust; ++c){
-						polygon_clusters_[t].push_back(PolygonCluster(fpoly));
-						if (polygon_clusters_[t][c].projections_inclusive_.size() == 0 && c > 0){
+						buffer->cells_[t].push_back(PutativeCell(PolygonCluster(fpoly)));
+						if (buffer->cells_[t][c].polygons_.projections_inclusive_.size() == 0 && c > 0){
 							Log("WARNING: empty cluster number ", c);
 							Log("	in tetrode", t);
 						}
@@ -135,8 +128,8 @@ void SDLPCADisplayProcessor::process(){
 
         // polygon cluster
         if (spike->cluster_id_ == -1 && need_clust_check_){
-        	for (size_t i=0; i < polygon_clusters_[spike->tetrode_].size(); ++i){
-        		int contains = polygon_clusters_[spike->tetrode_][i].Contains(spike);
+        	for (size_t i=0; i < buffer->cells_[spike->tetrode_].size(); ++i){
+        		bool contains = buffer->cells_[spike->tetrode_][i].Contains(spike);
         		if (contains){
         			spike->cluster_id_ = i;
         		}
@@ -219,9 +212,9 @@ void SDLPCADisplayProcessor::process(){
 
         // TODO !!! don't redraw every time?
         // TODO ??? select unknown cluster
-        if (user_context_.SelectedCluster1() > 0 && polygon_clusters_[target_tetrode_].size() > (unsigned int)user_context_.SelectedCluster1()){
-        	for(size_t p=0; p < polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()].projections_inclusive_.size(); ++p){
-        		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()].projections_inclusive_[p];
+        if (user_context_.SelectedCluster1() > 0 && buffer->cells_[target_tetrode_].size() > (unsigned int)user_context_.SelectedCluster1()){
+        	for(size_t p=0; p < buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_.size(); ++p){
+        		PolygonClusterProjection& proj = buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_[p];
         		if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
         			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
         			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
@@ -244,9 +237,9 @@ void SDLPCADisplayProcessor::process(){
         		}
         	}
         }
-        if (user_context_.SelectedCluster2() >= 0 && polygon_clusters_[target_tetrode_].size() > (unsigned int)user_context_.SelectedCluster2()){
-                	for(size_t p=0; p < polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_inclusive_.size(); ++p){
-                		PolygonClusterProjection& proj = polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_inclusive_[p];
+        if (user_context_.SelectedCluster2() >= 0 && buffer->cells_[target_tetrode_].size() > (unsigned int)user_context_.SelectedCluster2()){
+                	for(size_t p=0; p < buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.size(); ++p){
+                		PolygonClusterProjection& proj = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_[p];
                 		if ((unsigned int)proj.dim1_ == comp1_ && (unsigned int)proj.dim2_ == comp2_){
                 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
                 			for (size_t pt=1;pt < proj.coords1_.size(); ++pt){
@@ -309,7 +302,7 @@ void SDLPCADisplayProcessor::process(){
 
 		// if were redrawing in an off-line mode, draw all collected spikes
 		if (buffer->pipeline_status_ != PIPELINE_STATUS_ONLINE){
-			for (size_t cid=0; cid <  polygon_clusters_[target_tetrode_].size(); ++cid){
+			for (size_t cid=0; cid <  buffer->cells_[target_tetrode_].size(); ++cid){
 				SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
 				SDL_RenderDrawPoints(renderer_, &spikes_to_draw_[cid][0], spikes_counts_[cid]);
 				spikes_counts_[cid] = 0;
@@ -332,9 +325,9 @@ void SDLPCADisplayProcessor::save_polygon_clusters() {
 	fpoly << ntetr << "\n";
 
 	for(int t=0; t < ntetr; ++t){
-		fpoly << polygon_clusters_[t].size() << "\n";
-		for (size_t c=0; c < polygon_clusters_[t].size(); ++c){
-			polygon_clusters_[t][c].Serialize(fpoly);
+		fpoly << buffer->cells_[t].size() << "\n";
+		for (size_t c=0; c < buffer->cells_[t].size(); ++c){
+			buffer->cells_[t][c].polygons_.Serialize(fpoly);
 		}
 	}
 
@@ -380,8 +373,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				float rawx = (e.button.x - shift_x_) * scale_;
 				float rawy = (e.button.y - shift_y_) * scale_;
 
-				for(size_t c=0; c < polygon_clusters_[target_tetrode_].size(); ++c){
-					if (polygon_clusters_[target_tetrode_][c].Contains(rawx, rawy)){
+				for(size_t c=0; c < buffer->cells_[target_tetrode_].size(); ++c){
+					if (buffer->cells_[target_tetrode_][c].polygons_.Contains(rawx, rawy)){
 						if (user_context_.SelectedCluster1() >= 0){
 							if ((unsigned int)user_context_.SelectedCluster1() == c){
 								user_context_.SelectCluster1(-1);
@@ -401,8 +394,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				float rawx = (e.button.x - shift_x_) * scale_;
 				float rawy = (e.button.y - shift_y_) * scale_;
 
-				for(size_t c=0; c < polygon_clusters_[target_tetrode_].size(); ++c){
-					if (polygon_clusters_[target_tetrode_][c].Contains(rawx, rawy)){
+				for(size_t c=0; c < buffer->cells_[target_tetrode_].size(); ++c){
+					if (buffer->cells_[target_tetrode_][c].polygons_.Contains(rawx, rawy)){
 						if (user_context_.SelectedCluster2() >= 0){
 							if ((unsigned int)user_context_.SelectedCluster2() == c){
 								user_context_.SelectCluster2(-1);
@@ -471,10 +464,13 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 		need_clust_check_ = false;
 	}
 
+	bool need_current_projection_reset = true;
+
     if( e.type == SDL_KEYDOWN )
     {
     	need_redraw = true;
     	need_clust_check_ = false;
+
 
         // select clusters from 10 to 39
         int shift = 0;
@@ -527,10 +523,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
         	}
 
-        	// show Two selected clusters only
+        	// show [T]wo selected clusters only : T - show all
         	case SDLK_t:{
         		for (unsigned int c=0; c < MAX_CLUST; ++c){
-        			display_cluster_[c] = (c == (unsigned int)user_context_.SelectedCluster1() || c == (unsigned int)user_context_.SelectedCluster2());
+        			if (shift > 0){
+        				display_cluster_[c] = true;
+        			} else {
+        				display_cluster_[c] = (c == (unsigned int)user_context_.SelectedCluster1() || c == (unsigned int)user_context_.SelectedCluster2());
+        			}
         		}
         		need_redraw = true;
         		break;
@@ -588,6 +588,39 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			save_polygon_clusters();
         		}
         		break;
+
+        	case SDLK_RIGHTBRACKET:
+        		if (user_context_.SelectedCluster2() > 0){
+        			need_current_projection_reset = false;
+        			PolygonCluster & poly = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_;
+        			current_projection_ = (current_projection_ + 1) % (poly.projections_exclusive_.size() + poly.projections_inclusive_.size());
+        			if ((unsigned int)current_projection_ < poly.projections_inclusive_.size()){
+        				comp1_ = poly.projections_inclusive_[current_projection_].dim1_;
+        				comp2_ = poly.projections_inclusive_[current_projection_].dim2_;
+        			} else {
+        				comp1_ = poly.projections_exclusive_[current_projection_ - poly.projections_exclusive_.size()].dim1_;
+        				comp2_ = poly.projections_exclusive_[current_projection_ - poly.projections_exclusive_.size()].dim2_;
+        			}
+        			need_redraw = true;
+        		}
+				break;
+
+        	case SDLK_LEFTBRACKET:
+        		if (user_context_.SelectedCluster2() > 0){
+        			need_current_projection_reset = false;
+        			PolygonCluster & poly = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_;
+        			current_projection_ = (current_projection_ - 1) % (poly.projections_exclusive_.size() + poly.projections_inclusive_.size());
+        			if ((unsigned int)current_projection_ < poly.projections_inclusive_.size()){
+        				comp1_ = poly.projections_inclusive_[current_projection_].dim1_;
+        				comp2_ = poly.projections_inclusive_[current_projection_].dim2_;
+        			} else {
+        				comp1_ = poly.projections_exclusive_[current_projection_ - poly.projections_exclusive_.size()].dim1_;
+        				comp2_ = poly.projections_exclusive_[current_projection_ - poly.projections_exclusive_.size()].dim2_;
+        			}
+        			need_redraw = true;
+        		}
+				break;
+
 
             case SDLK_ESCAPE:
                 buffer->processing_over_ = true;
@@ -700,6 +733,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		comp2_ = old_comp2;
         	}
 
+        	if (need_current_projection_reset){
+        		current_projection_ = -1;
+        	}
+
         	for (unsigned int i=0; i < MAX_CLUST; ++i){
         		spikes_counts_[i] = 0;
         	}
@@ -761,13 +798,13 @@ void SDLPCADisplayProcessor::deleteCluster() {
 			}
 		}
 
-		user_context_.DelleteCluster(polygon_clusters_[target_tetrode_][c2]);
+		user_context_.DelleteCluster(buffer->cells_[target_tetrode_][c2].polygons_);
 
 		// move polygon clusters up
-		for(unsigned int i = c2; i < polygon_clusters_[target_tetrode_].size() - 1; ++i){
-			polygon_clusters_[target_tetrode_][i] = polygon_clusters_[target_tetrode_][i + 1];
+		for(unsigned int i = c2; i < buffer->cells_[target_tetrode_].size() - 1; ++i){
+			buffer->cells_[target_tetrode_][i] = buffer->cells_[target_tetrode_][i + 1];
 		}
-		polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + polygon_clusters_[target_tetrode_].size() - 1);
+		buffer->cells_[target_tetrode_].erase(buffer->cells_[target_tetrode_].begin() + buffer->cells_[target_tetrode_].size() - 1);
 
 
 		buffer->ResetPopulationWindow();
@@ -799,7 +836,7 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 		polygon_x_.clear();
 		polygon_y_.clear();
 
-		polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_exclusive_.push_back(tmpproj);
+		buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_exclusive_.push_back(tmpproj);
 
 		user_context_.AddExclusiveProjection(tmpproj);
 
@@ -813,17 +850,17 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 
 void SDLPCADisplayProcessor::addCluster() {
 	PolygonCluster new_clust_ = PolygonCluster(PolygonClusterProjection(polygon_x_, polygon_y_, comp1_, comp2_));
-	unsigned int clun = (unsigned int)user_context_.CreateClsuter(polygon_clusters_[target_tetrode_].size(), new_clust_.projections_inclusive_[0]);
+	unsigned int clun = (unsigned int)user_context_.CreateClsuter(buffer->cells_[target_tetrode_].size(), new_clust_.projections_inclusive_[0]);
 
 	// push back new or replace cluster invalidated before
-	if (clun == polygon_clusters_[target_tetrode_].size()){
-		polygon_clusters_[target_tetrode_].push_back(new_clust_);
+	if (clun == buffer->cells_[target_tetrode_].size()){
+		buffer->cells_[target_tetrode_].push_back(new_clust_);
 	}
 	else{
-		polygon_clusters_[target_tetrode_][clun] = new_clust_;
+		buffer->cells_[target_tetrode_][clun] = PutativeCell(new_clust_);
 	}
 
-	buffer->Log("Created new polygon cluster, total clusters = ", (int)polygon_clusters_[target_tetrode_].size());
+	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
 	save_polygon_clusters();
 
 	// TODO ClearPolygon()
@@ -873,8 +910,8 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	// copy projections
 	// TODO ??? exclusive as well ? (can affect other clusters)
-	polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()].projections_inclusive_.insert(polygon_clusters_[target_tetrode_][user_context_.SelectedCluster1()].projections_inclusive_.end(),
-			polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_inclusive_.begin(), polygon_clusters_[target_tetrode_][user_context_.SelectedCluster2()].projections_inclusive_.end());
+	buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_.insert(buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_.end(),
+			buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.begin(), buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.end());
 
 	int scount = 0;
 	SDL_SetRenderTarget(renderer_, texture_);
@@ -898,15 +935,14 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	}
 
 	// remove cluster from list of tetrode poly clusters
-	user_context_.MergeClusters(polygon_clusters_[target_tetrode_][c1], polygon_clusters_[target_tetrode_][c2]);
+	user_context_.MergeClusters(buffer->cells_[target_tetrode_][c1].polygons_, buffer->cells_[target_tetrode_][c2].polygons_);
 	buffer->ResetPopulationWindow();
 
 	// move polygon clusters up
-	for(unsigned int i = c2; i < polygon_clusters_[target_tetrode_].size() - 1; ++i){
-		polygon_clusters_[target_tetrode_][i] = polygon_clusters_[target_tetrode_][i + 1];
+	for(unsigned int i = c2; i < buffer->cells_[target_tetrode_].size() - 1; ++i){
+		buffer->cells_[target_tetrode_][i] = buffer->cells_[target_tetrode_][i + 1];
 	}
-	polygon_clusters_[target_tetrode_].erase(polygon_clusters_[target_tetrode_].begin() + polygon_clusters_[target_tetrode_].size() - 1);
-
+	buffer->cells_[target_tetrode_].erase(buffer->cells_[target_tetrode_].begin() + buffer->cells_[target_tetrode_].size() - 1);
 
 	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
 	Render();
