@@ -9,7 +9,7 @@
 #include "PutativeCell.h"
 
 bool WaveshapeCut::Contains(Spike *spike){
-	if (waveshapeType_ == WaveshapeTypeInterpolated){
+	if (waveshapeType_ == WaveshapeTypeOriginal){
 		return spike->crossesWaveShapeFinal(channel_, x1_, y1_, x2_, y2_);
 	}
 	else{
@@ -32,3 +32,11 @@ bool PutativeCell::Contains(Spike *spike){
 
 	return true;
 }
+
+PutativeCell::PutativeCell(PolygonCluster polyclust)
+	:polygons_(polyclust)
+{
+
+}
+
+PutativeCell::PutativeCell() {}

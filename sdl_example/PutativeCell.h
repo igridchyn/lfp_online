@@ -43,6 +43,8 @@ public:
 class PutativeCell{
 
 public:
+	PutativeCell();
+	PutativeCell(PolygonCluster polygons);
 	std::vector<WaveshapeCut> waveshape_cuts_;
 	PolygonCluster polygons_;
 
