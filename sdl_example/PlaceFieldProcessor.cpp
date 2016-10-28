@@ -305,6 +305,11 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	clu_global->close();
 	res_global->close();
 	Log("FINISHED SAVING CLU/RES");
+
+	std::ofstream cluster_shifts(buffer->config_->getString("out.path.base") + "cluster_shifts.txt");
+	for (size_t t=0; t < global_cluster_number_shfit_.size(); ++t){
+		cluster_shifts << global_cluster_number_shfit_[t] << "\n";
+	}
 }
 
 void PlaceFieldProcessor::dumpPlaceFields(){
@@ -428,6 +433,19 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
 }
 
 void PlaceFieldProcessor::calculateClusterNumberShifts(){
+
+	unsigned int i=0;
+    while (i < buffer->spike_buf_pos_speed_){
+        Spike *spike = buffer->spike_buffer_[i++];
+
+        unsigned int tetr = spike->tetrode_;
+        int clust = spike->cluster_id_;
+
+        if (clust > 0 &&  clust > (int)clusters_in_tetrode_[tetr]){
+        	clusters_in_tetrode_[tetr] = clust;
+        }
+    }
+
     Log("Clusters per tetrodes:");
     unsigned int total_clusters = 0;
     for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
