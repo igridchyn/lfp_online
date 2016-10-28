@@ -936,6 +936,7 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	// TODO ??? exclusive as well ? (can affect other clusters)
 	buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_.insert(buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].polygons_.projections_inclusive_.end(),
 			buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.begin(), buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.end());
+	buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].waveshape_cuts_.clear();
 
 	int scount = 0;
 	SDL_SetRenderTarget(renderer_, texture_);

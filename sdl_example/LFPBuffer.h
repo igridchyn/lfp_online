@@ -447,6 +447,7 @@ public:
 
 	void AddWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, WaveshapeCut cut);
 	void DeleteWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, const unsigned int & at);
+	int AssignCluster(Spike *spike);
 };
 
 template<class T>
