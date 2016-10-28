@@ -53,6 +53,9 @@ void LFPBuffer::Reset(Config* config)
 	}
 
 	cells_.resize(tetr_info_->tetrodes_number());
+	for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
+		cells_[tetr].push_back(PutativeCell());
+	}
 
 	// set dimensionalities for each number of channels per tetrode
 	std::vector<int> pc_per_chan;
