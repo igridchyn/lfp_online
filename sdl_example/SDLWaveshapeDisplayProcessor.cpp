@@ -37,6 +37,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	if (cuts_load_){
 		if (!Utils::FS::FileExists(cuts_file_path_)){
 			Log(std::string("WARNING: Cuts file not found: ") + cuts_file_path_);
+			return;
 		}
 
 		std::ifstream cuts_file_(cuts_file_path_);
