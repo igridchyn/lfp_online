@@ -9,64 +9,58 @@
 
 CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer)
 : CluReaderClusteringProcessor(buffer,
-		buffer->config_->getString("dat.path.base") + "clu.",
-		buffer->config_->getString("dat.path.base") + "res.",
-		buffer->config_->tetrodes
+		buffer->config_->getString("out.path.base") + "all.clu",
+		buffer->config_->getString("out.path.base") + "all.res"
 		){
 
 }
 
 CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, const std::string& clu_path,
-		const std::string& res_path_base, const std::vector<int>& tetrodes)
+		const std::string& res_path_base)
 : LFPProcessor(buffer)
 , clu_path_(clu_path)
 , res_path_(res_path_base)
 {
-		max_clust_.resize(buffer->tetr_info_->tetrodes_number());
+	max_clust_.resize(buffer->tetr_info_->tetrodes_number());
 
-		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-			clu_streams_.push_back(new std::ifstream(clu_path_ + Utils::NUMBERS[tetrodes[t]]));
-			res_streams_.push_back(new std::ifstream(res_path_ + Utils::NUMBERS[tetrodes[t]]));
-			// read number of clusters given in the beginning of the file
-			*(clu_streams_[t]) >> max_clust_[t];
+	clu_stream_.open(clu_path_);
+	res_stream_.open(res_path_);
 
-			buffer->population_vector_window_[t].resize(max_clust_[t]);
-		}
+	std::ifstream cluster_number_shifts_stream_(buffer->config_->getString("out.path.base") + "cluster_shifts.txt");
+	while(!cluster_number_shifts_stream_.eof()){
+		unsigned int shift;
+		cluster_number_shifts_stream_ >> shift;
+		cluster_shifts_.push_back(shift);
+	}
 }
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
-	for (size_t i = 0; i < clu_streams_.size(); ++i) {
-		clu_streams_[i]->close();
-	}
-
-	for (size_t i = 0; i < res_streams_.size(); ++i) {
-		res_streams_[i]->close();
-	}
+	clu_stream_.close();
+	res_stream_.close();
 }
 
 void CluReaderClusteringProcessor::process() {
 	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
-		// read from clu.{tetr} cluster number
 		Spike * spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 
-		unsigned int clust, res = 0;
-
-		while(res < spike->pkg_id_ && !clu_streams_[spike->tetrode_]->eof()){
-			*(clu_streams_[spike->tetrode_]) >> clust;
-			*(res_streams_[spike->tetrode_]) >> res;
+		while(res < spike->pkg_id_ && !clu_stream_.eof()){
+			clu_stream_ >> clust;
+			res_stream_ >> res;
 		}
 
 		if (res == spike->pkg_id_){
-			spike->cluster_id_ = clust - 3;
-			if (clust < 3){
-				// unknown cluster
-				spike->cluster_id_ = -1;
-				spike->discarded_ = true;
+			spike->cluster_id_ = clust - cluster_shifts_[spike->tetrode_];
+//			buffer->UpdateWindowVector(spike);
+//			buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
+
+			if(spike->cluster_id_ < -1){
+				int a = 0;
+				int b = a;
 			}
-			else{
-				buffer->UpdateWindowVector(spike);
-				buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
-			}
+
+			// to not use same entry again for other tetrode with the same time
+			clu_stream_ >> clust;
+			res_stream_ >> res;
 		}
 		else{
 		}

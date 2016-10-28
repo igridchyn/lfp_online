@@ -16,15 +16,18 @@ class CluReaderClusteringProcessor : public virtual LFPProcessor {
 	const std::string clu_path_;
 	const std::string res_path_;
 
-	std::vector<std::ifstream*> clu_streams_;
-	std::vector<std::ifstream*> res_streams_;
+	std::ifstream clu_stream_;
+	std::ifstream res_stream_;
 
 	std::vector<unsigned int> max_clust_;
+	std::vector<unsigned int> cluster_shifts_;
+
+	unsigned int clust = 0, res = 0;
 
 public:
 	CluReaderClusteringProcessor(LFPBuffer *buffer);
 	CluReaderClusteringProcessor(LFPBuffer *buffer, const std::string& clu_path_base,
-			const std::string& res_path_base, const std::vector<int>& tetrodes);
+			const std::string& res_path_base);
 
 	virtual ~CluReaderClusteringProcessor();
 
