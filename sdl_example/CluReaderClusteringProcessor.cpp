@@ -86,6 +86,11 @@ void CluReaderClusteringProcessor::process() {
 			// to not use same entry again for other tetrode with the same time
 			// otherwise next spike from other tetrode should be next
 			if (spike->cluster_id_ > -1){
+				//dummy cell objects
+				if ((int)buffer->cells_[spike->tetrode_].size() < spike->cluster_id_ + 1){
+					buffer->cells_[spike->tetrode_].resize(spike->cluster_id_ + 1);
+				}
+
 				clu_stream_ >> clust;
 				res_stream_ >> res;
 				res += buffer->session_shifts_[current_session_];

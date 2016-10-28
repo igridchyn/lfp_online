@@ -295,8 +295,8 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	int current_session = 0;
 //	res_global.open(buffer->config_->getString("out.path.base") + "all.res");
 //	clu_global.open(buffer->config_->getString("out.path.base") + "all.clu");
-	res_global.open(buffer->config_->spike_files_[current_session] + ".res");
-	clu_global.open(buffer->config_->spike_files_[current_session] + ".clu");
+	res_global.open(buffer->config_->spike_files_[current_session] + "res");
+	clu_global.open(buffer->config_->spike_files_[current_session] + "clu");
 
 	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
 		Spike *spike = buffer->spike_buffer_[i];
@@ -306,8 +306,8 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 			res_global.close();
 			clu_global.close();
 			current_session ++;
-			res_global.open(buffer->config_->spike_files_[current_session] + ".res");
-			clu_global.open(buffer->config_->spike_files_[current_session] + ".clu");
+			res_global.open(buffer->config_->spike_files_[current_session] + "res");
+			clu_global.open(buffer->config_->spike_files_[current_session] + "clu");
 		}
 
 		if (spike->cluster_id_ > 0){
