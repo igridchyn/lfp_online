@@ -67,6 +67,14 @@ void CluReaderClusteringProcessor::process() {
 		res_stream_.close();
 		clu_stream_.open(clu_path_);
 		res_stream_.open(res_path_);
+
+		// !!!!!!! WORKAROUND CAUSED BY BUG
+		// TODO FIND OUT REASON WHY THIS HAPPENS - EOF?
+		if (res > buffer->session_shifts_[current_session_]){
+			clu_stream_ >> clust;
+			res_stream_ >> res;
+			res += buffer->session_shifts_[current_session_];
+		}
 	}
 
 	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_no_disp_pca){
