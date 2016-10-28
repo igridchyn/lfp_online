@@ -290,25 +290,42 @@ void PlaceFieldProcessor::dumpCluAndRes(){
 	Log("START SAVING CLU/RES");
 	Log("Global cluster number shifts: ", global_cluster_number_shfit_, true);
 
-	std::ofstream *res_global, *clu_global;
+	std::ofstream res_global, clu_global;
 
-	res_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.res");
-	clu_global = new std::ofstream(buffer->config_->getString("out.path.base") + "all.clu");
+	int current_session = 0;
+//	res_global.open(buffer->config_->getString("out.path.base") + "all.res");
+//	clu_global.open(buffer->config_->getString("out.path.base") + "all.clu");
+	res_global.open(buffer->config_->spike_files_[current_session] + ".res");
+	clu_global.open(buffer->config_->spike_files_[current_session] + ".clu");
+
 	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
 		Spike *spike = buffer->spike_buffer_[i];
+
+		// next session?
+		if (current_session < (int)buffer->session_shifts_.size() - 1 && spike->pkg_id_ > buffer->session_shifts_[current_session + 1]){
+			res_global.close();
+			clu_global.close();
+			current_session ++;
+			res_global.open(buffer->config_->spike_files_[current_session] + ".res");
+			clu_global.open(buffer->config_->spike_files_[current_session] + ".clu");
+		}
+
 		if (spike->cluster_id_ > 0){
-			*(res_global) << spike->pkg_id_ << "\n";
-			*(clu_global) << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
+			res_global << spike->pkg_id_ - buffer->session_shifts_[current_session] << "\n";
+			clu_global << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
 		}
 	}
 
-	clu_global->close();
-	res_global->close();
+	clu_global.close();
+	res_global.close();
 	Log("FINISHED SAVING CLU/RES");
 
-	std::ofstream cluster_shifts(buffer->config_->getString("out.path.base") + "cluster_shifts.txt");
-	for (size_t t=0; t < global_cluster_number_shfit_.size(); ++t){
-		cluster_shifts << global_cluster_number_shfit_[t] << "\n";
+	// write cluster shifts in every dump directory
+	for (unsigned int s=0; s < buffer->config_->spike_files_.size(); ++s){
+		std::ofstream cluster_shifts(buffer->config_->spike_files_[s] + std::string("cluster_shifts"));
+		for (size_t t=0; t < global_cluster_number_shfit_.size(); ++t){
+			cluster_shifts << global_cluster_number_shfit_[t] << "\n";
+		}
 	}
 }
 

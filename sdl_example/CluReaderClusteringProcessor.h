@@ -13,8 +13,8 @@
 #include <fstream>
 
 class CluReaderClusteringProcessor : public virtual LFPProcessor {
-	const std::string clu_path_;
-	const std::string res_path_;
+	std::string clu_path_;
+	std::string res_path_;
 
 	std::ifstream clu_stream_;
 	std::ifstream res_stream_;
@@ -23,6 +23,10 @@ class CluReaderClusteringProcessor : public virtual LFPProcessor {
 	std::vector<unsigned int> cluster_shifts_;
 
 	unsigned int clust = 0, res = 0;
+
+	bool files_exist_ = false;
+
+	int current_session_ = 0;
 
 public:
 	CluReaderClusteringProcessor(LFPBuffer *buffer);

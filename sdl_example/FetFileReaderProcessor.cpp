@@ -489,6 +489,9 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 	}
 
 	openNextFile();
+
+	// dummy entry for	consistency in clu dump
+	buffer->session_shifts_.push_back(0);
 }
 
 FetFileReaderProcessor::~FetFileReaderProcessor() {
@@ -696,7 +699,7 @@ void FetFileReaderProcessor::process() {
 
 	if (num_files_with_spikes_ == 0){
 		if (current_file_ < (int)buffer->config_->spike_files_.size() - 1){
-			shifts_.push_back(last_pkg_id_);
+			buffer->session_shifts_.push_back(last_pkg_id_);
 			shift_ = last_pkg_id_;
 			Log(std::string("Out of spikes in file ") +  buffer->config_->spike_files_[current_file_]);
 			openNextFile();
@@ -720,12 +723,6 @@ void FetFileReaderProcessor::process() {
 			return;
 		}
 	}
-
-	// PROFILING
-//	if (last_pkg_id_ > 1000000){
-//		std::cout << "Exit from FetFile Reader - for profiling...\n";
-//		exit(0);
-//	}
 
 	// read pos from whl
 //	unsigned int last_pos_pkg_id = last_pkg_id_;
