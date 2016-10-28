@@ -70,7 +70,7 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
     // ONLY for during massive redraw operations
     // per cluster
     // TODO !!! parametrize
-    const unsigned int spikes_draw_freq_ = 50000;
+    const unsigned int spikes_draw_freq_ = 1;
     std::vector<SDL_Point *> spikes_to_draw_;
     std::vector<unsigned int> spikes_counts_;
 
@@ -101,7 +101,11 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	bool need_clust_check_ = true;
 	int current_projection_ = -1;
 
+	// conrtol-toggled larger size of the selected clsuter spikes
 	bool highlight_current_cluster_ = false;
+
+	// the clustering mode in which no projections / cuts are saved and upon any operations only all available spikes are porcessed once
+	bool memory_less_clustering_ = true;
 
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);

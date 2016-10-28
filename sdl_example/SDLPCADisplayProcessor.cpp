@@ -614,7 +614,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
 
         	case SDLK_RIGHTBRACKET:
-        		if (user_context_.SelectedCluster2() > 0){
+        		if (user_context_.SelectedCluster2() > 0 && !memory_less_clustering_){
         			need_current_projection_reset = false;
         			PolygonCluster & poly = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_;
         			current_projection_ = (current_projection_ + 1) % (poly.projections_exclusive_.size() + poly.projections_inclusive_.size());
@@ -630,7 +630,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				break;
 
         	case SDLK_LEFTBRACKET:
-        		if (user_context_.SelectedCluster2() > 0){
+        		if (user_context_.SelectedCluster2() > 0 && !memory_less_clustering_){
         			need_current_projection_reset = false;
         			PolygonCluster & poly = buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_;
         			current_projection_ = (current_projection_ - 1) % (poly.projections_exclusive_.size() + poly.projections_inclusive_.size());
@@ -806,8 +806,6 @@ void SDLPCADisplayProcessor::deleteCluster() {
 	const int c2 = user_context_.SelectedCluster2();
 
 	if (c2 >= 0){
-
-
 		// update spikes
 		for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 			Spike *spike = buffer->spike_buffer_[sind];
@@ -829,7 +827,6 @@ void SDLPCADisplayProcessor::deleteCluster() {
 			buffer->cells_[target_tetrode_][i] = buffer->cells_[target_tetrode_][i + 1];
 		}
 		buffer->cells_[target_tetrode_].erase(buffer->cells_[target_tetrode_].begin() + buffer->cells_[target_tetrode_].size() - 1);
-
 
 		buffer->ResetPopulationWindow();
 	}
@@ -860,7 +857,8 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 		polygon_x_.clear();
 		polygon_y_.clear();
 
-		buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_exclusive_.push_back(tmpproj);
+		if (!memory_less_clustering_)
+			buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_exclusive_.push_back(tmpproj);
 
 		user_context_.AddExclusiveProjection(tmpproj);
 
@@ -878,10 +876,20 @@ void SDLPCADisplayProcessor::addCluster() {
 
 	// push back new or replace cluster invalidated before
 	if (clun == buffer->cells_[target_tetrode_].size()){
-		buffer->cells_[target_tetrode_].push_back(new_clust_);
+		if (memory_less_clustering_){
+			// dummy empty clusters
+			buffer->cells_[target_tetrode_].push_back(PolygonCluster());
+		} else {
+			buffer->cells_[target_tetrode_].push_back(new_clust_);
+		}
 	}
 	else{
-		buffer->cells_[target_tetrode_][clun] = PutativeCell(new_clust_);
+		if (memory_less_clustering_){
+			// dummy empty clusters
+			buffer->cells_[target_tetrode_][clun] = PutativeCell();
+		} else {
+			buffer->cells_[target_tetrode_][clun] = PutativeCell(new_clust_);
+		}
 	}
 
 	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
