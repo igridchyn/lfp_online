@@ -70,8 +70,11 @@ def decoding_errors():
 		gtxb=round((gtx-bsize/2.0)/bsize)
 		gtyb=round((gty-bsize/2.0)/bsize)
 		# print gtyb, gtxb
-		occmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += 1
-		errmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += dist
+
+		# only if predicted location is in the same environment
+		if (gtx - envlimit)*(px - envlimit) > 0:
+			occmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += 1
+			errmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += dist
 
 		xpb = round((px-bsize/2)/bsize)
 		ypb = round((py-bsize/2)/bsize)
@@ -258,7 +261,7 @@ errmap = np.nan_to_num(errmap)
 
 log( '%d %d' % (classcorr, classn))
 log("Average error: %.2f" % (sum/ndist))
-log( "Median error: %.2f" % np.median(np.array(errs)))
+log("Median error: %.2f" % np.median(np.array(errs)))
 log("Average error outside of SB: %.2f" % (sumnosb/nnosb))
 log("Classification precision: %.2f%%" % (classcorr * 100 / classn))
 log("Binning error: %.2f" % (errb/ndist))
