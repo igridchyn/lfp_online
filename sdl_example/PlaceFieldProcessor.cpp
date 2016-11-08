@@ -390,8 +390,11 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             		display_cluster_ = 4 + shift;
                 break;
             case SDLK_5:
-                display_cluster_ = 5 + shift;
-                break;
+            	if (change_session)
+					switchSession(4);
+				else
+					display_cluster_ = 5 + shift;
+				break;
             case SDLK_6:
                 display_cluster_ = 6 + shift;
                 break;
