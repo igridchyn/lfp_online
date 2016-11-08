@@ -86,13 +86,13 @@ void CluReaderClusteringProcessor::process() {
 			res += buffer->session_shifts_[current_session_];
 		}
 
-		if (res == spike->pkg_id_){
+		if (res == spike->pkg_id_ && (spike->tetrode_ == (int)cluster_shifts_.size() || clust <= cluster_shifts_[spike->tetrode_ + 1])){
 			spike->cluster_id_ = std::max<int>(-1, clust - cluster_shifts_[spike->tetrode_]);
 //			buffer->UpdateWindowVector(spike);
 //			buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
 
 			// to not use same entry again for other tetrode with the same time
-			// otherwise next spike from other tetrode should be next
+			// otherwise next spike from other tetrode 	should be next
 			if (spike->cluster_id_ > -1){
 				//dummy cell objects
 				if ((int)buffer->cells_[spike->tetrode_].size() < spike->cluster_id_ + 1){
