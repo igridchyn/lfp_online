@@ -727,6 +727,7 @@ void LFPBuffer::FreeExtraFeaturePointerMemory(Spike* spike) {
 void LFPBuffer::Rewind() {
 	if (last_pkg_id < REWIND_GUARD){
 		Log("ERROR: buffer rewind happened before the guarded time. Increase buffer size or adjust other parameters (e.g. detection threshold");
+		exit(249871);
 	}
 
 	// exchange head and tail1
@@ -767,6 +768,7 @@ void LFPBuffer::Rewind() {
 	}
 
 	Log("Spike buffer rewind at pos ", spike_buf_pos);
+	Log("Last package id: ", last_pkg_id);
 
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 }
