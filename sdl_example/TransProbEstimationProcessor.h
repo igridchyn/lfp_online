@@ -39,16 +39,24 @@ class TransProbEstimationProcessor: public virtual LFPProcessor {
 	// number of packages until sampling is over
 	const unsigned int SAMPLING_END_;
 
+	// new algorithm
+	const unsigned int ESTIMATION_WINDOW;
+	unsigned int from_pkg_id_;
+	// positions from
+	float xf_ = -1.0; float yf_ = -1.0;
+
+	std::string tp_path_;
+
 public:
 	TransProbEstimationProcessor(LFPBuffer *buf);
-	TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbinsx, const unsigned int nbinsy, const unsigned int bin_size,
-			const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save,
-			const bool load, const bool smooth, const bool use_parametric, const float sigma, const int spread);
 	virtual ~TransProbEstimationProcessor();
 
 	// LFPProcessor
 	virtual void process();
 	virtual inline std::string name() { return "TP Estimator"; }
+
+private:
+	bool interpolatedPositionAt(const unsigned int& pkg_id, const unsigned int& buf_pos, float& x, float& y);
 };
 
 #endif /* TRANSPROBESTIMATIONPROCESSOR_H_ */

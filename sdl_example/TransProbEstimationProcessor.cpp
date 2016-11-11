@@ -7,54 +7,42 @@
 
 #include "TransProbEstimationProcessor.h"
 #include "PlaceField.h"
+#include "Utils.h"
 
 #include <assert.h>
 
-TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer* buf)
-	: TransProbEstimationProcessor(buf,
-			buf->config_->getInt("nbinsx"),
-			buf->config_->getInt("nbinsy"),
-			buf->config_->getInt("bin.size"),
-			buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1,
-			buf->config_->getInt("tp.step"),
-			buf->config_->getOutPath("kd.path.base"),
-			buf->config_->getBool("tp.save"),
-			buf->config_->getBool("tp.load"),
-			buf->config_->getBool("tp.smooth"),
-			buf->config_->getBool("tp.use.parametric"),
-			buf->config_->getFloat("tp.par.sigma"),
-			buf->config_->getInt("tp.par.spread")
-	){
-}
+// OPTIONS
+// 1. Degree of interpolation. Default: only between 2 subsequent valid tracking entries
+// 2. Overlapping of estimation windows. Default: no overlap.
 
-TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const unsigned int nbinsx, const unsigned int nbinsy, const unsigned int bin_size,
-		const unsigned int neighb_size, const unsigned int step, const std::string base_path, const bool save,
-		const bool load, const bool smooth, const bool use_parametric, const float sigma, const int spread)
+TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 	: LFPProcessor(buf)
-	, NBINSX(nbinsx)
-	, NBINSY(nbinsy)
-	, BIN_SIZE(bin_size)
-	, NEIGHB_SIZE(neighb_size)
-	, STEP(step)
-	, BASE_PATH(base_path)
+	, NBINSX(buf->config_->getInt("nbinsx"))
+	, NBINSY(buf->config_->getInt("nbinsy"))
+	, BIN_SIZE(buf->config_->getInt("bin.size"))
+	, NEIGHB_SIZE(buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1)
+	, STEP(buf->config_->getInt("tp.step"))
+	, BASE_PATH(buf->config_->getOutPath("kd.path.base"))
 	, pos_buf_ptr_(buf->pos_buf_trans_prob_est_)
-	, SAVE(save)
-	, LOAD(load)
-	, SMOOTH(smooth)
-	, USE_PARAMETRIC(use_parametric)
-	, SIGMA(sigma)
-	, SPREAD(spread)
-	, SAMPLING_END_(buf->config_->getInt("tp.sampling.end", 15000000)){
+	, SAVE(buf->config_->getBool("tp.save"))
+	, LOAD(buf->config_->getBool("tp.load"))
+	, SMOOTH(buf->config_->getBool("tp.smooth"))
+	, USE_PARAMETRIC(buf->config_->getBool("tp.use.parametric"))
+	, SIGMA(buf->config_->getFloat("tp.par.sigma"))
+	, SPREAD(buf->config_->getInt("tp.par.spread"))
+	, SAMPLING_END_(buf->config_->getInt("tp.sampling.end", 15000000))
+	, ESTIMATION_WINDOW(buf->config_->getInt("tp.estimation.window"))
+	, tp_path_(buf->config_->getOutPath("tp.filename")){
 
 	assert(NEIGHB_SIZE % 2);
-	if (nbinsy > 1){
+	if (NBINSY > 1){
 		trans_probs_.resize(NBINSX * NBINSY, arma::fmat(NEIGHB_SIZE, NEIGHB_SIZE, arma::fill::zeros));
 	} else {
 		Log("Trans probs: linear environment");
 		trans_probs_.resize(NBINSX * NBINSY, arma::fmat(NEIGHB_SIZE, 1, arma::fill::zeros));
 	}
 
-	pos_buf_ptr_ += STEP;
+//	pos_buf_ptr_ += STEP;
 
 	if (LOAD){
 		buffer->log_string_stream_ << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
@@ -124,48 +112,38 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf, const
 TransProbEstimationProcessor::~TransProbEstimationProcessor() {
 }
 
-void TransProbEstimationProcessor::process() {
-	// TODO delay
+bool TransProbEstimationProcessor::interpolatedPositionAt(const unsigned int& pkg_id, const unsigned int& buf_pos, float& x, float& y){
+	SpatialInfo& si = buffer->positions_buf_[buf_pos];
+	SpatialInfo& si_prev = buffer->positions_buf_[buf_pos - 1];
 
-	while(pos_buf_ptr_ < buffer->pos_buf_pos_){
-		if (!buffer->positions_buf_[pos_buf_ptr_].valid || !buffer->positions_buf_[pos_buf_ptr_ - STEP].valid){
-			pos_buf_ptr_ ++;
-			continue;
-		}
-
-		// bins in shift rather than shift in bins (more precise)
-		int b_shift_x = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_].x_pos() - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos()) / (float)BIN_SIZE);
-		int b_shift_y = (int) round(((int)buffer->positions_buf_[pos_buf_ptr_].y_pos() - (int)buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos()) / (float)BIN_SIZE);
-
-		unsigned int tmpx = (unsigned int)buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos();
-		int xb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].x_pos() / (float)BIN_SIZE - 0.5);
-		unsigned int tmpy = (unsigned int)buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos();
-		int yb =  (int)round(buffer->positions_buf_[pos_buf_ptr_ - STEP].y_pos() / (float)BIN_SIZE - 0.5);
-
-		if (xb >= (int)NBINSX || yb >= (int)NBINSY){
-			Log("Position out of range, ignore");
-			pos_buf_ptr_ ++;
-			continue;
-		}
-
-		if (tmpx == 0)
-			xb = 0;
-
-		if (tmpy == 0)
-			yb = 0;
-
-		unsigned int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
-		unsigned int shift_coord_y = NBINSY > 1 ? b_shift_y + (int)NEIGHB_SIZE / 2 : 0;
-
-		if (shift_coord_x < NEIGHB_SIZE && shift_coord_y < NEIGHB_SIZE){
-			trans_probs_[NBINSX * yb + xb](shift_coord_x, shift_coord_y) += 1;
-		}
-
-		pos_buf_ptr_ ++;
+	// if any of the two is invalid, try next window
+	if (!(si.valid && si_prev.valid)){
+		return false;
 	}
 
-	// TODO configurable interval
-	if (buffer->last_pkg_id > SAMPLING_END_ && !saved && SAVE){
+	if (pkg_id == si.pkg_id_){
+		x = si.x_pos();
+		y = si.y_pos();
+		return true;
+	}
+
+	if (pkg_id == si_prev.pkg_id_){
+		x = si_prev.x_pos();
+		y = si_prev.y_pos();
+		return true;
+	}
+
+	float c1 = (si.pkg_id_ - pkg_id) / float(si.pkg_id_ - si_prev.pkg_id_);
+	float c2 = (pkg_id - si_prev.pkg_id_) / float(si.pkg_id_ - si_prev.pkg_id_);
+	x = c1 * si.x_pos() + c2 * si_prev.x_pos();
+	y = c1 * si.y_pos() + c2 * si_prev.y_pos();
+
+	return true;
+}
+
+void TransProbEstimationProcessor::process() {
+	// if beyond estimation interval or data over
+	if ( (buffer->last_pkg_id > SAMPLING_END_ || (buffer->pipeline_status_ == PIPELINE_STATUS_INPUT_OVER && pos_buf_ptr_ == buffer->pos_buf_pos_)) && !saved  && SAVE ){
 		buffer->Log("save tps...");
 
 		unsigned int dim2 = (NBINSY > 1 ? NEIGHB_SIZE : 1);
@@ -183,5 +161,75 @@ void TransProbEstimationProcessor::process() {
 		buffer->tps_ = trans_probs_;
 		saved = true;
 		buffer->Log("done");
+	}
+
+	while(pos_buf_ptr_ < buffer->pos_buf_pos_){
+		if (from_pkg_id_ == 0){
+			from_pkg_id_ = buffer->positions_buf_[0].pkg_id_;
+			Log("Start estimation from pkg id = ", from_pkg_id_);
+			xf_ = buffer->positions_buf_[0].x_pos();
+			yf_ = buffer->positions_buf_[0].y_pos();
+		}
+
+		// need estimate pos from?
+		if (Utils::Math::Isnan(xf_)){
+			// find firsrt larger
+			while(pos_buf_ptr_ < buffer->pos_buf_pos_ && buffer->positions_buf_[pos_buf_ptr_].pkg_id_ < from_pkg_id_)
+				pos_buf_ptr_ ++;
+
+			// too early
+			if (pos_buf_ptr_ == buffer->pos_buf_pos_)
+				return;
+
+			if (!interpolatedPositionAt(from_pkg_id_, pos_buf_ptr_, xf_, yf_)){
+				from_pkg_id_ += ESTIMATION_WINDOW;
+				continue;
+			}
+		}
+
+		// at this stage have FROM coords
+		while(pos_buf_ptr_ < buffer->pos_buf_pos_ && buffer->positions_buf_[pos_buf_ptr_].pkg_id_ < from_pkg_id_ + ESTIMATION_WINDOW)
+						pos_buf_ptr_ ++;
+		// too early
+		if (pos_buf_ptr_ == buffer->pos_buf_pos_)
+			return;
+
+		float xt, yt;
+		if (!interpolatedPositionAt(from_pkg_id_ + ESTIMATION_WINDOW, pos_buf_ptr_, xt, yt)){
+			from_pkg_id_ += ESTIMATION_WINDOW;
+			xf_ = nanf("");
+			yf_ = nanf("");
+			continue;
+		}
+
+		// bins in shift rather than shift in bins (more precise)
+		// ??? HALF OF BIN SIZE IS A TRANSITION ???
+		int b_shift_x = (int) (round(xt / (float)BIN_SIZE) -  round(xf_ / (float)BIN_SIZE));
+		int b_shift_y = (int) (round(yt / (float)BIN_SIZE) -  round(yf_ / (float)BIN_SIZE));
+
+		int xb =  (int)round(xf_ / (float)BIN_SIZE - 0.5);
+		int yb =  (int)round(yf_ / (float)BIN_SIZE - 0.5);
+
+		if (xb >= (int)NBINSX || yb >= (int)NBINSY || xb < 0 || yb < 0){
+			Log("Position out of range, ignore");
+			pos_buf_ptr_ ++;
+			from_pkg_id_ += ESTIMATION_WINDOW;
+			xf_ = nanf("");
+			yf_ = nanf("");
+			continue;
+		}
+
+		unsigned int shift_coord_x = b_shift_x + (int)NEIGHB_SIZE / 2;
+		unsigned int shift_coord_y = NBINSY > 1 ? b_shift_y + (int)NEIGHB_SIZE / 2 : 0;
+
+		if (shift_coord_x < NEIGHB_SIZE && shift_coord_y < NEIGHB_SIZE){
+			trans_probs_[NBINSX * yb + xb](shift_coord_x, shift_coord_y) += 1;
+		}
+
+		pos_buf_ptr_ ++;
+
+		from_pkg_id_ += ESTIMATION_WINDOW;
+		xf_ = xt;
+		yf_ = yt;
 	}
 }
