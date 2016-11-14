@@ -22,7 +22,6 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 	, BIN_SIZE(buf->config_->getInt("bin.size"))
 	, NEIGHB_SIZE(buf->config_->getInt("kd.hmm.neighb.rad")*2 + 1)
 	, STEP(buf->config_->getInt("tp.step"))
-	, BASE_PATH(buf->config_->getOutPath("kd.path.base"))
 	, pos_buf_ptr_(buf->pos_buf_trans_prob_est_)
 	, SAVE(buf->config_->getBool("tp.save"))
 	, LOAD(buf->config_->getBool("tp.load"))
@@ -47,12 +46,12 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 	if (LOAD){
 		buffer->log_string_stream_ << "Load TPs, smoothing " << ( SMOOTH ? "enabled" : "disabled" ) << "...";
 		arma::fmat tps;
-		if (! Utils::FS::FileExists(BASE_PATH + "tps.mat")){
-			Log(std::string("ERROR: The following file wasn't found: ") + BASE_PATH + "tps.mat");
+		if (! Utils::FS::FileExists(tp_path_)){
+			Log(std::string("ERROR: The following file wasn't found: ") + tp_path_);
 			exit(23456);
 		}
 
-		tps.load(BASE_PATH + "tps.mat");
+		tps.load(tp_path_);
 
 		if (USE_PARAMETRIC){
 			buffer->log_string_stream_ << "WARNING: parametric TPs used instead of loading estimates...\n";
@@ -63,9 +62,6 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			// extract
 			trans_probs_[b] = tps.cols(b*dim2, (b+1)*dim2-1);
-
-			// DEBUG
-//			trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + "_raw.mat", arma::raw_ascii);
 
 			// TODO do the following in the estimation stage, before saving
 			// SMOOTH NON-PAREMETRIC ESTIMATE (counts)
@@ -98,9 +94,6 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 					}
 				}
 			}	
-
-			// DEBUG
-			// trans_probs_[b].save(BASE_PATH + "tp_" + Utils::Converter::int2str(b) + ".mat", arma::raw_ascii);
 		}
 
 		buffer->tps_ = trans_probs_;
@@ -155,8 +148,8 @@ void TransProbEstimationProcessor::process() {
 			trans_probs_[b] /= psum;
 			tps.cols(b * dim2, (b+1) * dim2-1) = trans_probs_[b];
 		}
-		tps.save(BASE_PATH + "tps.mat", arma::raw_ascii);
-		Log(std::string("Saved tps at ") + BASE_PATH + "tps.mat");
+		tps.save(tp_path_, arma::raw_ascii);
+		Log(std::string("Saved tps at ") + tp_path_);
 
 		buffer->tps_ = trans_probs_;
 		saved = true;
