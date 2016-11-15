@@ -371,6 +371,8 @@ public:
 	// shifts in pkg id if multiple files opened (fet + spk + whl + clu etc.)
 	std::vector<unsigned int> session_shifts_;
 
+	double TARGET_SYNC_RATE;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);

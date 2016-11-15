@@ -286,6 +286,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , fr_save_(config->getBool("buf.fr.save", false))
 , fr_load_(config->getBool("buf.fr.load", false))
 , adjust_synchrony_rate_(config->getBool("buf.adjust.synchrony.rate", true))
+, TARGET_SYNC_RATE(config->getFloat("high.sync.target.freq", 1.0f))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -346,7 +347,7 @@ LFPBuffer::LFPBuffer(Config* config)
     chunk_buf_ptr_in_ = 0;
 
     // TODO !!! PARAMETRIZE
-    synchronyThresholdAdapter_ = new Utils::NewtonSolver(1.0, 24000*60, -0.5, high_synchrony_factor_);
+    synchronyThresholdAdapter_ = new Utils::NewtonSolver(TARGET_SYNC_RATE, 24000*60, -0.5, high_synchrony_factor_);
 
     for (unsigned int st = 0; st < config_->synchrony_tetrodes_.size(); ++st){
     	if (config_->synchrony_tetrodes_[st] >= tetr_info_->tetrodes_number()){
@@ -495,7 +496,7 @@ bool LFPBuffer::IsHighSynchrony() {
 
 		double frequency =  (swrs_.size() - i + 1) * SAMPLING_RATE / float((last_pkg_id -  synchronyThresholdAdapter_->last_update_));
 		std::stringstream ss;
-		ss << "UPDATE HIGH SYNCHRONY THRESHOLD: target freqneucy = 1.0, current frequency = " << frequency << ", old threshold = " <<
+		ss << "UPDATE HIGH SYNCHRONY THRESHOLD: target freqneucy = " << TARGET_SYNC_RATE << ", current frequency = " << frequency << ", old threshold = " <<
 				high_synchrony_factor_;
 		high_synchrony_factor_ = (float)synchronyThresholdAdapter_->Update(last_pkg_id, frequency);
 		ss << ", new threshold = " << high_synchrony_factor_;
