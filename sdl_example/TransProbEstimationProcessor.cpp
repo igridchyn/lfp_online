@@ -59,6 +59,8 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 
 		unsigned int dim2 = NBINSY > 1 ? NEIGHB_SIZE :1;
 
+		Log("TPS number of cols: ", tps.n_cols);
+
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			// extract
 			trans_probs_[b] = tps.cols(b*dim2, (b+1)*dim2-1);
@@ -89,6 +91,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 			for (unsigned int dx = 0; dx < NEIGHB_SIZE; ++dx) {
 				for (unsigned int dy = 0; dy < dim2; ++dy) {
 					// WORKAROUND
+
 					if (Utils::Math::Isnan(trans_probs_[b](dx, dy))){ // || isinf(trans_probs_[b](dx, dy))){
 						trans_probs_[b](dx, dy) = -100000;
 					}
