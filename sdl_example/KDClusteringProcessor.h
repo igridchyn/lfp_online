@@ -260,6 +260,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	void update_hmm_prediction();
 	void reset_hmm();
+	void dump_hmm_prediction();
 
 	void load_laxs_tetrode(unsigned int tetrode);
 	void dump_positoins_if_needed(const unsigned int& mx, const unsigned int& my);

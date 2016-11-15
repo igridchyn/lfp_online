@@ -319,6 +319,40 @@ const arma::fmat& KDClusteringProcessor::GetPrediction() {
 	return last_pred_probs_;
 }
 
+void KDClusteringProcessor::dump_hmm_prediction() {
+	// unroll the HMM sequence and dump - cp'ed from dupm in update
+	// 			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
+	// 		<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
+	// 		<< " " << logsum <<  "\n";
+
+	int t = hmm_traj_[0].size() - 1;
+	// best last x,y
+	unsigned int x, y;
+	double pmax = hmm_prediction_.max(x, y);
+
+//	swr_dec_dump_ << hmm_prediction_ << "\n";
+	swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << pmax << " " << hmm_traj_[0].size() << "\n";
+
+	while (t >= 0) {
+		swr_dec_dump_ << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << "\n";
+		unsigned int b = hmm_traj_[y * NBINSX + x][t];
+
+		if (b < NBINSX * NBINSY) {
+			y = b / NBINSX;
+			x = b % NBINSX;
+		} else {
+			buffer->log_string_stream_ << "Trajectory is screwed up at " << t << ", keep the previous position\n";
+			buffer->Log();
+		}
+
+		t--;
+	}
+
+	for (unsigned int i=0; i < hmm_traj_.size(); ++i){
+		hmm_traj_[i].clear();
+	}
+}
+
 void KDClusteringProcessor::update_hmm_prediction() {
 	// old hmm_prediction + transition (without evidence)
 	arma::fmat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
@@ -387,9 +421,6 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 	// add Bayesian pos likelihood from evidence
 	hmm_prediction_ = hmm_upd_ + last_pred_probs_;
-
-	// VISUALIZATION ADJUSTMENT:to avoid overflow
-	hmm_prediction_ = hmm_prediction_ - hmm_prediction_.max();
 
 	// DEBUG
 //	hmm_prediction_.save(BASE_PATH + "hmm_pred_" + Utils::Converter::int2str(hmm_traj_[0].size()) + ".mat", arma::raw_ascii);
@@ -506,7 +537,7 @@ void KDClusteringProcessor::dump_swr_window_spike_count() {
 }
 
 void KDClusteringProcessor::dump_prediction_if_needed() {
-	if (pred_dump_) {
+	if (pred_dump_ && !USE_HMM) {
 		if (swr_regime_) {
 			buffer->log_string_stream_ << "Save SWR starting at "
 					<< buffer->swrs_[swr_pointer_][0] << " under ID "
@@ -539,7 +570,8 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 
 		} else {
 			if (!SWR_SWITCH) {
-				pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
+				Log("WARNING: matrix save disabled");
+//				pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
 				swr_win_counter_++;
 			}
 		}
@@ -806,7 +838,10 @@ void KDClusteringProcessor::process() {
 					swr_regime_ = false;
 					PRED_WIN = THETA_PRED_WIN;
 
-					// reset HMM
+					// dump complete hmm sequence in the given SWR
+					dump_hmm_prediction();
+
+					// reset
 					if (USE_HMM) {
 						reset_hmm();
 					}
