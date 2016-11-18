@@ -88,7 +88,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				getBool("kd.use.hmm")), NBINSX(getInt("nbinsx")), NBINSY(
 				getInt("nbinsy")), BIN_SIZE(getFloat("bin.size")), HMM_NEIGHB_RAD(
 				getInt("kd.hmm.neighb.rad")), PREDICTION_DELAY(
-				getInt("kd.prediction.delay")), NN_K(getInt("kd.nn.k")), NN_K_COORDS(
+				(getInt("kd.prediction.delay") / buf->config_->getInt("kd.pred.win", 2400)) * buf->config_->getInt("kd.pred.win", 2400)), NN_K(getInt("kd.nn.k")), NN_K_COORDS(
 				getInt("kd.nn.k.space")), MULT_INT(getInt("kd.mult.int")), SIGMA_X(
 				getFloat("kd.sigma.x")), SIGMA_A(getFloat("kd.sigma.a")), SIGMA_XX(
 				getFloat("kd.sigma.xx")), SWR_SWITCH(
@@ -354,6 +354,11 @@ void KDClusteringProcessor::dump_hmm_prediction() {
 }
 
 void KDClusteringProcessor::update_hmm_prediction() {
+	if (buffer->tps_.size() == 0){
+		Log("ERROR: NO TRANSITION PROBABILITIES AVAILABLE!");
+		exit(23876);
+	}
+
 	// old hmm_prediction + transition (without evidence)
 	arma::fmat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
 
