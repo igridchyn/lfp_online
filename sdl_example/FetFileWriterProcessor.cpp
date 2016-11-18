@@ -20,9 +20,20 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 	std::string spk_path_base = path_base + "spk" + extapp + ".";
 
 	for (size_t t=0; t < buf->tetr_info_->tetrodes_number(); ++t){
-		fet_files_.push_back(new std::ofstream(path_base + "fet" + extapp + "." + Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));
+		std::string fetpath = path_base + "fet" + extapp + "." + Utils::NUMBERS[t];
+		if (Utils::FS::FileExists(fetpath)){
+			Log(std::string("ERROR: File exists at the requested output file, delete files and restart the progam:") + fetpath);
+			exit(81275);
+		}
+
+		fet_files_.push_back(new std::ofstream(fetpath, binary_ ? std::ofstream::binary : std::ofstream::out));
 		if (write_spk_){
-			spk_files_.push_back(new std::ofstream(spk_path_base+ Utils::NUMBERS[t], binary_ ? std::ofstream::binary : std::ofstream::out));
+			std::string spkpath = spk_path_base+ Utils::NUMBERS[t];
+			if (Utils::FS::FileExists(fetpath)){
+				Log(std::string("ERROR: File exists at the requested output file, delete files and restart the progam:") + spkpath);
+				exit(81275);
+			}
+			spk_files_.push_back(new std::ofstream(spkpath, binary_ ? std::ofstream::binary : std::ofstream::out));
 		}
 		if (!binary_){
 			const unsigned int n_entries = buf->feature_space_dims_[t] + 5;
@@ -30,7 +41,12 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 		}
 	}
 
-	whl_file_ = new std::ofstream(path_base + "whl");
+	std::string whlpath = path_base + "whl";
+	if (Utils::FS::FileExists(whlpath)){
+		Log(std::string("ERROR: File exists at the requested output file, delete files and restart the progam:") + whlpath);
+		exit(81275);
+	}
+	whl_file_ = new std::ofstream(whlpath);
 }
 
 FetFileWriterProcessor::~FetFileWriterProcessor() {
