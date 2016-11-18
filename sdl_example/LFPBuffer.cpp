@@ -203,6 +203,20 @@ void LFPBuffer::Reset(Config* config)
 
 	log_stream << "INFO: BUFFER CREATED\n";
 	log_stream.flush();
+
+	// LOG ALL PARAMS (was in separate file before)
+	config->dump(log_stream);
+	log_stream << "Tetrodes configuration:\n";
+	log_stream << tetr_info_->tetrodes_number() << "\n";
+	for (unsigned int t = 0; t < tetr_info_->tetrodes_number(); ++t){
+
+		unsigned int chn = tetr_info_->channels_number(t);
+		log_stream << chn << "\n";
+		for (unsigned int c = 0; c < chn; ++c){
+			log_stream << tetr_info_->tetrode_channels[t][c] << " ";
+		}
+		log_stream << "\n";
+	}
 }
 
 LFPBuffer::~LFPBuffer(){

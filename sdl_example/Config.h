@@ -87,6 +87,8 @@ public:
 	void parse_line(std::ifstream& fconf, std::string line);
 
 	void setTetrodes(const unsigned int& tetrodes_count);
+
+	void dump(std::ofstream & out);
 };
 
 #endif /* CONFIG_H_ */

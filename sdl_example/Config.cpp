@@ -450,3 +450,34 @@ void Config::setTetrodes(const unsigned int& tetrodes_count){
 	log_string_stream_ << "Added number of tetrodes: " << tetrodes_count << "\n";
 	Log();
 }
+
+
+template <class T>
+void printVector(std::vector<T> vec, std::string vec_name, std::ofstream & stream, bool newline){
+	stream << "ARRAY " << vec_name << ":\n";
+	std::string endsym = newline ? "\n" : " ";
+	for (unsigned int i=0; i < vec.size(); ++i){
+		stream << vec[i] << endsym;
+	}
+	stream << "\n";
+}
+
+void Config::dump(std::ofstream & out){
+	// dump all lists and params - was in separate file before
+	out << "=== CONFIG DUMP START ===\n";
+	typedef std::map<std::string, std::string>::iterator it_type;
+	for(it_type iterator = params_.begin(); iterator != params_.end(); iterator++) {
+		out << iterator->first << "=" << iterator->second << "\n";
+	}
+
+	printVector<unsigned int>(pf_sessions_, "PF sessions", out, true);
+	printVector<unsigned int>(synchrony_tetrodes_, "Synchrony tetrodes", out, false);
+	printVector<unsigned int>(kd_tetrodes_, "KD tetrodes", out, false);
+	printVector<std::string>(spike_files_, "Spike files", out, true);
+	printVector<int>(tetrodes, "Tetrodes", out, false);
+
+	out << "CONFIG PATH = " << config_path_ << "\n";
+	out << "TIMESTAMP = " << timestamp_ << "\n";
+
+	out << "=== CONFIG DUMP END ===\n";
+}
