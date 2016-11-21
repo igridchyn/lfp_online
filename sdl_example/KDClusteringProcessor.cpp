@@ -929,14 +929,14 @@ void KDClusteringProcessor::process() {
 				// workaround : if spike number is reached, set PRED_WIN to finish the prediction
 				if (prediction_window_spike_number_ > 0 && spike_buf_pos_clust_ - spike_buf_pos_pred_start_ >= prediction_window_spike_number_) {
 					PRED_WIN = spike->pkg_id_ - last_pred_pkg_id_;
-					// DEBUG
-					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
-							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
-					buffer->Log();
 
-					// DEBUG
-					buffer->log_string_stream_ << "PRED WIN FROM (SPIKE BUF POS) " << spike_buf_pos_pred_start_ << " TILL " << spike_buf_pos_clust_ << "\n";
-					buffer->Log();
+					// DEBUG - to estimate how large are prediction windows compared to waking prediction window
+//					buffer->log_string_stream_ << "Reached number of spikes of " << prediction_window_spike_number_ << " after " << PRED_WIN * 1000 / buffer->SAMPLING_RATE << " ms from prediction start\n"
+//							<< "new PRED_WIN = " << PRED_WIN << " (last_pred_pkg_id = " << last_pred_pkg_id_ << ")\n";
+//					buffer->Log();
+					// DEBUG - see above
+//					buffer->log_string_stream_ << "PRED WIN FROM (SPIKE BUF POS) " << spike_buf_pos_pred_start_ << " TILL " << spike_buf_pos_clust_ << "\n";
+//					buffer->Log();
 
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 				}
