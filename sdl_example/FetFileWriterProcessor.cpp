@@ -29,7 +29,7 @@ FetFileWriterProcessor::FetFileWriterProcessor(LFPBuffer *buf)
 		fet_files_.push_back(new std::ofstream(fetpath, binary_ ? std::ofstream::binary : std::ofstream::out));
 		if (write_spk_){
 			std::string spkpath = spk_path_base+ Utils::NUMBERS[t];
-			if (Utils::FS::FileExists(fetpath)){
+			if (Utils::FS::FileExists(spkpath)){
 				Log(std::string("ERROR: File exists at the requested output file, delete files and restart the progam:") + spkpath);
 				exit(81275);
 			}
