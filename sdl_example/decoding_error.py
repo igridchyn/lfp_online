@@ -127,8 +127,8 @@ def log(s):
 
 #========================================================================================================
 def gradient_descent():
-	ma = 0.0
-	me = 1.0
+	#ma = 1.0
+	#me = 0.0
 
 	# read param names, starting values and steps
 	pnames=[]
@@ -232,8 +232,11 @@ def gradient_descent():
 #============================================================================================================
 if len(argv) < 6:
 	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not> (6)<bin size>'
-	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size> (9)<stochastic: 0/1>'
+	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size> (9)<stochastic: 0/1> (10)<weight : ERROR> (11)<weight : ACCURACY>'
 	exit(0)
+
+me = float(argv[10])
+ma = float(argv[11])
 
 nbinsx = int(argv[2])
 nbinsy = int(argv[3])
@@ -246,7 +249,7 @@ errmap = np.zeros((nbinsy, nbinsx))
 logdir = log_call(argv)
 
 GD = False
-if len(argv) == 10:
+if len(argv) == 12:
 	GD = True
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
