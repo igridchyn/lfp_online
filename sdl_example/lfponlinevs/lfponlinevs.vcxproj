@@ -164,7 +164,6 @@
     <ClCompile Include="..\Config.cpp" />
     <ClCompile Include="..\FetFileReaderProcessor.cpp" />
     <ClCompile Include="..\FetFileWriterProcessor.cpp" />
-    <ClCompile Include="..\FiringRateEstimatorProcessor.cpp" />
     <ClCompile Include="..\FrequencyPowerBandProcessor.cpp" />
     <ClCompile Include="..\GMMClusteringProcessor.cpp" />
     <ClCompile Include="..\inpout32.cpp" />
@@ -181,6 +180,7 @@
     <ClCompile Include="..\PlaceFieldProcessor.cpp" />
     <ClCompile Include="..\PolygonCluster.cpp" />
     <ClCompile Include="..\PositionDisplayProcessor.cpp" />
+    <ClCompile Include="..\PutativeCell.cpp" />
     <ClCompile Include="..\SDLControlInputMetaProcessor.cpp" />
     <ClCompile Include="..\SDLPCADisplayProcessor.cpp" />
     <ClCompile Include="..\SDLSignalDisplayProcessor.cpp" />
@@ -215,7 +215,6 @@
     <ClInclude Include="..\Config.h" />
     <ClInclude Include="..\FetFileReaderProcessor.h" />
     <ClInclude Include="..\FetFileWriterProcessor.h" />
-    <ClInclude Include="..\FiringRateEstimatorProcessor.h" />
     <ClInclude Include="..\GMMClusteringProcessor.h" />
     <ClInclude Include="..\inpout32.h" />
     <ClInclude Include="..\KDClusteringProcessor.h" />
@@ -231,6 +230,7 @@
     <ClInclude Include="..\PlaceFieldProcessor.h" />
     <ClInclude Include="..\PolygonCluster.h" />
     <ClInclude Include="..\PositionDisplayProcessor.h" />
+    <ClInclude Include="..\PutativeCell.h" />
     <ClInclude Include="..\SDLPCADisplayProcessor.h" />
     <ClInclude Include="..\SDLSignalDisplayProcessor.h" />
     <ClInclude Include="..\SDLWaveshapeDisplayProcessor.h" />
