@@ -29,6 +29,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	, trigger_at_path_(buffer->config_->getOutPath("lpt.trigger.limit.area.map", ""))
 	, bin_size(buffer->config_->getFloat("bin.size", 4.0))
 	, adjust_inhibition_rate_(buffer->config_->getBool("lpt.trigger.adjust.inhibition.rate", false))
+	, target_inhibition_rate_(buffer->config_->getFloat("lpt.target.inhibition.rate", 0.9))
 {
 	Log("Constructor start");
 
@@ -101,7 +102,7 @@ LPTTriggerProcessor::LPTTriggerProcessor(LFPBuffer *buffer)
 	}
 
 	 // TODO !!! PARAMETRIZE
-	inhibitionThresholdAdapter_ = new Utils::NewtonSolver(0.9, 24000*60*3, -120, confidence_avg_);
+	inhibitionThresholdAdapter_ = new Utils::NewtonSolver(target_inhibition_rate_, 24000 * 60 * 3, -120, confidence_avg_);
 
 	Log("Constructor done");
 }

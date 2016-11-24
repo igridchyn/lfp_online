@@ -92,6 +92,8 @@ class LPTTriggerProcessor: public virtual LFPProcessor {
 
 	Utils::NewtonSolver *inhibitionThresholdAdapter_;
 
+	double target_inhibition_rate_;
+
 	// 0-non-inhibited, 1 - inhibited
 	std::vector<unsigned char> inhibition_history_;
 
