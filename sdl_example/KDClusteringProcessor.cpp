@@ -32,6 +32,14 @@ void KDClusteringProcessor::load_laxs_tetrode(unsigned int t){
 		// PRE-MULTIPLIED BY NUMBER OF NEIGHBROUS - AS AVERAGE IS NEEDED DURING DEOCDING
 		laxs_[t].push_back(laxs_tetr_.cols(s * NBINSY, (s + 1) * NBINSY - 1) * 1 / float(neighb_num_));
 
+
+		// TODO : INVESTIGATE !!! DEBUG
+		if (!laxs_[t][laxs_[t].size() - 1].is_finite()){
+			Log("LAX INF!, SET 0s");
+			laxs_[t][laxs_[t].size() - 1].zeros();
+		}
+
+
 		if (!(s % 50))
 			laxs_[t][laxs_[t].size() - 1].save(BASE_PATH + Utils::NUMBERS[t] + "_" + Utils::Converter::int2str(s) + ".tmp", arma::raw_ascii);
 
