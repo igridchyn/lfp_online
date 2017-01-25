@@ -107,6 +107,11 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	// the clustering mode in which no projections / cuts are saved and upon any operations only all available spikes are porcessed once
 	bool memory_less_clustering_ = true;
 
+	// drawing subsampling - 1 by default, controlled by LALT+ / LALT- : for better resolution of high - density areas
+	unsigned int draw_subsample_factor = 1;
+	unsigned int total_spikes_to_draw = 0;
+
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,

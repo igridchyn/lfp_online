@@ -150,6 +150,13 @@ void SDLPCADisplayProcessor::process(){
         	continue;
         }
 
+        // skip if subsampling
+        total_spikes_to_draw ++;
+        if (total_spikes_to_draw % draw_subsample_factor){
+        	buffer->spike_buf_no_disp_pca++;
+        	continue;
+        }
+
         int x;
         int y;
         getSpikeCoords(spike, x ,y);
@@ -521,11 +528,26 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		buffer->ResetAC(target_tetrode_);
         		break;
 
+        	case SDLK_KP_MULTIPLY:
+        		// draw subsampling factor control
+        		draw_subsample_factor ++;
+        		need_redraw = true;
+        		Log("Increase draw sampling factor to ", draw_subsample_factor);
+                break;
+
+        	case SDLK_KP_DIVIDE:
+        		if (draw_subsample_factor > 1){
+        			draw_subsample_factor --;
+        			need_redraw = true;
+        			Log("Decrease draw sampling factor to ", draw_subsample_factor);
+        		}
+        		break;
+
         	case SDLK_MINUS:
-        	    power_threshold_factor_ /= power_threshold_factor_step_;
-        	    need_redraw = true;
-        	    Log("Power threshold set to: ", power_threshold_factor_);
-        	    buffer->ResetAC(target_tetrode_);
+				power_threshold_factor_ /= power_threshold_factor_step_;
+				need_redraw = true;
+				Log("Power threshold set to: ", power_threshold_factor_);
+				buffer->ResetAC(target_tetrode_);
         	    break;
 
         	// merge clusters
