@@ -113,6 +113,7 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	unsigned int draw_subsample_factor = 1;
 	unsigned int total_spikes_to_draw = 0;
 
+	float gaussian_distance_threshold_ = 0.0005;
 
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
