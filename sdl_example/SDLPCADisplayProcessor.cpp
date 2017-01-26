@@ -690,7 +690,11 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
 			// disply histogram of Gaussian distances
         	case SDLK_g:
-        		displayChiHistogramm();
+        		if (kmod & KMOD_LSHIFT){
+        			splitIntoGuassians();
+        		} else {
+        			displayChiHistogramm();
+        		}
         		need_redraw = true;
         		break;
 
@@ -1122,5 +1126,59 @@ void SDLPCADisplayProcessor::displayChiHistogramm(){
 			if (distance < 0.0005){
 				spike->cluster_id_ = clun;
 			}
+	}
+}
+
+void SDLPCADisplayProcessor::splitIntoGuassians(){
+	// TODO: extract and share with oulier separation
+	if (user_context_.SelectedCluster1() <= 0){
+		Log("No cluster selected");
+		return;
+	}
+
+	// collect points for selected cluster
+	arma::mat clumat(1, 8);
+	// index of spike in the matrix
+	unsigned int si = 0;
+
+	int clu = user_context_.SelectedCluster1();
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+		Spike *spike = buffer->spike_buffer_[sind];
+		if (spike->tetrode_ != target_tetrode_ || spike->cluster_id_ != clu){
+			continue;
+		}
+
+		// add spike to observations matrix
+		for (unsigned int pi = 0; pi < 8; ++pi){
+			clumat(si, pi) = spike->pc[pi];
+		}
+
+		si ++;
+		if (si >= clumat.n_rows){
+			clumat.resize(clumat.n_rows * 2, clumat.n_cols);
+		}
+	}
+
+	mlpack::gmm::GMM<> gmm2(2, 8);
+	gmm2.Estimate(clumat.t());
+	arma::Col<size_t> labels_;
+	gmm2.Classify(clumat.t(), labels_);
+
+	// second pass: split into 2
+	// TODO: keep reference to spikes for faster access
+	unsigned int clun = 0;
+	unsigned int si2 = 0;
+	createNewCluster(clun);
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+		Spike *spike = buffer->spike_buffer_[sind];
+		if (spike->tetrode_ != target_tetrode_ || spike->cluster_id_ != clu){
+			continue;
+		}
+
+		if (labels_[si2] > 0){
+			spike->cluster_id_ = clun;
+		}
+
+		si2 ++;
 	}
 }

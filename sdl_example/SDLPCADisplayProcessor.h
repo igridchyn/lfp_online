@@ -11,6 +11,7 @@
 
 #include "PolygonCluster.h"
 #include "SDLSingleWindowDisplay.h"
+#include "mlpack/methods/gmm/gmm.hpp"
 
 class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     
@@ -91,6 +92,7 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	void deleteCluster();
 	void addExclusiveProjection();
 	void displayChiHistogramm();
+	void splitIntoGuassians();
 	PolygonCluster createNewCluster(unsigned int & clun);
 
 	// get coordinates of spike in current projection
