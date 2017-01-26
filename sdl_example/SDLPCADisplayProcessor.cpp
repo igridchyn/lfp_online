@@ -93,6 +93,25 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     spikes_counts_.resize(MAX_CLUST);
 
     display_cluster_.resize(MAX_CLUST, true);
+
+    Log("PCA DISPLAY CONTROLS:"
+    		"<MOUSE WHEEL> : Zoom In / Out"
+    		"<LEFT MOUSE BUTTON> : Add polygon vertex"
+    		"<MOUSE WLEEL PRESS> : Close polygon"
+    		"d : delete last polyogon vertex"
+
+    		"s : create new cluster"
+    		"m : merge selected cluster"
+    		"r : set cluster id to unknown for spikes in selected polygon"
+
+    		"DISPLAY MODES:"
+    		"h : highlight selected cluster(s)"
+    		"t : show only two selected clusters"
+    		"T : show all clusters"
+    		"u : display / hide unclustered spikes"
+    		"c : show spikes in the refractory period"
+    		"a : save polygons"
+    		"<KP> / and * : display sparsity factor (for better resolution of high density areas)");
 }
 
 SDLPCADisplayProcessor::~SDLPCADisplayProcessor(){
@@ -603,7 +622,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
         	}
 
-        	// D: delete all clusters, d: delete last polygon point
+        	// d: delete last polygon point
         	case SDLK_d:
 				if (polygon_x_.size() > 0){
 					polygon_x_.erase(polygon_x_.end() - 1);
