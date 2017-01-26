@@ -687,6 +687,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 				break;
 
 
+			// disply histogram of Gaussian distances
+        	case SDLK_g:
+        		displayChiHistogramm();
+        		need_redraw = true;
+        		break;
+
             case SDLK_ESCAPE:
                 buffer->processing_over_ = true;
                 break;
@@ -911,9 +917,9 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 	}
 }
 
-void SDLPCADisplayProcessor::addCluster() {
+PolygonCluster SDLPCADisplayProcessor::createNewCluster(unsigned int & clun){
 	PolygonCluster new_clust_ = PolygonCluster(PolygonClusterProjection(polygon_x_, polygon_y_, comp1_, comp2_));
-	unsigned int clun = (unsigned int)user_context_.CreateClsuter(buffer->cells_[target_tetrode_].size(), new_clust_.projections_inclusive_[0]);
+	clun = (unsigned int)user_context_.CreateClsuter(buffer->cells_[target_tetrode_].size(), new_clust_.projections_inclusive_[0]);
 
 	// push back new or replace cluster invalidated before
 	if (clun == buffer->cells_[target_tetrode_].size()){
@@ -932,6 +938,13 @@ void SDLPCADisplayProcessor::addCluster() {
 			buffer->cells_[target_tetrode_][clun] = PutativeCell(new_clust_);
 		}
 	}
+
+	return new_clust_;
+}
+
+void SDLPCADisplayProcessor::addCluster() {
+	unsigned int clun = 0;
+	PolygonCluster new_clust_ = createNewCluster(clun);
 
 	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
 	save_polygon_clusters();
@@ -1020,4 +1033,93 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
 	Render();
+}
+
+void SDLPCADisplayProcessor::displayChiHistogramm(){
+	if (user_context_.SelectedCluster1() <= 0){
+		Log("No cluster selected");
+		return;
+	}
+
+	// collect points for selected cluster
+	arma::fmat clumat(1, 8);
+	// index of spike in the matrix
+	unsigned int si = 0;
+
+	int clu = user_context_.SelectedCluster1();
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+			Spike *spike = buffer->spike_buffer_[sind];
+			if (spike->tetrode_ != target_tetrode_ || spike->cluster_id_ != clu){
+				continue;
+			}
+
+			// add spike to observations matrix
+			for (unsigned int pi = 0; pi < 8; ++pi){
+				clumat(si, pi) = spike->pc[pi];
+			}
+
+			si ++;
+			if (si >= clumat.n_rows){
+				clumat.resize(clumat.n_rows * 2, clumat.n_cols);
+			}
+	}
+
+	// calculate mean / covariance
+	clumat.resize(si, clumat.n_cols);
+	arma::fmat cov = arma::cov(clumat);
+	arma::fmat covi = cov.i();
+	arma::fmat mean = arma::mean(clumat);
+
+	// calculate gaussian distances
+	std::vector<float> distances;
+	for (unsigned int s = 0; s < si; ++s){
+		arma::fmat diff = clumat.row(s) - mean;
+		arma::fmat dist = -0.5 * diff * covi * diff.t();
+		float distance = /*pow(2*M_PI, -8/2) * 1.0 / sqrt(arma::det(cov)) */ exp(dist(0,0));
+		distances.push_back(distance);
+		std::cout << distance << " ";
+	}
+
+	// display histogramm with feedback
+//	arma::uvec hist = arma::hist(arma::fmat(distances), 100);
+//	arma::uvec hist = arma::hist(arma::fmat(distances), arma::linspace<arma::vec>(0, 1, 20), 0);
+	unsigned int NBIN = 20;
+	std::vector<unsigned int> counts(NBIN);
+	double step = 1.0 / NBIN;
+	for (unsigned int di =0; di < distances.size(); ++di){
+		unsigned int c = std::max<unsigned int>(0, std::min<unsigned int>((unsigned int)(distances[di] / step), NBIN - 1));
+		counts[c] ++;
+	}
+
+	// reassign points (split cluster)
+//	std::cout << hist;
+	std::cout << "\n";
+	for (unsigned int i=0; i < NBIN; ++i){
+		std::cout << counts[i] << " ";
+	}
+	std::cout << "\n";
+
+	// second pass: separate spikes with high distance ...
+	// TODO: do few more iteration of gaussian fitting of only closest ones ...
+	unsigned int clun = 0;
+	createNewCluster(clun);
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+			Spike *spike = buffer->spike_buffer_[sind];
+			if (spike->tetrode_ != target_tetrode_ || spike->cluster_id_ != clu){
+				continue;
+			}
+
+			// add spike to observations matrix
+			arma::fmat spikevec(1, 8);
+			for (unsigned int pi = 0; pi < 8; ++pi){
+				spikevec(0, pi) = spike->pc[pi];
+			}
+
+			arma::fmat diff = spikevec - mean;
+			arma::fmat dist = -0.5 * diff * covi * diff.t();
+			float distance = /*pow(2*M_PI, -8/2) * 1.0 / sqrt(arma::det(cov)) */ exp(dist(0,0));
+			if (distance < 0.0005){
+				spike->cluster_id_ = clun;
+			}
+	}
 }
