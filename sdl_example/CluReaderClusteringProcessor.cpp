@@ -40,6 +40,7 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 		cluster_number_shifts_stream_ >> shift;
 		cluster_shifts_.push_back(shift);
 	}
+	cluster_shifts_.erase(cluster_shifts_.end() - 1);
 }
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
@@ -86,7 +87,7 @@ void CluReaderClusteringProcessor::process() {
 			res += buffer->session_shifts_[current_session_];
 		}
 
-		if (res == spike->pkg_id_ && (spike->tetrode_ == (int)cluster_shifts_.size() || clust <= cluster_shifts_[spike->tetrode_ + 1])){
+		if (res == spike->pkg_id_ && (spike->tetrode_ == (int)cluster_shifts_.size()-1 || clust <= cluster_shifts_[spike->tetrode_ + 1])){
 			spike->cluster_id_ = std::max<int>(-1, clust - cluster_shifts_[spike->tetrode_]);
 //			buffer->UpdateWindowVector(spike);
 //			buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
