@@ -43,6 +43,9 @@ bool PlaceField::AddSpike(Spike *spike){
     if (yb < 0){
     	yb = 0;
     }
+    if (xb < 0){
+    	xb = 0;
+    }
 
 
     if (xb >= NBINSX || yb >= NBINSY){
