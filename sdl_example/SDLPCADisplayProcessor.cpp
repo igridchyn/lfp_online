@@ -690,6 +690,18 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
 			// disply histogram of Gaussian distances
         	case SDLK_g:
+        		if (kmod & KMOD_LCTRL){
+        			gaussian_distance_threshold_ /= 2.0;
+        			Log("Decreased gaussian distance threshold: ", gaussian_distance_threshold_);
+        			break;
+        		}
+
+        		if (kmod & KMOD_RCTRL){
+					gaussian_distance_threshold_ *= 2.0;
+					Log("Increased gaussian distance threshold: ", gaussian_distance_threshold_);
+					break;
+				}
+
         		if (kmod & KMOD_LSHIFT){
         			splitIntoGuassians();
         		} else {

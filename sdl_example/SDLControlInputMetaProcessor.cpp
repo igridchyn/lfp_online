@@ -48,34 +48,34 @@ void SDLControlInputMetaProcessor::process(){
             if( e.type == SDL_KEYDOWN ){
                 SDL_Keymod kmod = SDL_GetModState();
                 // can switch just by changing window focus
-                if (kmod & KMOD_RCTRL){
-                    // switch to corresponding processor
-                    const unsigned int& cp_num = (unsigned int)control_processors_.size();
-
-                    if (cp_num == 0 )
-                    	return;
-                    
-                    switch( e.key.keysym.sym )
-                    {
-                        case SDLK_0:
-                            control_processor_ = control_processors_[MIN(0, cp_num - 1)];
-                            break;
-                        case SDLK_1:
-                            control_processor_ = control_processors_[MIN(1, cp_num - 1)];
-                            break;
-                        case SDLK_2:
-                            control_processor_ = control_processors_[MIN(2, cp_num - 1)];
-                            break;
-                        case SDLK_3:
-                            control_processor_ = control_processors_[MIN(3, cp_num - 1)];
-                            break;
-                        case SDLK_4:
-                            control_processor_ = control_processors_[MIN(4, cp_num - 1)];
-                            break;
-                    }
-                    
-                    continue;
-                }
+//                if (kmod & KMOD_RCTRL){
+//                    // switch to corresponding processor
+//                    const unsigned int& cp_num = (unsigned int)control_processors_.size();
+//
+//                    if (cp_num == 0 )
+//                    	return;
+//
+//                    switch( e.key.keysym.sym )
+//                    {
+//                        case SDLK_0:
+//                            control_processor_ = control_processors_[MIN(0, cp_num - 1)];
+//                            break;
+//                        case SDLK_1:
+//                            control_processor_ = control_processors_[MIN(1, cp_num - 1)];
+//                            break;
+//                        case SDLK_2:
+//                            control_processor_ = control_processors_[MIN(2, cp_num - 1)];
+//                            break;
+//                        case SDLK_3:
+//                            control_processor_ = control_processors_[MIN(3, cp_num - 1)];
+//                            break;
+//                        case SDLK_4:
+//                            control_processor_ = control_processors_[MIN(4, cp_num - 1)];
+//                            break;
+//                    }
+//
+//                    continue;
+//                }
 
                 if (kmod & KMOD_LCTRL){
                 	switch( e.key.keysym.sym ){
