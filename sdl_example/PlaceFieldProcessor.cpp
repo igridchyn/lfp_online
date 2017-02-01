@@ -94,10 +94,9 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     }
 
     Log("WARNING: processor assumes chronological order of spikes");
-    Log("CONTROLS: g - save res / clu; s - smooth place fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster; d - dump place fields	");
+    Log("CONTROLS: g - save res / clu; s - smooth plfshiftsace fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster; d - dump place fields	");
 
-    clusters_in_tetrode_.resize(buf->tetr_info_->tetrodes_number());
-    global_cluster_number_shfit_.resize(buf->tetr_info_->tetrodes_number());
+    buffer->clusters_in_tetrode_.resize(buf->tetr_info_->tetrodes_number());
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
@@ -149,8 +148,8 @@ void PlaceFieldProcessor::process(){
         unsigned int tetr = spike->tetrode_;
         int clust = spike->cluster_id_;
 
-        if (clust > 0 &&  clust > (int)clusters_in_tetrode_[tetr]){
-        	clusters_in_tetrode_[tetr] = clust;
+        if (clust > 0 &&  clust > (int)buffer->clusters_in_tetrode_[tetr]){
+        	buffer->clusters_in_tetrode_[tetr] = clust;
         }
 
 		if (spike->discarded_ || Utils::Math::Isnan(spike->x) || clust == -1){
@@ -242,7 +241,7 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
 		ResetTextStack();
 		TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), 0xFFFFFF, true);
 		TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
-		TextOut(Utils::Converter::Combine("Cluster global: ", int(global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
+		TextOut(Utils::Converter::Combine("Cluster global: ", int(buffer->global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
 		TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
 		TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, false);
 		TextOut(Utils::Converter::Combine(" / ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0x000000, true);
@@ -284,58 +283,13 @@ void PlaceFieldProcessor::switchSession(const unsigned int& session){
 	}
 }
 
-void PlaceFieldProcessor::dumpCluAndRes(){
-	calculateClusterNumberShifts();
-
-	Log("START SAVING CLU/RES");
-	Log("Global cluster number shifts: ", global_cluster_number_shfit_, true);
-
-	std::ofstream res_global, clu_global;
-
-	int current_session = 0;
-//	res_global.open(buffer->config_->getString("out.path.base") + "all.res");
-//	clu_global.open(buffer->config_->getString("out.path.base") + "all.clu");
-	res_global.open(buffer->config_->spike_files_[current_session] + "res");
-	clu_global.open(buffer->config_->spike_files_[current_session] + "clu");
-
-	for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
-		Spike *spike = buffer->spike_buffer_[i];
-
-		// next session?
-		if (current_session < (int)buffer->session_shifts_.size() - 1 && spike->pkg_id_ > buffer->session_shifts_[current_session + 1]){
-			res_global.close();
-			clu_global.close();
-			current_session ++;
-			res_global.open(buffer->config_->spike_files_[current_session] + "res");
-			clu_global.open(buffer->config_->spike_files_[current_session] + "clu");
-		}
-
-		if (spike->cluster_id_ > 0){
-			res_global << spike->pkg_id_ - buffer->session_shifts_[current_session] << "\n";
-			clu_global << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
-		}
-	}
-
-	clu_global.close();
-	res_global.close();
-	Log("FINISHED SAVING CLU/RES");
-
-	// write cluster shifts in every dump directory
-	for (unsigned int s=0; s < buffer->config_->spike_files_.size(); ++s){
-		std::ofstream cluster_shifts(buffer->config_->spike_files_[s] + std::string("cluster_shifts"));
-		for (size_t t=0; t < global_cluster_number_shfit_.size(); ++t){
-			cluster_shifts << global_cluster_number_shfit_[t] << "\n";
-		}
-	}
-}
-
 void PlaceFieldProcessor::dumpPlaceFields(){
 	Log("dump place fields...");
     for (size_t t=0; t < place_fields_.size(); ++t) {
-        for (size_t c = 1; c <= clusters_in_tetrode_[t]; ++c) {
+        for (size_t c = 1; c <= buffer->clusters_in_tetrode_[t]; ++c) {
         	for (size_t s = 0; s < N_SESSIONS; ++s) {
 				arma::mat dv = place_fields_smoothed_[t][c][s].Mat() / occupancy_smoothed_[s].Mat();
-				dv.save(BASE_PATH + Utils::Converter::int2str(c + global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+				dv.save(BASE_PATH + Utils::Converter::int2str(c + buffer->global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
         	}
         }
     }
@@ -430,7 +384,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 break;
             	// generate clu and res-files for all tetrodes
             case SDLK_g:
-            	dumpCluAndRes();
+            	buffer->dumpCluAndRes();
     		    break;
             case SDLK_d:
             	// dump place fields
@@ -450,34 +404,6 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             drawPlaceField();
         }
     }
-}
-
-void PlaceFieldProcessor::calculateClusterNumberShifts(){
-
-	unsigned int i=0;
-    while (i < buffer->spike_buf_pos_speed_){
-        Spike *spike = buffer->spike_buffer_[i++];
-
-        unsigned int tetr = spike->tetrode_;
-        int clust = spike->cluster_id_;
-
-        if (clust > 0 &&  clust > (int)clusters_in_tetrode_[tetr]){
-        	clusters_in_tetrode_[tetr] = clust;
-        }
-    }
-
-    Log("Clusters per tetrodes:");
-    unsigned int total_clusters = 0;
-    for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
-    	std::stringstream ss;
-    	ss << "Clusters in tetrode " << t << " : " << clusters_in_tetrode_[t];
-    	Log(ss.str());
-
-    	global_cluster_number_shfit_[t] = total_clusters;
-    	total_clusters += clusters_in_tetrode_[t];
-    }
-
-    Log("Total clusters: ", total_clusters);
 }
 
 void PlaceFieldProcessor::smoothPlaceFields(){
@@ -524,7 +450,7 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     }
 
     Log("Done smoothing place fields");
-    calculateClusterNumberShifts();
+    buffer->calculateClusterNumberShifts();
 }
 
 void PlaceFieldProcessor::cachePDF(){

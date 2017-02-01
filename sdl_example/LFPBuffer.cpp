@@ -369,6 +369,8 @@ LFPBuffer::LFPBuffer(Config* config)
     		exit(23419);
     	}
     }
+
+    global_cluster_number_shfit_.resize(tetr_info_->tetrodes_number());
 }
 
 template <class T>
@@ -927,6 +929,94 @@ void LFPBuffer::DeleteWaveshapeCut(const unsigned int & tetr, const unsigned int
 		Spike *spike = spike_buffer_[i];
 		if (cells_[tetr][cell].Contains(spike) && spike->cluster_id_ == -1){
 			spike->cluster_id_ = cell;
+		}
+	}
+}
+
+void LFPBuffer::Log(std::string message, std::vector<unsigned int> array, bool print_order){
+	Log(message);
+	for (unsigned int i=0; i < array.size(); ++i){
+		if (print_order)
+			Log(Utils::Converter::int2str(array[i]) + " (" + Utils::Converter::int2str(i) + ")");
+		else{
+			Log(Utils::Converter::int2str(array[i]));
+		}
+	}
+}
+
+void LFPBuffer::calculateClusterNumberShifts(){
+	// reset - because of possible trailing empty clusters
+	for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
+		clusters_in_tetrode_[0] = 0;
+	}
+
+	unsigned int i=0;
+    while (i < spike_buf_pos_speed_){
+        Spike *spike = spike_buffer_[i++];
+
+        unsigned int tetr = spike->tetrode_;
+        int clust = spike->cluster_id_;
+
+        if (clust > 0 &&  clust > (int)clusters_in_tetrode_[tetr]){
+        	clusters_in_tetrode_[tetr] = clust;
+        }
+    }
+
+    Log("Clusters per tetrodes:");
+    unsigned int total_clusters = 0;
+    for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
+    	std::stringstream ss;
+    	ss << "Clusters in tetrode " << t << " : " << clusters_in_tetrode_[t];
+    	Log(ss.str());
+
+    	global_cluster_number_shfit_[t] = total_clusters;
+    	total_clusters += clusters_in_tetrode_[t];
+    }
+
+    Log("Total clusters: ", total_clusters);
+}
+
+void LFPBuffer::dumpCluAndRes(){
+	calculateClusterNumberShifts();
+
+	Log("START SAVING CLU/RES");
+	Log("Global cluster number shifts: ", global_cluster_number_shfit_, true);
+
+	std::ofstream res_global, clu_global;
+
+	int current_session = 0;
+//	res_global.open(buffer->config_->getString("out.path.base") + "all.res");
+//	clu_global.open(buffer->config_->getString("out.path.base") + "all.clu");
+	res_global.open(config_->spike_files_[current_session] + "res");
+	clu_global.open(config_->spike_files_[current_session] + "clu");
+
+	for (unsigned int i=0; i < spike_buf_pos; ++i){
+		Spike *spike = spike_buffer_[i];
+
+		// next session?
+		if (current_session < (int)session_shifts_.size() - 1 && spike->pkg_id_ > session_shifts_[current_session + 1]){
+			res_global.close();
+			clu_global.close();
+			current_session ++;
+			res_global.open(config_->spike_files_[current_session] + "res");
+			clu_global.open(config_->spike_files_[current_session] + "clu");
+		}
+
+		if (spike->cluster_id_ > 0){
+			res_global << spike->pkg_id_ - session_shifts_[current_session] << "\n";
+			clu_global << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
+		}
+	}
+
+	clu_global.close();
+	res_global.close();
+	Log("FINISHED SAVING CLU/RES");
+
+	// write cluster shifts in every dump directory
+	for (unsigned int s=0; s < config_->spike_files_.size(); ++s){
+		std::ofstream cluster_shifts(config_->spike_files_[s] + std::string("cluster_shifts"));
+		for (size_t t=0; t < global_cluster_number_shfit_.size(); ++t){
+			cluster_shifts << global_cluster_number_shfit_[t] << "\n";
 		}
 	}
 }

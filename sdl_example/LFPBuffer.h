@@ -399,6 +399,7 @@ public:
 	virtual void Log(std::string message);
 	virtual void Log(std::string message, int num);
 	virtual void Log(std::string message, unsigned int num);
+	virtual void Log(std::string message, std::vector<unsigned int> num, bool print_order = false);
 #ifndef _WIN32
 	virtual void Log(std::string message, size_t num);
 #endif
@@ -453,6 +454,11 @@ public:
 	void AddWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, WaveshapeCut cut);
 	void DeleteWaveshapeCut(const unsigned int & tetr, const unsigned int & cell, const unsigned int & at);
 	int AssignCluster(Spike *spike);
+
+	std::vector<unsigned int> clusters_in_tetrode_;
+	std::vector<unsigned int> global_cluster_number_shfit_;
+	void calculateClusterNumberShifts();
+	void dumpCluAndRes();
 };
 
 template<class T>
