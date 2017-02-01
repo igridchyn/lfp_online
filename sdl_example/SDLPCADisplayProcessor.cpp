@@ -894,6 +894,8 @@ void SDLPCADisplayProcessor::deleteCluster() {
 
 		buffer->ResetPopulationWindow();
 	}
+
+	buffer->dumpCluAndRes();
 }
 
 
@@ -998,6 +1000,8 @@ void SDLPCADisplayProcessor::addCluster() {
 	SDL_RenderDrawPoints(renderer_, points_, count - 1);
 
 	Render();
+
+	buffer->dumpCluAndRes();
 }
 
 void SDLPCADisplayProcessor::mergeClusters() {
@@ -1050,6 +1054,8 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
 	Render();
+
+	buffer->dumpCluAndRes();
 }
 
 void SDLPCADisplayProcessor::displayChiHistogramm(){
