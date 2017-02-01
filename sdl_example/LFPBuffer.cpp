@@ -371,6 +371,27 @@ LFPBuffer::LFPBuffer(Config* config)
     }
 
     global_cluster_number_shfit_.resize(tetr_info_->tetrodes_number());
+
+    for (unsigned int s=0; s < config->spike_files_.size(); ++s){
+    	std::string clupath = config_->spike_files_[s] + "clu";
+    	if (Utils::FS::FileExists(clupath)){
+    	    std::ifstream  src(clupath , std::ios::binary);
+    	    std::ofstream  dst(clupath + ".old",   std::ios::binary);
+
+    	    dst << src.rdbuf();
+    	    src.close();
+    	    dst.close();
+    	}
+    	std::string respath = config_->spike_files_[s] + "res";
+    	if (Utils::FS::FileExists(respath)){
+    	    std::ifstream  src(respath, std::ios::binary);
+    	    std::ofstream  dst(respath + ".old",   std::ios::binary);
+
+    	    dst << src.rdbuf();
+    	    src.close();
+    	    dst.close();
+    	}
+    }
 }
 
 template <class T>
