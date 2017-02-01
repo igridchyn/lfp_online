@@ -95,24 +95,35 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 
     display_cluster_.resize(MAX_CLUST, true);
 
-    Log("PCA DISPLAY CONTROLS:"
-    		"<MOUSE WHEEL> : Zoom In / Out"
-    		"<LEFT MOUSE BUTTON> : Add polygon vertex"
-    		"<MOUSE WLEEL PRESS> : Close polygon"
-    		"d : delete last polyogon vertex"
+    Log("PCA DISPLAY CONTROLS:\n"
+    		"<MOUSE WHEEL> : Zoom In / Out\n"
+    		"<LEFT MOUSE BUTTON> : Add polygon vertex\n"
+    		"<MOUSE WLEEL PRESS> : Close polygon\n"
+    		"d : delete last polyogon vertex\n\n"
 
-    		"s : create new cluster"
-    		"m : merge selected cluster"
-    		"r : set cluster id to unknown for spikes in selected polygon"
+    		"0-9 : choose first component\n"
+    		"NUM 0-9 : choose second component\n"
+    		"ALT + 0-9 :choose tetrode [LSHIFT = +10; RDHIFT = +20]\n\n"
 
-    		"DISPLAY MODES:"
-    		"h : highlight selected cluster(s)"
-    		"t : show only two selected clusters"
-    		"T : show all clusters"
-    		"u : display / hide unclustered spikes"
-    		"c : show spikes in the refractory period"
-    		"a : save polygons"
-    		"<KP> / and * : display sparsity factor (for better resolution of high density areas)");
+    		"s : create new cluster\n"
+    		"m : merge selected cluster\n"
+    		"r : set cluster id to unknown for spikes in selected polygon\n\n"
+
+    		"DISPLAY MODES:\n"
+    		"h : highlight selected cluster(s)\n"
+    		"t : show only two selected clusters\n"
+    		"T : show all clusters\n"
+    		"u : display / hide unclustered spikes\n"
+    		"c : show spikes in the refractory period\n"
+    		"a : save polygons\n"
+    		"<KP> / and * : display sparsity factor (for better resolution of high density areas)\n"
+
+    		"FITTING OPERATIONS:\n"
+    		"g: exclude outliers to separate cluster after Guassian fit\n"
+    		"G: split into two clusters according to GMM\n"
+    		"LTRCL + g: decrease outlier threshold\n"
+    		"RCTRL + g: increase outlier threshold\n"
+    );
 }
 
 SDLPCADisplayProcessor::~SDLPCADisplayProcessor(){
