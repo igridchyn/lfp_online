@@ -721,6 +721,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		need_redraw = true;
         		break;
 
+        	case SDLK_p:
+        		if (kmod & KMOD_LSHIFT){
+        			// cluster by proximity
+        			clusterNNwithThreshold();
+        			need_redraw = true;
+        		}
+        		break;
+
             case SDLK_ESCAPE:
                 buffer->processing_over_ = true;
                 break;
@@ -1210,4 +1218,95 @@ void SDLPCADisplayProcessor::splitIntoGuassians(){
 
 		si2 ++;
 	}
+}
+
+
+void SDLPCADisplayProcessor::clusterNNwithThreshold(){
+	// 0. Count number of clustered spikes per every tetrode
+	const unsigned int NTETR = buffer->tetr_info_->tetrodes_number();
+	std::vector<unsigned int> nclustered;
+	nclustered.resize(NTETR);
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+		if (buffer->spike_buffer_[sind]->discarded_){
+			continue;
+		}
+
+		unsigned int t = buffer->spike_buffer_[sind]->tetrode_;
+		unsigned int c = buffer->spike_buffer_[sind]->cluster_id_;
+
+		if (c > 0){
+			nclustered[t] ++;
+		}
+	}
+
+	// 1. Build KD tree containing all clustered spikes + create cluster map
+	std::vector<ANNkd_tree*> kdtrees_;
+	std::vector<ANNpointArray> ann_points_;
+	std::vector<unsigned int> current_points;
+	std::vector<std::vector<unsigned int> > treePointClusters;
+
+	kdtrees_.resize(NTETR);
+	ann_points_.resize(NTETR);
+	current_points.resize(NTETR);
+	treePointClusters.resize(NTETR);
+
+	for (unsigned int t=0; t < NTETR; ++t){
+		ann_points_[t] = annAllocPts(nclustered[t], buffer->feature_space_dims_[t]);
+		treePointClusters[t].resize(nclustered[t]);
+	}
+
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+		Spike *spike = buffer->spike_buffer_[sind];
+		if (spike->discarded_){
+			continue;
+		}
+
+		int t = spike->tetrode_;
+		int c = spike->cluster_id_;
+
+		if (c < 1){
+			continue;
+		}
+
+		for (unsigned int fet = 0; fet < buffer->feature_space_dims_[t]; ++fet) {
+			ann_points_[t][current_points[t]][fet] = spike->pc[fet];
+		}
+		treePointClusters[t][current_points[t]] = c;
+		current_points[t] ++;
+	}
+
+	for (unsigned int t=0; t < NTETR; ++t){
+		kdtrees_[t] = new ANNkd_tree(ann_points_[t], current_points[t], buffer->feature_space_dims_[t]);
+		Log("Points in tree per teterode: ", current_points[t]);
+	}
+
+	Log("Trees built, start clustering");
+
+	const unsigned int NEIGHB_NUM = 3;
+	double *pnt_ = annAllocPt(12);
+	std::vector<int> neighbour_inds_;
+	std::vector<double> neighbour_dists_;
+	neighbour_dists_.resize(NEIGHB_NUM);
+	neighbour_inds_.resize(NEIGHB_NUM);
+
+	// 2. Cluster all spikes
+	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
+		//kdtrees_[stetr]->annkSearch(pnt_, neighb_num_, &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
+		Spike *spike = buffer->spike_buffer_[sind];
+		if (spike->discarded_ || spike->cluster_id_ > 0 || current_points[spike->tetrode_] < 10){
+			continue;
+		}
+
+		int t = spike->tetrode_;
+		for (unsigned int fet = 0; fet < buffer->feature_space_dims_[t]; ++fet) {
+			pnt_[fet] = spike->pc[fet];
+		}
+		kdtrees_[t]->annkSearch(pnt_, 3, &neighbour_inds_[0], &neighbour_dists_[0], 0.1);
+//		std::cout << neighbour_dists_[0] << " ";
+		if (neighbour_dists_[0] < 400){
+			spike->cluster_id_ = treePointClusters[t][neighbour_inds_[0]];
+		}
+	}
+
+	Log("\nDone NN clustering");
 }

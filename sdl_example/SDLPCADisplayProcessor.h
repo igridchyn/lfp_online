@@ -12,6 +12,7 @@
 #include "PolygonCluster.h"
 #include "SDLSingleWindowDisplay.h"
 #include "mlpack/methods/gmm/gmm.hpp"
+#include <ANN/ANN.h>
 
 class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay{
     
@@ -97,6 +98,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 
 	// get coordinates of spike in current projection
 	void getSpikeCoords(const Spike *const, int& x, int& y);
+
+	void clusterNNwithThreshold();
 
 	SDL_Point *points_;
 
