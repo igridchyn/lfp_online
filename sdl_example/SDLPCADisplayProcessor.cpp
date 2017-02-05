@@ -1289,6 +1289,13 @@ void SDLPCADisplayProcessor::clusterNNwithThreshold(){
 	neighbour_dists_.resize(NEIGHB_NUM);
 	neighbour_inds_.resize(NEIGHB_NUM);
 
+	// DEBUG
+//	std::vector<std::ofstream*> fdists;
+//		for (unsigned int t=0; t < NTETR; ++t){
+//		fdists.push_back(new std::ofstream(std::string("clu_dists_") + Utils::Converter::int2str(t)));
+//	}
+
+
 	// 2. Cluster all spikes
 	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 		//kdtrees_[stetr]->annkSearch(pnt_, neighb_num_, &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
@@ -1306,6 +1313,8 @@ void SDLPCADisplayProcessor::clusterNNwithThreshold(){
 		if (neighbour_dists_[0] < 400){
 			spike->cluster_id_ = treePointClusters[t][neighbour_inds_[0]];
 		}
+
+//		*(fdists[t]) << neighbour_dists_[0] << "\n";
 	}
 
 	Log("\nDone NN clustering");
