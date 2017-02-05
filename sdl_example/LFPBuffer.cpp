@@ -55,6 +55,11 @@ void LFPBuffer::Reset(Config* config)
 	cells_.resize(tetr_info_->tetrodes_number());
 	for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
 		cells_[tetr].push_back(PutativeCell());
+
+		if (tetr_info_->channels_number(tetr) > 4){
+			Log("ERROR: GROUPS WITH MORE THAN 4 CHANNELS NOT SUPPROTED. SORRY :(. PLEASE, SELECT SUBSET OF MAX 4 CHANNELS AND RESTART");
+			exit(438762);
+		}
 	}
 
 	// set dimensionalities for each number of channels per tetrode
