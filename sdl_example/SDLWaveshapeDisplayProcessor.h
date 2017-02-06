@@ -16,14 +16,18 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
     unsigned last_disp_pkg_id_ = 0;
     
     unsigned int targ_tetrode_ = 0;
-
-    unsigned int tetrode_total_spikes_ = 0;
     
     float scale_;
 
 	unsigned int spike_plot_rate_;
 
-    const unsigned int DISPLAY_RATE;
+    unsigned int DISPLAY_SIZE;
+    unsigned int display_rate_1_ = 1;
+    unsigned int display_rate_2_ = 1;
+    unsigned int c1_total_ = 0;
+    unsigned int c2_total_ = 0;
+    unsigned int c1_prev_ = 0;
+    unsigned int c2_prev_ = 0;
 
     // TODO compute from window height / width
     const unsigned int x_mult_final_ = 32;

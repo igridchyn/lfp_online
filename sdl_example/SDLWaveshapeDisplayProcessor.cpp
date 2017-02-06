@@ -26,7 +26,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
     , SDLSingleWindowDisplay(window_name, window_width, window_height)
 	, scale_((float)buf->config_->getInt("waveshapedisp.scale", 25))
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
-	, DISPLAY_RATE(buf->config_->getInt("waveshapedisp.display.rate", 1))
+	, DISPLAY_SIZE(buf->config_->getInt("waveshapedisp.display.size", 1))
 	, display_final_(buf->config_->getBool("waveshapedisp.final", false))
 	, buf_pointer_(buf->spike_buf_pos_ws_disp_)
 	, cuts_file_path_(buf->config_->getOutPath("waveshapedisp.cuts.path"))
@@ -108,6 +108,39 @@ void SDLWaveshapeDisplayProcessor::displayClusterCuts(const int & cluster_id, in
 void SDLWaveshapeDisplayProcessor::reinit() {
 	RenderClear();
 	buf_pointer_ = 0;
+
+	// calculate sampling rate
+	unsigned int n_clus_1_ = 0;
+	unsigned int n_clus_2_ = 0;
+    const int& disp_cluster_1_ = user_context_.SelectedCluster1();
+    const int& disp_cluster_2_ = user_context_.SelectedCluster2();
+
+	for (unsigned int si=0; si < buffer->spike_buf_no_disp_pca; ++si){
+		Spike* s = buffer->spike_buffer_[si];
+
+        if (s->waveshape == nullptr || s->discarded_ || s->tetrode_ != (int)targ_tetrode_){
+			continue;
+        }
+
+        if (s->cluster_id_ == disp_cluster_1_){
+        	n_clus_1_ ++;
+        }
+        if (s->cluster_id_ == disp_cluster_2_){
+            n_clus_2_ ++;
+        }
+	}
+
+
+	display_rate_1_ = n_clus_1_ > 0 ? n_clus_1_ / DISPLAY_SIZE + 1 : 1;
+	display_rate_2_ = n_clus_2_ > 0 ? n_clus_2_ / DISPLAY_SIZE + 1 : 1;
+
+	c1_total_ = 0;
+	c2_total_ = 0;
+	c1_total_ = c1_prev_;
+	c2_total_ = c2_prev_;
+
+	Log("Clu 1 display rate: ", display_rate_1_);
+	Log("Clu 2 display rate: ", display_rate_2_);
 }
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
@@ -181,14 +214,27 @@ void SDLWaveshapeDisplayProcessor::process() {
 			continue;
         }
 
-        // PLOTTING EVERY N-th spike
 		if ((unsigned int)spike->tetrode_ != targ_tetrode_ || spike->cluster_id_<=0 ||
 				(spike->cluster_id_ != disp_cluster_1_ && spike->cluster_id_ != disp_cluster_2_) ||
-				spike->discarded_ || (tetrode_total_spikes_ % spike_plot_rate_)){
+				spike->discarded_){
             buf_pointer_++;
-            tetrode_total_spikes_ ++;
             continue;
         }
+
+		if (spike->cluster_id_ == disp_cluster_1_){
+			c1_total_ ++;
+			if (c1_total_ % display_rate_1_){
+	            buf_pointer_++;
+				continue;
+			}
+		}
+		if (spike->cluster_id_ == disp_cluster_2_){
+			c2_total_ ++;
+			if (c2_total_ % display_rate_2_){
+	            buf_pointer_++;
+				continue;
+			}
+		}
 
 		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
         for (int chan=0; chan < 4; ++chan) {
@@ -216,7 +262,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         buf_pointer_++;
     }
     
-    if (last_pkg_id - last_disp_pkg_id_ > DISPLAY_RATE){
+    if (last_pkg_id - last_disp_pkg_id_ > DISPLAY_SIZE){
         last_disp_pkg_id_ = last_pkg_id;
         
         if (x1_ > 0){
@@ -428,6 +474,24 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             		current_cut_ = (current_cut_ + 1) % buffer->cells_[targ_tetrode_][disp_cluster_2].waveshape_cuts_.size();
             		need_redraw = true;
             	}
+            	break;
+
+            case SDLK_n:
+            	reinit();
+            	++ c1_prev_;
+            	++ c2_prev_;
+            	break;
+
+            case SDLK_m:
+            	DISPLAY_SIZE *= 1.5;
+            	Log("New display size: ", DISPLAY_SIZE);
+            	need_redraw = true;
+            	break;
+
+            case SDLK_l:
+            	DISPLAY_SIZE /= 1.5;
+            	Log("New display size: ", DISPLAY_SIZE);
+            	need_redraw = true;
             	break;
 
             default:
