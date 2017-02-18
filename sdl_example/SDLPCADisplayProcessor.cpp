@@ -332,7 +332,7 @@ void SDLPCADisplayProcessor::process(){
 			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(target_tetrode_); ++c){
 				text += std::string(" ") + Utils::Converter::int2str((int)buffer->tetr_info_->tetrode_channels[target_tetrode_][c]);
 			}
-			text += ")";
+			text += ") PC " + Utils::Converter::int2str(comp1_) + " / " + Utils::Converter::int2str(comp2_);
 			TextOut(text);
 
 			// cluster numbers
@@ -867,7 +867,7 @@ void SDLPCADisplayProcessor::SetDisplayTetrode(const unsigned int& display_tetro
 	RenderClear();
 
 	comp1_ = 0;
-	comp2_ = 1;
+	comp2_ = 2;
 
 	polygon_x_.clear();
 	polygon_y_.clear();
