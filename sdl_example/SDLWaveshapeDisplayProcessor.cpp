@@ -115,7 +115,11 @@ void SDLWaveshapeDisplayProcessor::reinit() {
     const int& disp_cluster_1_ = user_context_.SelectedCluster1();
     const int& disp_cluster_2_ = user_context_.SelectedCluster2();
 
-	for (unsigned int si=0; si < buffer->spike_buf_no_disp_pca; ++si){
+    // DEBUG
+    Log("Reinit, display cluster 2 = ", disp_cluster_2_);
+
+    // nodisp_pca can be reset => not useful for display rate calculation
+	for (unsigned int si=0; si < buffer->spike_buf_pos; ++si){
 		Spike* s = buffer->spike_buffer_[si];
 
         if (s->waveshape == nullptr || s->discarded_ || s->tetrode_ != (int)targ_tetrode_){
@@ -139,6 +143,7 @@ void SDLWaveshapeDisplayProcessor::reinit() {
 	c1_total_ = c1_prev_;
 	c2_total_ = c2_prev_;
 
+	// DEBUG
 	Log("Clu 1 display rate: ", display_rate_1_);
 	Log("Clu 2 display rate: ", display_rate_2_);
 }
