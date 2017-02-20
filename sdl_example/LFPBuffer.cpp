@@ -227,8 +227,15 @@ void LFPBuffer::Reset(Config* config)
 LFPBuffer::~LFPBuffer(){
 	Log("Delete pools");
 	delete[] spike_pool_;
-	delete spikes_ws_pool_;
-	delete spikes_ws_final_pool_;
+
+//	delete spikes_ws_pool_;
+//	delete spikes_ws_final_pool_;
+	// multiple pools implementation
+	for (unsigned int nchan=0; nchan<=8; ++nchan){
+		delete spikes_ws_pools_[nchan];
+		delete spikes_ws_final_pools_[nchan];
+	}
+
 	delete spike_features_pool_;
 	delete spike_extra_features_ptr_pool_;
 
@@ -344,8 +351,18 @@ LFPBuffer::LFPBuffer(Config* config)
 
     // allocate memory for waveshapes
     // TODO : allocate according to channels number tetrode-wise
-    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
-    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN + 100);
+
+    // multiple pools implementation
+    // dummy
+    spikes_ws_pools_.push_back(new PseudoMultidimensionalArrayPool<ws_type>(1, 128, 1));
+	spikes_ws_final_pools_.push_back(new PseudoMultidimensionalArrayPool<int>(1, 16, 1));
+    for (unsigned int nchan = 1; nchan <= 8; ++nchan){
+    	spikes_ws_pools_.push_back(new PseudoMultidimensionalArrayPool<ws_type>(nchan, 128, spike_waveshape_pool_size_));
+    	spikes_ws_final_pools_.push_back(new PseudoMultidimensionalArrayPool<int>(nchan, 16, SPIKE_BUF_LEN + 100));
+    }
+//    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
+//    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN + 100);
+
     // TODO !!!! use maximum dimension
     // TODO pools with dynamic size for each number of features
     // extra pool size for local file reader objects
@@ -751,28 +768,61 @@ void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const 
 	y_big_LED_ = yb;
 }
 
+//void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
+//	if (spikes_ws_pools_->Empty()){
+//		Log("Expand spike ws pool, new pool size = ", spikes_ws_pool_->PoolSize() * 2);
+//		spikes_ws_pool_->Expand();
+//	}
+//	AllocatePoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
+//}
+
+// multiple pools implementation
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
-	if (spikes_ws_pool_->Empty()){
-		Log("Expand spike ws pool, new pool size = ", spikes_ws_pool_->PoolSize() * 2);
+	unsigned int nchan = tetr_info_->channels_number(spike->tetrode_);
+	PseudoMultidimensionalArrayPool<ws_type> * spikes_ws_pool_ = spikes_ws_pools_[nchan];
+
+	//if (spikes_ws_pools_->Empty()){
+	if (spikes_ws_pools_[nchan]->Empty()){
+		Log("Expand spike ws pool for number of channels = ", nchan);
+		Log("	new pool size = ", spikes_ws_pool_->PoolSize() * 2);
 		spikes_ws_pool_->Expand();
 	}
 	AllocatePoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
 }
 
+//void LFPBuffer::FreeWaveshapeMemory(Spike* spike) {
+//	FreetPoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
+//}
 void LFPBuffer::FreeWaveshapeMemory(Spike* spike) {
-	FreetPoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
+	unsigned int nchan = tetr_info_->channels_number(spike->tetrode_);
+	FreetPoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pools_[nchan]);
 }
 
+
+//void LFPBuffer::AllocateFinalWaveshapeMemory(Spike* spike) {
+//	if (spikes_ws_final_pool_->Empty()){
+//		Log("Expand spike final ws pool, new pool size = ", spikes_ws_final_pool_->PoolSize() * 2);
+//		spikes_ws_final_pool_->Expand();
+//	}
+//	AllocatePoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pool_);
+//}
 void LFPBuffer::AllocateFinalWaveshapeMemory(Spike* spike) {
+	unsigned int nchan = tetr_info_->channels_number(spike->tetrode_);
+	PseudoMultidimensionalArrayPool<int> * spikes_ws_final_pool_ = spikes_ws_final_pools_[nchan];
 	if (spikes_ws_final_pool_->Empty()){
-		Log("Expand spike final ws pool, new pool size = ", spikes_ws_final_pool_->PoolSize() * 2);
+		Log("Expand spike final ws pool for number of channels = ", nchan);
+		Log("	new pool size = ", spikes_ws_final_pool_->PoolSize() * 2);
 		spikes_ws_final_pool_->Expand();
 	}
 	AllocatePoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pool_);
 }
 
+//void LFPBuffer::FreeFinalWaveshapeMemory(Spike* spike) {
+//	FreetPoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pool_);
+//}
 void LFPBuffer::FreeFinalWaveshapeMemory(Spike* spike) {
-	FreetPoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pool_);
+	unsigned int nchan = tetr_info_->channels_number(spike->tetrode_);
+	FreetPoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pools_[nchan]);
 }
 
 void LFPBuffer::AllocateFeaturesMemory(Spike* spike) {
