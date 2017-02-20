@@ -232,6 +232,9 @@ void SpikeDetectorProcessor::detect_spike_pos(const unsigned int & channel, cons
 			buffer->AddSpike(tetrode_to_process < 0);
 		}
 
+		// for multiple pools implementation
+		spike->tetrode_ = tetrode;
+
 		buffer->FreeFeaturesMemory(spike);
 		buffer->FreeWaveshapeMemory(spike);
 		buffer->FreeFinalWaveshapeMemory(spike);

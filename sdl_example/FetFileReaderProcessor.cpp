@@ -448,6 +448,9 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 		last_spikies_.push_back(new Spike(0, -1)); // buffer->spike_buffer_[buffer->spike_buf_pos]);
 //		buffer->AddSpike(last_spikies_[t]);
 
+		// for multiple pools implementation
+		last_spikies_[last_spikies_.size() - 1]->tetrode_ = t;
+
 		// allocate once and then swap pointers with objects in the buffer (to avoid copying and filling objects before knowing the temporal order)
 		buffer->AllocateExtraFeaturePointerMemory(last_spikies_[t]);
 		buffer->AllocateFeaturesMemory(last_spikies_[t]);
