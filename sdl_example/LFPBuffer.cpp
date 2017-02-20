@@ -430,6 +430,23 @@ PseudoMultidimensionalArrayPool<T>::PseudoMultidimensionalArrayPool(unsigned int
     }
 }
 
+template<class T>
+void PseudoMultidimensionalArrayPool<T>::Expand(){
+	this->ExpandPool();
+
+	T *new_array_ = new T [dim2_ * dim1_ * pool_size_];
+	T **new_array_rows_ = new T*[dim1_ * pool_size_];
+    for (unsigned int s=0; s < dim1_ * pool_size_; ++s){
+    	new_array_rows_[s] = new_array_ + s * dim2_;
+    }
+
+    for (unsigned int s=0; s < pool_size_; ++s){
+    	this->MemoryFreed(new_array_rows_ + dim1_ * s);
+    }
+
+    pool_size_ *= 2;
+}
+
 void LFPBuffer::ResetPopulationWindow(){
 	while (!population_vector_stack_.empty())
 		population_vector_stack_.pop();
@@ -735,6 +752,10 @@ void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const 
 }
 
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
+	if (spikes_ws_pool_->Empty()){
+		Log("Expand spike ws pool, new pool size = ", spikes_ws_pool_->PoolSize() * 2);
+		spikes_ws_pool_->Expand();
+	}
 	AllocatePoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
 }
 
@@ -743,6 +764,10 @@ void LFPBuffer::FreeWaveshapeMemory(Spike* spike) {
 }
 
 void LFPBuffer::AllocateFinalWaveshapeMemory(Spike* spike) {
+	if (spikes_ws_final_pool_->Empty()){
+		Log("Expand spike final ws pool, new pool size = ", spikes_ws_final_pool_->PoolSize() * 2);
+		spikes_ws_final_pool_->Expand();
+	}
 	AllocatePoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pool_);
 }
 

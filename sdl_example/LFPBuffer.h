@@ -111,7 +111,20 @@ public:
 	virtual ~QueueInterface() {
 		delete[] pool_;
 	}
-	;
+
+	virtual bool ExpandPool() {
+	    // allocate new pool
+	    T *new_pool = new T[pool_size_ * 2];
+	    memcpy(new_pool, pool_, pool_size_ * sizeof(T));
+	    pool_ = new_pool;
+	    alloc_pos_ = pool_size_;
+
+	    free_pos_ = pool_size_;
+
+	    pool_size_ *= 2;
+
+	    return true;
+	}
 };
 
 template<class T>
@@ -138,6 +151,9 @@ public:
 	PseudoMultidimensionalArrayPool(unsigned int dim1, unsigned int dim2,
 			unsigned int pool_size);
 	virtual ~PseudoMultidimensionalArrayPool() { delete[] array_; delete[] array_rows_; }
+
+	void Expand();
+	unsigned int PoolSize() { return pool_size_; }
 };
 
 class LFPONLINEAPI LFPBuffer : public virtual Utils::Logger {
