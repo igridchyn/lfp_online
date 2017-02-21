@@ -56,17 +56,18 @@ void LFPBuffer::Reset(Config* config)
 	for (size_t tetr = 0; tetr < tetr_info_->tetrodes_number(); ++tetr ){
 		cells_[tetr].push_back(PutativeCell());
 
-		if (tetr_info_->channels_number(tetr) > 4){
-			Log("ERROR: GROUPS WITH MORE THAN 4 CHANNELS NOT SUPPROTED. SORRY :(. PLEASE, SELECT SUBSET OF MAX 4 CHANNELS AND RESTART");
-			exit(438762);
-		}
+//		if (tetr_info_->channels_number(tetr) > 4){
+//			Log("ERROR: GROUPS WITH MORE THAN 4 CHANNELS NOT SUPPROTED. SORRY :(. PLEASE, SELECT SUBSET OF MAX 4 CHANNELS AND RESTART");
+//			exit(438762);
+//		}
 	}
 
 	// set dimensionalities for each number of channels per tetrode
 	std::vector<int> pc_per_chan;
+	// dummy - 0 channels
 	pc_per_chan.push_back(0);
 	const unsigned int npc4 = config->getInt("pca.num.pc", 3);
-	for (int nc = 1; nc < 5; ++ nc){
+	for (int nc = 1; nc < 9; ++ nc){
 		const unsigned int npc_nc = config->getInt(Utils::Converter::Combine("pca.num.pc.", nc) , npc4);
 		pc_per_chan.push_back(npc_nc); // - nc + 4);
 	}
