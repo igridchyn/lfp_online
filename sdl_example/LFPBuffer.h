@@ -112,19 +112,20 @@ public:
 		delete[] pool_;
 	}
 
-	virtual bool ExpandPool() {
-	    // allocate new pool
-	    T *new_pool = new T[pool_size_ * 2];
-	    memcpy(new_pool, pool_, pool_size_ * sizeof(T));
-	    pool_ = new_pool;
-	    alloc_pos_ = pool_size_;
-
-	    free_pos_ = pool_size_;
-
-	    pool_size_ *= 2;
-
-	    return true;
-	}
+	// this need to be reviewed - either have a queue of pools or old / new pool with old freed after all pointers in it returned ...
+//	virtual bool ExpandPool() {
+//	    // allocate new pool
+//	    T *new_pool = new T[pool_size_ * 2];
+//	    memcpy(new_pool, pool_, pool_size_ * sizeof(T));
+//	    pool_ = new_pool;
+//	    alloc_pos_ = pool_size_;
+//
+//	    free_pos_ = pool_size_;
+//
+//	    pool_size_ *= 2;
+//
+//	    return true;
+//	}
 };
 
 template<class T>
@@ -152,7 +153,7 @@ public:
 			unsigned int pool_size);
 	virtual ~PseudoMultidimensionalArrayPool() { delete[] array_; delete[] array_rows_; }
 
-	void Expand();
+//	void Expand();
 	unsigned int PoolSize() { return pool_size_; }
 };
 

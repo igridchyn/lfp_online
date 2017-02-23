@@ -357,8 +357,22 @@ LFPBuffer::LFPBuffer(Config* config)
     // dummy
     spikes_ws_pools_.push_back(new PseudoMultidimensionalArrayPool<ws_type>(1, 128, 1));
 	spikes_ws_final_pools_.push_back(new PseudoMultidimensionalArrayPool<int>(1, 16, 1));
+
+	// n groups of c channels
+	std::vector<unsigned int> ngroups;
+	ngroups.resize(9);
+	for (unsigned int t = 0;t < tetr_info_->tetrodes_number(); ++t){
+		ngroups[tetr_info_->channels_number(t)] ++;
+	}
+
     for (unsigned int nchan = 1; nchan <= 8; ++nchan){
-    	spikes_ws_pools_.push_back(new PseudoMultidimensionalArrayPool<ws_type>(nchan, 128, spike_waveshape_pool_size_));
+    	// pool size equals <NUMBER TETRODES WITH nchan CHANNELS * (pool size given in config) >
+    	unsigned int pool_size = 1;
+    	if (ngroups[nchan] > 0){
+    		pool_size = spike_waveshape_pool_size_ * ngroups[nchan];
+    	}
+    	spikes_ws_pools_.push_back(new PseudoMultidimensionalArrayPool<ws_type>(nchan, 128, pool_size));
+
     	spikes_ws_final_pools_.push_back(new PseudoMultidimensionalArrayPool<int>(nchan, 16, SPIKE_BUF_LEN + 100));
     }
 //    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
@@ -448,22 +462,22 @@ PseudoMultidimensionalArrayPool<T>::PseudoMultidimensionalArrayPool(unsigned int
     }
 }
 
-template<class T>
-void PseudoMultidimensionalArrayPool<T>::Expand(){
-	this->ExpandPool();
-
-	T *new_array_ = new T [dim2_ * dim1_ * pool_size_];
-	T **new_array_rows_ = new T*[dim1_ * pool_size_];
-    for (unsigned int s=0; s < dim1_ * pool_size_; ++s){
-    	new_array_rows_[s] = new_array_ + s * dim2_;
-    }
-
-    for (unsigned int s=0; s < pool_size_; ++s){
-    	this->MemoryFreed(new_array_rows_ + dim1_ * s);
-    }
-
-    pool_size_ *= 2;
-}
+//template<class T>
+//void PseudoMultidimensionalArrayPool<T>::Expand(){
+//	this->ExpandPool();
+//
+//	T *new_array_ = new T [dim2_ * dim1_ * pool_size_];
+//	T **new_array_rows_ = new T*[dim1_ * pool_size_];
+//    for (unsigned int s=0; s < dim1_ * pool_size_; ++s){
+//    	new_array_rows_[s] = new_array_ + s * dim2_;
+//    }
+//
+//    for (unsigned int s=0; s < pool_size_; ++s){
+//    	this->MemoryFreed(new_array_rows_ + dim1_ * s);
+//    }
+//
+//    pool_size_ *= 2;
+//}
 
 void LFPBuffer::ResetPopulationWindow(){
 	while (!population_vector_stack_.empty())
@@ -784,9 +798,12 @@ void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
 
 	//if (spikes_ws_pools_->Empty()){
 	if (spikes_ws_pools_[nchan]->Empty()){
-		Log("Expand spike ws pool for number of channels = ", nchan);
-		Log("	new pool size = ", spikes_ws_pool_->PoolSize() * 2);
-		spikes_ws_pool_->Expand();
+		Log("ERROR: waveshape empty pool");
+		exit(87234);
+
+//		Log("Expand spike ws pool for number of channels = ", nchan);
+//		Log("	new pool size = ", spikes_ws_pool_->PoolSize() * 2);
+//		spikes_ws_pool_->Expand();
 	}
 	AllocatePoolMemory<ws_type*>(&spike->waveshape, spikes_ws_pool_);
 }
@@ -811,9 +828,11 @@ void LFPBuffer::AllocateFinalWaveshapeMemory(Spike* spike) {
 	unsigned int nchan = tetr_info_->channels_number(spike->tetrode_);
 	PseudoMultidimensionalArrayPool<int> * spikes_ws_final_pool_ = spikes_ws_final_pools_[nchan];
 	if (spikes_ws_final_pool_->Empty()){
-		Log("Expand spike final ws pool for number of channels = ", nchan);
-		Log("	new pool size = ", spikes_ws_final_pool_->PoolSize() * 2);
-		spikes_ws_final_pool_->Expand();
+		Log("ERROR: waveshape empty pool");
+		exit(87235);
+//		Log("Expand spike final ws pool for number of channels = ", nchan);
+//		Log("	new pool size = ", spikes_ws_final_pool_->PoolSize() * 2);
+//		spikes_ws_final_pool_->Expand();
 	}
 	AllocatePoolMemory<int*>(&spike->waveshape_final, spikes_ws_final_pool_);
 }
