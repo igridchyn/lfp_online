@@ -370,6 +370,7 @@ LFPBuffer::LFPBuffer(Config* config)
     	unsigned int pool_size = 1;
     	if (ngroups[nchan] > 0){
     		pool_size = spike_waveshape_pool_size_ * ngroups[nchan];
+    		Log(std::string("Pool size of number of channels ") + Utils::Converter::int2str(nchan) + " equals ", pool_size);
     	}
     	spikes_ws_pools_.push_back(new PseudoMultidimensionalArrayPool<ws_type>(nchan, 128, pool_size));
 

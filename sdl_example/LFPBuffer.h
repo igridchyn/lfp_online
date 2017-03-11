@@ -100,9 +100,19 @@ public:
 	virtual T GetMemoryPtr() {
 		T mem = pool_[alloc_pos_];
 		alloc_pos_ = (alloc_pos_ + 1) % pool_size_;
+
+		if (mem == nullptr){
+			std::cout << "free = " << free_pos_ << ", alloc = " << alloc_pos_ << ", pool size = " << pool_size_ << "\n";
+			throw std::string("ERROR: queue returned empty ptr");
+		}
+
+
 		return mem;
 	}
 	virtual void MemoryFreed(T mem) {
+		if (mem == nullptr){
+			throw std::string("nulltrp freed!");
+		}
 		pool_[free_pos_] = mem;
 		free_pos_ = (free_pos_ + 1) % pool_size_;
 	}
