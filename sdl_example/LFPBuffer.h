@@ -362,11 +362,11 @@ public:
 	std::vector<double> fr_estimates_;
 //	double synchrony_tetrodes_firing_rate_ = .0;
 
-//	PseudoMultidimensionalArrayPool<ws_type> *spikes_ws_pool_;
-//	PseudoMultidimensionalArrayPool<int> *spikes_ws_final_pool_;
+	PseudoMultidimensionalArrayPool<ws_type> *spikes_ws_pool_;
+	PseudoMultidimensionalArrayPool<int> *spikes_ws_final_pool_;
 
-	std::vector<PseudoMultidimensionalArrayPool<ws_type> * > spikes_ws_pools_;
-	std::vector<PseudoMultidimensionalArrayPool<int> * > spikes_ws_final_pools_;
+//	std::vector<PseudoMultidimensionalArrayPool<ws_type> * > spikes_ws_pools_;
+//	std::vector<PseudoMultidimensionalArrayPool<int> * > spikes_ws_final_pools_;
 
 	LinearArrayPool<float> *spike_features_pool_;
 	LinearArrayPool<float *> *spike_extra_features_ptr_pool_;
