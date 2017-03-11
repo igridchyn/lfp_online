@@ -238,6 +238,7 @@ void SpikeDetectorProcessor::detect_spike_pos(const unsigned int & channel, cons
 		buffer->FreeFeaturesMemory(spike);
 		buffer->FreeWaveshapeMemory(spike);
 		buffer->FreeFinalWaveshapeMemory(spike);
+		// !!!??? TODO FREE ?
 		if (!spike->extra_features_){
 			buffer->AllocateExtraFeaturePointerMemory(spike);
 		}
