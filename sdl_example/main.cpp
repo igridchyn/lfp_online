@@ -19,8 +19,8 @@ typedef short t_bin;
 
 #ifdef WIN32
 void usleep(__int64 usec)
-{
 	HANDLE timer;
+{
 	LARGE_INTEGER ft;
 
 	ft.QuadPart = -(10 * usec); // Convert to 100 nanosecond interval, negative value indicates relative time
@@ -87,9 +87,13 @@ void usleep(__int64 usec)
     } else {
 
 //    	config = new Config("../Res/assembly_inhibition.conf");
+//    	config = new Config("../Res/EXPERIMENTAL_assembly_inhibition_presleep.conf");
+//    	config = new Config("../Res/assembly_inhibition_dump.conf");
 //    	config = new Config("../Res/build_model.conf");
 //    	config = new Config("../Res/decoding_online.conf");
-    	config = new Config("../Res/spike_display.conf");
+//    	config = new Config("../Res/EXPERIMENTAL_decoding_online.conf");
+    	config = new Config("../Res/spike_display_screening.conf");
+//    	config = new Config("../Res/EXPERIMENTAL_spike_dump.conf");
 //    	config = new Config("../Res/spike_dump.conf");
 //    	config = new Config("../Res/synchrony_detection.conf");
     }
@@ -106,7 +110,7 @@ void usleep(__int64 usec)
 	while (!buf->processing_over_) {
 #ifdef PIPELINE_THREAD
 		{
-			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);
+			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);1
 			binreader->process();
 			pipeline->data_added_ = true;
 		}

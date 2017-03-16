@@ -257,7 +257,7 @@ std::string Config::getString(std::string name) {
 }
 
 void Config::checkUnused() {
-	for(std::map<std::string, std::string>::iterator iter = params_.begin(); iter != params_.end(); ++iter){
+	for(auto iter = params_.begin(); iter != params_.end(); ++iter){
 		//if (requested_params_.find(iter->first) == requested_params_.end()){
 		log_string_stream_ << "WARNING: param " << iter->first << " read but not requested\n";
 		Log();
@@ -348,7 +348,7 @@ void Config::Log(bool nocout) {
 std::string Config::getAllParamsText() {
 	std::stringstream ss;
 
-	for (std::map<std::string, std::string>::iterator it=params_.begin(); it!=params_.end(); ++it){
+	for (auto it=params_.begin(); it!=params_.end(); ++it){
 		ss << it->first << "=" << it->second << "\n";
 	}
 
@@ -465,8 +465,7 @@ void printVector(std::vector<T> vec, std::string vec_name, std::ofstream & strea
 void Config::dump(std::ofstream & out){
 	// dump all lists and params - was in separate file before
 	out << "=== CONFIG DUMP START ===\n";
-	typedef std::map<std::string, std::string>::iterator it_type;
-	for(it_type iterator = params_.begin(); iterator != params_.end(); iterator++) {
+	for(auto iterator = params_.begin(); iterator != params_.end(); iterator++) {
 		out << iterator->first << "=" << iterator->second << "\n";
 	}
 

@@ -208,7 +208,7 @@ void AutocorrelogramProcessor::process(){
 
 		// update autocorrs for new spike
 		if (!reset_mode_ || (reset_mode_ && (unsigned int)spike->cluster_id_ == reset_cluster_)){
-			for (std::list<unsigned int>::iterator si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
+			for (auto si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
 				if (stime - *si > max_diff){
 					continue;
 				}
@@ -228,7 +228,7 @@ void AutocorrelogramProcessor::process(){
 				continue;
 
 			std::list<unsigned int>& prev_spikes_ = spike_times_lists_[tetrode][c];
-			for (std::list<unsigned int>::iterator si = prev_spikes_.begin(); si != prev_spikes_.end(); ++si) {
+			for (auto si = prev_spikes_.begin(); si != prev_spikes_.end(); ++si) {
 				if (stime - *si > max_diff){
 					continue;
 				}

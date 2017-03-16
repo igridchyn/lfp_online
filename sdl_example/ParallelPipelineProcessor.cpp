@@ -19,7 +19,7 @@ void ParallelPipelineProcessor::process() {
 	// PROFILE
 //	clock_t start = clock();
 
-	for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
+	for (auto piter = processors_.begin(); piter != processors_.end(); ++piter) {
 		(*piter)->desync();
 	}
 
@@ -40,7 +40,7 @@ void ParallelPipelineProcessor::process() {
 //	start = clock();
 //	std::cout << "All jobs over ... pkg id = " << buffer->last_pkg_id << ", time (ms) = " << (time * 1000) / CLOCKS_PER_SEC <<  "\n";
 
-	for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
+	for (auto piter = processors_.begin(); piter != processors_.end(); ++piter) {
 		(*piter)->sync();
 	}
 
@@ -58,7 +58,7 @@ void ParallelPipelineProcessor::process_thread(const int group) {
 		// PROFILE
 //		clock_t start = clock();
 
-		for (std::vector<LFPProcessor*>::const_iterator piter = processors_.begin(); piter != processors_.end(); ++piter) {
+		for (auto piter = processors_.begin(); piter != processors_.end(); ++piter) {
 			(*piter)->process();
 		}
 

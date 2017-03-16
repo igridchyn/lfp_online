@@ -164,7 +164,7 @@ void LFPPipeline::process(){
 //		clock_t begin_time = clock();
 //		unsigned int spike_ptr_before = buf_->spike_buf_pos;
 
-		for (std::vector<LFPProcessor*>::const_iterator piter = processors.begin(); piter != processors.end(); ++piter) {
+		for (auto piter = processors.begin(); piter != processors.end(); ++piter) {
 			(*piter)->process();
 		}
 

@@ -106,7 +106,7 @@ UserAction::UserAction(UserActionType action_type, int cluster_number,
 
 const UserAction* UserContext::GetNextAction(
 		const unsigned int& ref_action_id) {
-	for (std::list<UserAction>::const_reverse_iterator ua_iter = action_list_.rbegin();  ua_iter != action_list_.rend(); ++ua_iter){
+	for (auto ua_iter = action_list_.rbegin();  ua_iter != action_list_.rend(); ++ua_iter){
 		if (ua_iter->id_ <= ref_action_id && ua_iter != action_list_.rbegin()){
 			return &(*(--ua_iter ));
 		}
