@@ -75,6 +75,7 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
 
     //
     int getClusterNumberByCoords(const unsigned int& x, const unsigned int& y);
+    void getPairByCoords(const unsigned int& x, const unsigned int& y, unsigned int & c1, unsigned int & c2);
 
     void plotACorCCs(int tetrode, int cluster);
 

@@ -302,6 +302,15 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 	SDL_RenderDrawRect(renderer_, &rect);
 }
 
+void AutocorrelogramProcessor::getPairByCoords(const unsigned int& x, const unsigned int& y, unsigned int & c1, unsigned int & c2) {
+	int cx = x /  ((CC_BWIDTH + 1) * NBINS * 2 + 15) + shift_xx_x_ * XCLUST_CC;
+	int cy = y / ypix_ + shift_xx_y_ * YCLUST_CC;
+
+	c1 = (unsigned int)cx;
+	c2 = (unsigned int)cy;
+	// std::cout << "pair: " << cx << ", " << cy << "\n";
+}
+
 int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x, const unsigned int& y) {
 	int cx = (int)round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
@@ -386,15 +395,22 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 
 			if (kmod & KMOD_LSHIFT){
-				int clun = getClusterNumberByCoords(e.button.x, e.button.y);
-				if (clun >= 0){
-					if (clun == user_context_.SelectedCluster2()){
-						user_context_.SelectCluster2(-1);
+				if (display_mode_ == AC_DISPLAY_MODE_AC){
+					int clun = getClusterNumberByCoords(e.button.x, e.button.y);
+					if (clun >= 0){
+						if (clun == user_context_.SelectedCluster2()){
+							user_context_.SelectCluster2(-1);
+						}
+						else{
+							user_context_.SelectCluster2(clun);
+						}
+						SetDisplayTetrode(display_tetrode_);
 					}
-					else{
-						user_context_.SelectCluster2(clun);
-					}
-					SetDisplayTetrode(display_tetrode_);
+				} else {
+					unsigned int clu1, clu2;
+					getPairByCoords(e.button.x, e.button.y, clu1, clu2);
+					user_context_.SelectCluster1(clu1);
+					user_context_.SelectCluster2(clu2);
 				}
 			}
 		}
