@@ -135,16 +135,16 @@ ColorPalette::ColorPalette(int num_colors, int *color_values)
 , color_values_(color_values) {}
 
 int ColorPalette::getR(int order) const{
-    return (color_values_[order] & 0xFF0000) >> 16;
+    return (color_values_[order % num_colors_] & 0xFF0000) >> 16;
 }
 int ColorPalette::getG(int order) const{
-    return (color_values_[order] & 0x00FF00) >> 8;
+    return (color_values_[order % num_colors_] & 0x00FF00) >> 8;
 }
 int ColorPalette::getB(int order) const{
-    return color_values_[order] & 0x0000FF;
+    return color_values_[order % num_colors_] & 0x0000FF;
 }
 int ColorPalette::getColor(int order) const{
-    return color_values_[order];
+    return color_values_[order % num_colors_];
 }
 
 void LFPProcessor::Log(std::string message) {
