@@ -59,7 +59,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
 {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
-    const unsigned int MAX_CLUST = 30;
+    const unsigned int MAX_CLUST = 100;
     
     place_fields_.resize(tetrn);
     place_fields_smoothed_.resize(tetrn);
