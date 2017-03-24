@@ -613,6 +613,17 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
         	}
 
+        	// e: extract from selected cluster
+        	case SDLK_e:
+        	{
+        		if (kmod & KMOD_LSHIFT){
+        			extractClusterFromMultiple();
+        		} else {
+        			extractCluster();
+        		}
+        		break;
+        	}
+
         	// r: set cluster to unassigned in selected spikes
         	case SDLK_r:
         	{
@@ -917,6 +928,99 @@ void SDLPCADisplayProcessor::deleteCluster() {
 	buffer->dumpCluAndRes();
 }
 
+void SDLPCADisplayProcessor::extractClusterFromMultiple() {
+	if (user_context_.SelectedCluster2() == -1){
+		Log("No cluster selected for extraction");
+	}
+
+	unsigned int clun = 0;
+	PolygonCluster new_clust_ = createNewCluster(clun);
+
+	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
+	save_polygon_clusters();
+
+	// TODO ClearPolygon()
+	polygon_closed_ = false;
+	polygon_x_.clear();
+	polygon_y_.clear();
+
+	buffer->ResetAC(target_tetrode_, clun);
+
+	buffer->ResetPopulationWindow();
+
+	// not to redraw: iterate through spikes and redraw
+//	SDL_SetRenderTarget(renderer_, nullptr);
+//	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SDL_SetRenderTarget(renderer_, texture_);
+	SetDrawColor(clun);
+	int count = 0;
+	for (unsigned int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
+		Spike *spike = buffer->spike_buffer_[s];
+		if (spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ == -1 || !display_cluster_[spike->cluster_id_]){
+			continue;
+		}
+
+		if (new_clust_.Contains(spike)){
+			int x, y;
+			getSpikeCoords(spike, x, y);
+			spike->cluster_id_ = clun;
+			//SDL_RenderDrawPoint(renderer_, x, y);
+			points_[count++ ] = {x, y};
+		}
+	}
+	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+
+	Render();
+
+	buffer->dumpCluAndRes();
+}
+
+void SDLPCADisplayProcessor::extractCluster() {
+	if (user_context_.SelectedCluster2() == -1){
+		Log("No cluster selected for extraction");
+	}
+
+	unsigned int clun = 0;
+	PolygonCluster new_clust_ = createNewCluster(clun);
+
+	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
+	save_polygon_clusters();
+
+	// TODO ClearPolygon()
+	polygon_closed_ = false;
+	polygon_x_.clear();
+	polygon_y_.clear();
+
+	buffer->ResetAC(target_tetrode_, clun);
+
+	buffer->ResetPopulationWindow();
+
+	// not to redraw: iterate through spikes and redraw
+//	SDL_SetRenderTarget(renderer_, nullptr);
+//	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
+	SDL_SetRenderTarget(renderer_, texture_);
+	SetDrawColor(clun);
+	int count = 0;
+	for (unsigned int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
+		Spike *spike = buffer->spike_buffer_[s];
+		if (spike->discarded_ || spike->tetrode_ != target_tetrode_ || (spike->cluster_id_ != user_context_.SelectedCluster2())){
+			continue;
+		}
+
+		if (new_clust_.Contains(spike)){
+			int x, y;
+			getSpikeCoords(spike, x, y);
+			spike->cluster_id_ = clun;
+			//SDL_RenderDrawPoint(renderer_, x, y);
+			points_[count++ ] = {x, y};
+		}
+	}
+	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+
+	Render();
+
+	buffer->dumpCluAndRes();
+}
 
 void SDLPCADisplayProcessor::addExclusiveProjection() {
 	PolygonClusterProjection tmpproj(polygon_x_, polygon_y_, comp1_, comp2_);

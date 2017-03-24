@@ -95,6 +95,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	void displayChiHistogramm();
 	void splitIntoGuassians();
 	PolygonCluster createNewCluster(unsigned int & clun);
+	void extractCluster();
+	void extractClusterFromMultiple();
 
 	// get coordinates of spike in current projection
 	void getSpikeCoords(const Spike *const, int& x, int& y);
