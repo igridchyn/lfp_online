@@ -7,6 +7,7 @@
 
 #include "PolygonCluster.h"
 #include <algorithm>
+#include "iostream"
 
 PolygonCluster::PolygonCluster() {
 
@@ -165,12 +166,19 @@ PolygonClusterProjection::PolygonClusterProjection(std::ifstream& file) {
 }
 
 bool PolygonClusterProjection::Contains(float x, float y) {
-	// find the first edge s.t. point's y falls between edge's ends
+	// find closest edge to the left from point
 	const unsigned int UNK = std::numeric_limits<unsigned int>::max();
 	unsigned int pivot = UNK;
+	float mindist = std::numeric_limits<float>::max();
 	for(size_t i=1; i<coords1_.size();++i){
-		if ( (coords2_[i] - y) * (coords2_[i-1] - y) < 0 ){
+		if ( (coords2_[i] - y) * (coords2_[i-1] - y) >= 0 ){
+			continue;
+		}
+
+		float pintx = coords1_[i - 1] + (coords1_[i] - coords1_[i-1]) / (coords2_[i] - coords2_[i-1]) * (y - coords2_[i-1]);
+		if ((pintx < x) && (x - pintx <  mindist)){
 			pivot = i;
+			mindist = x - pintx;
 		}
 	}
 
@@ -178,33 +186,56 @@ bool PolygonClusterProjection::Contains(float x, float y) {
 		return false;
 
 	// pivot intersection x
-	float pintx = coords1_[pivot-1] + (coords1_[pivot] - coords1_[pivot-1]) / (coords2_[pivot] - coords2_[pivot-1]) * (y - coords2_[pivot-1]);
+	// denom <. 0 because of true of if above (a point between them exists)
 
 	// define if it is to the left or to the right (just by which one is higher)
-	bool left = !IsFromRight(coords1_[pivot-1], coords2_[pivot-1], coords1_[pivot], coords2_[pivot], x, y);
+	bool right = IsFromRight(coords1_[pivot-1], coords2_[pivot-1], coords1_[pivot], coords2_[pivot], x, y);
 
-	// count how many times the line to the left/right from the point crosses other edges
-	int ncross = 0;
-	for(size_t i=1; i<coords1_.size();++i){
-		// edge's y on one side of point's y
-		if ( (coords2_[i] - y) * (coords2_[i-1] - y) > 0 ){
-			continue;
-		}
-
-		// to avoid problems with precision
-		if (i == pivot){
-			continue;
-		}
-
-		// find x of intersection
-		float intx = coords1_[i-1] + (coords1_[i] - coords1_[i-1]) / (coords2_[i] - coords2_[i-1]) * (y - coords2_[i-1]);
-		if ( (x - intx) * (pintx - intx) < 0 ){
-			ncross ++;
-		}
-	}
-
-	return (ncross % 2 == 0) ^ left;
+	return right;
 }
+
+//bool PolygonClusterProjection::Contains(float x, float y) {
+//	// find the first edge s.t. point's y falls between edge's ends
+//	const unsigned int UNK = std::numeric_limits<unsigned int>::max();
+//	unsigned int pivot = UNK;
+//	for(size_t i=1; i<coords1_.size();++i){
+//		if ( (coords2_[i] - y) * (coords2_[i-1] - y) < 0 ){
+//			pivot = i;
+//		}
+//	}
+//
+//	if (pivot == UNK)
+//		return false;
+//
+//	// pivot intersection x
+//	// denom <. 0 because of true of if above (a point between them exists)
+//	float pintx = coords1_[pivot-1] + (coords1_[pivot] - coords1_[pivot-1]) / (coords2_[pivot] - coords2_[pivot-1]) * (y - coords2_[pivot-1]);
+//
+//	// define if it is to the left or to the right (just by which one is higher)
+//	bool left = !IsFromRight(coords1_[pivot-1], coords2_[pivot-1], coords1_[pivot], coords2_[pivot], x, y);
+//
+//	// count how many times the line to the left/right from the point crosses other edges
+//	int ncross = 0;
+//	for(size_t i=1; i<coords1_.size();++i){
+//		// edge's y on one side of point's y
+//		if ( (coords2_[i] - y) * (coords2_[i-1] - y) >= 0 ){
+//			continue;
+//		}
+//
+//		// to avoid problems with precision
+//		if (i == pivot){
+//			continue;
+//		}
+//
+//		// find x of intersection
+//		float intx = coords1_[i-1] + (coords1_[i] - coords1_[i-1]) / (coords2_[i] - coords2_[i-1]) * (y - coords2_[i-1]);
+//		if ( (x - intx) * (pintx - intx) < 0 ){
+//			ncross ++;
+//		}
+//	}
+//
+//	return (ncross % 2 == 0) ^ left;
+//}
 
 void PolygonClusterProjection::Serialize(std::ofstream& file) {
 	file << dim1_ << " " << dim2_ << " " << coords1_.size() << "\n";
@@ -234,7 +265,7 @@ bool PolygonClusterProjection::IsCW() {
 		}
 	}
 
-	return nright > coords1_.size() / 2;
+	return nright >= coords1_.size() / 2;
 }
 
 PolygonClusterProjection::PolygonClusterProjection()
