@@ -430,6 +430,8 @@ LFPBuffer::LFPBuffer(Config* config)
     	    dst.close();
     	}
     }
+
+    clusters_in_tetrode_.resize(tetr_info_->tetrodes_number());
 }
 
 template <class T>
@@ -1047,7 +1049,7 @@ void LFPBuffer::Log(std::string message, std::vector<unsigned int> array, bool p
 void LFPBuffer::calculateClusterNumberShifts(){
 	// reset - because of possible trailing empty clusters
 	for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
-		clusters_in_tetrode_[0] = 0;
+		clusters_in_tetrode_[t] = 0;
 	}
 
 	unsigned int i=0;

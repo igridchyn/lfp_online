@@ -95,8 +95,6 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 
     Log("WARNING: processor assumes chronological order of spikes");
     Log("CONTROLS: g - save res / clu; s - smooth plfshiftsace fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster; d - dump place fields	");
-
-    buffer->clusters_in_tetrode_.resize(buf->tetr_info_->tetrodes_number());
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y){
