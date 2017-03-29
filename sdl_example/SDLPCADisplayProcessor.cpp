@@ -339,7 +339,7 @@ void SDLPCADisplayProcessor::process(){
 			number_panel_mapping_.push_back(0);
 			for (unsigned int c=1; c < MAX_CLUST; ++c){
 //				if (display_cluster_[c]){
-					TextOut(std::string(Utils::NUMBERS[c]) + " ", palette_.getColor(c % palette_.NumColors()), false);
+					TextOut(Utils::Converter::int2str(c) + " ", palette_.getColor(c % palette_.NumColors()), false);
 					number_panel_mapping_.push_back(number_panel_mapping_[number_panel_mapping_.size() - 1] + last_text_width_);
 //				}
 			}
