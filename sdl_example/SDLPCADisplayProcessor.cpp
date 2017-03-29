@@ -89,7 +89,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 
     spikes_to_draw_.resize(MAX_CLUST);
     for (unsigned int c = 0; c < MAX_CLUST; ++c) {
-    	spikes_to_draw_[c] = new SDL_Point[spikes_draw_freq_];
+
+    	spikes_to_draw_[c] = new SDL_Point[spikes_draw_freq_ * 100];
 	}
     spikes_counts_.resize(MAX_CLUST);
 
@@ -203,7 +204,45 @@ void SDLPCADisplayProcessor::process(){
 
         // if not online, collect and draw in batches
         if (buffer->pipeline_status_ != PIPELINE_STATUS_ONLINE){
-        	spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+        	if (preview_mode_){
+        		unsigned int oc1 = comp1_, oc2 = comp2_;
+        		unsigned int compn = buffer->tetr_info_->channels_number(target_tetrode_) * 2;
+        		unsigned int cnt = 0;
+
+        		const unsigned int NWX = 7;
+        		const unsigned int NWY = 4;
+
+        		unsigned int dx = window_width_ / NWX;
+        		unsigned int dy = window_height_ / NWY;
+
+
+        		for (unsigned int c1 = 0; c1 < compn; ++c1)
+        			for (unsigned int c2 = 0; c2 < c1; ++c2){
+        				comp1_ = c1;
+        				comp2_ = c2;
+        				getSpikeCoords(spike, x, y);
+
+        				if (x < 0 || x > (int)window_width_ || y < 0 || y > (int)window_height_){
+        					cnt ++;
+        					continue;
+        				}
+
+        				x /= NWX;
+        				y /= NWY;
+        				x += dx * (cnt % NWX);
+        				y += dy * (cnt / NWX);
+
+        				spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+
+        				cnt ++;
+        			}
+
+        		comp1_ = oc1;
+        		comp2_ = oc2;
+        	} else {
+            	spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+        	}
+
         	if (highlight_current_cluster_ && (user_context_.SelectedCluster2() == (int)cid || user_context_.SelectedCluster1() == (int)cid)){
         		spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x + 1, y + 1};
         		spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x - 1, y + 1};
@@ -242,8 +281,23 @@ void SDLPCADisplayProcessor::process(){
 
     if (render){
         SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
-        SDL_RenderDrawLine(renderer_, 0, shift_y_, window_width_, shift_y_);
-        SDL_RenderDrawLine(renderer_, shift_x_, 0, shift_x_, window_height_);
+
+        if (preview_mode_){
+        	const unsigned int NWX = 7;
+        	const unsigned int NWY = 4;
+
+        	unsigned int dx = window_width_ / NWX;
+        	for (unsigned int dxi = 1; dxi < NWX; ++dxi){
+        		SDL_RenderDrawLine(renderer_, dx * dxi, 0, dx * dxi, window_height_);
+        	}
+        	unsigned int dy = window_height_ / NWY;
+        	for (unsigned int dyi = 1; dyi < NWY; ++dyi){
+        		SDL_RenderDrawLine(renderer_, 0, dy * dyi, window_width_, dy * dyi);
+        	}
+        } else {
+        	SDL_RenderDrawLine(renderer_, 0, shift_y_, window_width_, shift_y_);
+        	SDL_RenderDrawLine(renderer_, shift_x_, 0, shift_x_, window_height_);
+        }
 
         // polygon vertices
         for(size_t i=0; i < polygon_x_.size(); ++i){
@@ -425,8 +479,42 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
 	if (e.type == SDL_MOUSEBUTTONDOWN && e.button.windowID == GetWindowID()){
 		if (e.button.button == SDL_BUTTON_LEFT){
+
+			if (preview_mode_){
+				preview_mode_ = false;
+				unsigned int wx = e.button.x * 7 / window_width_;
+				unsigned int wy = e.button.y * 4 / window_height_;
+
+				std::cout << "sub-window number " << wx << ", " << wy << "\n";
+
+				// find out to which components this corresponds
+				unsigned int compn = buffer->tetr_info_->channels_number(target_tetrode_) * 2;
+				unsigned int cnt = 0;
+				bool found = false;
+				for (unsigned int c1 = 0; c1 < compn; ++c1){
+					for (unsigned int c2 = 0; c2 < c1; ++c2){
+						unsigned int nx = cnt % 7;
+						unsigned int ny = cnt / 7;
+
+						if (nx == wx && ny == wy){
+							std::cout << "cnt = " << cnt << ", c1 = " << c1 << ", c2 = " << c2 << "\n";
+
+							comp1_ = c1;
+							comp2_ = c2;
+							found = true;
+							break;
+						}
+
+						cnt ++;
+					}
+					if (found)
+						break;
+				}
+
+				need_redraw = true;
+			}
 			// select cluster 1
-			if (kmod & KMOD_LCTRL){
+			else if (kmod & KMOD_LCTRL){
 				float rawx = (e.button.x - shift_x_) * scale_;
 				float rawy = (e.button.y - shift_y_) * scale_;
 
@@ -738,6 +826,11 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         			clusterNNwithThreshold();
         			need_redraw = true;
         		}
+        		break;
+
+        	case SDLK_q:
+        		preview_mode_ = ! preview_mode_;
+        		need_redraw = true;
         		break;
 
             case SDLK_ESCAPE:

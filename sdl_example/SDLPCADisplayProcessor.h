@@ -122,6 +122,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 
 	float gaussian_distance_threshold_ = 0.0005;
 
+	bool preview_mode_ = false;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
