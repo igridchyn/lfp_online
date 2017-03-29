@@ -122,7 +122,7 @@ void SDLWaveshapeDisplayProcessor::reinit() {
 	for (unsigned int si=0; si < buffer->spike_buf_pos; ++si){
 		Spike* s = buffer->spike_buffer_[si];
 
-        if (s->waveshape == nullptr || s->discarded_ || s->tetrode_ != (int)targ_tetrode_){
+        if (s->discarded_ || s->tetrode_ != (int)targ_tetrode_){
 			continue;
         }
 
@@ -339,8 +339,10 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         switch( e.key.keysym.sym )
         {
         	// on-demand waveshape display
-        	case SDLK_w:
+        	case SDLK_w: {
         		need_redraw = false;
+        		unsigned int current_session = 0;
+        		unsigned int spike_shift = 0;
 
         		SDL_SetRenderTarget(renderer_, texture_);
 
@@ -355,8 +357,16 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
 
         		for (unsigned int s=0; s < buffer->spike_buf_pos; ++s){
         			Spike* spike = buffer->spike_buffer_[s];
-        			if (spike->tetrode_ != targ_tetrode_){
+        			if (spike->tetrode_ != (int)targ_tetrode_){
         				continue;
+        			}
+
+        			// check if need to open new file - first spike in the given tetrode from the new session !
+        			if (current_session < buffer->session_shifts_.size() - 1 && spike->pkg_id_ > buffer->session_shifts_[current_session + 1]){
+        				spike_shift = sp_tetr;
+        				current_session ++;
+        				fws.close();
+        				fws.open(buffer->config_->spike_files_[current_session] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
         			}
 
         			if (spike->cluster_id_<=0 ||
@@ -382,7 +392,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         			}
 
         			// now need to read and draw current
-        			fws.seekg(256 * buffer->tetr_info_->channels_number(targ_tetrode_) * sp_tetr, fws.beg);
+        			fws.seekg(256 * buffer->tetr_info_->channels_number(targ_tetrode_) * (sp_tetr - spike_shift), fws.beg);
         			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(targ_tetrode_); ++c){
         				fws.read((char*)ws_tmp[c], 128 * sizeof(ws_type));
         			}
@@ -403,6 +413,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         		Render();
 
         		break;
+        	}
 
         	// delete points
         	case SDLK_d:
