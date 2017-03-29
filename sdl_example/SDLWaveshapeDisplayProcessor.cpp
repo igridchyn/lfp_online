@@ -32,6 +32,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
 	, cuts_file_path_(buf->config_->getOutPath("waveshapedisp.cuts.path"))
 	, cuts_save_(buf->config_->getBool("waveshapedisp.cuts.save", false))
 	, cuts_load_(buf->config_->getBool("waveshapedisp.cuts.load", false))
+	, on_demand_(!buf->config_->getBool("spike.reader.spk.read", false))
 {
 	// LOAD CUTS FROM FILE
 	if (cuts_load_){
@@ -290,6 +291,87 @@ void SDLWaveshapeDisplayProcessor::process() {
     }
 }
 
+void SDLWaveshapeDisplayProcessor::displayFromFiles(){
+    int disp_cluster_1 = user_context_.SelectedCluster1();
+    int disp_cluster_2 = user_context_.SelectedCluster2();
+
+    std::ifstream fws;
+    ws_type **ws_tmp;
+    const ColorPalette& colpal = ColorPalette::BrewerPalette12;
+	unsigned int sp_tetr = 0;
+
+	unsigned int current_session = 0;
+	unsigned int spike_shift = 0;
+
+	SDL_SetRenderTarget(renderer_, texture_);
+
+	ws_tmp = new ws_type*[4];
+	for (unsigned int c=0; c < 4; ++c){
+		ws_tmp[c] = new ws_type[128];
+	}
+
+	// open first session streams for given tetrode
+	fws.open(buffer->config_->spike_files_[0] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
+	// iterate over all spikes, seek and read if need to draw
+
+	for (unsigned int s=0; s < buffer->spike_buf_pos; ++s){
+		Spike* spike = buffer->spike_buffer_[s];
+		if (spike->tetrode_ != (int)targ_tetrode_){
+			continue;
+		}
+
+		// check if need to open new file - first spike in the given tetrode from the new session !
+		if (current_session < buffer->session_shifts_.size() - 1 && spike->pkg_id_ > buffer->session_shifts_[current_session + 1]){
+			spike_shift = sp_tetr;
+			current_session ++;
+			fws.close();
+			fws.open(buffer->config_->spike_files_[current_session] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
+		}
+
+		if (spike->cluster_id_<=0 ||
+				(spike->cluster_id_ != disp_cluster_1 && spike->cluster_id_ != disp_cluster_2) ||
+				spike->discarded_){
+			sp_tetr ++;
+			continue;
+		}
+
+		if (spike->cluster_id_ == disp_cluster_1){
+			c1_total_ ++;
+			if (c1_total_ % display_rate_1_){
+				sp_tetr ++;
+				continue;
+			}
+		}
+		if (spike->cluster_id_ == disp_cluster_2){
+			c2_total_ ++;
+			if (c2_total_ % display_rate_2_){
+				sp_tetr ++;
+				continue;
+			}
+		}
+
+		// now need to read and draw current
+		fws.seekg(256 * buffer->tetr_info_->channels_number(targ_tetrode_) * (sp_tetr - spike_shift), fws.beg);
+		for (unsigned int c=0; c < buffer->tetr_info_->channels_number(targ_tetrode_); ++c){
+			fws.read((char*)ws_tmp[c], 128 * sizeof(ws_type));
+		}
+
+		sp_tetr ++;
+		// TODO: extract
+		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
+		for (int chan=0; chan < 4; ++chan) {
+			int prev_smpl = (int)transform((float)ws_tmp[chan][0], chan);
+			for (int smpl = 1; smpl < 128; ++smpl) {
+				int tsmpl = (int)transform(ws_tmp[chan][smpl], chan);
+				SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
+				SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
+				prev_smpl = tsmpl;
+			}
+		}
+	}
+	Render();
+}
+
 void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	SDL_Keymod kmod = SDL_GetModState();
 	bool need_redraw = false;
@@ -331,87 +413,13 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         int disp_cluster_1 = user_context_.SelectedCluster1();
         int disp_cluster_2 = user_context_.SelectedCluster2();
 
-        std::ifstream fws;
-        ws_type **ws_tmp;
-        const ColorPalette& colpal = ColorPalette::BrewerPalette12;
-		unsigned int sp_tetr = 0;
-
         switch( e.key.keysym.sym )
         {
         	// on-demand waveshape display
         	case SDLK_w: {
+        		if (on_demand_)
+        			displayFromFiles();
         		need_redraw = false;
-        		unsigned int current_session = 0;
-        		unsigned int spike_shift = 0;
-
-        		SDL_SetRenderTarget(renderer_, texture_);
-
-        		ws_tmp = new ws_type*[4];
-        		for (unsigned int c=0; c < 4; ++c){
-        			ws_tmp[c] = new ws_type[128];
-        		}
-
-        		// open first session streams for given tetrode
-        		fws.open(buffer->config_->spike_files_[0] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
-        		// iterate over all spikes, seek and read if need to draw
-
-        		for (unsigned int s=0; s < buffer->spike_buf_pos; ++s){
-        			Spike* spike = buffer->spike_buffer_[s];
-        			if (spike->tetrode_ != (int)targ_tetrode_){
-        				continue;
-        			}
-
-        			// check if need to open new file - first spike in the given tetrode from the new session !
-        			if (current_session < buffer->session_shifts_.size() - 1 && spike->pkg_id_ > buffer->session_shifts_[current_session + 1]){
-        				spike_shift = sp_tetr;
-        				current_session ++;
-        				fws.close();
-        				fws.open(buffer->config_->spike_files_[current_session] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
-        			}
-
-        			if (spike->cluster_id_<=0 ||
-        					(spike->cluster_id_ != disp_cluster_1 && spike->cluster_id_ != disp_cluster_2) ||
-        					spike->discarded_){
-        				sp_tetr ++;
-        				continue;
-        			}
-
-        			if (spike->cluster_id_ == disp_cluster_1){
-        				c1_total_ ++;
-        				if (c1_total_ % display_rate_1_){
-        		            sp_tetr ++;
-        					continue;
-        				}
-        			}
-        			if (spike->cluster_id_ == disp_cluster_2){
-        				c2_total_ ++;
-        				if (c2_total_ % display_rate_2_){
-        					sp_tetr ++;
-        					continue;
-        				}
-        			}
-
-        			// now need to read and draw current
-        			fws.seekg(256 * buffer->tetr_info_->channels_number(targ_tetrode_) * (sp_tetr - spike_shift), fws.beg);
-        			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(targ_tetrode_); ++c){
-        				fws.read((char*)ws_tmp[c], 128 * sizeof(ws_type));
-        			}
-
-        			sp_tetr ++;
-        			// TODO: extract
-        			int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
-        			for (int chan=0; chan < 4; ++chan) {
-        				int prev_smpl = (int)transform((float)ws_tmp[chan][0], chan);
-        				for (int smpl = 1; smpl < 128; ++smpl) {
-        					int tsmpl = (int)transform(ws_tmp[chan][smpl], chan);
-        					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
-        					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
-        					prev_smpl = tsmpl;
-        				}
-        			}
-        		}
-        		Render();
-
         		break;
         	}
 
@@ -474,10 +482,14 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             case SDLK_KP_PLUS:
             	scale_ /= 1.1f;
             	buf_pointer_ = 0;
+            	if (on_demand_)
+            		displayFromFiles();
             	break;
             case SDLK_KP_MINUS:
             	scale_ *= 1.1f;
             	buf_pointer_ = 0;
+            	if (on_demand_)
+            	    displayFromFiles();
             	break;
 
             // select cluster 1
@@ -567,18 +579,32 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             	reinit();
             	++ c1_prev_;
             	++ c2_prev_;
+
+            	if (on_demand_)
+            		displayFromFiles();
+
             	break;
 
             case SDLK_m:
             	DISPLAY_SIZE *= 1.5;
             	Log("New display size: ", DISPLAY_SIZE);
-            	need_redraw = true;
+
+            	if (on_demand_)
+            		displayFromFiles();
+            	else
+            		need_redraw = true;
+
             	break;
 
             case SDLK_l:
             	DISPLAY_SIZE /= 1.5;
             	Log("New display size: ", DISPLAY_SIZE);
-            	need_redraw = true;
+
+            	if (on_demand_)
+            		displayFromFiles();
+            	else
+            		need_redraw = true;
+
             	break;
 
             default:

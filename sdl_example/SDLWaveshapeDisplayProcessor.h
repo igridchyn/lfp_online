@@ -63,6 +63,7 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 	bool cuts_save_, cuts_load_;
 
 	int current_cut_ = -1;
+	bool on_demand_ = false;
 
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
@@ -80,6 +81,8 @@ public:
     float transform(float smpl, int chan);
 
     void saveCuts();
+
+    void displayFromFiles();
 };
 
 #endif
