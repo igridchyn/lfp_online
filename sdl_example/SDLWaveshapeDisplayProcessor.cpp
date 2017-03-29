@@ -331,8 +331,79 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         int disp_cluster_1 = user_context_.SelectedCluster1();
         int disp_cluster_2 = user_context_.SelectedCluster2();
 
+        std::ifstream fws;
+        ws_type **ws_tmp;
+        const ColorPalette& colpal = ColorPalette::BrewerPalette12;
+		unsigned int sp_tetr = 0;
+
         switch( e.key.keysym.sym )
         {
+        	// on-demand waveshape display
+        	case SDLK_w:
+        		need_redraw = false;
+
+        		SDL_SetRenderTarget(renderer_, texture_);
+
+        		ws_tmp = new ws_type*[4];
+        		for (unsigned int c=0; c < 4; ++c){
+        			ws_tmp[c] = new ws_type[128];
+        		}
+
+        		// open first session streams for given tetrode
+        		fws.open(buffer->config_->spike_files_[0] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
+        		// iterate over all spikes, seek and read if need to draw
+
+        		for (unsigned int s=0; s < buffer->spike_buf_pos; ++s){
+        			Spike* spike = buffer->spike_buffer_[s];
+        			if (spike->tetrode_ != targ_tetrode_){
+        				continue;
+        			}
+
+        			if (spike->cluster_id_<=0 ||
+        					(spike->cluster_id_ != disp_cluster_1 && spike->cluster_id_ != disp_cluster_2) ||
+        					spike->discarded_){
+        				sp_tetr ++;
+        				continue;
+        			}
+
+        			if (spike->cluster_id_ == disp_cluster_1){
+        				c1_total_ ++;
+        				if (c1_total_ % display_rate_1_){
+        		            sp_tetr ++;
+        					continue;
+        				}
+        			}
+        			if (spike->cluster_id_ == disp_cluster_2){
+        				c2_total_ ++;
+        				if (c2_total_ % display_rate_2_){
+        					sp_tetr ++;
+        					continue;
+        				}
+        			}
+
+        			// now need to read and draw current
+        			fws.seekg(256 * buffer->tetr_info_->channels_number(targ_tetrode_) * sp_tetr, fws.beg);
+        			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(targ_tetrode_); ++c){
+        				fws.read((char*)ws_tmp[c], 128 * sizeof(ws_type));
+        			}
+
+        			sp_tetr ++;
+        			// TODO: extract
+        			int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
+        			for (int chan=0; chan < 4; ++chan) {
+        				int prev_smpl = (int)transform((float)ws_tmp[chan][0], chan);
+        				for (int smpl = 1; smpl < 128; ++smpl) {
+        					int tsmpl = (int)transform(ws_tmp[chan][smpl], chan);
+        					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
+        					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
+        					prev_smpl = tsmpl;
+        				}
+        			}
+        		}
+        		Render();
+
+        		break;
+
         	// delete points
         	case SDLK_d:
         		x1_ = -1;
