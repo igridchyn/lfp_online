@@ -52,10 +52,6 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
     // considered to be the same for all tetrodes
     unsigned int num_pc_;
 
-    // beware: this using numbering from 0, while 0 means unknown cluster
-    int selected_cluster1_ = -1;
-    int selected_cluster2_ = -1;
-
     // cluster, for which spikes within refractory period are displayed
     //	 = -1 if none
     int refractory_display_cluster_ = -1;
@@ -123,6 +119,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	float gaussian_distance_threshold_ = 0.0005;
 
 	bool preview_mode_ = false;
+
+	unsigned int last_proc_ua_id_ = 0;
 
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);

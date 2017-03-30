@@ -141,6 +141,68 @@ void SDLPCADisplayProcessor::process(){
     	SDL_SetRenderTarget(renderer_, texture_);
     }
 
+	while(user_context_.HasNewAction(last_proc_ua_id_)){
+		// process new user action
+
+		const UserAction *ua = user_context_.GetNextAction(last_proc_ua_id_);
+		last_proc_ua_id_ = ua->id_;
+
+		switch(ua->action_type_){
+
+		case UA_SELECT_CLUSTER1:{
+			unsigned int nsel = 0;
+			for (int c = 0; c < (int)MAX_CLUST; ++c){
+				if(display_cluster_[c])
+					nsel ++;
+			}
+
+			if (nsel < 3)
+				for (int c = 0; c < (int)MAX_CLUST; ++c){
+					if (c != user_context_.SelectedCluster1() && c != user_context_.SelectedCluster2()){
+						display_cluster_[c] = false;
+					}
+
+				}
+
+			if (user_context_.SelectedCluster1() > -1){
+				display_cluster_[user_context_.SelectedCluster1()] = true;
+				buffer->spike_buf_no_disp_pca = 0;
+				RenderClear();
+			}
+
+			break;
+		}
+
+		case UA_SELECT_CLUSTER2:{
+			unsigned int nsel = 0;
+			for (int c = 0; c < (int)MAX_CLUST; ++c){
+				if(display_cluster_[c])
+					nsel ++;
+			}
+
+			if (nsel < 3)
+				for (int c = 0; c < (int)MAX_CLUST; ++c){
+					if (c != user_context_.SelectedCluster1() && c != user_context_.SelectedCluster2()){
+						display_cluster_[c] = false;
+					}
+				}
+
+			if (user_context_.SelectedCluster2() > -1){
+				display_cluster_[user_context_.SelectedCluster2()] = true;
+				buffer->spike_buf_no_disp_pca = 0;
+				RenderClear();
+			}
+
+			break;
+		}
+
+		default:
+			break;
+
+		}
+
+	}
+
     while (buffer->spike_buf_no_disp_pca < buffer->spike_buf_pos_unproc_) {
         Spike *spike = buffer->spike_buffer_[buffer->spike_buf_no_disp_pca];
         // wait until cluster is assigned
