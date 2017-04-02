@@ -33,9 +33,9 @@ class LFPONLINEAPI BinFileReaderProcessor : public virtual LFPProcessor {
 	const bool SHIFT_ODD = false;
 
 	unsigned int totalAxonaPackages(std::vector<std::string> file_list);
-	std::string axonaFileDurationFromNSampes(const unsigned int& nsamples);
-	std::string axonaFileDuration(std::string file_path);
-	std::string axonaFilesDuration(std::vector<std::string> file_list);
+	std::string binFileDurationFromNSampes(const unsigned int& nsamples);
+	std::string binFileDuration(std::string file_path);
+	std::string binFilesDuration(std::vector<std::string> file_list);
 
 public:
 	BinFileReaderProcessor(LFPBuffer *buf);

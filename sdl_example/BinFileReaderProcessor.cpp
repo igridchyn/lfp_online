@@ -33,7 +33,7 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 			exit(LFPONLINE_ERROR_BIN_FILE_DOESNT_EXIST_OR_UNAVAILABLE);
 		}
 		bin_file_ = fopen(file_path_.c_str(), "rb");
-		Log(std::string("1-st file duration: ") + axonaFileDuration(file_path_));
+		Log(std::string("1-st file duration: ") + binFileDuration(file_path_));
 	}
 	else{
 		Log("No bin file path provided in the config, exiting");
@@ -57,31 +57,45 @@ BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 		}
 
 		nfiles ++;
-		Log(std::string(Utils::NUMBERS[nfiles]) + "-th file duration: " + axonaFileDuration(file_path_));
+		Log(std::string(Utils::NUMBERS[nfiles]) + "-th file duration: " + binFileDuration(file_path_));
 		files_list_.push_back(file_path_);
 	}
 
 	Log(std::string(Utils::NUMBERS[nfiles]) + " bin files provided.");
-	Log("Total files duration: " + axonaFilesDuration(files_list_));
+	Log("Total files duration: " + binFilesDuration(files_list_));
 
 	block_ = new unsigned char[chunk_size_ * nblock_];
 
 	buf->pipeline_status_ = PIPELINE_STATUS_READ_BIN;
 	buf->input_duration_ = totalAxonaPackages(files_list_);
 
-	Log("WARNING: SKIP 1 PKG");
-	fread((void*)block_, 1, chunk_size_, bin_file_);
+	if (buffer->bin_file_format_ == BFF_AXONA){
+		Log("WARNING: SKIP 1 PKG");
+		fread((void*)block_, 1, chunk_size_, bin_file_);
+	}
 
 	// write sessoin shifts
 	std::ofstream fsession_shifts(buffer->config_->getString("out.path.base") + "session_shifts.txt");
 	unsigned int shift = 0;
 	for (unsigned int i=0; i < files_list_.size(); ++i){
-		unsigned int nsamples = (unsigned int)(boost::filesystem::file_size(files_list_[i]) * 3 / chunk_size_);
-		if (buffer->CHANNEL_NUM == 128){
-			nsamples /= 2;
+		const unsigned long fsize = boost::filesystem::file_size(files_list_[i]);
+
+		switch(buffer->bin_file_format_){
+		case BFF_AXONA:{
+			unsigned int nsamples = (unsigned int)(fsize * 3 / chunk_size_);
+			if (buffer->CHANNEL_NUM == 128){
+				nsamples /= 2;
+			}
+			// -3 because first and last chunks are ignored
+			shift += nsamples - 3;
+			break;
 		}
-		// -3 because first and last chunks are ignored
-		shift += nsamples - 3;
+
+		case BFF_MATRIX:
+			shift += fsize / 2 / buffer->CHANNEL_NUM;
+			break;
+		}
+
 		fsession_shifts << shift << "\n";
 	}
 	fsession_shifts.close();
@@ -113,8 +127,10 @@ void BinFileReaderProcessor::process() {
 			buffer->coord_shift_y_ = 0;
 		}
 
-		Log("WARNING: SKIP 1 PKG");
-		fread((void*)block_, 1, chunk_size_, bin_file_);
+		if (buffer->bin_file_format_ == BFF_AXONA){
+			Log("WARNING: SKIP 1 PKG");
+			fread((void*)block_, 1, chunk_size_, bin_file_);
+		}
 	}
 	else if	(!end_bin_file_reported_){
 		// if last data has not been read yet
@@ -131,20 +147,32 @@ void BinFileReaderProcessor::process() {
 	}
 }
 
-std::string BinFileReaderProcessor::axonaFileDuration(std::string file_path) {
-	unsigned int nsamples = (unsigned int)(boost::filesystem::file_size(file_path) * 3 / chunk_size_);
-	if (buffer->CHANNEL_NUM == 128){
-		nsamples /= 2;
+std::string BinFileReaderProcessor::binFileDuration(std::string file_path) {
+	const unsigned long fsize = boost::filesystem::file_size(file_path);
+
+	switch(buffer->bin_file_format_){
+
+	case BFF_AXONA:{
+		unsigned int nsamples = (unsigned int)(fsize * 3 / chunk_size_);
+		if (buffer->CHANNEL_NUM == 128){
+			nsamples /= 2;
+		}
+		return binFileDurationFromNSampes(nsamples);
 	}
-	return axonaFileDurationFromNSampes(nsamples);
+
+	case BFF_MATRIX:
+		return binFileDurationFromNSampes(fsize / 2 / buffer->CHANNEL_NUM);
+	}
+
+	return 0;
 }
 
-std::string BinFileReaderProcessor::axonaFilesDuration(
+std::string BinFileReaderProcessor::binFilesDuration(
 		std::vector<std::string> file_list) {
-	return axonaFileDurationFromNSampes(totalAxonaPackages(file_list));
+	return binFileDurationFromNSampes(totalAxonaPackages(file_list));
 }
 
-std::string BinFileReaderProcessor::axonaFileDurationFromNSampes(
+std::string BinFileReaderProcessor::binFileDurationFromNSampes(
 	const unsigned int& nsamples) {
 	std::stringstream ss;
 	ss << nsamples / (buffer->SAMPLING_RATE * 60) << " min " <<  nsamples / (buffer->SAMPLING_RATE) % 60 << " sec @ " << buffer->SAMPLING_RATE << " samples / sec";
