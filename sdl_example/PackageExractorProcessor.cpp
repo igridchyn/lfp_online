@@ -16,6 +16,7 @@ PackageExractorProcessor::PackageExractorProcessor(LFPBuffer *buffer)
 	, exit_on_data_over_(buffer->config_->getBool("pack.extr.exit.on.over", false))
 	, read_pos_(buffer->config_->getBool("pack.extr.read.pos", true))
 	, mode128_(buffer->config_->getBool("pack.extr.128mode", false))
+	, CHUNK_SIZE(buffer->config_->getInt("chunk.size"))
 {
 	Log("Created");
 	report_rate_ = buffer->SAMPLING_RATE * 60;
@@ -92,8 +93,6 @@ void PackageExractorProcessor::process(){
     // t_bin *ch_dat =  (t_bin*)(block + HEADER_LEN + BLOCK_SIZE * batch + 2 * CH_MAP[CHANNEL]);
     
     // Log("Read chunks: ", buffer->num_chunks);
-
-    unsigned char *bin_ptr = buffer->chunk_buf_ + HEADER_LEN;
     
     // read pos
     for (unsigned int c=0; c < num_chunks; ++c){
@@ -145,51 +144,64 @@ void PackageExractorProcessor::process(){
     // number of full packages read so far (1-64 or 1-128)
     unsigned int full_packages_read = 0;
 
-    for (unsigned int chunk=0; chunk < num_chunks; ++chunk, bin_ptr += TAIL_LEN + HEADER_LEN) {
-        unsigned char *pos_chunk = buffer->chunk_buf_ + chunk * CHUNK_SIZE;
+    if (buffer->bin_file_format_ == BFF_AXONA){
+        unsigned char *bin_ptr = buffer->chunk_buf_ + HEADER_LEN;
 
-        // check whether the package contains the tracking information
-        char pos_flag = *((char*)pos_chunk + 3);
-        unsigned int chnum_shift = (pos_flag < 'C' || !mode128_) ? 0 : 64;
+		for (unsigned int chunk=0; chunk < num_chunks; ++chunk, bin_ptr += TAIL_LEN + HEADER_LEN) {
+			unsigned char *pos_chunk = buffer->chunk_buf_ + chunk * CHUNK_SIZE;
 
-        // TODO: !!! which comes first ? - check bin file headers !!!
-        if (!mode128_ || pos_flag > 'C'){
-        	full_packages_read ++;
-        }
+			// check whether the package contains the tracking information
+			char pos_flag = *((char*)pos_chunk + 3);
+			unsigned int chnum_shift = (pos_flag < 'C' || !mode128_) ? 0 : 64;
 
-    	for (int block=0; block < 3; ++block) {
-            short * sbin_ptr = (short*)bin_ptr;
+			// TODO: !!! which comes first ? - check bin file headers !!!
+			if (!mode128_ || pos_flag > 'C'){
+				full_packages_read ++;
+			}
 
-            for (unsigned int c=0; c < 64; ++c, sbin_ptr++) {
+			for (int block=0; block < 3; ++block) {
+				short * sbin_ptr = (short*)bin_ptr;
 
-            	if (!buffer->is_valid_channel_[CH_MAP_INV[c] + chnum_shift])
-            		continue;
+				for (unsigned int c=0; c < 64; ++c, sbin_ptr++) {
 
-                // !!!??? +1 to make similar to *.dat
+					if (!buffer->is_valid_channel_[CH_MAP_INV[c] + chnum_shift])
+						continue;
+
+					// !!!??? +1 to make similar to *.dat
 #ifdef CHAR_SIGNAL
-                 buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + full_packages_read * 3 + block] = (*(sbin_ptr) + 1) / 256;
+					buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + full_packages_read * 3 + block] = (*(sbin_ptr) + 1) >> 8;
 #else
-                 buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + full_packages_read * 3 + block] = *(sbin_ptr) + 1;
+					buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + full_packages_read * 3 + block] = *(sbin_ptr) + 1;
 #endif
-				// MAPPING TEST
-				//buffer->signal_buf[c][buffer->buf_pos + chunk * 3 + block] = *(sbin_ptr)+1;
-                
-                // DEBUG
-                //if (c == 0)
-                //    printf("%d\n", *((short*)bin_ptr) + 1);
+				}
+				bin_ptr += 2 * 64;
+			}
+		}
 
-                // TMPDEBUG
-//         		if (c == 0){
-//         			buffer->debug_stream_ << (int)buffer->signal_buf[CH_MAP_INV[c] + chnum_shift][buffer->buf_pos + chunk*3 + block] << "\n";
-//         		}
-            }
-            bin_ptr += 2 * 64;
-        }
+		buffer->buf_pos += 3 * full_packages_read;
+		// TODO extract from package
+		buffer->last_pkg_id += 3 * full_packages_read;
+    } else {
+        unsigned char *bin_ptr = buffer->chunk_buf_;
+
+    	for (unsigned int chunk=0; chunk < num_chunks; ++chunk, bin_ptr += buffer->CHANNEL_NUM * 2) {
+			short * sbin_ptr = (short*)bin_ptr;
+			for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c, sbin_ptr++) {
+				if (!buffer->is_valid_channel_[c])
+					continue;
+				// !!!??? +1 to make similar to *.dat
+#ifdef CHAR_SIGNAL
+				buffer->signal_buf[c][buffer->buf_pos + chunk] = (*(sbin_ptr) + 1) >> 8;
+#else
+				buffer->signal_buf[c][buffer->buf_pos + chunk] = *(sbin_ptr) + 1;
+#endif
+			}
+    	}
+
+		buffer->buf_pos += num_chunks;
+		// TODO extract from package
+		buffer->last_pkg_id += num_chunks;
     }
-
-    buffer->buf_pos += 3 * full_packages_read;
-	// TODO extract from package
-    buffer->last_pkg_id += 3 * full_packages_read;
 
     // reset input data buffer pointers
     {

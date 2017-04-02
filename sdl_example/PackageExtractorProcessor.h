@@ -26,7 +26,7 @@ class PackageExractorProcessor : public virtual LFPProcessor{
 
 	bool skip_next_pkg_ = false;
 
-	const int CHUNK_SIZE = 432;
+	const int CHUNK_SIZE;
 
 	bool mode128_ = false;
 
