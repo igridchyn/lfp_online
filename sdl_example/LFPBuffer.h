@@ -36,6 +36,11 @@
 #define CHAR_SIGNAL
 typedef char signal_type;
 
+enum BinFileFormat{
+	BFF_AXONA,
+	BFF_MATRIX
+};
+
 enum LFPPipelineStatus {
 	PIPELINE_STATUS_READ_BIN,
 	PIPELINE_STATUS_READ_FET,
@@ -403,6 +408,8 @@ public:
 	std::vector<unsigned int> session_shifts_;
 
 	double TARGET_SYNC_RATE;
+
+	BinFileFormat bin_file_format_;
 
 	//====================================================================================================
 
