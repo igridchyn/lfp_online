@@ -26,9 +26,9 @@ class PackageExractorProcessor : public virtual LFPProcessor{
 
 	bool skip_next_pkg_ = false;
 
-	const int CHUNK_SIZE;
-
 	bool mode128_ = false;
+
+	const int CHUNK_SIZE;
 
 	// which channel is at i-th position in the BIN chunk
 	int *CH_MAP_INV;

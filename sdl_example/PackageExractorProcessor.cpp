@@ -69,7 +69,8 @@ void PackageExractorProcessor::process(){
 //    }
 
     // see if buffer reinit is needed, rewind buffer
-    if (buffer->buf_pos + 3 * num_chunks > buffer->LFP_BUF_LEN){
+    if ((buffer->bin_file_format_ == BFF_AXONA && buffer->buf_pos + 3 * num_chunks > buffer->LFP_BUF_LEN) ||
+    		(buffer->bin_file_format_ == BFF_MATRIX && buffer->buf_pos + num_chunks > buffer->LFP_BUF_LEN)){
         for (unsigned int c=0; c < buffer->CHANNEL_NUM; ++c){
 
         	if (!buffer->is_valid_channel_[c])
