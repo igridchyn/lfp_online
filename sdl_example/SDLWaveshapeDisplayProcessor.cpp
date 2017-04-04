@@ -297,7 +297,7 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 
     std::ifstream fws;
     ws_type **ws_tmp;
-    const ColorPalette& colpal = ColorPalette::BrewerPalette12;
+    const ColorPalette& colpal = ColorPalette::BrewerPalette24;
 	unsigned int sp_tetr = 0;
 
 	unsigned int current_session = 0;
