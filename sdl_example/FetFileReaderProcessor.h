@@ -67,6 +67,8 @@ class FetFileReaderProcessor: public virtual LFPProcessor {
 
 	Whlformat whl_format_;
 
+	std::string whl_extension_;
+
 	void openNextFile();
 
 public:

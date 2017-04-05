@@ -398,7 +398,8 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 , FET_SCALING(buffer->config_->getFloat("spike.reader.fet.scaling", 5.0))
 , pos_sampling_rate_(buffer->config_->getInt("pos.sampling.rate"))
 , exit_on_over_(buffer->config_->getBool("spike.reader.exit.on.over", false))
-, binary_spk_(buffer->config_->getBool("spike.reader.binary.spk", buffer->config_->getBool("spike.reader.binary", false))){
+, binary_spk_(buffer->config_->getBool("spike.reader.binary.spk", buffer->config_->getBool("spike.reader.binary", false)))
+,whl_extension_(buffer->config_->getString("whl.extension", "whl")){
 
 //	cluster_gaussian();
 
@@ -682,7 +683,7 @@ void FetFileReaderProcessor::openNextFile() {
 		}
 
 		if (read_whl_){
-			whl_file_ = new std::ifstream(fet_path_base_ + "whl");
+			whl_file_ = new std::ifstream(fet_path_base_ + whl_extension_);
 		}
 
 		buffer->pipeline_status_ = PIPELINE_STATUS_READ_FET;
