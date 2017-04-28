@@ -285,7 +285,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	dec_bayesian_.open("dec_bay.txt");
 	dec_bayesian_ << buf->config_->getString("model.id") << "\n";
-	//window_spike_counts_.open("../out/window_spike_counts.txt");
+	debug_out_.open("spike_distances.txt");
 
 	pnt_ = annAllocPt(max_dim);
 
@@ -544,8 +544,8 @@ void KDClusteringProcessor::dump_swr_window_spike_count() {
 //						usleep(1000 * SWR_SLOWDOWN_DURATION);
 //					}
 
-//					window_spike_counts_ << last_window_n_spikes_ << "\n";
-//					window_spike_counts_.flush();
+//					debug_out << last_window_n_spikes_ << "\n";
+//					debug_out.flush();
 //				}
 }
 
