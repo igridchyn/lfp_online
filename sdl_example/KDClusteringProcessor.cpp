@@ -552,12 +552,12 @@ void KDClusteringProcessor::dump_swr_window_spike_count() {
 void KDClusteringProcessor::dump_prediction_if_needed() {
 	if (pred_dump_ && !USE_HMM) {
 		if (swr_regime_) {
-			buffer->log_string_stream_ << "Save SWR starting at "
-					<< buffer->swrs_[swr_pointer_][0] << " under ID "
-					<< swr_pointer_ << " and window number " << swr_win_counter_
-					<< " and window center at "
-					<< last_pred_pkg_id_ + PRED_WIN / 2 << "\n";
-			buffer->Log();
+//			buffer->log_string_stream_ << "Save SWR starting at "
+//					<< buffer->swrs_[swr_pointer_][0] << " under ID "
+//					<< swr_pointer_ << " and window number " << swr_win_counter_
+//					<< " and window center at "
+//					<< last_pred_pkg_id_ + PRED_WIN / 2 << "\n";
+//			buffer->Log();
 			swr_win_counter_++;
 
 //			double uprior = 1.0 / (NBINSX * NBINSY);
@@ -1030,9 +1030,9 @@ void KDClusteringProcessor::process() {
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 
 					// DEBUG
-					Log("Rewind to get overlapping windows until position: ", spike_buf_pos_clust_);
-					Log("	Update last_pred_pkg_id : ", buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_);
-					Log("	Update spike_buf_pos_pred_start_ : ", spike_buf_pos_pred_start_);
+//					Log("Rewind to get overlapping windows until position: ", spike_buf_pos_clust_);
+//					Log("	Update last_pred_pkg_id : ", buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_);
+//					Log("	Update spike_buf_pos_pred_start_ : ", spike_buf_pos_pred_start_);
 				}
 
 				for (unsigned int t=0; t < tetr_info_->tetrodes_number(); ++t){
