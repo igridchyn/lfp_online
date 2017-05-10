@@ -3,7 +3,7 @@ from sys import argv, path
 import os, time
 import numpy as np
 #import pylab as P
-from matplotlib import pyplot as P
+from matplotlib import pyplot as plt
 from subprocess import call, Popen
 import datetime
 import random
@@ -235,9 +235,6 @@ if len(argv) < 6:
 	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size> (9)<stochastic: 0/1> (10)<weight : ERROR> (11)<weight : ACCURACY>'
 	exit(0)
 
-me = float(argv[10])
-ma = float(argv[11])
-
 nbinsx = int(argv[2])
 nbinsy = int(argv[3])
 envlimit = int(argv[4])
@@ -250,6 +247,8 @@ logdir = log_call(argv)
 
 GD = False
 if len(argv) == 12:
+	me = float(argv[10])
+	ma = float(argv[11])
 	GD = True
 	flog = open('log_opt.txt', 'a')
 	dt = datetime.datetime.now()
@@ -257,10 +256,12 @@ if len(argv) == 12:
 	gradient_descent()
 
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
+
+sume1 = np.sum(errmap[:, 0:nbinsx/2]) / np.sum(occmap[:, 0:nbinsx/2])
+sume2 = np.sum(errmap[:, nbinsx/2:]) / np.sum(occmap[:, nbinsx/2:])
+
 errmap = np.divide(errmap, occmap)
 errmap = np.nan_to_num(errmap)
-
-# P.figure()
 
 log( '%d %d' % (classcorr, classn))
 log("Average error: %.2f" % (sum/ndist))
@@ -271,40 +272,29 @@ log("Binning error: %.2f" % (errb/ndist))
 
 plot_distr = int(argv[5])
 if plot_distr:
-	#n, bins, patches = P.hist(errs, 200, normed=0, histtype='stepfilled')
-	#P.show()
+	f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 
-	mng = P.get_current_fig_manager()
+	mng = plt.get_current_fig_manager()
 	mxsz = mng.window.maxsize()
 	mxsz = [s/2 for s in mxsz]
 	mng.resize(*mxsz)
-	im=P.imshow(predmap, cmap='hot', interpolation='none')
-	P.title('Predicted locations')
-	P.colorbar(orientation='horizontal')	
-	P.show()
+
+	ax1.imshow(predmap, cmap='hot', interpolation='none')
+	ax1.set_title('Predicted locations')
 	
-	mng = P.get_current_fig_manager()
-	imocc=P.imshow(occmap, cmap='hot', interpolation='none')
-	P.title('Occupancy')
-	mng.resize(*mxsz)
-	P.show()
+	ax2.imshow(occmap, cmap='hot', interpolation='none')
+	ax2.set_title('Occupancy')
 
-	mng = P.get_current_fig_manager()
-	P.title('Error map')
-	imerr=P.imshow(errmap, cmap='hot', interpolation='none')
-	P.colorbar(orientation='horizontal')
-	mng.resize(*mxsz)
-	P.show()
+	ax3.set_title('Error map')
+	ax3.imshow(errmap, cmap='hot', interpolation='none')
 
-	mng = P.get_current_fig_manager()
-	P.title('Predicted / Occupancy')
-	P.imshow(np.log(predmap / errmap), cmap = 'hot', interpolation = 'none')
-	P.colorbar()
-	mng.resize(*mxsz)
-	P.show()
+	ax4.set_title('Predicted / Occupancy')
+	ax4.imshow(np.log(predmap / errmap), cmap = 'hot', interpolation = 'none')
+
+	plt.show()
 
 # print errmap
-sum1 = np.sum(errmap[:, 0:nbinsx/2]) / (nbinsx / 2)
-sum2 = np.sum(errmap[:, nbinsx/2:]) / (nbinsx / 2)
-log('Error in env 1 = %.2f' % sum1)
-log('Error in env 2 = %.2f' % sum2)
+#sum1 = np.sum(errmap[:, 0:nbinsx/2]) / (nbinsx / 2)
+#sum2 = np.sum(errmap[:, nbinsx/2:]) / (nbinsx / 2)
+log('Error in env 1 = %.2f' % sume1)
+log('Error in env 2 = %.2f' % sume2)
