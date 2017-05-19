@@ -30,10 +30,12 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 	autocorrs_.resize(tetrn);
 	cross_corrs_.resize(tetrn);
 	spike_times_lists_.resize(tetrn);
+	spike_counts_.resize(tetrn);
 
 	for (unsigned int i=0; i < tetrn; ++i) {
 		autocorrs_[i].resize(MAX_CLUST);
 		cross_corrs_[i].resize(MAX_CLUST);
+		spike_counts_[i].resize(MAX_CLUST);
 		for (unsigned int c = 0; c < MAX_CLUST; ++c) {
 			cross_corrs_[i][c].resize(MAX_CLUST);
 			for (unsigned int c2 = 0; c2 < MAX_CLUST; ++c2) {
@@ -46,6 +48,9 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 			autocorrs_[i][c].resize(NBINS);
 		}
 	}
+
+	reset_cluster_.resize(MAX_CLUST, false);
+
 }
 
 AutocorrelogramProcessor::~AutocorrelogramProcessor(){
@@ -84,18 +89,12 @@ void AutocorrelogramProcessor::process(){
 
 		switch(ua->action_type_){
 		case UA_CREATE_CLUSTER:
-			// TODO extract from main and new cluster computation of AC
-//			for (int i=0; i < buffer->spike_buf_pos_auto_; ++i){
-//				Spike *spike = buffer->spike_buffer_[i];
-//				if (spike == nullptr || spike->discarded_ || spike->cluster_id_ != ua->cluster_number_1_){
-//					continue;
-//				}
-//			}
-
 			reset_mode_ = true;
-			reset_cluster_ = ua->cluster_number_1_;
+			reset_cluster_[ua->cluster_number_1_] = true;
 			reset_mode_end_ = buffer->spike_buf_pos_auto_;
 			buffer->spike_buf_pos_auto_ = 0;
+			// TODO always display tetrode ?
+			spike_counts_[display_tetrode_][ua->cluster_number_1_] = 0;
 			break;
 
 		case UA_SELECT_CLUSTER1:
@@ -112,6 +111,7 @@ void AutocorrelogramProcessor::process(){
 			// move cluster number up
 			for (unsigned int c = ua->cluster_number_1_; c < MAX_CLUST - 1; ++c){
 				autocorrs_[display_tetrode_][c] = autocorrs_[display_tetrode_][c + 1];
+				spike_counts_[display_tetrode_][c] = spike_counts_[display_tetrode_][c + 1];
 				for (unsigned int c2 = 0; c2 < MAX_CLUST; ++c2) {
 					cross_corrs_[display_tetrode_][c][c2] = cross_corrs_[display_tetrode_][c + 1][c2];
 					cross_corrs_[display_tetrode_][c2][c] = cross_corrs_[display_tetrode_][c2][c + 1];
@@ -123,6 +123,8 @@ void AutocorrelogramProcessor::process(){
 			// cluster 2 was deleted and cluster 1 has to be updated
 			int clun = ua->cluster_number_1_;
 			SetDisplayTetrode(display_tetrode_);
+
+			spike_counts_[display_tetrode_][clun] += spike_counts_[display_tetrode_][ua->cluster_number_2_];
 
 			// merge CCs and ACs
 			for(unsigned int i = 0; i < NBINS; ++i){
@@ -155,7 +157,7 @@ void AutocorrelogramProcessor::process(){
 		case UA_ADD_EXCLUSIVE_PROJECTION:
 			reset_mode_ = true;
 			reset_mode_end_ = buffer->spike_buf_pos_auto_;
-			reset_cluster_ = ua->cluster_number_1_;
+			reset_cluster_ [ua->cluster_number_1_] = true;
 			buffer->spike_buf_pos_auto_ = 0;
 			clearACandCCs(ua->cluster_number_1_);
 
@@ -207,7 +209,7 @@ void AutocorrelogramProcessor::process(){
 		unsigned int max_diff = BIN_SIZE * NBINS;
 
 		// update autocorrs for new spike
-		if (!reset_mode_ || (reset_mode_ && (unsigned int)spike->cluster_id_ == reset_cluster_)){
+		if (!reset_mode_ || (reset_mode_ && reset_cluster_[cluster_id])){
 			for (auto si = prev_spikes_queue.begin(); si != prev_spikes_queue.end(); ++si) {
 				if (stime - *si > max_diff){
 					continue;
@@ -220,6 +222,8 @@ void AutocorrelogramProcessor::process(){
 
 				autocorrs_[tetrode][cluster_id][bin]++;
 			}
+
+			spike_counts_[tetrode][cluster_id] ++;
 		}
 
 		// fill cross-correlograms - no need to delete here, start from end until
@@ -260,7 +264,7 @@ void AutocorrelogramProcessor::process(){
 	// RESET
 	if (reset_mode_ && buffer->spike_buf_pos_auto_ >= reset_mode_end_){
 		reset_mode_ = false;
-		reset_cluster_ = -1;
+		std::fill(reset_cluster_.begin(), reset_cluster_.end(), false);
 		SetDisplayTetrode(display_tetrode_);
 	}
 }
@@ -333,6 +337,8 @@ void AutocorrelogramProcessor::clearACandCCs(const unsigned int& clu) {
 	for (unsigned int i=0; i < NBINS; ++i){
 		autocorrs_[display_tetrode_][clu][i] = 0;
 	}
+
+	spike_counts_[display_tetrode_][clu] = 0;
 
 	for (unsigned int c=0; c < MAX_CLUST; ++c){
 		for (unsigned int i=0; i < NBINS; ++i){
@@ -589,7 +595,8 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 		SDL_RenderFillRect(renderer_, &rectmir);
 	}
 
-	double crate = std::accumulate(autocorrs_[tetr][cluster].begin(), autocorrs_[tetr][cluster].end(), 0) / double(buffer->last_pkg_id) * buffer->SAMPLING_RATE;
+	// double crate = std::accumulate(autocorrs_[tetr][cluster].begin(), autocorrs_[tetr][cluster].end(), 0) / double(buffer->last_pkg_id) * buffer->SAMPLING_RATE;
+	double crate = spike_counts_[tetr][cluster] / double(buffer->last_pkg_id) * buffer->SAMPLING_RATE;
 	std::stringstream ss;
 	ss.precision(2);
 	ss << cluster << ", " << crate << " Hz";

@@ -42,6 +42,8 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     // [tetrode] [ cluster 1] [cluster 2] [ bin ]
     std::vector<std::vector<std::vector<std::vector<int> > > > cross_corrs_;
 
+    std::vector<std::vector<unsigned int> > spike_counts_;
+
     AC_DISPLAY_MODE display_mode_ = AC_DISPLAY_MODE_CC;
 
     std::vector<std::vector<std::list<unsigned int> > > spike_times_lists_;
@@ -61,7 +63,8 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     // reset mode - process only given tetrode and cluster until reset_mode_end_
     bool reset_mode_ = false;
     unsigned int reset_mode_end_ = 0;
-    unsigned int reset_cluster_ = -1;
+//    unsigned int reset_cluster_ = -1;
+    std::vector<bool> reset_cluster_;
 
     unsigned int shift_xx_x_ = 0;
     unsigned int shift_xx_y_ = 0;
