@@ -675,7 +675,9 @@ void FetFileReaderProcessor::openNextFile() {
 			while(tspike == nullptr && !file_over_[t]){
 				tspike = readSpikeFromFile(t);
 			}
-			last_spikies_[t] = tspike;
+
+			if (tspike != nullptr)
+					last_spikies_[t] = tspike;
 
 			if (tspike != nullptr && tspike->pkg_id_ < min_pkg_id){
 				min_pkg_id = tspike->pkg_id_;
