@@ -651,6 +651,21 @@ void FetFileReaderProcessor::openNextFile() {
 
 		std::string extapp = binary_ ? "b" : "";
 
+		// read sessions shifts
+		boost::filesystem::path p(fet_path_base_);
+		boost::filesystem::path basedir = p.parent_path();
+		std::ifstream fsessions(basedir.string() + "/session_shifts.txt");
+
+		while (!fsessions.eof()){
+			unsigned int sshift;
+			fsessions >> sshift;
+
+			if (!fsessions.eof()){
+				buffer->all_sessions_.push_back(shift_ + sshift);
+				std::cout << "SESSION SHIFT: " << shift_ + sshift << "\n";
+			}
+		}
+
 		int dum_ncomp;
 		unsigned int min_pkg_id = std::numeric_limits<unsigned int>::max();
 		for (size_t t = 0; t < buffer->tetr_info_->tetrodes_number(); ++t) {

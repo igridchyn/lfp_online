@@ -411,6 +411,8 @@ public:
 
 	BinFileFormat bin_file_format_;
 
+	std::vector<unsigned int> all_sessions_;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);
