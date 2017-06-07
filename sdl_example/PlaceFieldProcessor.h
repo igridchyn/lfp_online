@@ -69,7 +69,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     double MIN_OCCUPANCY;
     const float SPEED_THOLD;
 
-    const unsigned int N_SESSIONS;
+    unsigned int N_SESSIONS;
 
     // to which session last received spike belonged
     unsigned int current_session_ = 0;
@@ -80,6 +80,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     //================================
     
     const double DISPLAY_SCALE;
+    bool wait_file_read_ = false;
 
     template <class T>
     void drawMat(const arma::Mat<T>& mat, const std::vector<std::string> text_output = std::vector<std::string>());
@@ -88,7 +89,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     void drawOccupancy();
     void drawPrediction();
     
-    void AddPos(float x, float y);
+    void AddPos(float x, float y, unsigned int time);
     
     // cache Poisson / Normal distribution to be used for fast position inference
     void cachePDF();
@@ -96,6 +97,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     // smooth pfs with spike counts into map
     void smoothPlaceFields();
     
+    void initArrays();
+
     // predict
     void ReconstructPosition(std::vector<std::vector<unsigned int > > pop_vec);
     

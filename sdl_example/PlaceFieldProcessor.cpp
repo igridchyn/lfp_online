@@ -33,6 +33,40 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 {
 }
 
+void PlaceFieldProcessor::initArrays(){
+	N_SESSIONS = buffer->config_->pf_sessions_.size() + 1;
+
+	const unsigned int tetrn = buffer->tetr_info_->tetrodes_number();
+	const unsigned int MAX_CLUST = 100;
+
+	occupancy_.resize(N_SESSIONS, PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+	occupancy_smoothed_.resize(N_SESSIONS, PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+
+	for (size_t t=0; t < tetrn; ++t) {
+		place_fields_[t].resize(MAX_CLUST);
+		place_fields_smoothed_[t].resize(MAX_CLUST);
+		for (size_t c=0; c < MAX_CLUST; ++c) {
+			for (size_t s=0; s < N_SESSIONS; ++s) {
+				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
+				if (LOAD){
+					// TODO !!! update for new format with shifted cluster numbering
+					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+				}
+			}
+		}
+	}
+
+	// load smoothed occupancy
+	if(LOAD){
+		for (size_t s=0; s < N_SESSIONS; ++s) {
+			occupancy_smoothed_[s].Load(BASE_PATH + "occ_" +  Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+		}
+		// pos sampling rate is unknown in the beginning
+		//cachePDF();
+	}
+}
+
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number)
@@ -59,45 +93,24 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
 {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
-    const unsigned int MAX_CLUST = 100;
-    
+
     place_fields_.resize(tetrn);
     place_fields_smoothed_.resize(tetrn);
 
-    occupancy_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsx, nbinsy, spread));
-    occupancy_smoothed_.resize(N_SESSIONS, PlaceField(sigma, bin_size, nbinsx, nbinsy, spread));
-
-    for (size_t t=0; t < tetrn; ++t) {
-    	place_fields_[t].resize(MAX_CLUST);
-    	place_fields_smoothed_[t].resize(MAX_CLUST);
-        for (size_t c=0; c < MAX_CLUST; ++c) {
-        	for (size_t s=0; s < N_SESSIONS; ++s) {
-				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
-				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
-				if (LOAD){
-					// TODO !!! update for new format with shifted cluster numbering
-					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
-				}
-        	}
-        }
+    // WORKAROUND
+    // SPECIAL CASES: 0 : opened files are 9f/2 + 9l/4 + 14post/2 + 16l/4
+    if (buffer->config_->pf_sessions_.size() == 1 && buffer->config_->pf_sessions_[0] == 0){
+    	wait_file_read_ = true;
+    } else {
+    	initArrays();
     }
-    
+
     palette_ = ColorPalette::MatlabJet256;
-
-    // load smoothed occupancy
-    if(LOAD){
-    	for (size_t s=0; s < N_SESSIONS; ++s) {
-    		occupancy_smoothed_[s].Load(BASE_PATH + "occ_" +  Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
-    	}
-    	// pos sampling rate is unknown in the beginning
-    	//cachePDF();
-    }
-
     Log("WARNING: processor assumes chronological order of spikes");
     Log("CONTROLS: g - save res / clu; s - smooth plfshiftsace fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster; d - dump place fields	");
 }
 
-void PlaceFieldProcessor::AddPos(float x, float y){
+void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
     unsigned int xb = (unsigned int)round(x / bin_size_ - 0.5);
     unsigned int yb = (unsigned int)round(y / bin_size_ - 0.5);
     
@@ -112,8 +125,13 @@ void PlaceFieldProcessor::AddPos(float x, float y){
     	return;
     }
 
+    unsigned int session = 0;
+    while (session < buffer->config_->pf_sessions_.size() && time > buffer->config_->pf_sessions_[session]){
+    	session ++;
+    }
+
     // TODO check correctness
-    PlaceField& pf = occupancy_[current_session_];
+    PlaceField& pf = occupancy_[session];
     pf(yb, xb) += 1.f;
     
     // normalizer
@@ -134,6 +152,32 @@ void PlaceFieldProcessor::AddPos(float x, float y){
 }
 
 void PlaceFieldProcessor::process(){
+	if (wait_file_read_){
+		if(buffer->pipeline_status_ != PIPELINE_STATUS_INPUT_OVER)
+			return;
+
+		wait_file_read_ = false;
+
+    	if (buffer->all_sessions_.size() < 10){
+    		Log("Number of sessions less than 10, cannot construct session divides...\n");
+    		exit(12398);
+    	}
+
+    	buffer->config_->pf_sessions_.clear();
+    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[1]);
+    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[3]);
+    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[5]);
+    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[7]);
+    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[9]);
+
+    	// DEBUG
+    	for (unsigned int i=0; i < buffer->all_sessions_.size(); ++i){
+    		std::cout << "session " << i << " " << buffer->all_sessions_[i] << "\n";
+    	}
+
+    	initArrays();
+	}
+
 	if (buffer->last_pkg_id < MIN_PKG_ID){
 		buffer->spike_buf_pos_pf_ = buffer->spike_buf_pos_speed_;
 		pos_buf_pos_ = buffer->pos_buf_pos_ - 8;
@@ -179,7 +223,7 @@ void PlaceFieldProcessor::process(){
     // TODO: configurable [in LFPProc ?]
     while(buffer->pos_buf_pos_ >= 8 && pos_buf_pos_ < buffer->pos_buf_pos_ - 8){
         if (buffer->positions_buf_[pos_buf_pos_].speed_ > SPEED_THOLD && buffer->positions_buf_[pos_buf_pos_].valid){
-            AddPos(buffer->positions_buf_[pos_buf_pos_].x_pos(), buffer->positions_buf_[pos_buf_pos_].y_pos());
+            AddPos(buffer->positions_buf_[pos_buf_pos_].x_pos(), buffer->positions_buf_[pos_buf_pos_].y_pos(), buffer->positions_buf_[pos_buf_pos_].pkg_id_);
         }
         pos_buf_pos_ ++;
     }
@@ -291,6 +335,17 @@ void PlaceFieldProcessor::dumpPlaceFields(){
         	}
         }
     }
+
+    // write parameters to file pf_params.txt
+    std::ofstream fpf_params(BASE_PATH + "params.txt");
+    fpf_params << "MIN_OCCUPANCY " << MIN_OCCUPANCY;
+    fpf_params << "\nSPEED_THRESHOLD " << SPEED_THOLD;
+    fpf_params << "\nSIGMA " << sigma_;
+    fpf_params << "\nBIN_SIZE " << bin_size_;
+    fpf_params << "\nNBINSX " << nbinsx_;
+    fpf_params << "\nNBINSY " << nbinsy_;
+    fpf_params << "\nSPREAD " << spread_;
+
     Log("done dump place fields");
 }
 
@@ -348,10 +403,16 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
 					display_cluster_ = 5 + shift;
 				break;
             case SDLK_6:
-                display_cluster_ = 6 + shift;
+            	if (change_session)
+            		switchSession(5);
+            	else
+            		display_cluster_ = 6 + shift;
                 break;
             case SDLK_7:
-                display_cluster_ = 7 + shift;
+            	if (change_session)
+            		switchSession(6);
+            	else
+            		display_cluster_ = 7 + shift;
                 break;
             case SDLK_8:
                 display_cluster_ = 8 + shift;
