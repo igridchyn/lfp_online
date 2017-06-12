@@ -26,7 +26,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	const std::string BASE_PATH;
 
-	const unsigned int SAMPLING_DELAY;
+	unsigned int SAMPLING_DELAY;
 	const unsigned int SAMPLING_END;
 
 	const bool SAVE;
@@ -48,7 +48,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	const int HMM_NEIGHB_RAD;
 
-	const unsigned int PREDICTION_DELAY;
+	unsigned int PREDICTION_DELAY;
 
 	const unsigned int NN_K ;
 	const unsigned int NN_K_COORDS;
@@ -65,7 +65,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	unsigned int SWR_PRED_WIN;
 
 	const unsigned int DUMP_DELAY;
-	const unsigned int DUMP_END;
+	unsigned int DUMP_END;
 	const bool DUMP_END_EXIT;
 
 	const unsigned int HMM_RESET_RATE;

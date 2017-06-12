@@ -96,7 +96,8 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				getBool("kd.use.hmm")), NBINSX(getInt("nbinsx")), NBINSY(
 				getInt("nbinsy")), BIN_SIZE(getFloat("bin.size")), HMM_NEIGHB_RAD(
 				getInt("kd.hmm.neighb.rad")), PREDICTION_DELAY(
-				(getInt("kd.prediction.delay") / buf->config_->getInt("kd.pred.win", 2400)) * buf->config_->getInt("kd.pred.win", 2400)), NN_K(getInt("kd.nn.k")), NN_K_COORDS(
+				(getInt("kd.prediction.delay") / buf->config_->getInt("kd.pred.win", 2400)) * buf->config_->getInt("kd.pred.win", 2400)), NN_K(
+				getInt("kd.nn.k")), NN_K_COORDS(
 				getInt("kd.nn.k.space")), MULT_INT(getInt("kd.mult.int")), SIGMA_X(
 				getFloat("kd.sigma.x")), SIGMA_A(getFloat("kd.sigma.a")), SIGMA_XX(
 				getFloat("kd.sigma.xx")), SWR_SWITCH(
@@ -139,6 +140,22 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.min.pos,samples", 1000)), KD_MIN_OCC(
 				buf->config_->getFloat("kd.min.occ", .001))
 	{
+
+	unsigned int tmppd = buf->config_->getInt("kd.prediction.delay");
+	if (tmppd < 10){
+		Log("WARNING: prediction delay set to session shift number ", PREDICTION_DELAY);
+		PREDICTION_DELAY = buffer->all_sessions_[tmppd] / THETA_PRED_WIN * THETA_PRED_WIN ;
+	}
+	if (SAMPLING_DELAY < 10){
+		Log("WARNING: sampling delay set to session shift number ", SAMPLING_DELAY);
+		SAMPLING_DELAY = buffer->all_sessions_[SAMPLING_DELAY];
+	}
+
+	if (DUMP_END < 10){
+		Log("WARNING: dump end set to session shift number ", DUMP_END);
+		Log("Entries in session shifts: ", (unsigned int)buffer->all_sessions_.size());
+		DUMP_END = buffer->all_sessions_[DUMP_END];
+	}
 
 	Log("Construction started");
 
@@ -217,7 +234,10 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	if (LOAD) {
 		// load occupancy
-		Utils::FS::CheckFileExistsWithError(BASE_PATH + "pix_log.mat", (Utils::Logger*) this);
+		if (!Utils::FS::FileExists(BASE_PATH + "pix_log.mat")){
+			Log(std::string("File ") + BASE_PATH + "pix_log.mat not found");
+			exit(87123);
+		}
 		pix_log_.load(BASE_PATH + "pix_log.mat");
 
 		if (pix_log_.n_rows != NBINSX || pix_log_.n_cols!= NBINSY){
@@ -285,6 +305,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	dec_bayesian_.open("dec_bay.txt");
 	dec_bayesian_ << buf->config_->getString("model.id") << "\n";
+	dec_bayesian_ << buf->config_->getString("out.path.base") << "../\n";
 	debug_out_.open("spike_distances.txt");
 
 	pnt_ = annAllocPt(max_dim);
