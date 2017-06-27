@@ -108,8 +108,8 @@ void SDLSingleWindowDisplay::DrawCross(int w, int x, int y) {
 
 void SDLSingleWindowDisplay::DrawCross(int w, int x, int y, int coli) {
 	int cw = w;
-	SDL_SetRenderDrawColor(renderer_, palette_.getR(coli), palette_.getG(coli), palette_.getB(coli), 0);
-//	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
+//	SDL_SetRenderDrawColor(renderer_, palette_.getR(coli), palette_.getG(coli), palette_.getB(coli), 0);
+	SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
 	SDL_RenderDrawLine(renderer_, x-cw, y-cw, x+cw, y+cw);
 	SDL_RenderDrawLine(renderer_, x-cw, y+cw, x+cw, y-cw);
 }
