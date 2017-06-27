@@ -11,6 +11,18 @@ import random
 path.append('/home/igor/bin/source/')
 from call_log import log_call, log_and_print
 
+def load_dic(path, fl = False):
+        dic = {}
+        for line in open(path):
+                if len(line) < 2:
+                        continue
+                ws = line.split(' ')
+                if fl:
+                        dic[ws[0]] = float(ws[1][:-1])
+                else:
+                        dic[ws[0]] = ws[1][:-1]
+        return dic
+
 def decoding_errors():
 	print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
 
@@ -30,9 +42,26 @@ def decoding_errors():
 	classn = 0.0
 	classcorr = 0
 
+	goal1x = 0
+	goal1y = 0
+	goal2x = 0
+	goal2y = 0
+	goalrad = 10
+	goalmode = False
+
 	for line in f:
 		if 'lax' in line or 'hmm' in line:
 			log(line)
+			continue
+
+		# load goal coords
+		if 'hdr' in line:
+			dic_about = load_dic(line[:-1] + 'about.txt')
+			goal1x = float(dic_about['g1x'])
+			goal1y = float(dic_about['g1y'])
+			goal2x = float(dic_about['g2x'])
+			goal2y = float(dic_about['g2y'])
+			print 'Goal coordinates loaded: %.2f / %.2f / %.2f / %.2f' % (goal1x, goal1y, goal2x, goal2y)
 			continue
 
 		if 'nan' in line:
@@ -49,7 +78,9 @@ def decoding_errors():
 
 		dist = sqrt( (px-gtx)**2 + (py-gty)**2 )
 
-		if gtx > 1000 or gtx < 0: # or px < 5
+		goaldist = sqrt((gtx-goal1x)**2 + (gty-goal1y)**2) if gtx < envlimit else sqrt((gtx-goal2x)**2 + (gty-goal2y)**2)
+
+		if gtx > 1000 or gtx < 0 or goalmode and goaldist > goalrad: # or px < 5
 			continue
 
 		distsb1 = sqrt((gtx-sbs[0][0])**2 + (gty-sbs[0][1])**2)
@@ -78,7 +109,11 @@ def decoding_errors():
 
 		xpb = round((px-bsize/2)/bsize)
 		ypb = round((py-bsize/2)/bsize)
-		predmap[ypb, xpb] += 1
+
+		if xpb < predmap.shape[1]:
+			predmap[ypb, xpb] += 1
+		else:
+			print 'WARNING: skipping predicted location', xpb
 
 		errb += sqrt((xb-gtx)**2 + (yb-gty)**2)
 
@@ -91,7 +126,11 @@ def decoding_errors():
 		edec = int(floor(vals[0] / envlimit))
 		if (edec - egt) % 2 == 0:
 			classcorr += 1
+		else:
+			# count false-positives
+			fp_env[max(0, min(int(vals[0] / envlimit), 1))] += 1
 
+		envocc[max(0, min(int(vals[0] / envlimit), 1))] += 1
 
 		# ALLOW TOLERANCE REGION (IF SEPARATION NOT PRECISE)
 		#if abs(gtx - envlimit) < 20:
@@ -255,6 +294,11 @@ if len(argv) == 12:
 	flog.write('\n\nOPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
 
+# false-positive env classification
+fp_env = [0, 0]
+# occupancy
+envocc = [0, 0]
+
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 
 sume1 = np.sum(errmap[:, 0:nbinsx/2]) / np.sum(occmap[:, 0:nbinsx/2])
@@ -298,3 +342,14 @@ if plot_distr:
 #sum2 = np.sum(errmap[:, nbinsx/2:]) / (nbinsx / 2)
 log('Error in env 1 = %.2f' % sume1)
 log('Error in env 2 = %.2f' % sume2)
+
+# write output in file
+fo = open('decerr.out', 'w')
+fo.write('EE1 %f\n' % sume1)
+fo.write('EE2 %f\n' % sume2)
+fo.write('MEDER %f\n' % np.median(np.array(errs)))
+fo.write('CLASSP %f\n' % (classcorr * 100 / classn))
+fo.write('FP1 %d\n' % fp_env[0])
+fo.write('FP2 %d\n' % fp_env[1])
+fo.write('EOCC1 %d\n' % envocc[0])
+fo.write('EOCC2 %d\n' % envocc[1])
