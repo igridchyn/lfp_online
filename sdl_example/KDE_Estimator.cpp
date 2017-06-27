@@ -440,21 +440,20 @@ void build_pax_(const unsigned int& spikei, const arma::mat& occupancy, const do
 	//		needs more analysis of sleep decoding
 	// SECOND - for equal contribution independent on the firing rates
 
-//	float pfmax = pf.max();
-//	log_string_ <<  << "\n";
+	float pfmax = pf.max();
+//	log_string_ << pfmax  << "\n";
 //	Log();
-//	if (pfmax < 0.05){
-//		pf.zeros();
-//	} else {
-		// normalize to sum up to 1 - did
-		// TODO !!! test on other animals / days and decide if its worth
+	if (pfmax < 0.05){
+		pf.zeros();
+	} else {
+		 ////normalize to sum up to 1 - did
+		 ////TODO !!! test on other animals / days and decide if its worth
 
-//		arma::fmat pfexp = arma::exp(pf);
-//		double pfsum = arma::sum(arma::sum(pfexp));
-//		pfexp /= pfsum;
-//		pf = arma::log(pfexp);
-
-//	}
+		arma::fmat pfexp = arma::exp(pf);
+		double pfsum = arma::sum(arma::sum(pfexp));
+		pfexp /= pfsum;
+		pf = arma::log(pfexp);
+	}
 
 	lax[spikei] = pf;
 }
