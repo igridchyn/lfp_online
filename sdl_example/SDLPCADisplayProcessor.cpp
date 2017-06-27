@@ -125,6 +125,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     		"LTRCL + g: decrease outlier threshold\n"
     		"RCTRL + g: increase outlier threshold\n"
     );
+
+    drawn_pixels_.resize(window_width_ * window_height_);
 }
 
 SDLPCADisplayProcessor::~SDLPCADisplayProcessor(){
@@ -294,6 +296,7 @@ void SDLPCADisplayProcessor::process(){
         				x += dx * (cnt % NWX);
         				y += dy * (cnt / NWX);
 
+
         				spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
 
         				cnt ++;
@@ -302,7 +305,10 @@ void SDLPCADisplayProcessor::process(){
         		comp1_ = oc1;
         		comp2_ = oc2;
         	} else {
-            	spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+        		if (y < window_height_ && x < window_width_ && !drawn_pixels_[y * window_width_ + x]){
+        			drawn_pixels_[y * window_width_ + x] = true;
+        			spikes_to_draw_[cid][spikes_counts_[cid] ++] = {x, y};
+        		}
         	}
 
         	if (highlight_current_cluster_ && (user_context_.SelectedCluster2() == (int)cid || user_context_.SelectedCluster1() == (int)cid)){
@@ -328,7 +334,7 @@ void SDLPCADisplayProcessor::process(){
         	if(spike->pkg_id_ - refractory_last_time_ < refractory_period_){
 				SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
 				// red = 5
-				DrawCross(3, x, y, 5);
+				DrawCross(3, x, y, refractory_display_cluster_ + 1);
         	}
 
         	refractory_last_time_ = spike->pkg_id_;
@@ -483,6 +489,7 @@ void SDLPCADisplayProcessor::process(){
 		}
 
     	Render();
+    	std::fill(drawn_pixels_.begin(), drawn_pixels_.end(), false);
     }
 }
 
@@ -1133,6 +1140,7 @@ void SDLPCADisplayProcessor::extractClusterFromMultiple() {
 void SDLPCADisplayProcessor::extractCluster() {
 	if (user_context_.SelectedCluster2() == -1){
 		Log("No cluster selected for extraction");
+		return;
 	}
 
 	unsigned int clun = 0;
@@ -1146,7 +1154,10 @@ void SDLPCADisplayProcessor::extractCluster() {
 	polygon_x_.clear();
 	polygon_y_.clear();
 
-	buffer->ResetAC(target_tetrode_, clun);
+//	buffer->ResetAC(target_tetrode_, clun);
+
+	user_context_.CreateClsuter((int)clun, new_clust_.projections_inclusive_[0]);
+	user_context_.AddExclusiveProjection(new_clust_.projections_inclusive_[0]);
 
 	buffer->ResetPopulationWindow();
 
