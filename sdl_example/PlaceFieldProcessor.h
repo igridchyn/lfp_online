@@ -126,7 +126,6 @@ public:
     void switchSession(const unsigned int& session);
     void dumpCluAndRes();
     void dumpPlaceFields();
-    void calculateClusterNumberShifts();
 
 };
 

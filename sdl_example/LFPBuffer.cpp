@@ -1090,7 +1090,7 @@ void LFPBuffer::calculateClusterNumberShifts(){
 }
 
 void LFPBuffer::dumpCluAndRes(){
-	calculateClusterNumberShifts();
+	// calculateClusterNumberShifts();
 
 	Log("START SAVING CLU/RES");
 	Log("Global cluster number shifts: ", global_cluster_number_shfit_, true);

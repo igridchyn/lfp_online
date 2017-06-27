@@ -158,7 +158,7 @@ void PlaceFieldProcessor::process(){
 
 		wait_file_read_ = false;
 
-    	if (buffer->all_sessions_.size() < 10){
+    	if (buffer->all_sessions_.size() < 8){
     		Log("Number of sessions less than 10, cannot construct session divides...\n");
     		exit(12398);
     	}
@@ -168,7 +168,7 @@ void PlaceFieldProcessor::process(){
     	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[3]);
     	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[5]);
     	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[7]);
-    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[9]);
+    	//buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[9]);
 
     	// DEBUG
     	for (unsigned int i=0; i < buffer->all_sessions_.size(); ++i){
@@ -192,6 +192,9 @@ void PlaceFieldProcessor::process(){
 
         if (clust > 0 &&  clust > (int)buffer->clusters_in_tetrode_[tetr]){
         	buffer->clusters_in_tetrode_[tetr] = clust;
+        	// DEBUG
+        	Log("New max clust in tetrode ", tetr);
+        	Log("With number ", clust);
         }
 
 		if (spike->discarded_ || Utils::Math::Isnan(spike->x) || clust == -1){
@@ -449,6 +452,12 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             	// dump place fields
             	dumpPlaceFields();
     		    break;
+            case SDLK_e:
+            	if(kmod & KMOD_LSHIFT){
+            		Log("Recalculate cluster number shifts - including empty cluster removal");
+            		buffer->calculateClusterNumberShifts();
+            	}
+            	break;
             default:
                 need_redraw = false;
                 break;
@@ -509,7 +518,8 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     }
 
     Log("Done smoothing place fields");
-    buffer->calculateClusterNumberShifts();
+    // now calculated on-demand only, loaded from first session
+    // buffer->calculateClusterNumberShifts();
 }
 
 void PlaceFieldProcessor::cachePDF(){

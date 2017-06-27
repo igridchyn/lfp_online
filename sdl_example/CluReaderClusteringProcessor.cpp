@@ -35,12 +35,25 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 	res_stream_.open(res_path_);
 
 	std::ifstream cluster_number_shifts_stream_(buffer->config_->spike_files_[0] + std::string("cluster_shifts"));
+	unsigned i=0;
 	while(!cluster_number_shifts_stream_.eof()){
 		unsigned int shift;
 		cluster_number_shifts_stream_ >> shift;
+
+		if (cluster_number_shifts_stream_.eof())
+			break;
+
 		cluster_shifts_.push_back(shift);
+
+		buffer->global_cluster_number_shfit_[i] = shift;
+
+		if (i > 0){
+			buffer->clusters_in_tetrode_[i-1] = buffer->global_cluster_number_shfit_[i] - buffer->global_cluster_number_shfit_[i-1];
+		}
+
+		i++;
 	}
-	cluster_shifts_.erase(cluster_shifts_.end() - 1);
+//	cluster_shifts_.erase(cluster_shifts_.end() - 1);
 }
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
