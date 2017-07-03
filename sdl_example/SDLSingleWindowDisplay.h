@@ -40,7 +40,7 @@ protected:
     virtual void SetDrawColor(int cluster);
 
     virtual void Render();
-    virtual void RenderClear();
+    virtual void RenderClear(bool whiteBG = false);
 
 public:
     SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

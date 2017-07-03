@@ -866,6 +866,11 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		}
 				break;
 
+			// toggle background color
+        	case SDLK_b:{
+        		whiteBG_ = ! whiteBG_;
+        		break;
+        	}
 
 			// disply histogram of Gaussian distances
         	case SDLK_g:
@@ -1031,7 +1036,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 		if (buffer->spike_buf_pos_unproc_ > 1 && buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1] != nullptr)
 		time_end_ = buffer->spike_buffer_[buffer->spike_buf_pos_unproc_ - 1]->pkg_id_;
 
-		RenderClear();
+		RenderClear(whiteBG_);
 	}
 }
 

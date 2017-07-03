@@ -130,9 +130,13 @@ void SDLSingleWindowDisplay::SetDrawColor(int cid) {
 	SDL_SetRenderDrawColor(renderer_, palette_.getR(cid), palette_.getG(cid), palette_.getB(cid), 255);
 }
 
-void SDLSingleWindowDisplay::RenderClear(){
+void SDLSingleWindowDisplay::RenderClear(bool whiteBG){
     SDL_SetRenderTarget(renderer_, texture_);
-    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    if (whiteBG){
+    	SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+    } else {
+    	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    }
     SDL_RenderClear(renderer_);
     SDL_RenderPresent(renderer_);
 }

@@ -124,6 +124,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 
 	std::vector<bool> drawn_pixels_;
 
+	bool whiteBG_ = false;
+
 public:
     SDLPCADisplayProcessor(LFPBuffer *buffer);
     SDLPCADisplayProcessor(LFPBuffer *buffer, std::string window_name, const unsigned int window_width,
