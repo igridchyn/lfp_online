@@ -52,6 +52,9 @@ public:
 
 	const unsigned int id_;
 
+	// list of indices in the buffer spike array - for undo-ing the action
+	std::vector<unsigned int> spike_ids_;
+
 	// select / cut
 	UserAction(UserActionType action_type, int cluster_number);
 
@@ -86,7 +89,7 @@ public:
 	void CutSpikes(const int& clu);
 	int CreateClsuter(const int& maxclu, PolygonClusterProjection proj);
 	void DelleteCluster(PolygonCluster& cluster);
-	void AddExclusiveProjection(PolygonClusterProjection proj);
+	void AddExclusiveProjection(PolygonClusterProjection proj, std::vector<unsigned int> & affected_ids_);
 	void AddInclusiveProjection(PolygonClusterProjection proj);
 
 	bool HasNewAction(const unsigned int& ref_action_id);

@@ -99,6 +99,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 
 	void clusterNNwithThreshold();
 
+	void undoUserAction();
+
 	SDL_Point *points_;
 
 	std::vector<bool> display_cluster_;

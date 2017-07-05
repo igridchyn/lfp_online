@@ -535,6 +535,18 @@ void SDLPCADisplayProcessor::getSpikeCoords(const Spike *const spike, int& x, in
 	}
 }
 
+void SDLPCADisplayProcessor::undoUserAction(){
+	UserAction lastAction = user_context_.action_list_.back();
+	if (lastAction.action_type_ == UA_ADD_EXCLUSIVE_PROJECTION){
+		for (unsigned int i=0; i < lastAction.spike_ids_.size(); ++i){
+			buffer->spike_buffer_[lastAction.spike_ids_[i]]->cluster_id_ = lastAction.cluster_number_1_;
+		}
+		user_context_.action_list_.pop_back();
+	} else {
+		Log("CANNOT UNDO ACTION OF THIS TYPE");
+	}
+}
+
 void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	SDL_Keymod kmod = SDL_GetModState();
 
@@ -902,6 +914,14 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		}
         		break;
 
+        	// CTRL+Z : UNDO
+        	case SDLK_z:
+        		if (kmod & KMOD_LCTRL){
+        			undoUserAction();
+        			need_redraw = true;
+        		}
+        		break;
+
         	case SDLK_q:
         		preview_mode_ = ! preview_mode_;
         		need_redraw = true;
@@ -1162,7 +1182,6 @@ void SDLPCADisplayProcessor::extractCluster() {
 //	buffer->ResetAC(target_tetrode_, clun);
 
 	user_context_.CreateClsuter((int)clun, new_clust_.projections_inclusive_[0]);
-	user_context_.AddExclusiveProjection(new_clust_.projections_inclusive_[0]);
 
 	buffer->ResetPopulationWindow();
 
@@ -1172,6 +1191,9 @@ void SDLPCADisplayProcessor::extractCluster() {
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(clun);
 	int count = 0;
+
+	std::vector<unsigned int> affected_clusters_;
+
 	for (unsigned int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
 		Spike *spike = buffer->spike_buffer_[s];
 		if (spike->discarded_ || spike->tetrode_ != target_tetrode_ || (spike->cluster_id_ != user_context_.SelectedCluster2())){
@@ -1184,9 +1206,14 @@ void SDLPCADisplayProcessor::extractCluster() {
 			spike->cluster_id_ = clun;
 			//SDL_RenderDrawPoint(renderer_, x, y);
 			points_[count++ ] = {x, y};
+			affected_clusters_.push_back(s);
 		}
 	}
 	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+
+	// TODO ALL INCLUSIVE AS EXCLUSIVE IN NEW ?
+	user_context_.AddExclusiveProjection(new_clust_.projections_inclusive_[0], affected_clusters_);
+
 
 	Render();
 
@@ -1197,11 +1224,15 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 	PolygonClusterProjection tmpproj(polygon_x_, polygon_y_, comp1_, comp2_);
 
 	if (user_context_.SelectedCluster2() > -1){
+		std::vector<unsigned int> affected_ids_;
+
 		// TODO either implement polygon intersection or projections logical operations
 		for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 			Spike *spike = buffer->spike_buffer_[sind];
 			if (spike->tetrode_ != target_tetrode_)
 				continue;
+
+
 
 			if (spike -> cluster_id_ == user_context_.SelectedCluster2()){
 				float rawx = spike->getFeature(comp1_); //spike->pc[comp1_ % nchan_][comp1_ / nchan_];
@@ -1209,6 +1240,7 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 
 				if (tmpproj.Contains(rawx, rawy)){
 					spike->cluster_id_ = -1;
+					affected_ids_.push_back(sind);
 				}
 			}
 		}
@@ -1220,7 +1252,7 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 		if (!memory_less_clustering_)
 			buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_exclusive_.push_back(tmpproj);
 
-		user_context_.AddExclusiveProjection(tmpproj);
+		user_context_.AddExclusiveProjection(tmpproj, affected_ids_);
 
 		// reset AC
 		//buffer->ResetAC(target_tetrode_, user_context_.SelectedCluster2());

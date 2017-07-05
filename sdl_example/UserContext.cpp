@@ -56,8 +56,10 @@ bool UserContext::IsSelected(Spike* spike) {
 	return spike->cluster_id_ > 0 && (spike->cluster_id_ == selected_cluster1_ || spike->cluster_id_ == selected_cluster2_);
 }
 
-void UserContext::AddExclusiveProjection(PolygonClusterProjection proj) {
-	action_list_.push_back(UserAction(UA_ADD_EXCLUSIVE_PROJECTION, selected_cluster2_, proj));
+void UserContext::AddExclusiveProjection(PolygonClusterProjection proj, std::vector<unsigned int> & affected_ids_) {
+	UserAction ua(UA_ADD_EXCLUSIVE_PROJECTION, selected_cluster2_, proj);
+	ua.spike_ids_ = affected_ids_;
+	action_list_.push_back(ua);
 }
 
 void UserContext::AddInclusiveProjection(PolygonClusterProjection proj) {
