@@ -66,8 +66,8 @@ bool PolygonCluster::Contains(Spike* spike) {
 		int dim2 = projections_inclusive_[p].dim2_;
 
 		// should fall into either of the clusters
-		if(projections_inclusive_[p].Contains(spike->pc[dim1],
-				spike->pc[dim2])){
+		if(projections_inclusive_[p].Contains(spike->getFeature(dim1),
+				spike->getFeature(dim2))){
 			inclusive = true;
 			break;
 		}
@@ -80,8 +80,8 @@ bool PolygonCluster::Contains(Spike* spike) {
 		int dim1 = projections_exclusive_[p].dim1_;
 		int dim2 = projections_exclusive_[p].dim2_;
 
-		if(projections_exclusive_[p].Contains(spike->pc[dim1],
-						spike->pc[dim2])){
+		if(projections_exclusive_[p].Contains(spike->getFeature(dim1),
+						spike->getFeature(dim2))){
 			return false;
 		}
 	}
