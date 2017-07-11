@@ -1118,7 +1118,12 @@ void LFPBuffer::dumpCluAndRes(){
 		if (spike->cluster_id_ > 0){
 			res_global << spike->pkg_id_ - session_shifts_[current_session] << "\n";
 			clu_global << global_cluster_number_shfit_[spike->tetrode_] + spike->cluster_id_ << "\n";
+		// IF NEED FULL DUMP AND CO
 		}
+//		else {
+//			res_global << spike->pkg_id_ - session_shifts_[current_session] << "\n";
+//			clu_global << "-" << spike->tetrode_ << "\n";
+//		}
 	}
 
 	clu_global.close();
