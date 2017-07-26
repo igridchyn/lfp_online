@@ -314,6 +314,7 @@ LFPBuffer::LFPBuffer(Config* config)
 , fr_load_(config->getBool("buf.fr.load", false))
 , adjust_synchrony_rate_(config->getBool("buf.adjust.synchrony.rate", true))
 , TARGET_SYNC_RATE(config->getFloat("high.sync.target.freq", 1.0f))
+, clures_readonly_(config->getBool("buf.clures.readonly", true))
 {
 	buf_pos = BUF_HEAD_LEN;
 	buf_pos_trig_ = BUF_HEAD_LEN;
@@ -1091,6 +1092,11 @@ void LFPBuffer::calculateClusterNumberShifts(){
 
 void LFPBuffer::dumpCluAndRes(){
 	// calculateClusterNumberShifts();
+
+	if (clures_readonly_){
+		Log("WARNING: CLU AND RES ARE READ-ONLY, CANNOT DUMP");
+		return;
+	}
 
 	Log("START SAVING CLU/RES");
 	Log("Global cluster number shifts: ", global_cluster_number_shfit_, true);

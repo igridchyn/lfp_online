@@ -413,6 +413,8 @@ public:
 
 	std::vector<unsigned int> all_sessions_;
 
+	bool clures_readonly_ = true;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);
