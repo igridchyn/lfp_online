@@ -335,9 +335,12 @@ void SDLPCADisplayProcessor::process(){
 				SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
 				// red = 5
 				DrawCross(3, x, y, refractory_display_cluster_ + 1);
+				DrawCross(3, refractory_last_x_, refractory_last_y_, refractory_display_cluster_ + 1);
         	}
 
         	refractory_last_time_ = spike->pkg_id_;
+        	refractory_last_x_ = x;
+        	refractory_last_y_ = y;
         }
 
         buffer->spike_buf_no_disp_pca++;
