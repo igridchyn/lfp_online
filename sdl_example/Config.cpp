@@ -401,7 +401,7 @@ void Config::parse_line(std::ifstream& fconf, std::string line) {
 
 			if (params_.find(key) != params_.end()){
 				log_string_stream_ << "WARNING: IGNORE REPEATED ENTRY OF " << key << "\n";
-				log_string_stream_ << "  the first provided value was: " << value << "\n";
+				log_string_stream_ << "  the first provided value was: " << params_[key] << "\n";
 				Log();
 				return;
 			}
