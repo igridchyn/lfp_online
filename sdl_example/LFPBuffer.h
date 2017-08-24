@@ -415,6 +415,8 @@ public:
 
 	bool clures_readonly_ = true;
 
+	std::vector< std::vector<float> > cluster_firing_rates_;
+
 	//====================================================================================================
 
 	LFPBuffer(Config* config);

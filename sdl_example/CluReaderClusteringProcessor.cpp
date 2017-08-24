@@ -54,6 +54,36 @@ CluReaderClusteringProcessor::CluReaderClusteringProcessor(LFPBuffer *buffer, co
 		i++;
 	}
 //	cluster_shifts_.erase(cluster_shifts_.end() - 1);
+
+	std::string frpath = clu_path + ".frs";
+	if (Utils::FS::FileExists(frpath)){
+		std::ifstream frates(frpath);
+		int cur_tet = 0;
+		int cur_clu_glob = 0;
+		float frate;
+		buffer->cluster_firing_rates_.resize(buffer->tetr_info_->tetrodes_number());
+		buffer->cluster_firing_rates_[0].resize(50);
+		while (!frates.eof()){
+			while (cur_tet < buffer->tetr_info_->tetrodes_number() - 1 && cur_clu_glob > buffer->global_cluster_number_shfit_[cur_tet + 1]){
+				cur_tet ++;
+				buffer->cluster_firing_rates_[cur_tet].resize(50);
+			}
+
+			frates >> frate;
+
+			buffer->cluster_firing_rates_[cur_tet][cur_clu_glob - buffer->global_cluster_number_shfit_[cur_tet]] = frate;
+			cur_clu_glob ++;
+		}
+
+		// DEBUG
+		for (unsigned int t=0; t < buffer->tetr_info_->tetrodes_number(); ++t){
+			for (unsigned int c=0; c < 20; ++c){
+				std::cout << "Firing rate for cluster " << c << " at tetrode " << t << " = " << buffer->cluster_firing_rates_[t][c] << "\n";
+			}
+		}
+	} else {
+		Log("WARNING: FR FILE NOT FOUND !");
+	}
 }
 
 CluReaderClusteringProcessor::~CluReaderClusteringProcessor() {
@@ -91,7 +121,7 @@ void CluReaderClusteringProcessor::process() {
 		}
 	}
 
-	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_no_disp_pca){
+	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
 		Spike * spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
 
 		while(res < spike->pkg_id_ && !clu_stream_.eof()){

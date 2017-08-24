@@ -258,6 +258,9 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	std::vector<bool> use_tetrode_;
 
+	// number of spikes ignored in the current prediction
+	unsigned int pred_spike_ignored_ = 0;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 	void dump_hmm_prediction();

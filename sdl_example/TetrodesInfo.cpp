@@ -78,13 +78,6 @@ TetrodesInfo::TetrodesInfo(std::string config_path, Utils::Logger* logger) {
 
 	tconfig.close();
 
-	// TODO: configurableize
-	tetrode_label_map_.resize(32, INVALID_TETRODE);
-	for (unsigned int t = 0; t < tetrn; ++t) {
-		int abstetr = (int)floor(tetrode_channels[t][0] / 4);
-		tetrode_label_map_[abstetr] = t;
-	}
-
 	status_ = TI_STATUS_LOADED;
 }
 
@@ -114,8 +107,3 @@ bool TetrodesInfo::ContainsChannels(const std::vector<unsigned int>& channels) {
 	return true;
 }
 
-
-unsigned int TetrodesInfo::Translate(const TetrodesInfo* const ti, const unsigned int& tetr) {
-	int abstetr = (int)floor(ti->tetrode_channels[tetr][0] / 4);
-	return tetrode_label_map_[abstetr];
-}

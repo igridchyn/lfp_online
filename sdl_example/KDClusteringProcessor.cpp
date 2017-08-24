@@ -651,7 +651,7 @@ void KDClusteringProcessor::process() {
 					: (unsigned int) std::max<int>( buffer->spike_buf_pos_unproc_ - 1, 0));
 	while (spike_buf_pos_clust_ < limit) {
 		Spike *spike = buffer->spike_buffer_[spike_buf_pos_clust_];
-		const unsigned int tetr = tetr_info_->Translate(buffer->tetr_info_, (unsigned int) spike->tetrode_);
+		const unsigned int tetr = spike->tetrode_;
 		const unsigned int nfeat = buffer->feature_space_dims_[tetr];
 
 		// wait until place fields are stabilized
@@ -899,14 +899,20 @@ void KDClusteringProcessor::process() {
 					break;
 				}
 
-				const unsigned int stetr = tetr_info_->Translate(buffer->tetr_info_, spike->tetrode_);
+				const unsigned int stetr = spike->tetrode_;
 
 				// in the SWR regime - skip until the first spike in the SWR, don't do this for single prediction per SWR - allow out of range !
-				if (stetr == TetrodesInfo::INVALID_TETRODE || spike->discarded_
-						|| (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) || !use_tetrode_[stetr]) {
+				if (spike->discarded_ || (swr_regime_ && spike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) || !use_tetrode_[stetr]) {
 					spike_buf_pos_clust_++;
+					pred_spike_ignored_ ++;
 					continue;
 				}
+
+//				if (spike->cluster_id_ <= 0 || buffer->cluster_firing_rates_[spike->tetrode_][spike->cluster_id_] > 15){
+//					spike_buf_pos_clust_++;
+//					pred_spike_ignored_ ++;
+//					continue;
+//				}
 
 				tetr_spiked_[stetr] = true;
 
@@ -956,7 +962,7 @@ void KDClusteringProcessor::process() {
 				// spike may be without speed (the last one) - but it's not crucial
 
 				// workaround : if spike number is reached, set PRED_WIN to finish the prediction
-				if (prediction_window_spike_number_ > 0 && spike_buf_pos_clust_ - spike_buf_pos_pred_start_ >= prediction_window_spike_number_) {
+				if (prediction_window_spike_number_ > 0 && int(spike_buf_pos_clust_ - spike_buf_pos_pred_start_ - pred_spike_ignored_) >= int(prediction_window_spike_number_)) {
 					PRED_WIN = spike->pkg_id_ - last_pred_pkg_id_;
 
 					// DEBUG - to estimate how large are prediction windows compared to waking prediction window
@@ -968,6 +974,7 @@ void KDClusteringProcessor::process() {
 //					buffer->Log();
 
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
+					pred_spike_ignored_ = 0;
 				}
 			}
 
@@ -1040,12 +1047,28 @@ void KDClusteringProcessor::process() {
 				}
 
 				// rewind back to get predictions of the overlapping windows
-				if (swr_regime_ && prediction_windows_overlap_ > 0 && (spike_buf_pos_clust_ >= prediction_windows_overlap_ + buffer->SPIKE_BUF_HEAD_LEN)) {
-					spike_buf_pos_clust_ -= prediction_windows_overlap_;
+				if (swr_regime_ && prediction_windows_overlap_ > 0 && (spike_buf_pos_clust_ >= prediction_windows_overlap_)) {
+
+					// this is not enough, nede to rewind prediction_windows_overlap_ GOOD spikes back
+					// spike_buf_pos_clust_ -= prediction_windows_overlap_;
+					int rewind_count = 0;
+					while (spike_buf_pos_clust_ > 0 && rewind_count < prediction_windows_overlap_){
+						Spike *rspike = buffer->spike_buffer_[spike_buf_pos_clust_];
+						const unsigned int rstetr = rspike->tetrode_;
+
+						// same conditions as above
+						if (!(rspike->discarded_ || (swr_regime_ && rspike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) || !use_tetrode_[rstetr])
+//								&& !(rspike->cluster_id_ <= 0 || buffer->cluster_firing_rates_[rstetr][rspike->cluster_id_] > 15)) {
+							rewind_count ++;
+						}
+						spike_buf_pos_clust_ --;
+					}
+
 					// find first good spike
 					while ((spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_) && buffer->spike_buffer_[spike_buf_pos_clust_]->discarded_)
 						spike_buf_pos_clust_++;
 
+					// seems this is only needed later to end the prediction by setting PRED_WIN = current_pkg - lastT_pred_pkg_id
 					last_pred_pkg_id_ = buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_;
 
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
