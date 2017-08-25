@@ -70,8 +70,6 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 
 	const unsigned int HMM_RESET_RATE;
 
-	bool use_intervals_;
-
 	unsigned int& spike_buf_pos_clust_;
 
 	unsigned int THETA_PRED_WIN;
@@ -109,10 +107,6 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	// knn in the train set [tetrode][point]
 	std::vector<std::vector<ANNidx*> > knn_cache_;
 
-	// p(a, x) for each point in the set ( ? + medians between nearest neighbours ?)
-	// !!! indexing should be the same as in obs_spikes_
-	std::vector<std::vector<arma::fmat> > spike_place_fields_;
-
 	std::vector<bool> pf_built_;
 	std::mutex kde_mutex_;
 	unsigned int n_pf_built_ = 0;
@@ -142,9 +136,6 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	void build_lax_and_tree(const unsigned int tetr);
 	void build_lax_and_tree_separate(const unsigned int tetr);
 
-	// to get the place fields
-	PlaceFieldProcessor *pfProc_;
-
 	unsigned int PRED_WIN;
 	// dividable by PRED_WIN
 	unsigned int last_pred_pkg_id_ = 0;
@@ -161,13 +152,14 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	bool sampling_end_reached_reported_ = false;
 	bool delay_reached_reported = false;
 	bool prediction_delay_reached_reported = false;
+	bool dump_delay_reach_reported_ = false;
+	bool dump_end_reach_reported_ = false;
 
 	// SWR-params
 	bool swr_regime_ = false;
 	// not to start processing of the same SWR twice - memorize which one was processed last
 	unsigned int last_processed_swr_start_ = 0;
 
-	unsigned int swr_win_counter_ = 0;
 	// pointer to the last processed SWR event in the buffer
 	// would not rewind due to small spatial requirements to store SWR events
 	unsigned int swr_pointer_ = 0;
@@ -177,17 +169,6 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	// optimal trajectories TO each bin [bin][time]
 	//		[bin][t] is 'best' previous bin at t-1, backtracking rule: bin_{t-1} = [bin_t][t]
 	std::vector<std::vector<unsigned int> > hmm_traj_;
-
-
-	bool dump_delay_reach_reported_ = false;
-
-	bool dump_end_reach_reported_ = false;
-	unsigned int last_hmm_reset_pkg = 0;
-
-
-	std::vector<unsigned int> interval_starts_;
-	std::vector<unsigned int> interval_ends_;
-	unsigned int current_interval_;
 
 	// this one is assigned procces_number_-the loaded tetrode info
 	TetrodesInfo* tetr_info_;
@@ -219,22 +200,14 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	bool pred_dump_ = false;
 	std::string pred_dump_pref_;
 
-	// DEBUG
-//	std::vector<int> skipped_spikes_;
-//	std::ofstream debug_;
-
 	// first spike participating in current prediction
 	unsigned int& spike_buf_pos_pred_start_;
-
 	// fixed number of spikes for prediction window; 0 if no limit
 	const unsigned int prediction_window_spike_number_ = 0;
 	// packages for fixed length, number of spikes for fixed number of spikes
 	const unsigned int prediction_windows_overlap_ = 0;
 
 	bool BINARY_CLASSIFIER = false;
-
-	unsigned int dumped_num_ = 0;
-	std::vector<bool> pf_dumped_;
 
 	const unsigned int MAX_KDE_JOBS = 5;
 

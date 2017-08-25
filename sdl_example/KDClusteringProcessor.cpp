@@ -108,8 +108,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.dump.delay", 46000000)), DUMP_END(
 				buf->config_->getInt("kd.dump.end", 1000000000)), DUMP_END_EXIT(
 				buf->config_->getBool("kd.dump.end.exit", false)), HMM_RESET_RATE(
-				buf->config_->getInt("kd.hmm.reset.rate", 60000000)), use_intervals_(
-				buf->config_->getBool("kd.use.intervals", false)), spike_buf_pos_clust_(
+				buf->config_->getInt("kd.hmm.reset.rate", 60000000)), spike_buf_pos_clust_(
 				buf->spike_buf_pos_clusts_[processor_number]), THETA_PRED_WIN(
 				buf->config_->getInt("kd.pred.win", 2400)), SPIKE_GRAPH_COVER_DISTANCE_THRESHOLD(
 				buf->config_->getFloat(
@@ -161,8 +160,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	Log("Prediction windows overlap = ", prediction_windows_overlap_);
 
-	pf_dumped_.resize(100000, false);
-
 	PRED_WIN = THETA_PRED_WIN;
 
 	// load proper tetrode info
@@ -193,7 +190,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	ann_points_.resize(tetrn);
 	total_spikes_.resize(tetrn);
 	knn_cache_.resize(tetrn);
-	spike_place_fields_.resize(tetrn);
 	obs_mats_.resize(tetrn);
 	missed_spikes_.resize(tetrn);
 
@@ -218,7 +214,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 		if (use_tetrode_[t]){
 			ann_points_[t] = annAllocPts(maxPoints, dim);
-			spike_place_fields_[t].reserve(maxPoints);
 
 			// tmp
 			obs_mats_[t] = arma::fmat(maxPoints, buffer->feature_space_dims_[t] + 2);
@@ -285,18 +280,6 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 		std::ofstream model_config(BASE_PATH + "params.conf");
 		model_config << all_params;
 		model_config.close();
-	}
-
-	if (use_intervals_) {
-		std::string intpath = buf->config_->getString("kd.intervals.path");
-		std::ifstream intfile(intpath);
-		while (!intfile.eof()) {
-			int ints = 0, inte = 0;
-			intfile >> ints >> inte;
-			interval_starts_.push_back(ints);
-			interval_ends_.push_back(inte);
-		}
-		intfile.close();
 	}
 
 	buffer->last_predictions_.resize(processor_number_ + 1);
@@ -579,7 +562,6 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 //					<< " and window center at "
 //					<< last_pred_pkg_id_ + PRED_WIN / 2 << "\n";
 //			buffer->Log();
-			swr_win_counter_++;
 
 //			double uprior = 1.0 / (NBINSX * NBINSY);
 			arma::fmat sub1 = pos_pred_.rows(0, NBINSX / 2 - 1);
@@ -606,7 +588,6 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 			if (!SWR_SWITCH) {
 				Log("WARNING: matrix save disabled");
 //				pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
-				swr_win_counter_++;
 			}
 		}
 	}
@@ -721,21 +702,6 @@ void KDClusteringProcessor::process() {
 					fitting_jobs_[tetr] = new std::thread( &KDClusteringProcessor::build_lax_and_tree_separate, this, tetr);
 				}
 			} else {
-
-				if (use_intervals_) {
-					// if after current interval -> advance interval pointer
-					if (current_interval_ < interval_starts_.size() && spike->pkg_id_ > interval_ends_[current_interval_]) {
-						Log("Advance to next interval with spike at ", spike->pkg_id_);
-						current_interval_++;
-					}
-
-					// out of intervals
-					if (current_interval_ >= interval_starts_.size() || spike->pkg_id_ < interval_starts_[current_interval_]) {
-						spike_buf_pos_clust_++;
-						continue;
-					}
-				}
-
 				// sample every SAMLING_RATE spikes for KDE estimation
 				if (missed_spikes_[tetr] < tetrode_sampling_rates_[tetr]) {
 					missed_spikes_[tetr]++;
@@ -880,7 +846,6 @@ void KDClusteringProcessor::process() {
 						reset_hmm();
 					}
 					swr_pointer_++;
-					swr_win_counter_ = 0;
 				}
 
 				// skip all spikes if no swr
@@ -1051,13 +1016,13 @@ void KDClusteringProcessor::process() {
 
 					// this is not enough, nede to rewind prediction_windows_overlap_ GOOD spikes back
 					// spike_buf_pos_clust_ -= prediction_windows_overlap_;
-					int rewind_count = 0;
+					unsigned int rewind_count = 0;
 					while (spike_buf_pos_clust_ > 0 && rewind_count < prediction_windows_overlap_){
 						Spike *rspike = buffer->spike_buffer_[spike_buf_pos_clust_];
 						const unsigned int rstetr = rspike->tetrode_;
 
 						// same conditions as above
-						if (!(rspike->discarded_ || (swr_regime_ && rspike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) || !use_tetrode_[rstetr])
+						if (!(rspike->discarded_ || (swr_regime_ && rspike->pkg_id_ < last_processed_swr_start_ && !SINGLE_PRED_PER_SWR) || !use_tetrode_[rstetr])){
 //								&& !(rspike->cluster_id_ <= 0 || buffer->cluster_firing_rates_[rstetr][rspike->cluster_id_] > 15)) {
 							rewind_count ++;
 						}
@@ -1111,7 +1076,7 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	// create pos_buf and dump (first count points)
 	unsigned int npoints = 0;
 	arma::Mat<float> pos_buf(2, buffer->pos_buf_pos_);
-	unsigned int pos_interval = 0;
+
 	int nskip = 0;
 	for (unsigned int n = 0; n < buffer->pos_buf_pos_; ++n) {
 		const SpatialInfo & si = buffer->positions_buf_[n];
@@ -1124,22 +1089,6 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 		if (si.speed_ < SPEED_THOLD) { // || Utils::Math::Isnan(si.dirvar_) || si.dirvar_ > 0.5) {
 			nskip++;
 			continue;
-		}
-
-		// skip if out of the intervals
-		if (use_intervals_) {
-			unsigned int pos_time = buffer->PacakgeIdByPositionIndex(n);
-			while (pos_interval < interval_starts_.size() && pos_time > interval_ends_[pos_interval]) {
-				pos_interval++;
-			}
-
-			if (pos_interval >= interval_starts_.size()) {
-				continue;
-			}
-
-			if (pos_time < interval_starts_[pos_interval]) {
-				continue;
-			}
 		}
 
 		if (BINARY_CLASSIFIER) {
@@ -1197,18 +1146,6 @@ void KDClusteringProcessor::build_lax_and_tree_separate(
 	kde_mutex_.unlock();
 
 	unsigned int last_pkg_id = buffer->last_pkg_id;
-	// if using intervals, provide sum of interval lengths until last_pkg_id
-	if (use_intervals_) {
-		last_pkg_id = 0;
-		for (unsigned int i = 0; i < current_interval_; ++i) {
-			last_pkg_id += interval_ends_[i] - interval_starts_[i];
-		}
-		if (current_interval_ < interval_starts_.size()) // && buffer->last_pkg_id < interval_ends_[current_interval_])
-			last_pkg_id += buffer->last_pkg_id - interval_starts_[current_interval_];
-
-		Log("Due to interval usage, calling KDE with ", (int) last_pkg_id);
-		Log("	while the real last_pkg_id is ", (int) buffer->last_pkg_id);
-	}
 
 	// find last pkg id for each tetrode
 	unsigned int tspikepos = buffer->spike_buf_pos - 1;
