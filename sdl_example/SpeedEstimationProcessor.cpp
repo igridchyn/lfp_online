@@ -109,7 +109,7 @@ void SpeedEstimationProcessor::process(){
 						}
 						current_window_spikes_ = 1;
 						last_window_end_ = last_window_end_ + WIN_LEN;
-					} else {
+					} else if (!spike->discarded_){
 						current_window_spikes_ ++;
 					}
 				}
