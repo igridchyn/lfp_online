@@ -99,11 +99,11 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 
     // WORKAROUND
     // SPECIAL CASES: 0 : opened files are 9f/2 + 9l/4 + 14post/2 + 16l/4
-    if (buffer->config_->pf_sessions_.size() == 1 && buffer->config_->pf_sessions_[0] == 0){
-    	wait_file_read_ = true;
-    } else {
-    	initArrays();
-    }
+//    if (buffer->config_->pf_sessions_.size() == 1 && buffer->config_->pf_sessions_[0] == 0){
+    wait_file_read_ = true;
+//    } else {
+//    	initArrays();
+//    }
 
     palette_ = ColorPalette::MatlabJet256;
     Log("WARNING: processor assumes chronological order of spikes");
@@ -158,21 +158,19 @@ void PlaceFieldProcessor::process(){
 
 		wait_file_read_ = false;
 
-    	if (buffer->all_sessions_.size() < 8){
-    		Log("Number of sessions less than 10, cannot construct session divides...\n");
-    		exit(12398);
+    	for (unsigned int s=0; s < buffer->config_->pf_sessions_.size(); ++s){
+    		if (buffer->config_->pf_sessions_[s] < 100){
+    			buffer->config_->pf_sessions_[s] = buffer->all_sessions_[buffer->config_->pf_sessions_[s]];
+    		}
     	}
-
-    	buffer->config_->pf_sessions_.clear();
-    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[1]);
-    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[3]);
-    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[5]);
-    	buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[7]);
-    	//buffer->config_->pf_sessions_.push_back(buffer->all_sessions_[9]);
 
     	// DEBUG
     	for (unsigned int i=0; i < buffer->all_sessions_.size(); ++i){
     		std::cout << "session " << i << " " << buffer->all_sessions_[i] << "\n";
+    	}
+    	std::cout << "PF SESSIONS:\n";
+    	for (unsigned int i=0; i < buffer->config_->pf_sessions_.size(); ++i){
+    		std::cout << "PF session " << i << " " << buffer->config_->pf_sessions_[i] << "\n";
     	}
 
     	initArrays();
@@ -334,10 +332,17 @@ void PlaceFieldProcessor::dumpPlaceFields(){
         for (size_t c = 1; c <= buffer->clusters_in_tetrode_[t]; ++c) {
         	for (size_t s = 0; s < N_SESSIONS; ++s) {
 				arma::mat dv = place_fields_smoothed_[t][c][s].Mat() / occupancy_smoothed_[s].Mat();
+				arma::mat dvnonsm = place_fields_[t][c][s].Mat() / occupancy_[s].Mat();
 				dv.save(BASE_PATH + Utils::Converter::int2str(c + buffer->global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+				dvnonsm.save(BASE_PATH + Utils::Converter::int2str(c + buffer->global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + "_nosm.mat", arma::raw_ascii);
         	}
         }
     }
+
+	for (size_t s = 0; s < N_SESSIONS; ++s) {
+		occupancy_smoothed_[s].Mat().save(BASE_PATH + "occ_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+		occupancy_[s].Mat().save(BASE_PATH + "occ_" + Utils::Converter::int2str(s) + "_nosm.mat", arma::raw_ascii);
+	}
 
     // write parameters to file pf_params.txt
     std::ofstream fpf_params(BASE_PATH + "params.txt");
