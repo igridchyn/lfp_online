@@ -198,7 +198,6 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	const double SWR_COMPRESSION_FACTOR;
 
 	bool pred_dump_ = false;
-	std::string pred_dump_pref_;
 
 	// first spike participating in current prediction
 	unsigned int& spike_buf_pos_pred_start_;

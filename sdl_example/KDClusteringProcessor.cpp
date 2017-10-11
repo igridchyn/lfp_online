@@ -124,8 +124,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 				buf->config_->getInt("kd.neighb.num", 1)), display_scale_(
 				buf->config_->getInt("kd.display.scale", 50)), SWR_COMPRESSION_FACTOR(
 				buf->config_->getFloat("kd.swr.compression.factor", 5.0)), pred_dump_(
-				buf->config_->getBool("kd.pred.dump", false)), pred_dump_pref_(
-				buf->config_->getOutPath("kd.pred.dump.pref", "pred_")), spike_buf_pos_pred_start_(
+				buf->config_->getBool("kd.pred.dump", false)), spike_buf_pos_pred_start_(
 				buf->spike_buf_pos_pred_start_), prediction_window_spike_number_(
 				buf->config_->getInt("kd.fixed.spike.number")), prediction_windows_overlap_(
 				buf->config_->getInt(
@@ -515,7 +514,8 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 			Log("Dump delay reached: ", (int) DUMP_DELAY);
 		}
 
-		float confidence = arma::max(arma::max(pos_pred_.rows(0, NBINSX/2 - 1))) - arma::max(arma::max(pos_pred_.rows(NBINSX/2, NBINSX - 1)));
+		float lik1 = arma::max(arma::max(pos_pred_.rows(0, NBINSX/2 - 1)));
+		float lik2 = arma::max(arma::max(pos_pred_.rows(NBINSX/2, NBINSX - 1)));
 
 		float gtx = (float)buffer->pos_unknown_, gty = (float)buffer->pos_unknown_;
 
@@ -531,7 +531,9 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 
 		if (pose.speed_ >= DUMP_SPEED_THOLD) { // && pose.dirvar_ < 0.5) {
 			double mult = BINARY_CLASSIFIER ? 100 : 1.0;
-			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << " " << confidence << "\n";
+			double mxp = pos_pred_.max();
+			long double logsum = log(arma::sum(arma::sum(arma::exp(pos_pred_ - mxp)))) + mxp;
+			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << " " << lik1 << " " << lik2 << " " << logsum << "\n";
 			dec_bayesian_.flush();
 		}
 	}
@@ -564,30 +566,33 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 //			buffer->Log();
 
 //			double uprior = 1.0 / (NBINSX * NBINSY);
-			arma::fmat sub1 = pos_pred_.rows(0, NBINSX / 2 - 1);
-			arma::fmat sub2 = pos_pred_.rows(NBINSX / 2, NBINSX - 1);
+			arma::fmat fsub1 = pos_pred_.rows(0, NBINSX / 2 - 1);
+			arma::fmat fsub2 = pos_pred_.rows(NBINSX / 2, NBINSX - 1);
 
-			double mx = pos_pred_.max();
+			arma::mat sub1 = arma::conv_to<arma::mat>::from(fsub1);
+			arma::mat sub2 = arma::conv_to<arma::mat>::from(fsub2);
+			arma::mat dpos_pred = arma::conv_to<arma::mat>::from(pos_pred_);
+
+			double mx = dpos_pred.max();
 
 			unsigned int xm1, ym1, xm2, ym2;
-			float mx1 = sub1.max(xm1, ym1);
-			float mx2 = sub2.max(xm2, ym2);
+			double mx1 = sub1.max(xm1, ym1);
+			double mx2 = sub2.max(xm2, ym2);
 			xm2 += NBINSX / 2 + 1;
 
 			long double sm1 = log(arma::sum(arma::sum(arma::exp(sub1 - mx)))) + mx;
 			long double sm2 = log(arma::sum(arma::sum(arma::exp(sub2 - mx)))) + mx;
 
 			// UNIFORM P(X) !
-			long double logsum = log(arma::sum(arma::sum(arma::exp(pos_pred_ - mx)))) + mx;
+			long double logsum = log(arma::sum(arma::sum(arma::exp(dpos_pred - mx)))) + mx;
 
-			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ + PRED_WIN / 2 << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
-					<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
-					<< " " << logsum <<  "\n";
+			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ << " " << last_pred_pkg_id_ + PRED_WIN << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
+						<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
+						<< " " << logsum <<  "\n";
 
 		} else {
 			if (!SWR_SWITCH) {
 				Log("WARNING: matrix save disabled");
-//				pos_pred_.save(pred_dump_pref_ + Utils::Converter::int2str(last_pred_pkg_id_ + PRED_WIN) + ".mat", arma::raw_ascii);
 			}
 		}
 	}
@@ -777,7 +782,7 @@ void KDClusteringProcessor::process() {
 
 			// check if NEW swr was detected and has to switch to the SWR regime
 			if (SWR_SWITCH) {
-				if (!swr_regime_ && swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][0] != last_processed_swr_start_) {
+				if (!swr_regime_ && swr_pointer_ < buffer->swrs_.size() && buffer->swrs_[swr_pointer_][0] != last_processed_swr_start_ && buffer->spike_buffer_[limit-1]->pkg_id_ > buffer->swrs_[swr_pointer_][1]) {
 					//DEBUG
 					buffer->log_string_stream_ << "Switch to SWR prediction regime due to SWR detected at " << buffer->swrs_[swr_pointer_][0] << ", SWR length = "
 							<< (buffer->swrs_[swr_pointer_][2] - buffer->swrs_[swr_pointer_][0]) * 1000 / buffer->SAMPLING_RATE << " ms\n";
@@ -838,12 +843,11 @@ void KDClusteringProcessor::process() {
 					swr_regime_ = false;
 					PRED_WIN = THETA_PRED_WIN;
 
-					// dump complete hmm sequence in the given SWR
-					dump_hmm_prediction();
-
 					// reset
 					if (USE_HMM) {
 						reset_hmm();
+						// dump complete hmm sequence in the given SWR
+						dump_hmm_prediction();
 					}
 					swr_pointer_++;
 				}
@@ -1008,7 +1012,8 @@ void KDClusteringProcessor::process() {
 					spike_buf_pos_pred_start_ = spike_buf_pos_clust_;
 					// should not limit becase of potential unlimited rewinds
 					// should not be limited ? in both swr / non-swr regime
-					PRED_WIN = 24000000;
+					// TODO BUGGY
+					PRED_WIN = 900000000;
 				}
 
 				// rewind back to get predictions of the overlapping windows
