@@ -92,10 +92,11 @@ void usleep(__int64 usec)
 //    	config = new Config("../Res/build_model.conf");
 //    	config = new Config("../Res/decoding_online.conf");
 //    	config = new Config("../Res/EXPERIMENTAL_decoding_online.conf");
-    	config = new Config("../Res/spike_display_screening.conf");
+//    	config = new Config("../Res/spike_display_screening.conf");
+//    	config = new Config("../Res/spike_display.conf");
 //    	config = new Config("../Res/EXPERIMENTAL_spike_dump.conf");
 //    	config = new Config("../Res/spike_dump.conf");
-//    	config = new Config("../Res/synchrony_detection.conf");
+    	config = new Config("../Res/synchrony_detection.conf");
     }
 
 #endif
