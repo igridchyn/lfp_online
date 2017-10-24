@@ -113,3 +113,7 @@ PlaceField::PlaceField(const arma::mat mat, const double& sigma,
 	, NBINSY(mat.n_cols)
 {
 }
+
+void PlaceField::Zero(){
+	place_field_.zeros();
+}

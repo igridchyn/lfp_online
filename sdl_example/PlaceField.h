@@ -67,6 +67,8 @@ public:
     	output << "\n";
     	return output;
     }
+
+    void Zero();
 };
 
 #endif /* defined(__sdl_example__PlaceField__) */
