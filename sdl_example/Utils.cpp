@@ -29,7 +29,7 @@ std::string Utils::Converter::int2str(int a){
 	 std::stringstream ss("");
 	 ss << s;
 	 ss.precision(2);
-	 ss << a;
+	 ss << std::fixed << a;
  	 return ss.str();
   }
 
