@@ -308,7 +308,7 @@ void PlaceFieldProcessor::drawPlaceField(){
     arma::mat dv = pf.Mat() / occupancy_smoothed_[selected_session_].Mat();
     unsigned int mx = 0, my = 0;
     pf.Mat().max(mx, my);
-    std::vector<std::string> lines = {Utils::Converter::Combine("# of spikes in max bin: ", place_fields_[display_tetrode_][display_cluster_][selected_session_](mx, my)), Utils::Converter::Combine("Total nuber of spikes accounted for: ", arma::sum(arma::sum(place_fields_[display_tetrode_][display_cluster_][selected_session_].Mat())))};
+    std::vector<std::string> lines = {Utils::Converter::Combine("# of spikes in max bin: ", int(place_fields_[display_tetrode_][display_cluster_][selected_session_](mx, my))), Utils::Converter::Combine("Total nuber of spikes accounted for: ", int(arma::sum(arma::sum(place_fields_[display_tetrode_][display_cluster_][selected_session_].Mat()))))};
     drawMat(dv, lines);
 }
 
