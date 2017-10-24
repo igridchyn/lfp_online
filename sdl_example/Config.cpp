@@ -165,7 +165,11 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 
 			confPath = evaluate_variables("#include", confPath);
 
-			Utils::FS::CheckFileExistsWithError(confPath, (Utils::Logger*)this);
+			if (!Utils::FS::FileExists(confPath)){
+				log_string_stream_ << "ERROR: File does not exist: " << confPath;
+				Log();
+				exit(72341);
+			}
 
 			Config includedConf(confPath, 0, nullptr, &params_);
 			params_.insert(includedConf.params_.begin(), includedConf.params_.end());
