@@ -100,23 +100,35 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     		"<MOUSE WHEEL> : Zoom In / Out\n"
     		"<LEFT MOUSE BUTTON> : Add polygon vertex\n"
     		"<MOUSE WLEEL PRESS> : Close polygon\n"
-    		"d : delete last polyogon vertex\n\n"
+    		"<LEFT/RIGHT/UP/DOWN> : move around"
+    		"b : toggle background color"
+    		"d : delete last polyogon vertex\n"
+    		"ESC : exit\n\n"
 
     		"0-9 : choose first component\n"
     		"NUM 0-9 : choose second component\n"
+    		"LSHIFT: +10 to component / tetrode number\n"
+    		"RSHIFT: +20 to component / tetrode number\n"
     		"ALT + 0-9 :choose tetrode [LSHIFT = +10; RDHIFT = +20]\n\n"
 
+    		"CLUSTER OPERATIONS:\n"
     		"s : create new cluster\n"
     		"m : merge selected cluster\n"
-    		"r : set cluster id to unknown for spikes in selected polygon\n\n"
+    		"r : remove spikes from RED-selected cluster\n"
+    		"R : delete RED-selected cluster\n"
+    		"e : extract spikes from RED-selected cluster\n"
+    		"E : exgract spikes from all displayed clusters\n"
+    		"CTRL+z : undo last operation \n"
 
     		"DISPLAY MODES:\n"
     		"h : highlight selected cluster(s)\n"
-    		"t : show only two selected clusters\n"
+    		"t : show only selected clusters\n"
     		"T : show all clusters\n"
     		"u : display / hide unclustered spikes\n"
-    		"c : show spikes in the refractory period\n"
+    		"c : show spikes in the refractory period of the RED-selected cluster\n"
     		"a : save polygons\n"
+    		"q : proejctions preview\n"
+    		"* / : display less / more spikes\n"
     		"<KP> / and * : display sparsity factor (for better resolution of high density areas)\n"
 
     		"FITTING OPERATIONS:\n"
@@ -217,12 +229,12 @@ void SDLPCADisplayProcessor::process(){
 
         // TODO !!! take channel with the spike peak (save if not available)
 //        double power_thold = buffer->powerEstimatorsMap_[buffer->tetr_info_->tetrode_channels[spike->tetrode_][0]]->get_std_estimate() * power_thold_nstd_ * power_threshold_factor_;
+
         // TODO : configurable factor
 //        double power_thold = 1000 * power_threshold_factor_;
         // BUGGY -> DISABLED
 //        if (abs(spike->power_) < power_thold){
 //        	buffer->spike_buf_no_disp_pca++;
-//        	spike->cluster_id_ = -1;
 //        	continue;
 //        }
 
@@ -923,8 +935,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         	case SDLK_p:
         		if (kmod & KMOD_LSHIFT){
-        			// cluster by proximity
-        			clusterNNwithThreshold();
+        			// cluster by proximity - DISABLED
+        			// clusterNNwithThreshold();
         			need_redraw = true;
         		}
         		break;
