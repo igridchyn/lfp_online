@@ -23,7 +23,7 @@ SDLWaveshapeDisplayProcessor::SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const
     		const unsigned int& window_height)
 	: LFPProcessor(buf)
 	, SDLControlInputProcessor(buf)
-    , SDLSingleWindowDisplay(window_name, window_width, window_height)
+    , SDLSingleWindowDisplay(buf, window_name, window_width, window_height)
 	, scale_((float)buf->config_->getInt("waveshapedisp.scale", 25))
 	, spike_plot_rate_(buf->config_->getInt("waveshapedisp.spike.plot.rate", 10))
 	, DISPLAY_SIZE(buf->config_->getInt("waveshapedisp.display.size", 1))

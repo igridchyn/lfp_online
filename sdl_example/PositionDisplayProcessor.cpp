@@ -21,7 +21,7 @@ PositionDisplayProcessor::PositionDisplayProcessor(LFPBuffer *buf, std::string w
 		const unsigned int& window_height, const unsigned int& target_tetrode, const unsigned int& tail_length)
 	: LFPProcessor(buf)
 	, SDLControlInputProcessor(buf)
-    , SDLSingleWindowDisplay(window_name, window_width, window_height)
+    , SDLSingleWindowDisplay(buf, window_name, window_width, window_height)
     , target_tetrode_(target_tetrode)
 	, TAIL_LENGTH(tail_length)
 	, WAIT_PREDICTION(buf->config_->getBool("posdisp.wait.prediction"))

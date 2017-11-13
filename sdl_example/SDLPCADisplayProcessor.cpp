@@ -27,7 +27,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 		const unsigned int window_height, int target_tetrode, bool display_unclassified, const float& scale, const int shift_x, const int shift_y)
 : LFPProcessor(buffer)
 , SDLControlInputProcessor(buffer)
-, SDLSingleWindowDisplay(window_name, window_width, window_height)
+, SDLSingleWindowDisplay(buffer, window_name, window_width, window_height)
 // paired qualitative brewer palette
 , palette_(ColorPalette::BrewerPalette24)
 , target_tetrode_(target_tetrode)
@@ -1139,7 +1139,7 @@ void SDLPCADisplayProcessor::deleteCluster() {
 		buffer->ResetPopulationWindow();
 	}
 
-	buffer->dumpCluAndRes();
+	buffer->dumpCluAndRes(true);
 }
 
 void SDLPCADisplayProcessor::extractClusterFromMultiple() {
@@ -1186,7 +1186,7 @@ void SDLPCADisplayProcessor::extractClusterFromMultiple() {
 
 	Render();
 
-	buffer->dumpCluAndRes();
+	buffer->dumpCluAndRes(true);
 }
 
 void SDLPCADisplayProcessor::extractCluster() {
@@ -1244,7 +1244,7 @@ void SDLPCADisplayProcessor::extractCluster() {
 
 	Render();
 
-	buffer->dumpCluAndRes();
+	buffer->dumpCluAndRes(true);
 }
 
 void SDLPCADisplayProcessor::addExclusiveProjection() {
@@ -1286,6 +1286,8 @@ void SDLPCADisplayProcessor::addExclusiveProjection() {
 
 		// needed here?
 		buffer->ResetPopulationWindow();
+
+		buffer->dumpCluAndRes(false);
 	}
 }
 
@@ -1354,7 +1356,7 @@ void SDLPCADisplayProcessor::addCluster() {
 
 	Render();
 
-	buffer->dumpCluAndRes();
+	buffer->dumpCluAndRes(true);
 }
 
 void SDLPCADisplayProcessor::mergeClusters() {
@@ -1408,7 +1410,7 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
 	Render();
 
-	buffer->dumpCluAndRes();
+	buffer->dumpCluAndRes(true);
 }
 
 void SDLPCADisplayProcessor::displayChiHistogramm(){
@@ -1498,6 +1500,8 @@ void SDLPCADisplayProcessor::displayChiHistogramm(){
 				spike->cluster_id_ = clun;
 			}
 	}
+
+	buffer->dumpCluAndRes(true);
 }
 
 void SDLPCADisplayProcessor::splitIntoGuassians(){
@@ -1552,6 +1556,8 @@ void SDLPCADisplayProcessor::splitIntoGuassians(){
 
 		si2 ++;
 	}
+
+	buffer->dumpCluAndRes(true);
 }
 
 

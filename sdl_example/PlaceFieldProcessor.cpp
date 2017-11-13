@@ -72,7 +72,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number)
 : LFPProcessor(buf, processors_number)
 , SDLControlInputProcessor(buf, processors_number)
-, SDLSingleWindowDisplay("pf", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
+, SDLSingleWindowDisplay(buf, "Place Fields", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
 , sigma_(sigma)
 , bin_size_(bin_size)
 , nbinsx_(nbinsx)
@@ -451,7 +451,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 break;
             	// generate clu and res-files for all tetrodes
             case SDLK_g:
-            	buffer->dumpCluAndRes();
+            	buffer->dumpCluAndRes(true);
     		    break;
             case SDLK_d:
             	// dump place fields

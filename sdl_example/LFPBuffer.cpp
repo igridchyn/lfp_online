@@ -1090,8 +1090,10 @@ void LFPBuffer::calculateClusterNumberShifts(){
     Log("Total clusters: ", total_clusters);
 }
 
-void LFPBuffer::dumpCluAndRes(){
-	// calculateClusterNumberShifts();
+void LFPBuffer::dumpCluAndRes(bool recalculateClusterNumbers){
+	if (recalculateClusterNumbers){
+		calculateClusterNumberShifts();
+	}
 
 	if (clures_readonly_){
 		Log("WARNING: CLU AND RES ARE READ-ONLY, CANNOT DUMP");

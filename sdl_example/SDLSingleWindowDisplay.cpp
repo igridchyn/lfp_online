@@ -8,6 +8,7 @@
 
 #include "LFPProcessor.h"
 #include "SDLSingleWindowDisplay.h"
+#include "Utils.h"
 
 void SDLSingleWindowDisplay::FillRect(const int x, const int y, const int cluster, const unsigned int w, const unsigned int h){
     SDL_Rect rect;
@@ -30,7 +31,7 @@ SDLSingleWindowDisplay::~SDLSingleWindowDisplay(){
 	SDL_DestroyWindow(window_);
 }
 
-SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
+SDLSingleWindowDisplay::SDLSingleWindowDisplay(LFPBuffer* buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height)
 : window_width_(window_width)
 , window_height_(window_height)
 , name_(window_name)
@@ -52,21 +53,29 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(std::string window_name, const un
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
     SDL_RenderPresent(renderer_);
+
+#ifndef _WIN32
+    std::string dfltFontPath("../Res/FreeSerif.ttf");
+#else
+    std::string dfltFontPath("../Res/FORTE.TTF");
+#endif
+
+    fontPath_ = buf->config_->getString("sdl.font.path", dfltFontPath);
+
+    if (!Utils::FS::FileExists(fontPath_)){
+    	buf->Log(std::string("ERROR: font file not found at ") + fontPath_);
+    	exit(17623);
+    }
 }
 
 unsigned int SDLSingleWindowDisplay::GetWindowID() {
 	return SDL_GetWindowID(window_);
 }
 
-
 void SDLSingleWindowDisplay::TextOut(std::string text, int x, int y, int col, bool shift) {
 	TTF_Init();
-	// TODO: configurable
-#ifndef _WIN32
-	TTF_Font *font = TTF_OpenFont("../Res/FreeSerif.ttf", 15);
-#else
-	TTF_Font *font = TTF_OpenFont("../Res/FORTE.TTF", 15);
-#endif
+
+	TTF_Font *font = TTF_OpenFont(fontPath_.c_str(), 15);
 
 //	if (font == nullptr){
 //		Log(std::string("Font error: ") + TTF_GetError());

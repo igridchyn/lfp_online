@@ -502,7 +502,7 @@ public:
 	std::vector<unsigned int> clusters_in_tetrode_;
 	std::vector<unsigned int> global_cluster_number_shfit_;
 	void calculateClusterNumberShifts();
-	void dumpCluAndRes();
+	void dumpCluAndRes(bool recalculateClusterNumbers);
 };
 
 template<class T>

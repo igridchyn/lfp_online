@@ -26,6 +26,8 @@ protected:
 
 	unsigned int last_text_width_ = 0;
 
+	std::string fontPath_ = "";
+
     virtual void FillRect(const int x, const int y, const int cluster, const unsigned int w = 4, const unsigned int h = 4);
     virtual void DrawRect(const int& x, const int& y, const int& w, const int& h, const int& col_id);
 
@@ -43,7 +45,7 @@ protected:
     virtual void RenderClear(bool whiteBG = false);
 
 public:
-    SDLSingleWindowDisplay(std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
+    SDLSingleWindowDisplay(LFPBuffer* buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height);
     virtual unsigned int GetWindowID();
 
 	virtual ~SDLSingleWindowDisplay();
