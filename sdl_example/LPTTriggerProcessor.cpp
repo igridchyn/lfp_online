@@ -141,6 +141,15 @@ void LPTTriggerProcessor::setHigh() {
 //	Log("detect CLIMB at ", buffer->buf_pos_trig_);
 }
 
+void LPTTriggerProcessor::createSynchronyEvent() {
+	unsigned int sync_start = buffer->last_pkg_id - (unsigned int)(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
+	Log("Synchrony detected at (window start) ", sync_start);
+	buffer->swrs_.push_back(std::vector<unsigned int>());
+	buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start);
+	buffer->swrs_[buffer->swrs_.size() - 1].push_back(buffer->last_pkg_id);
+	buffer->swrs_[buffer->swrs_.size() - 1].push_back(std::max(sync_start + sync_max_duration_, buffer->last_pkg_id));
+}
+
 void LPTTriggerProcessor::process() {
 	// check if need to turn off first
 	if (LPT_is_high_ && buffer->last_pkg_id - last_trigger_time_ >= pulse_length_ && trigger_type_ != LPTTriggerType::Position){
@@ -251,15 +260,7 @@ void LPTTriggerProcessor::process() {
 					setHigh();
 					timestamp_log_ << (int)round((last_trigger_time_)) << "\n";
 					timestamp_log_.flush();
-
-					// TODO: extract (also available below)
-					unsigned int sync_start = buffer->last_pkg_id - (unsigned int)(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
-					Log("Synchrony detected at (window start) ",sync_start);
-					buffer->swrs_.push_back(std::vector<unsigned int>());
-					buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start);
-					// set SW PEAK and end
-					buffer->swrs_[buffer->swrs_.size() - 1].push_back(buffer->last_pkg_id);
-					buffer->swrs_[buffer->swrs_.size() - 1].push_back(std::max(sync_start + sync_max_duration_, buffer->last_pkg_id));
+					createSynchronyEvent();
 				}
 				buffer->spike_buf_pos_lpt_ ++;
 				break;
@@ -361,15 +362,8 @@ void LPTTriggerProcessor::process() {
 
 						// create new synchrony event in the buffer
 						// TODO detect exactly with last processed spike ???
-						unsigned int sync_start = buffer->last_pkg_id - (unsigned int)(buffer->POP_VEC_WIN_LEN * buffer->SAMPLING_RATE / 1000.0);
 
-						Log("Synchrony detected at (window start) ",sync_start);
-						buffer->swrs_.push_back(std::vector<unsigned int>());
-						buffer->swrs_[buffer->swrs_.size() - 1].push_back(sync_start);
-						// set SW PEAK and end
-						buffer->swrs_[buffer->swrs_.size() - 1].push_back(buffer->last_pkg_id);
-						buffer->swrs_[buffer->swrs_.size() - 1].push_back(std::max(sync_start + sync_max_duration_, buffer->last_pkg_id));
-
+						createSynchronyEvent();
 						last_synchrony_ = buffer->last_pkg_id;
 
 						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;

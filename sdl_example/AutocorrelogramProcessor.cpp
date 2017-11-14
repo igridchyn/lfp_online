@@ -352,8 +352,6 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	if (display_tetrode_ >= buffer->tetr_info_->tetrodes_number())
 		return;
 
-	// TODO extract redraw
-
 	display_tetrode_ = display_tetrode;
 
 	SDL_SetRenderTarget(renderer_, texture_);

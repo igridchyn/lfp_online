@@ -40,6 +40,7 @@ class LPTTriggerProcessor: public virtual LFPProcessor {
 	bool LPT_is_high_ = false;
 	void setHigh();
 	void setLow();
+	void createSynchronyEvent();
 
 	unsigned int last_trigger_time_ = 0;
 	unsigned int trigger_cooldown_;

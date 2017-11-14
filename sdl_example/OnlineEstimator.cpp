@@ -44,7 +44,6 @@ void OnlineEstimator<T, S>::push(T value){
     // update estimates
     buf[buf_pos] = value;
     sum += buf[buf_pos];
-    // TODO making this optional could speed up dump by couple %
     sumsq += buf[buf_pos] * buf[buf_pos];
     
     buf_pos = (buf_pos + 1) % BUF_SIZE;
