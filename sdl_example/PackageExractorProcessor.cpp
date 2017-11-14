@@ -218,8 +218,7 @@ void PackageExractorProcessor::process(){
 //		Log("pkg value (chan 4) = ", (unsigned int)buffer->signal_buf[4][buffer->buf_pos - 1]);
 //	}
     
-    // TODO: use spike filter width / 2
-    buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - 20);
+    buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id - buffer->shared_values_int_[SHARED_VALUE_FILTER_LENGTH]/2);
 
 	//Log("Package extraction done");
 

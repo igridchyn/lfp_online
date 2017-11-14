@@ -48,6 +48,7 @@ SpikeDetectorProcessor::SpikeDetectorProcessor(LFPBuffer* buffer, const char* fi
         // printf("filt: %f\n", filter[fpos-1]);
     }
     filter_len = fpos - 1;
+    buffer->shared_values_int_[SHARED_VALUE_FILTER_LENGTH] = filter_len;
     
     filt_pos = buffer->BUF_HEAD_LEN;
     

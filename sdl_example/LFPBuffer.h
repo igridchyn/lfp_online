@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <string>
 #include <mutex>
+#include <map>
 
 #include "LFPOnline.h"
 #include "TetrodesInfo.h"
@@ -62,6 +63,11 @@ enum LFPONLINE__ERROR_CODES {
 	LFPONLINE_BAD_TETRODES_CONFIG,
 	LFPONLINE_BUFFER_TOO_SHORT,
 	LFPONLINE_REQUESTING_INVALID_CHANNEL
+};
+
+enum SHARED_VALUE {
+	SHARED_VALUE_FILTER_LENGTH,
+	SHARED_VALUE_ARRAY_SIZE
 };
 
 class SpatialInfo {
@@ -416,6 +422,9 @@ public:
 	bool clures_readonly_ = true;
 
 	std::vector< std::vector<float> > cluster_firing_rates_;
+
+	// for sharing values accross processors
+	std::map<int, int> shared_values_int_;
 
 	//====================================================================================================
 
