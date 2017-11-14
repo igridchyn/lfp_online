@@ -1142,6 +1142,13 @@ void SDLPCADisplayProcessor::deleteCluster() {
 	buffer->dumpCluAndRes(true);
 }
 
+void SDLPCADisplayProcessor::clearPolygon() {
+	// TODO ClearPolygon()
+	polygon_closed_ = false;
+	polygon_x_.clear();
+	polygon_y_.clear();
+}
+
 void SDLPCADisplayProcessor::extractClusterFromMultiple() {
 	if (user_context_.SelectedCluster2() == -1){
 		Log("No cluster selected for extraction");
@@ -1153,11 +1160,7 @@ void SDLPCADisplayProcessor::extractClusterFromMultiple() {
 	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
 	save_polygon_clusters();
 
-	// TODO ClearPolygon()
-	polygon_closed_ = false;
-	polygon_x_.clear();
-	polygon_y_.clear();
-
+	clearPolygon();
 	buffer->ResetAC(target_tetrode_, clun);
 
 	buffer->ResetPopulationWindow();
@@ -1201,11 +1204,7 @@ void SDLPCADisplayProcessor::extractCluster() {
 	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
 	save_polygon_clusters();
 
-	// TODO ClearPolygon()
-	polygon_closed_ = false;
-	polygon_x_.clear();
-	polygon_y_.clear();
-
+	clearPolygon();
 //	buffer->ResetAC(target_tetrode_, clun);
 
 	user_context_.CreateClsuter((int)clun, new_clust_.projections_inclusive_[0]);
@@ -1323,10 +1322,7 @@ void SDLPCADisplayProcessor::addCluster() {
 	buffer->Log("Created new polygon cluster, total clusters = ", (int)buffer->cells_[target_tetrode_].size());
 	save_polygon_clusters();
 
-	// TODO ClearPolygon()
-	polygon_closed_ = false;
-	polygon_x_.clear();
-	polygon_y_.clear();
+	clearPolygon();
 
 	buffer->ResetAC(target_tetrode_, clun);
 

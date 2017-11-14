@@ -102,6 +102,7 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	void clusterNNwithThreshold();
 
 	void undoUserAction();
+	void clearPolygon();
 
 	SDL_Point *points_;
 
