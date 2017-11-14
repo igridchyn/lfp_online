@@ -161,14 +161,9 @@ void SDLWaveshapeDisplayProcessor::process() {
 
     // 4 channel waveshape, shifted; colour by cluster, if available (use palette)
     
-    // POINTER ??? : after rewind preserve last valid position -> will allow autonomous pointer rewind (restarting from the beginning)
-    //  depend on object properties (don't exceed main pointer), not on the previous pointer !!!
-    // TODO: implement idea above; workaround: rewind if target pointer less than
-    
     int last_pkg_id = 0;
     
     SDL_SetRenderTarget(renderer_, texture_);
-    const ColorPalette& colpal = ColorPalette::BrewerPalette12;
 
     const int& disp_cluster_1_ = user_context_.SelectedCluster1();
     const int& disp_cluster_2_ = user_context_.SelectedCluster2();
@@ -242,27 +237,12 @@ void SDLWaveshapeDisplayProcessor::process() {
 			}
 		}
 
-		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
-        for (int chan=0; chan < 4; ++chan) {
-            int prev_smpl = (int)transform((float)spike->waveshape[chan][0], chan);
-
-			if (display_final_){
-				for (int smpl = 1; smpl < 16; ++smpl) {
-					int tsmpl = (int)transform((float)spike->waveshape_final[chan][smpl], chan);
-					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
-					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
-					prev_smpl = tsmpl;
-				}
-			}
-			else{
-				for (int smpl = 1; smpl < 128; ++smpl) {
-					int tsmpl = (int)transform(spike->waveshape[chan][smpl], chan);
-					SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
-					SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
-					prev_smpl = tsmpl;
-				}
-			}
-        }
+		if (display_final_){
+			drawWS(spike, spike->waveshape_final);
+		}
+		else{
+			drawWS(spike, spike->waveshape);
+		}
         
         last_pkg_id = spike->pkg_id_;
         buf_pointer_++;
@@ -291,13 +271,26 @@ void SDLWaveshapeDisplayProcessor::process() {
     }
 }
 
+template<class T>
+void SDLWaveshapeDisplayProcessor::drawWS(Spike* spike, T ws){
+	int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
+	for (int chan=0; chan < 4; ++chan) {
+		int prev_smpl = (int)transform((float)ws[chan][0], chan);
+		for (int smpl = 1; smpl < 128; ++smpl) {
+			int tsmpl = (int)transform((float)ws[chan][smpl], chan);
+			SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
+			SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
+			prev_smpl = tsmpl;
+		}
+	}
+}
+
 void SDLWaveshapeDisplayProcessor::displayFromFiles(){
     int disp_cluster_1 = user_context_.SelectedCluster1();
     int disp_cluster_2 = user_context_.SelectedCluster2();
 
     std::ifstream fws;
     ws_type **ws_tmp;
-    const ColorPalette& colpal = ColorPalette::BrewerPalette24;
 	unsigned int sp_tetr = 0;
 
 	unsigned int current_session = 0;
@@ -357,17 +350,7 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 		}
 
 		sp_tetr ++;
-		// TODO: extract
-		int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
-		for (int chan=0; chan < 4; ++chan) {
-			int prev_smpl = (int)transform((float)ws_tmp[chan][0], chan);
-			for (int smpl = 1; smpl < 128; ++smpl) {
-				int tsmpl = (int)transform(ws_tmp[chan][smpl], chan);
-				SDL_SetRenderDrawColor(renderer_, colpal.getR(spike->cluster_id_) ,colpal.getG(spike->cluster_id_), colpal.getB(spike->cluster_id_),255);
-				SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
-				prev_smpl = tsmpl;
-			}
-		}
+		drawWS(spike, ws_tmp);
 	}
 	Render();
 }

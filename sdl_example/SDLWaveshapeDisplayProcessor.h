@@ -65,6 +65,8 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
 	int current_cut_ = -1;
 	bool on_demand_ = false;
 
+	const ColorPalette& colpal = ColorPalette::BrewerPalette24;
+
 public:
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf);
     SDLWaveshapeDisplayProcessor(LFPBuffer *buf, const std::string& window_name, const unsigned int& window_width,
@@ -83,6 +85,9 @@ public:
     void saveCuts();
 
     void displayFromFiles();
+
+    template<class T>
+    void drawWS(Spike* spike, T ws);
 };
 
 #endif
