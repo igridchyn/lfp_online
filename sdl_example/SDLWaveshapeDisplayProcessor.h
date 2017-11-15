@@ -29,10 +29,9 @@ class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, vi
     unsigned int c1_prev_ = 0;
     unsigned int c2_prev_ = 0;
 
-    // TODO compute from window height / width
-    const unsigned int x_mult_final_ = 32;
-    const unsigned int x_mult_reconstructed_ = 4;
-    const unsigned int y_mult_ = 200;
+    unsigned int x_mult_final_ = 32;
+    unsigned int x_mult_reconstructed_ = 4;
+    unsigned int y_mult_ = 200;
 
     int x1_ = -1;
     int y1_ = -1;
@@ -88,6 +87,8 @@ public:
 
     template<class T>
     void drawWS(Spike* spike, T ws);
+
+    virtual void Resize();
 };
 
 #endif

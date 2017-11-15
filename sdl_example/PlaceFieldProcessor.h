@@ -77,6 +77,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     // user-selected session for display
     unsigned int selected_session_ = 0;
 
+    bool text_color_black_ = true;
+
     //================================
     
     const double DISPLAY_SCALE;
@@ -126,6 +128,8 @@ public:
     void switchSession(const unsigned int& session);
     void dumpCluAndRes();
     void dumpPlaceFields();
+
+    virtual void Resize();
 
 };
 

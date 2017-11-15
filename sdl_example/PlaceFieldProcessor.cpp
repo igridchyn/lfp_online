@@ -107,7 +107,15 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 
     palette_ = ColorPalette::MatlabJet256;
     Log("WARNING: processor assumes chronological order of spikes");
-    Log("CONTROLS: g - save res / clu; s - smooth plfshiftsace fields (TBD before displaying); o - occupancy; RSHIFT + # - select session; # - select cluster; d - dump place fields	");
+    Log("CONTROLS: "
+    		"g - save res / clu"
+    		"s - smooth plfshiftsace fields (TBD before displaying)"
+    		"o - occupancy"
+    		"RSHIFT + <NUMBER> - select session"
+    		"<NUMBER> - select cluster"
+    		"d - dump place fields"
+    		"t - toggle text colour (black/white)"
+    		"r - reset (required before bulding place fields for newly created clusters)");
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
@@ -130,7 +138,6 @@ void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
     	session ++;
     }
 
-    // TODO check correctness
     PlaceField& pf = occupancy_[session];
     pf(yb, xb) += 1.f;
     
@@ -249,8 +256,8 @@ void PlaceFieldProcessor::SetDisplayTetrode(const unsigned int& display_tetrode)
 
 template <class T>
 void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std::string> text_output){
-    const unsigned int binw = window_width_ / nbinsx_;
-    const unsigned int binh = window_height_ / nbinsy_;
+    const float binw = window_width_ / float(nbinsx_);
+    const float binh = window_height_ / float(nbinsy_);
 
     double max_val = 0;
     for (unsigned int c = 0; c < mat.n_cols; ++c){
@@ -265,12 +272,15 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
 
     for (unsigned int c = 0; c < mat.n_cols; ++c){
         for (unsigned int r = 0; r < mat.n_rows; ++r){
-            unsigned int x = c * binw;
-            unsigned int y = r * binh;
+            int x = (int)round(c * binw);
+            int y = (int)round(r * binh);
+
+            int cbinw = (int)round((c+1) * binw) - x;
+            int cbinh = (int)round((r+1) * binh) - y;
 
             unsigned int order = (unsigned int)MIN(mat(r, c) * palette_.NumColors() / max_val, palette_.NumColors() - 1);
 
-            FillRect(x + binw / 2, y + binh / 2, order, binw, binh);
+            FillRect(x, y, order, cbinw, cbinh);
         }
     }
 
@@ -282,15 +292,15 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
 
     if (!display_prediction_){
 		ResetTextStack();
-		TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), 0xFFFFFF, true);
-		TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), 0xFFFFFF, true);
-		TextOut(Utils::Converter::Combine("Cluster global: ", int(buffer->global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), 0xFFFFFF, true);
-		TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), 0xFFFFFF, true);
-		TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0xFFFFFF, false);
-		TextOut(Utils::Converter::Combine(" / ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), 0x000000, true);
+		int textCol = text_color_black_ ? 0xFFFFFF : 0x000000;
+		TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), textCol, true);
+		TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), textCol, true);
+		TextOut(Utils::Converter::Combine("Cluster global: ", int(buffer->global_cluster_number_shfit_[display_tetrode_] + display_cluster_)), textCol, true);
+		TextOut(Utils::Converter::Combine("Session: ", (int)selected_session_), textCol, true);
+		TextOut(Utils::Converter::Combine("Peak firing rate (Hz): ", max_val * buffer->SAMPLING_RATE / POS_SAMPLING_RATE), textCol, false);
 
 		for (auto const& line: text_output){
-			TextOut(line, 0xFFFFFF, true);
+			TextOut(line, textCol, true);
 		}
     }
 
@@ -463,6 +473,9 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             		buffer->calculateClusterNumberShifts();
             	}
             	break;
+            case SDLK_t:
+            	text_color_black_ = ! text_color_black_;
+            	break;
             // reset to re-build place fields
             case SDLK_r:
             	if(kmod & KMOD_LSHIFT){
@@ -534,7 +547,10 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     for (size_t t=0; t < place_fields_.size(); ++t) {
         for (size_t c = 0; c < place_fields_[t].size(); ++c) {
         	for (size_t s = 0; s < N_SESSIONS; ++s) {
-				place_fields_smoothed_[t][c][s] = place_fields_[t][c][s].Smooth();
+        		double sum = arma::accu(place_fields_[t][c][s].Mat());
+
+        		if (sum > 1)
+        			place_fields_smoothed_[t][c][s] = place_fields_[t][c][s].Smooth();
 
 				if (SAVE){
 					place_fields_smoothed_[t][c][s].Mat().save(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
@@ -647,4 +663,9 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     		float((rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2.f) * (bin_size_) / 2.f / RAND_MAX),
 			float((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2.f) * (bin_size_) / 2.f / RAND_MAX),
 			float((rmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2.f) * (bin_size_) / 2.f / RAND_MAX));
+}
+
+void PlaceFieldProcessor::Resize() {
+	SDLSingleWindowDisplay::Resize();
+	drawPlaceField();
 }

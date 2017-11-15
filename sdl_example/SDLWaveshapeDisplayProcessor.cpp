@@ -117,7 +117,7 @@ void SDLWaveshapeDisplayProcessor::reinit() {
     const int& disp_cluster_2_ = user_context_.SelectedCluster2();
 
     // DEBUG
-    Log("Reinit, display cluster 2 = ", disp_cluster_2_);
+    //Log("Reinit, display cluster 2 = ", disp_cluster_2_);
 
     // nodisp_pca can be reset => not useful for display rate calculation
 	for (unsigned int si=0; si < buffer->spike_buf_pos; ++si){
@@ -145,8 +145,8 @@ void SDLWaveshapeDisplayProcessor::reinit() {
 	c2_total_ = c2_prev_;
 
 	// DEBUG
-	Log("Clu 1 display rate: ", display_rate_1_);
-	Log("Clu 2 display rate: ", display_rate_2_);
+	//Log("Clu 1 display rate: ", display_rate_1_);
+	//Log("Clu 2 display rate: ", display_rate_2_);
 }
 
 float SDLWaveshapeDisplayProcessor::transform(float smpl, int chan){
@@ -273,7 +273,7 @@ void SDLWaveshapeDisplayProcessor::process() {
 
 template<class T>
 void SDLWaveshapeDisplayProcessor::drawWS(Spike* spike, T ws){
-	int x_scale = display_final_ ? (8 * 4) : 4; // for final wave shapes
+	int x_scale = display_final_ ? x_mult_final_ : x_mult_reconstructed_; // for final wave shapes
 	for (int chan=0; chan < 4; ++chan) {
 		int prev_smpl = (int)transform((float)ws[chan][0], chan);
 		for (int smpl = 1; smpl < 128; ++smpl) {
@@ -613,4 +613,11 @@ void SDLWaveshapeDisplayProcessor::SetDisplayTetrode(const unsigned int& display
     targ_tetrode_ = display_tetrode;
     current_cut_ = -1;
     RenderClear();
+}
+
+void SDLWaveshapeDisplayProcessor::Resize() {
+	SDLSingleWindowDisplay::Resize();
+	x_mult_final_ = (unsigned int) round(window_width_ / 16.25);
+	x_mult_reconstructed_ = (unsigned int) round(window_width_ / 130);;
+	y_mult_ = window_height_ / 4;
 }

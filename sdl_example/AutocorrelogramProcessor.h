@@ -31,9 +31,9 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
 
     // number of clusters in one row
     // TODO define from window width
-    const int XCLUST = 8;
-    const int XCLUST_CC = 6;
-    const int YCLUST_CC = 5;
+    int XCLUST = 8;
+    int XCLUST_CC = 6;
+    int YCLUST_CC = 5;
     // height of the plot in pixels
     const unsigned int ypix_ = 100;
 
@@ -99,4 +99,6 @@ public:
 
     virtual void process_SDL_control_input(const SDL_Event& e);
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
+
+    virtual void Resize();
 };

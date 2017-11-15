@@ -1143,7 +1143,6 @@ void SDLPCADisplayProcessor::deleteCluster() {
 }
 
 void SDLPCADisplayProcessor::clearPolygon() {
-	// TODO ClearPolygon()
 	polygon_closed_ = false;
 	polygon_x_.clear();
 	polygon_y_.clear();
@@ -1237,9 +1236,7 @@ void SDLPCADisplayProcessor::extractCluster() {
 	}
 	SDL_RenderDrawPoints(renderer_, points_, count - 1);
 
-	// TODO ALL INCLUSIVE AS EXCLUSIVE IN NEW ?
 	user_context_.AddExclusiveProjection(new_clust_.projections_inclusive_[0], affected_clusters_);
-
 
 	Render();
 

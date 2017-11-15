@@ -14,8 +14,8 @@ protected:
 	SDL_Renderer *renderer_ = nullptr;
 	SDL_Texture *texture_ = nullptr;
 
-    const unsigned int window_width_;
-    const unsigned int window_height_;
+	unsigned int window_width_;
+    unsigned int window_height_;
 
     std::string name_;
 
@@ -43,6 +43,8 @@ protected:
 
     virtual void Render();
     virtual void RenderClear(bool whiteBG = false);
+
+    virtual void Resize();
 
 public:
     SDLSingleWindowDisplay(LFPBuffer* buf, std::string window_name, const unsigned int& window_width, const unsigned int& window_height);

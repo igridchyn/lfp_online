@@ -51,6 +51,10 @@ AutocorrelogramProcessor::AutocorrelogramProcessor(LFPBuffer *buf, const float b
 
 	reset_cluster_.resize(MAX_CLUST, false);
 
+	Log("CONTROLS:"
+			"r - refresh"
+			"<UP/DOWN/LEFT/RIGHT> - navigate the matrix of correlogramms"
+			"<TAB> - witch between auto- and corss-correlograms");
 }
 
 AutocorrelogramProcessor::~AutocorrelogramProcessor(){
@@ -280,10 +284,6 @@ unsigned int AutocorrelogramProcessor::getYShift(int clust) {
 
 
 unsigned int AutocorrelogramProcessor::getCCXShift(const unsigned int& clust1) {
-	// TODO below
-	// 	+ set corresponding when a pair is chosen
-	//  + cluster select
-	// 	+ miniaturized preview (with 1-sized bins without interval)
 	 return ((CC_BWIDTH + 1) * NBINS * 2 + 15) * (((int)clust1) % XCLUST_CC) + (CC_BWIDTH + 1) * NBINS;
 }
 
@@ -601,4 +601,13 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 	TextOut(ss.str(), xsh, ysh - ypix_ / 2, 0xFFFFFF, false);
 }
 
+void AutocorrelogramProcessor::Resize() {
+	SDLSingleWindowDisplay::Resize();
 
+	// default size 800 X 500
+	XCLUST = (int)round(window_width_ / 100.0);    // 8
+	XCLUST_CC = (int)round(window_width_ * 3 / 400.0);; // 6
+	YCLUST_CC = (int)round(window_height_ / 100.0);; // 5
+
+	SetDisplayTetrode(display_tetrode_);
+}

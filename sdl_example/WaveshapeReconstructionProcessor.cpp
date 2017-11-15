@@ -43,7 +43,7 @@ void WaveShapeReconstructionProcessor::construct_lookup_table(){
             }
         }
     }
-    
+
     // DEBUG
 //    printf("sin_table:\n");
 //    for(i=0,j=0;i<nosm;i++) {
@@ -59,7 +59,7 @@ void WaveShapeReconstructionProcessor::construct_lookup_table(){
 //            }
 //        }
 //    }
-    
+
 }
 
 ws_type WaveShapeReconstructionProcessor::optimized_value(int num_sampl, ws_type *sampl,int h){

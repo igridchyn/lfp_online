@@ -14,8 +14,8 @@ void SDLSingleWindowDisplay::FillRect(const int x, const int y, const int cluste
     SDL_Rect rect;
     rect.h = h;
     rect.w = w;
-    rect.x = x-w/2;
-    rect.y = y-h/2;
+    rect.x = x;
+    rect.y = y;
     
     SDL_SetRenderDrawColor(renderer_, palette_.getR(cluster), palette_.getG(cluster), palette_.getB(cluster), 255);
     SDL_RenderFillRect(renderer_, &rect);
@@ -66,6 +66,8 @@ SDLSingleWindowDisplay::SDLSingleWindowDisplay(LFPBuffer* buf, std::string windo
     	buf->Log(std::string("ERROR: font file not found at ") + fontPath_);
     	exit(17623);
     }
+
+    SDL_SetWindowResizable(window_, SDL_TRUE);
 }
 
 unsigned int SDLSingleWindowDisplay::GetWindowID() {
@@ -156,4 +158,21 @@ void SDLSingleWindowDisplay::Render(){
 	// without copying only part is displayed AND only before redrawing
 	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 	SDL_RenderPresent(renderer_);
+}
+
+void SDLSingleWindowDisplay::Resize(){
+	int w, h;
+	SDL_GetWindowSize(window_, &w, &h);
+
+    texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    //SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND); // ???
+
+    SDL_SetRenderTarget(renderer_, texture_);
+
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
+
+    window_width_ = w;
+    window_height_ = h;
 }

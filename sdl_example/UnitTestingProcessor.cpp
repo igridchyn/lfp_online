@@ -68,7 +68,6 @@ UnitTestingProcessor::UnitTestingProcessor(LFPBuffer *buf, const std::string tes
 //    const int CHANNEL = 8;
         
     // filtered signal
-    // TODO configure inclusion
 //    int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "filtered.txt", "filtered", buf->filtered_signal_buf[CHANNEL], &buffer->buf_pos, 1));
 //    int_array_validators_.push_back(new ArrayValidator<int>(test_dir_ + "pow.txt", "pow", buf->power_buf[CHANNEL], &buffer->buf_pos, 1));
 //    int_spike_validators_.push_back(new SpikeDetectionValidator(test_dir_ + "detect.txt", "detected", buf->spike_buffer_, &buffer->spike_buf_pos, 1, buf->SPIKE_BUF_HEAD_LEN));

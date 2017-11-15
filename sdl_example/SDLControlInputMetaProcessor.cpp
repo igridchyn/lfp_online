@@ -39,6 +39,10 @@ void SDLControlInputMetaProcessor::process(){
     		     		buffer->Log("Change focus");
     		     		control_processor_ = cp_by_win_id_[e.window.windowID];
     		     	}
+    		  } else if (e.window.event == SDL_WINDOWEVENT_RESIZED){
+    			  SDLSingleWindowDisplay *disp = dynamic_cast<SDLSingleWindowDisplay*>(cp_by_win_id_[e.window.windowID]);
+    			  Log("Window resized");
+    			  disp->Resize();
     		  }
     	 }
 
