@@ -17,6 +17,7 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
     place_field_ = arma::mat(nbinsy, nbinsx, arma::fill::zeros);
 
     gauss_ = arma::mat(spread_*2 + 1, spread_*2 + 1, arma::fill::zeros);
+
     double g_sum = .0f;
     for (int dx = -spread_; dx <= spread_; ++dx){
         for (int dy = -spread_; dy <= spread_; ++dy) {
@@ -29,6 +30,18 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
         for (int dy = -spread_; dy <= spread_; ++dy) {
         	gauss_(dy+spread_, dx+spread_) /= g_sum;
         }
+    }
+
+    // 1d case
+    gauss_1d_ = arma::mat(spread_*2 + 1, 1, arma::fill::zeros);
+    g_sum = .0f;
+    for (int dx = -spread_; dx <= spread_; ++dx){
+    	gauss_1d_(dx + spread, 0) = Utils::Math::Gauss1D(sigma_ / bin_size_, dx);
+    	g_sum += gauss_1d_(dx + spread, 0);
+    }
+    // normalize 1d
+    for (int dx = -spread_; dx <= spread_; ++dx){
+        gauss_1d_(dx + spread_, 0) /= g_sum;
     }
 }
 
@@ -60,28 +73,59 @@ PlaceField PlaceField::Smooth(){
     PlaceField spf(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
 
     // smooth place field
-    for (int x=0; x < (int)place_field_.n_cols; ++x) {
-        for (int y=0; y < (int)place_field_.n_rows; ++y) {
-        	// part of the gaussian that was not accounted for because of nans and infs and has to be noramlized by
-        	double ignored_part = .0;
-            for (int dx=-spread_; dx <= spread_; ++dx) {
-                for (int dy=-spread_; dy <= spread_; ++dy) {
-					if (y + dy <0 || x + dx < 0 || y + dy >= (int)place_field_.n_rows || x + dx >= (int)place_field_.n_cols || isinf((float)place_field_(y + dy, x + dx)) || Utils::Math::Isnan((float)place_field_(y + dy, x + dx))){
-                		ignored_part += gauss_(dy+spread_, dx+spread_);
-                		continue;
-                	}
-
-                	double val = place_field_(y + dy, x + dx);
-                	val *= gauss_(dy+spread_, dx+spread_);
-                    spf(y, x) += val;
-                }
-            }
-            // normalized for only accounted part of the gaussian
-            spf(y, x) /= 1.0 - ignored_part;
-        }
-    }
+//    for (int x=0; x < (int)place_field_.n_cols; ++x) {
+//        for (int y=0; y < (int)place_field_.n_rows; ++y) {
+//        	// part of the gaussian that was not accounted for because of nans and infs and has to be noramlized by
+//        	double ignored_part = .0;
+//            for (int dx=-spread_; dx <= spread_; ++dx) {
+//                for (int dy=-spread_; dy <= spread_; ++dy) {
+//					if (y + dy <0 || x + dx < 0 || y + dy >= (int)place_field_.n_rows || x + dx >= (int)place_field_.n_cols || isinf((float)place_field_(y + dy, x + dx)) || Utils::Math::Isnan((float)place_field_(y + dy, x + dx))){
+//                		ignored_part += gauss_(dy+spread_, dx+spread_);
+//                		continue;
+//                	}
+//
+//                	double val = place_field_(y + dy, x + dx);
+//                	val *= gauss_(dy+spread_, dx+spread_);
+//                    spf(y, x) += val;
+//                }
+//            }
+//            // normalized for only accounted part of the gaussian
+//            spf(y, x) /= 1.0 - ignored_part;
+//        }
+//    }
     
-    return spf;
+    // 2 passes of 1D smoothing
+    PlaceField spf2(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
+
+    for (int x=0; x < (int)place_field_.n_cols; ++x) {
+            for (int y=0; y < (int)place_field_.n_rows; ++y) {
+            	double ignored_part = .0;
+            	for (int dx=-spread_; dx <= spread_; ++dx) {
+            		if (x + dx < 0|| x + dx >= (int)place_field_.n_cols || isinf((float)place_field_(y, x + dx)) || Utils::Math::Isnan((float)place_field_(y, x + dx))){
+            			ignored_part += gauss_1d_(dx+spread_, 0);
+            			continue;
+            		}
+            		spf(y,x) += place_field_(y, x + dx) * gauss_1d_(dx + spread_, 0);
+            	}
+            	spf(y,x) /= 1.0 - ignored_part;
+            }
+    }
+    for (int x=0; x < (int)place_field_.n_cols; ++x) {
+            for (int y=0; y < (int)place_field_.n_rows; ++y) {
+            	double ignored_part = .0;
+            	for (int dy=-spread_; dy <= spread_; ++dy) {
+            		if (y + dy < 0|| y + dy >= (int)place_field_.n_cols || isinf((float)spf(y + dy, x)) || Utils::Math::Isnan((float)spf(y + dy, x))){
+            			ignored_part += gauss_1d_(dy+spread_, 0);
+            			continue;
+            		}
+            		spf2(y,x) += spf(y + dy, x) * gauss_1d_(dy + spread_, 0);
+            	}
+            	spf2(y,x) /= 1.0 - ignored_part;
+            }
+    }
+
+
+    return spf2;
 }
 
 void PlaceField::CachePDF(const PlaceField& occupancy, const double& occupancy_factor){

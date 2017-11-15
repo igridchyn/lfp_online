@@ -25,6 +25,7 @@ class PlaceField{
     int spread_;
     
     arma::mat gauss_;
+    arma::mat gauss_1d_;
 
     int NBINS;
     int NBINSX;

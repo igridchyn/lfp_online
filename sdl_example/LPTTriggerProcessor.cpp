@@ -361,7 +361,6 @@ void LPTTriggerProcessor::process() {
 						timestamp_log_.flush();
 
 						// create new synchrony event in the buffer
-						// TODO detect exactly with last processed spike ???
 
 						createSynchronyEvent();
 						last_synchrony_ = buffer->last_pkg_id;
