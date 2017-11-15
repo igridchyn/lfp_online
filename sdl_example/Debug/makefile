@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -std=c++0x -g -O3 -Wall -Wextra -Wno-ignored-qualifiers
-LDFLAGS = -lSDL2 -lSDL2_ttf -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem
+CFLAGS = -std=c++0x -g -O3 -Wall -Wextra -Wno-ignored-qualifiers -I/usr/local/include/SDL2 -D_REENTRANT
+LDFLAGS = -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem -L/usr/local/lib -Wl,-rpath,/usr/local/lib -Wl,--enable-new-dtags -lSDL2 -lSDL2_ttf
 	
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o LFPBuffer.o
 	${CC} ${CFLAGS} -c ../AutocorrelogramProcessor.cpp
