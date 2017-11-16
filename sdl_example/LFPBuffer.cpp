@@ -362,8 +362,12 @@ LFPBuffer::LFPBuffer(Config* config)
 	// n groups of c channels
 	std::vector<unsigned int> ngroups;
 	ngroups.resize(9);
+	unsigned int maxChanNum = 0;
 	for (unsigned int t = 0;t < tetr_info_->tetrodes_number(); ++t){
-		ngroups[tetr_info_->channels_number(t)] ++;
+		unsigned int chnum = tetr_info_->channels_number(t);
+		ngroups[chnum] ++;
+		if (chnum > maxChanNum)
+			maxChanNum = chnum;
 	}
 
 //    for (unsigned int nchan = 1; nchan <= 8; ++nchan){
@@ -380,10 +384,9 @@ LFPBuffer::LFPBuffer(Config* config)
     spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
     spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN + 100);
 
-    // TODO !!!! use maximum dimension
     // TODO pools with dynamic size for each number of features
     // extra pool size for local file reader objects
-    spike_features_pool_ = new LinearArrayPool<float>(8, SPIKE_BUF_LEN + 100);
+    spike_features_pool_ = new LinearArrayPool<float>(maxChanNum, SPIKE_BUF_LEN + 100);
     spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN + 100);
 
     spike_pool_ = new Spike[SPIKE_BUF_LEN];
@@ -874,7 +877,6 @@ void LFPBuffer::Rewind() {
 
 	const int shift_new_start = spike_buf_pos - SPIKE_BUF_HEAD_LEN;
 
-	// TODO !!! warn if some pointers loose spikes !!! - but have to know which ones are really in use for this
 	spike_buf_no_rec -= std::min(shift_new_start, (int)spike_buf_no_rec);
 	spike_buf_nows_pos -= std::min(shift_new_start, (int)spike_buf_nows_pos);
 	spike_buf_pos_unproc_ -= std::min(shift_new_start, (int)spike_buf_pos_unproc_);
