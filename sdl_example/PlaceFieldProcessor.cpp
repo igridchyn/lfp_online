@@ -45,13 +45,12 @@ void PlaceFieldProcessor::initArrays(){
 	for (size_t t=0; t < tetrn; ++t) {
 		place_fields_[t].resize(MAX_CLUST);
 		place_fields_smoothed_[t].resize(MAX_CLUST);
-		for (size_t c=0; c < MAX_CLUST; ++c) {
+		for (size_t c=0; c < buffer->clusters_in_tetrode_[t]; ++c) {
 			for (size_t s=0; s < N_SESSIONS; ++s) {
 				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				if (LOAD){
-					// TODO !!! update for new format with shifted cluster numbering
-					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(c + buffer->global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
 				}
 			}
 		}
@@ -635,7 +634,6 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
                 }
             }
             
-            // TODO: !!! ENABLE prior probabilities (disabled for sake of debugging simplification)
             if (USE_PRIOR){
             	reconstructed_position_(r, c) += occupancy_smoothed_[current_session_](r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_[current_session_](r, c) / occ_sum)) : -100000.0;
             }
