@@ -313,6 +313,7 @@ log("Median error: %.2f" % np.median(np.array(errs)))
 log("Average error outside of SB: %.2f" % (sumnosb/nnosb))
 log("Classification precision: %.2f%%" % (classcorr * 100 / classn))
 log("Binning error: %.2f" % (errb/ndist))
+log("Environments occupancy: %d / %d" % (np.sum(occmap[:, 0:nbinsx/2]), np.sum(occmap[:, nbinsx/2:])))
 
 plot_distr = int(argv[5])
 if plot_distr:
