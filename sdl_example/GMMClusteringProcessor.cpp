@@ -256,8 +256,6 @@ void GMMClusteringProcessor::process(){
                 clustering_job_running_[tetr] = false;
                 
                 clustering_jobs_[tetr]->join();
-
-                // TODO: !!! fit the second-level clusters
                 
                 gmm_fitted_[tetr] = true;
                 first_class_after_clust = true;
@@ -279,7 +277,6 @@ void GMMClusteringProcessor::process(){
                 		double clust_rate = buffer->SAMPLING_RATE / (obs_spikes_[tetr][labels_.size() - 1]->pkg_id_) * gmm_[tetr].Weights()[clust] * total_observations_[tetr];
                 		if (clust_rate > 40){
                 			// 2nd iteration of clustering
-                			// TODO !!! implement 2nd iteration
                 		}
 					}
                 }

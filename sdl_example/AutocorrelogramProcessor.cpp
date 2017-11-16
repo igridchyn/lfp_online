@@ -258,11 +258,6 @@ void AutocorrelogramProcessor::process(){
 		prev_spikes_queue.push_back(stime);
 
 		buffer->spike_buf_pos_auto_++;
-
-		// TODO ??? check change in performance
-		//plotACorCCs(tetrode, spike->cluster_id_);
-
-
 	}
 
 	// RESET

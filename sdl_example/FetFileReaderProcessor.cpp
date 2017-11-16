@@ -419,7 +419,6 @@ FetFileReaderProcessor::FetFileReaderProcessor(LFPBuffer *buffer)
 	}
 
 	// estimate duration of all files together
-	// TODO: !!! implement for binary as well
 	unsigned long total_dur = 0;
 	if (!binary_){
 		for (unsigned int f=0; f < buffer->config_->spike_files_.size(); ++f){

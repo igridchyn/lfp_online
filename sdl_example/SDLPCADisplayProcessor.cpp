@@ -692,7 +692,6 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 		}
 		else if (e.button.button == SDL_BUTTON_MIDDLE && polygon_y_.size() > 0){
-			// TODO !!! draw line without reset
 			polygon_closed_ = true;
 			//reset_spike_pointer();
 			SDL_SetRenderTarget(renderer_, texture_);

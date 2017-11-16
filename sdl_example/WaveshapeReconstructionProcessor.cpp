@@ -151,7 +151,6 @@ void WaveShapeReconstructionProcessor::process(){
 				Utils::Converter::int2str(buffer->spike_buf_no_rec) + "\n");
         
         if (spike->discarded_){
-			// TODO !!! free when discarded
 			buffer->FreeWaveshapeMemory(spike);
             buffer->spike_buf_no_rec++;
             continue;
