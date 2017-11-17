@@ -45,7 +45,8 @@ void PlaceFieldProcessor::initArrays(){
 	for (size_t t=0; t < tetrn; ++t) {
 		place_fields_[t].resize(MAX_CLUST);
 		place_fields_smoothed_[t].resize(MAX_CLUST);
-		for (size_t c=0; c < buffer->clusters_in_tetrode_[t]; ++c) {
+		// TODO !! CLUTSERS IN TETRODE
+		for (size_t c=0; c < MAX_CLUST; ++c) {
 			for (size_t s=0; s < N_SESSIONS; ++s) {
 				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
