@@ -238,6 +238,11 @@ void SDLPCADisplayProcessor::process(){
 //        	continue;
 //        }
 
+        if (spike->tetrode_ != target_tetrode_){
+        	buffer->spike_buf_no_disp_pca++;
+        	continue;
+        }
+
         if (spike->pc == nullptr || (spike->cluster_id_ == -1 && !display_unclassified_))
         {
             if (spike->discarded_){
@@ -257,11 +262,6 @@ void SDLPCADisplayProcessor::process(){
         			spike->cluster_id_ = i;
         		}
         	}
-        }
-
-        if (spike->tetrode_ != target_tetrode_){
-        	buffer->spike_buf_no_disp_pca++;
-        	continue;
         }
 
         // skip if subsampling
@@ -391,15 +391,15 @@ void SDLPCADisplayProcessor::process(){
         // polygon vertices
         for(size_t i=0; i < polygon_x_.size(); ++i){
         	SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
-        	int x = int(polygon_x_[i] / scale_ + shift_x_);
-        	int y = int(polygon_y_[i] / scale_ + shift_y_);
+        	int x = int(polygon_x_[i] * scale_ + shift_x_);
+        	int y = int(polygon_y_[i] * scale_ + shift_y_);
         	int w = 3;
         	SDL_RenderDrawLine(renderer_, x-w, y, x+w, y);
         	SDL_RenderDrawLine(renderer_, x, y-w, x, y+w);
 
         	if (i > 0){
-				int px = int(polygon_x_[i - 1] / scale_ + shift_x_);
-        		int py = int(polygon_y_[i-1] / scale_ + shift_y_);
+				int px = int(polygon_x_[i - 1] * scale_ + shift_x_);
+        		int py = int(polygon_y_[i-1] * scale_ + shift_y_);
         		SDL_RenderDrawLine(renderer_, px, py, x, y);
         	}
         }
@@ -544,15 +544,14 @@ void SDLPCADisplayProcessor::getSpikeCoords(const Spike *const spike, int& x, in
 	}
 	else{
 		float rawx = spike->getFeature(comp1_); // spike->pc[comp1_ % nchan_][comp1_ / nchan_];
-		x = int(rawx / scale_ + shift_x_);
-
+		x = int(rawx * scale_ + shift_x_);
 	}
 	if (comp2_ == spike->num_pc_ * spike->num_channels_){
 		y = int((spike->pkg_id_ - time_start_) / (double)(time_end_ - time_start_) * window_width_);
 	}
 	else{
 		float rawy = spike->getFeature(comp2_); //spike->pc[comp2_ % nchan_][comp2_ / nchan_];
-		y = int(rawy / scale_ + shift_y_);
+		y = int(rawy * scale_ + shift_y_);
 	}
 }
 
@@ -617,8 +616,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 			// select cluster 1
 			else if (kmod & KMOD_LCTRL){
-				float rawx = (e.button.x - shift_x_) * scale_;
-				float rawy = (e.button.y - shift_y_) * scale_;
+				float rawx = (e.button.x - shift_x_) / scale_;
+				float rawy = (e.button.y - shift_y_) / scale_;
 
 				for(size_t c=0; c < buffer->cells_[target_tetrode_].size(); ++c){
 					if (buffer->cells_[target_tetrode_][c].polygons_.Contains(rawx, rawy)){
@@ -638,8 +637,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					}
 				}
 			}else if (kmod & KMOD_LSHIFT){ // select clustewr 2
-				float rawx = (e.button.x - shift_x_) * scale_;
-				float rawy = (e.button.y - shift_y_) * scale_;
+				float rawx = (e.button.x - shift_x_) / scale_;
+				float rawy = (e.button.y - shift_y_) / scale_;
 
 				for(size_t c=0; c < buffer->cells_[target_tetrode_].size(); ++c){
 					if (buffer->cells_[target_tetrode_][c].polygons_.Contains(rawx, rawy)){
@@ -673,8 +672,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 					std::cout << "Toggle cluster " << c << "\n";
 					need_redraw = true;
 				} else if (!polygon_closed_){
-					polygon_x_.push_back((e.button.x - shift_x_) * scale_);
-					polygon_y_.push_back((e.button.y - shift_y_) * scale_);
+					polygon_x_.push_back((e.button.x - shift_x_) / scale_);
+					polygon_y_.push_back((e.button.y - shift_y_) / scale_);
 
 					SDL_SetRenderTarget(renderer_, texture_);
 					DrawCross(3, e.button.x, e.button.y, 4);
@@ -705,7 +704,7 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 	}
 
 	if (e.type == SDL_MOUSEWHEEL){
-		scale_ *= pow(1.1f, e.wheel.y);
+		scale_ /= pow(1.1f, e.wheel.y);
 		need_redraw = true;
 		need_clust_check_ = false;
 	}
@@ -1027,10 +1026,10 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
                 kp_pressed_ = true;
                 break;
             case SDLK_KP_MINUS:
-            	scale_ *= 1.1f;
+            	scale_ /= 1.1f;
             	break;
             case SDLK_KP_PLUS:
-            	scale_ /= 1.1f;
+            	scale_ *= 1.1f;
             	break;
             case SDLK_RIGHT:
             	shift_x_ -= 50;
