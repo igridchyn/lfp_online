@@ -126,8 +126,8 @@ public:
     virtual void SetDisplayTetrode(const unsigned int& display_tetrode);
     
     void switchSession(const unsigned int& session);
-    void dumpCluAndRes();
     void dumpPlaceFields();
+    void resetFieldsAndPointer();
 
     virtual void Resize();
 

@@ -450,6 +450,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 display_occupancy = true;
                 break;
             case SDLK_s:
+            	resetFieldsAndPointer();
                 smoothPlaceFields();
                 cachePDF();
                 break;
@@ -479,22 +480,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             // reset to re-build place fields
             case SDLK_r:
             	if(kmod & KMOD_LSHIFT){
-            		Log("Reset place fields...");
-            		current_session_ = 0;
-            		buffer->spike_buf_pos_pf_ = 0;
-            		const unsigned int tetrn = buffer->tetr_info_->tetrodes_number();
-            		const unsigned int MAX_CLUST = 100;
-
-            		for (size_t t=0; t < tetrn; ++t) {
-            			place_fields_[t].resize(MAX_CLUST);
-            			place_fields_smoothed_[t].resize(MAX_CLUST);
-            			for (size_t c=0; c < MAX_CLUST; ++c) {
-            				for (size_t s=0; s < N_SESSIONS; ++s) {
-            					place_fields_[t][c][s].Zero();
-            					place_fields_smoothed_[t][c][s].Zero();
-            				}
-            			}
-            		}
+            		resetFieldsAndPointer();
             	}
 
             default:
@@ -662,6 +648,28 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     		float((rmax + 0.5) * bin_size_ + (rand() - RAND_MAX /2.f) * (bin_size_) / 2.f / RAND_MAX),
 			float((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2.f) * (bin_size_) / 2.f / RAND_MAX),
 			float((rmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2.f) * (bin_size_) / 2.f / RAND_MAX));
+}
+
+void PlaceFieldProcessor::resetFieldsAndPointer() {
+	Log("Reset place fields...");
+	current_session_ = 0;
+	buffer->spike_buf_pos_pf_ = 0;
+	const unsigned int tetrn = buffer->tetr_info_->tetrodes_number();
+	const unsigned int MAX_CLUST = 100;
+
+	for (size_t t=0; t < tetrn; ++t) {
+		place_fields_[t].resize(MAX_CLUST);
+		place_fields_smoothed_[t].resize(MAX_CLUST);
+		for (size_t c=0; c < MAX_CLUST; ++c) {
+			for (size_t s=0; s < N_SESSIONS; ++s) {
+				place_fields_[t][c][s].Zero();
+				place_fields_smoothed_[t][c][s].Zero();
+			}
+		}
+	}
+
+	// force place field caclulation
+	process();
 }
 
 void PlaceFieldProcessor::Resize() {
