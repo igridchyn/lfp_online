@@ -306,6 +306,7 @@ void LPTTriggerProcessor::process() {
 							events_allowed_timeout_ ++;
 
 							buffer->Log("\t decision: DON'T INHIBIT, start at ", buffer->last_pkg_id);
+							buffer->Log("\t confidence: ", env_dom_conf_);
 							inhibition_history_.push_back(0);
 						}
 
@@ -314,6 +315,10 @@ void LPTTriggerProcessor::process() {
 						buffer->spike_buf_pos_lpt_ = spike_buf_limit_ptr_;
 						swr_ptr_ ++;
 						break_cycle_ = true;
+
+						// ANALYSIS
+						buffer->shared_values_int_[SHARED_VALUE_LAST_TRIGGERED_SWR] = swr_ptr_;
+						buffer->shared_values_int_[SHARED_VALUE_LAST_TRIGGER_PKG] = buffer->last_pkg_id;
 					}
 
 					double envdomconf = environment_dominance_confidence_();
