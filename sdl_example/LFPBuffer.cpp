@@ -447,6 +447,9 @@ LFPBuffer::LFPBuffer(Config* config)
 		Log("ERROR: UNKNOWN BIN FILE FORMAT. Allowed values are: axona, matrix");
 		exit(826734);
 	}
+
+	shared_values_int_[SHARED_VALUE_LAST_TRIGGERED_SWR] = -1;
+	shared_values_int_[SHARED_VALUE_LAST_TRIGGER_PKG] = -1;
 }
 
 template <class T>
