@@ -44,6 +44,8 @@ public:
 
 	std::vector<unsigned int> pf_sessions_;
 
+	std::vector<unsigned int> pf_groups_;
+
 	std::vector<unsigned int> kd_tetrodes_;
 
 	std::vector<unsigned int> parallel_;
