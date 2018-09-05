@@ -222,7 +222,7 @@ void PlaceFieldProcessor::process(){
         		current_session_ = session_group_;
         	}
         	Log("Advance current session to ", session_group_);
-        	Log("Switch current group to ", current_session_);`
+        	Log("Switch current group to ", current_session_);
         	Log("\twith spike at ", spike->pkg_id_);
         }
 
@@ -258,9 +258,9 @@ void PlaceFieldProcessor::process(){
 
 
     // TMP - for PFS generation
-    smoothPlaceFields();
-    dumpPlaceFields();
-    exit(0);
+    //smoothPlaceFields();
+    //dumpPlaceFields();
+    //exit(0);
 }
 
 //const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
@@ -486,8 +486,8 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 smoothPlaceFields();
 
                 // TMP
-                dumpPlaceFields();
-                exit(0);
+                //dumpPlaceFields();
+                //exit(0);
 
                 cachePDF();
                 break;
