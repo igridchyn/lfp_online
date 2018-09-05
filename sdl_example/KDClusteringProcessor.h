@@ -233,6 +233,10 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	// number of spikes ignored in the current prediction
 	unsigned int pred_spike_ignored_ = 0;
 
+	// ANALYSIS
+	int an_last_dumped_swr_before_ = -1;
+	int an_last_dumped_swr_after_ = -1;
+
 	void update_hmm_prediction();
 	void reset_hmm();
 	void dump_hmm_prediction();
@@ -240,7 +244,7 @@ class KDClusteringProcessor: public virtual LFPProcessor {
 	void load_laxs_tetrode(unsigned int tetrode);
 	void dump_positoins_if_needed(const unsigned int& mx, const unsigned int& my);
 	void dump_swr_window_spike_count();
-	void dump_prediction_if_needed();
+	void dump_prediction_if_needed(unsigned int groupid);
 	void validate_prediction_window_bias();
 
 public:

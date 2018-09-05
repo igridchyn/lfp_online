@@ -141,8 +141,9 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 
 	unsigned int tmppd = buf->config_->getInt("kd.prediction.delay");
 	if (tmppd < 10){
-		Log("WARNING: prediction delay set to session shift number ", PREDICTION_DELAY);
+		Log("WARNING: prediction delay set to session shift number ", tmppd);
 		PREDICTION_DELAY = buffer->all_sessions_[tmppd] / THETA_PRED_WIN * THETA_PRED_WIN ;
+		Log("WARNING: 		equal to ", PREDICTION_DELAY);
 	}
 	if (SAMPLING_DELAY < 10){
 		Log("WARNING: sampling delay set to session shift number ", SAMPLING_DELAY);
@@ -555,9 +556,10 @@ void KDClusteringProcessor::dump_swr_window_spike_count() {
 //				}
 }
 
-void KDClusteringProcessor::dump_prediction_if_needed() {
+void KDClusteringProcessor::dump_prediction_if_needed(unsigned int groupid) {
 	if (pred_dump_ && !USE_HMM) {
-		if (swr_regime_) {
+//		if (swr_regime_) {
+		if (true) {
 //			buffer->log_string_stream_ << "Save SWR starting at "
 //					<< buffer->swrs_[swr_pointer_][0] << " under ID "
 //					<< swr_pointer_ << " and window number " << swr_win_counter_
@@ -586,10 +588,16 @@ void KDClusteringProcessor::dump_prediction_if_needed() {
 			// UNIFORM P(X) !
 			long double logsum = log(arma::sum(arma::sum(arma::exp(dpos_pred - mx)))) + mx;
 
-			swr_dec_dump_ << swr_pointer_ << " " << last_pred_pkg_id_ << " " << last_pred_pkg_id_ + PRED_WIN << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
-						<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
-						<< " " << logsum <<  "\n";
+//			swr_dec_dump_ << groupid << " " << last_pred_pkg_id_ << " " << last_pred_pkg_id_ + PRED_WIN << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
+//						<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
+//						<< " " << logsum <<  "\n";
 
+			unsigned int last_id  = buffer->spike_buffer_[spike_buf_pos_clust_]->pkg_id_;
+			unsigned int first_id  = buffer->spike_buffer_[spike_buf_pos_clust_ - prediction_window_spike_number_]->pkg_id_;
+
+			swr_dec_dump_ << groupid << " " << first_id << " " << last_id << " " << mx1 << " " << mx2 << " " << sm1 << " " << sm2 << " "
+									<< BIN_SIZE * (xm1 + 0.5) << " " << BIN_SIZE * (ym1 + 0.5) << " " << BIN_SIZE * (xm2 + 0.5) << " " << BIN_SIZE * (ym2 + 0.5)
+									<< " " << logsum <<  "\n";
 		} else {
 			if (!SWR_SWITCH) {
 				Log("WARNING: matrix save disabled");
@@ -773,6 +781,19 @@ void KDClusteringProcessor::process() {
 
 				last_pred_pkg_id_ = PREDICTION_DELAY;
 				buffer->last_preidction_window_ends_[processor_number_] = PREDICTION_DELAY;
+			}
+
+			// ANALYSIS - cheeck if need to dump new decision-related prediction
+			int lpt_dec = buffer->shared_values_int_[SHARED_VALUE_LAST_TRIGGERED_SWR];
+			int lpt_dec_pkg = buffer->shared_values_int_[SHARED_VALUE_LAST_TRIGGER_PKG];
+			// dump as soon as decision has been made in the LPT
+			if (lpt_dec > an_last_dumped_swr_before_){
+				dump_prediction_if_needed(lpt_dec);
+				an_last_dumped_swr_before_ = lpt_dec;
+			// dump as soon asthe decision window start is past the last LPT deicision point
+			} else if (lpt_dec > an_last_dumped_swr_after_ && buffer->spike_buffer_[buffer->spike_buf_pos_clust_ - prediction_window_spike_number_]->pkg_id_ > lpt_dec_pkg){
+				dump_prediction_if_needed(lpt_dec);
+				an_last_dumped_swr_after_ = lpt_dec;
 			}
 
 			// also rewind SWRs
@@ -981,7 +1002,7 @@ void KDClusteringProcessor::process() {
 
 				last_pred_probs_ = pos_pred_;
 
-				dump_prediction_if_needed();
+//				dump_prediction_if_needed(swr_pointer_);
 
 				// THE POINT AT WHICH THE PREDICTION IS READY
 				// DEBUG
