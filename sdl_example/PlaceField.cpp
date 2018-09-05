@@ -114,7 +114,7 @@ PlaceField PlaceField::Smooth(){
             for (int y=0; y < (int)place_field_.n_rows; ++y) {
             	double ignored_part = .0;
             	for (int dy=-spread_; dy <= spread_; ++dy) {
-            		if (y + dy < 0|| y + dy >= (int)place_field_.n_cols || isinf((float)spf(y + dy, x)) || Utils::Math::Isnan((float)spf(y + dy, x))){
+            		if (y + dy < 0|| y + dy >= (int)place_field_.n_rows || isinf((float)spf(y + dy, x)) || Utils::Math::Isnan((float)spf(y + dy, x))){
             			ignored_part += gauss_1d_(dy+spread_, 0);
             			continue;
             		}

@@ -73,6 +73,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
 
     // to which session last received spike belonged
     unsigned int current_session_ = 0;
+    // group index - always growing
+    unsigned int session_group_ = 0;
 
     // user-selected session for display
     unsigned int selected_session_ = 0;

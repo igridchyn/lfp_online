@@ -116,6 +116,9 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     		"d - dump place fields"
     		"t - toggle text colour (black/white)"
     		"r - reset (required before bulding place fields for newly created clusters)");
+
+    if (buffer->config_->pf_groups_.size() > 0)
+    	current_session_ = buffer->config_->pf_groups_[0];
 }
 
 void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
@@ -137,6 +140,9 @@ void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
     while (session < buffer->config_->pf_sessions_.size() && time > buffer->config_->pf_sessions_[session]){
     	session ++;
     }
+
+    if (buffer->config_->pf_groups_.size() > 0)
+    	session = buffer->config_->pf_groups_[session];
 
     PlaceField& pf = occupancy_[session];
     pf(yb, xb) += 1.f;
@@ -177,7 +183,7 @@ void PlaceFieldProcessor::process(){
     	}
     	std::cout << "PF SESSIONS:\n";
     	for (unsigned int i=0; i < buffer->config_->pf_sessions_.size(); ++i){
-    		std::cout << "PF session " << i << " " << buffer->config_->pf_sessions_[i] << "\n";
+    		std::cout << "PF session " << i << " ending at " << buffer->config_->pf_sessions_[i] << " belongs to group " << buffer->config_->pf_groups_[i] << "\n";
     	}
 
     	initArrays();
@@ -208,9 +214,16 @@ void PlaceFieldProcessor::process(){
         }
      
         // update current session number based on the spike id
-        while (current_session_ <  N_SESSIONS - 1 && spike->pkg_id_ > buffer->config_->pf_sessions_[current_session_]){
-        	current_session_ ++;
-        	Log("Advance current session to ", current_session_);
+        while (session_group_ <  N_SESSIONS - 1 && spike->pkg_id_ > buffer->config_->pf_sessions_[session_group_]){
+        	session_group_ ++;
+        	if (buffer->config_->pf_groups_.size() > 0){
+        		current_session_ = buffer->config_->pf_groups_[session_group_];
+        	} else {
+        		current_session_ = session_group_;
+        	}
+        	Log("Advance current session to ", session_group_);
+        	Log("Switch current group to ", current_session_);`
+        	Log("\twith spike at ", spike->pkg_id_);
         }
 
         if (spike->speed > SPEED_THOLD){
@@ -227,7 +240,7 @@ void PlaceFieldProcessor::process(){
 
         buffer->spike_buf_pos_pf_++;
     }
-    
+
     // TODO: configurable [in LFPProc ?]
     while(buffer->pos_buf_pos_ >= 8 && pos_buf_pos_ < buffer->pos_buf_pos_ - 8){
         if (buffer->positions_buf_[pos_buf_pos_].speed_ > SPEED_THOLD && buffer->positions_buf_[pos_buf_pos_].valid){
@@ -242,6 +255,12 @@ void PlaceFieldProcessor::process(){
     	drawMat(pred);
     	last_predicted_pkg_ = buffer->last_pkg_id;
     }
+
+
+    // TMP - for PFS generation
+    smoothPlaceFields();
+    dumpPlaceFields();
+    exit(0);
 }
 
 //const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
@@ -363,6 +382,19 @@ void PlaceFieldProcessor::dumpPlaceFields(){
     fpf_params << "\nNBINSX " << nbinsx_;
     fpf_params << "\nNBINSY " << nbinsy_;
     fpf_params << "\nSPREAD " << spread_;
+    fpf_params << "\nPF_SESSION ";
+    for (unsigned int i=0; i < N_SESSIONS; ++i){
+    	fpf_params << buffer->config_->pf_sessions_[i] << " ";
+    }
+    fpf_params << "\nPF_GROUPS ";
+	for (unsigned int i=0; i < buffer->config_->pf_groups_.size(); ++i){
+		fpf_params << buffer->config_->pf_groups_[i] << " ";
+	}
+	fpf_params << "\nSPIKE_FILES ";
+	for (unsigned int i=0; i < buffer->config_->spike_files_.size(); ++i){
+			fpf_params << buffer->config_->spike_files_[i] << " ";
+		}
+	fpf_params << "\n";
 
     Log("done dump place fields");
 }
@@ -452,6 +484,11 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             case SDLK_s:
             	resetFieldsAndPointer();
                 smoothPlaceFields();
+
+                // TMP
+                dumpPlaceFields();
+                exit(0);
+
                 cachePDF();
                 break;
             case SDLK_c:
@@ -652,7 +689,12 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 
 void PlaceFieldProcessor::resetFieldsAndPointer() {
 	Log("Reset place fields...");
+
+	session_group_ = 0;
 	current_session_ = 0;
+    if (buffer->config_->pf_groups_.size() > 0)
+    	current_session_ = buffer->config_->pf_groups_[0];
+
 	buffer->spike_buf_pos_pf_ = 0;
 	const unsigned int tetrn = buffer->tetr_info_->tetrodes_number();
 	const unsigned int MAX_CLUST = 100;
