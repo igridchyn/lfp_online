@@ -287,7 +287,7 @@ KDClusteringProcessor::KDClusteringProcessor(LFPBuffer* buf,
 	buffer->last_predictions_[processor_number] = pos_pred_;
 
 	dec_bayesian_.open("dec_bay.txt");
-	dec_bayesian_ << buf->config_->getString("model.id") << "\n";
+	dec_bayesian_ << buf->config_->getString("model.id") << " " << NBINSX / 2 * BIN_SIZE << "\n";
 	dec_bayesian_ << buf->config_->getString("out.path.base") << "../\n";
 	debug_out_.open("spike_distances.txt");
 
@@ -534,7 +534,14 @@ void KDClusteringProcessor::dump_positoins_if_needed(const unsigned int& mx,
 			double mult = BINARY_CLASSIFIER ? 100 : 1.0;
 			double mxp = pos_pred_.max();
 			long double logsum = log(arma::sum(arma::sum(arma::exp(pos_pred_ - mxp)))) + mxp;
-			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << " " << lik1 << " " << lik2 << " " << logsum << "\n";
+
+			//int spike_number = (int)std::accumulate(window_spikes_.begin(), window_spikes_.end(), 0) - (int)std::accumulate(prediction_skipped_spikes_.begin(), prediction_skipped_spikes_.end(), 0);
+			int spike_number = 0;
+			for(unsigned int t=0;t < tetr_info_->tetrodes_number();++t){
+				spike_number += window_spikes_[t] - prediction_skipped_spikes_[t];
+			}
+
+			dec_bayesian_ << BIN_SIZE * (mx + 0.5) * mult << " " << BIN_SIZE * (my + 0.5) * mult << " " << gtx << " " << gty << " " << lik1 << " " << lik2 << " " << logsum << " " << spike_number << "\n";
 			dec_bayesian_.flush();
 		}
 	}
@@ -677,6 +684,7 @@ void KDClusteringProcessor::process() {
 			Log("Sampling delay over : ", SAMPLING_DELAY);
 		}
 
+		// ???!!! what if only part of spikes is below the limit
 		if (spike->speed < SPEED_THOLD || spike->discarded_) {
 			// DEBUG
 //			if (spike->speed < SPEED_THOLD && !spike->discarded_)
@@ -917,8 +925,10 @@ void KDClusteringProcessor::process() {
 
 				// add 'place field' of the NIEGHHB_NUM spike(s) with the closest wave shape
 
+				window_spikes_[stetr] ++;
 				for (unsigned int i = 0; i < neighb_num_; ++i) {
-					window_spikes_[stetr] ++;
+					// DEBUG
+					// std::cout << "decode from spike from tetrode " << stetr << ", " << window_spikes_[stetr] << " spikes in this tetrode in total and spike in all tetrodes = " << std::accumulate(window_spikes_.begin(), window_spikes_.end(), 0) << "\n";
 
 //						if (neighbour_dists_[i] > 200){
 //							prediction_skipped_spikes_[stetr] ++;
