@@ -65,7 +65,23 @@ bool PlaceField::AddSpike(Spike *spike){
     	return false;
     }
 
-    place_field_(yb, xb) += 1;
+    //place_field_(yb, xb) += 1;
+
+    for (int xs=-1;xs<=1;++xs){
+    	for (int ys=-1;ys<=1;++ys){
+    		if ((int)xb+xs < 0 || (int)yb+ys < 0 || xb+xs == NBINSX || yb+ys == NBINSY)
+    			continue;
+
+    		float dx = MIN(spike->x+0.5, (xb+xs+1)*bin_size_) - MAX(spike->x-0.5, (xb+xs)*bin_size_);
+    		float dy = MIN(spike->y+0.5, (yb+ys+1)*bin_size_) - MAX(spike->y-0.5, (yb+ys)*bin_size_);
+
+    		if (dx < 0 || dy < 0)
+    			continue;
+
+    		place_field_(yb+ys, xb+xs) += dx*dy;
+    	}
+    }
+
     return true;
 }
 

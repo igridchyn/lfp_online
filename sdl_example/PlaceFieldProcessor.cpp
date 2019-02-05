@@ -145,8 +145,25 @@ void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
     	session = buffer->config_->pf_groups_[session];
 
     PlaceField& pf = occupancy_[session];
-    pf(yb, xb) += 1.f;
     
+    // pf(yb, xb) += 1.f;
+
+    // overlap with bins around
+    for (int xs=-1;xs<=1;++xs){
+    	for (int ys=-1;ys<=1;++ys){
+    		if ((int)xb+xs < 0 || (int)yb+ys < 0 || xb+xs == nbinsx_ || yb+ys == nbinsy_)
+    			continue;
+
+    		float dx = MIN(x+0.5, (xb+xs+1)*bin_size_) - MAX(x-0.5, (xb+xs)*bin_size_);
+    		float dy = MIN(y+0.5, (yb+ys+1)*bin_size_) - MAX(y-0.5, (yb+ys)*bin_size_);
+
+    		if (dx < 0 || dy < 0)
+    			continue;
+
+    		pf(yb+ys, xb+xs) += dx*dy;
+    	}
+    }
+
     // normalizer
 //    double norm = .0f;
 //    for(int xba = MAX(xb-spread_, 0); xba < MIN(occupancy_.Width(), xb+spread_); ++xba){
@@ -258,9 +275,9 @@ void PlaceFieldProcessor::process(){
 
 
     // TMP - for PFS generation
-    //smoothPlaceFields();
-    //dumpPlaceFields();
-    //exit(0);
+//    smoothPlaceFields();
+//    dumpPlaceFields();
+//    exit(0);
 }
 
 //const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {

@@ -15,6 +15,9 @@
 
 #include "LFPBuffer.h"
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 class PlaceField{
     arma::mat place_field_;
     arma::cube pdf_cache_;
