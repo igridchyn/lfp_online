@@ -100,8 +100,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     		"<MOUSE WHEEL> : Zoom In / Out\n"
     		"<LEFT MOUSE BUTTON> : Add polygon vertex\n"
     		"<MOUSE WLEEL PRESS> : Close polygon\n"
-    		"<LEFT/RIGHT/UP/DOWN> : move around"
-    		"b : toggle background color"
+    		"<LEFT/RIGHT/UP/DOWN> : move around\n"
+    		"b : toggle background color\n"
     		"d : delete last polyogon vertex\n"
     		"ESC : exit\n\n"
 
@@ -475,7 +475,7 @@ void SDLPCADisplayProcessor::process(){
 			for (unsigned int c=0; c < buffer->tetr_info_->channels_number(target_tetrode_); ++c){
 				text += std::string(" ") + Utils::Converter::int2str((int)buffer->tetr_info_->tetrode_channels[target_tetrode_][c]);
 			}
-			text += ") PC " + Utils::Converter::int2str(comp1_) + " / " + Utils::Converter::int2str(comp2_);
+			text += ") PC " + Utils::Converter::int2str(comp1_) + " / " + Utils::Converter::int2str(comp2_) + " CNS=" + Utils::Converter::int2str(buffer->global_cluster_number_shfit_[target_tetrode_]);
 			TextOut(text);
 
 			// cluster numbers
@@ -934,7 +934,8 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         	case SDLK_p:
         		if (kmod & KMOD_LSHIFT){
         			// cluster by proximity - DISABLED
-        			// clusterNNwithThreshold();
+        			//clusterNNwithThreshold();
+        			Log("NN CLUSTERING TEMPORARILY DISABLED FOR PERFORMANCE REASONS");
         			need_redraw = true;
         		}
         		break;
@@ -1613,7 +1614,7 @@ void SDLPCADisplayProcessor::clusterNNwithThreshold(){
 
 	Log("Trees built, start clustering");
 
-	const unsigned int NEIGHB_NUM = 3;
+	const unsigned int NEIGHB_NUM = 20;
 	double *pnt_ = annAllocPt(12);
 	std::vector<int> neighbour_inds_;
 	std::vector<double> neighbour_dists_;
@@ -1621,31 +1622,51 @@ void SDLPCADisplayProcessor::clusterNNwithThreshold(){
 	neighbour_inds_.resize(NEIGHB_NUM);
 
 	// DEBUG
-//	std::vector<std::ofstream*> fdists;
-//		for (unsigned int t=0; t < NTETR; ++t){
-//		fdists.push_back(new std::ofstream(std::string("clu_dists_") + Utils::Converter::int2str(t)));
-//	}
-
+	std::vector<std::ofstream*> fdists;
+		for (unsigned int t=0; t < NTETR; ++t){
+		fdists.push_back(new std::ofstream(std::string("clu_dists_") + Utils::Converter::int2str(t)));
+	}
 
 	// 2. Cluster all spikes
 	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 		//kdtrees_[stetr]->annkSearch(pnt_, neighb_num_, &neighbour_inds_[0], &neighbour_dists_[0], NN_EPS);
 		Spike *spike = buffer->spike_buffer_[sind];
-		if (spike->discarded_ || spike->cluster_id_ > 0 || current_points[spike->tetrode_] < 10){
+
+		if (spike->discarded_ || spike->cluster_id_ > 0 || current_points[spike->tetrode_] < 10 ||
+				spike->pkg_id_ < buffer->session_shifts_[2] || spike->pkg_id_ > buffer->session_shifts_[3]){
 			continue;
 		}
+
+		std::map<int, int> vote_clust_;
 
 		int t = spike->tetrode_;
 		for (unsigned int fet = 0; fet < buffer->feature_space_dims_[t]; ++fet) {
 			pnt_[fet] = spike->pc[fet];
 		}
-		kdtrees_[t]->annkSearch(pnt_, 3, &neighbour_inds_[0], &neighbour_dists_[0], 0.1);
+		kdtrees_[t]->annkSearch(pnt_, NEIGHB_NUM, &neighbour_inds_[0], &neighbour_dists_[0], 0.1);
 //		std::cout << neighbour_dists_[0] << " ";
-		if (neighbour_dists_[0] < 400){
-			spike->cluster_id_ = treePointClusters[t][neighbour_inds_[0]];
+
+		// vote with nearest neighbours
+		for (unsigned int nn=0; nn < NEIGHB_NUM; ++nn){
+			if (neighbour_dists_[nn] < 100 && treePointClusters[t][neighbour_inds_[nn]] > 0){
+				vote_clust_[treePointClusters[t][neighbour_inds_[nn]]] += 1;
+			}
 		}
 
-//		*(fdists[t]) << neighbour_dists_[0] << "\n";
+		int currentMax = 0;
+		int arg_max = -1;
+		for(auto it = vote_clust_.cbegin(); it != vote_clust_.cend(); ++it ) {
+		    if (it ->second > currentMax) {
+		        arg_max = it->first;
+		        currentMax = it->second;
+		    }
+		}
+
+		if (arg_max > -1){
+			spike->cluster_id_ = arg_max;
+		}
+
+		*(fdists[t]) << neighbour_dists_[0] << "\n";
 	}
 
 	Log("\nDone NN clustering");

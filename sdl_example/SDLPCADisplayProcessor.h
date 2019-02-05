@@ -80,8 +80,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
     std::vector<unsigned int> number_panel_mapping_;
 
     void save_polygon_clusters();
-    inline float scale_x(float x) { return x / scale_ + shift_x_; }
-    inline float scale_y(float y) { return y / scale_ + shift_y_; }
+    inline float scale_x(float x) { return x * scale_ + shift_x_; }
+    inline float scale_y(float y) { return y * scale_ + shift_y_; }
 
 	void reset_spike_pointer();
 
