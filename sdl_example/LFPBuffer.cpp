@@ -362,6 +362,7 @@ LFPBuffer::LFPBuffer(Config* config)
 	// n groups of c channels
 	std::vector<unsigned int> ngroups;
 	ngroups.resize(9);
+
 	unsigned int maxChanNum = 0;
 	for (unsigned int t = 0;t < tetr_info_->tetrodes_number(); ++t){
 		unsigned int chnum = tetr_info_->channels_number(t);
@@ -369,6 +370,11 @@ LFPBuffer::LFPBuffer(Config* config)
 		if (chnum > maxChanNum)
 			maxChanNum = chnum;
 	}
+
+	unsigned int maxFeatDim = *(std::max_element(feature_space_dims_.begin(), feature_space_dims_.end()));
+
+	Log("Max number of channels: ", maxChanNum);
+	Log("Max feature dimension : ", maxFeatDim);
 
 //    for (unsigned int nchan = 1; nchan <= 8; ++nchan){
 //    	// pool size equals <NUMBER TETRODES WITH nchan CHANNELS * (pool size given in config) >
@@ -381,12 +387,12 @@ LFPBuffer::LFPBuffer(Config* config)
 //
 //    	spikes_ws_final_pools_.push_back(new PseudoMultidimensionalArrayPool<int>(nchan, 16, SPIKE_BUF_LEN + 100));
 //    }
-    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(4, 128, spike_waveshape_pool_size_);
-    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(4, 16, SPIKE_BUF_LEN + 100);
+    spikes_ws_pool_ = new PseudoMultidimensionalArrayPool<ws_type>(maxChanNum, 128, spike_waveshape_pool_size_);
+    spikes_ws_final_pool_ = new PseudoMultidimensionalArrayPool<int>(maxChanNum, 16, SPIKE_BUF_LEN + 100);
 
     // TODO pools with dynamic size for each number of features
     // extra pool size for local file reader objects
-    spike_features_pool_ = new LinearArrayPool<float>(maxChanNum, SPIKE_BUF_LEN + 100);
+    spike_features_pool_ = new LinearArrayPool<float>(maxFeatDim, SPIKE_BUF_LEN + 100);
     spike_extra_features_ptr_pool_ = new LinearArrayPool<float *>(4, SPIKE_BUF_LEN + 100);
 
     spike_pool_ = new Spike[SPIKE_BUF_LEN];
