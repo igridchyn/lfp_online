@@ -925,7 +925,9 @@ void KDClusteringProcessor::process() {
 
 				// add 'place field' of the NIEGHHB_NUM spike(s) with the closest wave shape
 
+				//if (spike->cluster_id_ > 0)
 				window_spikes_[stetr] ++;
+
 				for (unsigned int i = 0; i < neighb_num_; ++i) {
 					// DEBUG
 					// std::cout << "decode from spike from tetrode " << stetr << ", " << window_spikes_[stetr] << " spikes in this tetrode in total and spike in all tetrodes = " << std::accumulate(window_spikes_.begin(), window_spikes_.end(), 0) << "\n";
