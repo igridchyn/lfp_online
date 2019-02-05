@@ -63,6 +63,8 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 		params_.insert(initMap->begin(), initMap->end());
 	}
 
+	params_["empty"] = "";
+
 	config_path_ = path;
 
 	std::ifstream fconf(path);
