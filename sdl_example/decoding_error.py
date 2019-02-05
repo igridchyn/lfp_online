@@ -98,17 +98,18 @@ def decoding_errors():
 		xb = (round(gtx / bsize) + 0.5) * bsize
 		yb = (round(gty / bsize) + 0.5) * bsize
 
-		gtxb=round((gtx-bsize/2.0)/bsize)
-		gtyb=round((gty-bsize/2.0)/bsize)
+		gtxb=int(round((gtx-bsize/2.0)/bsize))
+		gtyb=int(round((gty-bsize/2.0)/bsize))
 		# print gtyb, gtxb
 
 		# only if predicted location is in the same environment
 		if (gtx - envlimit)*(px - envlimit) > 0:
+			print gtyb, nbinsy, gtxb, nbinsx
 			occmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += 1
 			errmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += dist
 
-		xpb = round((px-bsize/2)/bsize)
-		ypb = round((py-bsize/2)/bsize)
+		xpb = int(round((px-bsize/2)/bsize))
+		ypb = int(round((py-bsize/2)/bsize))
 
 		if xpb < predmap.shape[1]:
 			predmap[ypb, xpb] += 1
