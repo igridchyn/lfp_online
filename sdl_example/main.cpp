@@ -94,9 +94,11 @@ void usleep(__int64 usec)
 //    	config = new Config("../Res/EXPERIMENTAL_decoding_online.conf");
 //    	config = new Config("../Res/spike_display_screening.conf");
     	config = new Config("../Res/spike_display.conf");
+//    	config = new Config("../Res/spike_display.conf");
 //    	config = new Config("../Res/EXPERIMENTAL_spike_dump.conf");
 //    	config = new Config("../Res/spike_dump.conf");
 //    	config = new Config("../Res/synchrony_detection.conf");
+//    	config = new Config("/hdr/data/processing/jc184/0304/13ssi_RECON/SSI.CONF");
     }
 
 #endif
@@ -111,7 +113,7 @@ void usleep(__int64 usec)
 	while (!buf->processing_over_) {
 #ifdef PIPELINE_THREAD
 		{
-			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);1
+			std::lock_guard<std::mutex> lk(pipeline->mtx_data_add_);
 			binreader->process();
 			pipeline->data_added_ = true;
 		}
