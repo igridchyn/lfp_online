@@ -37,7 +37,7 @@ class GMMClusteringProcessor : public virtual LFPProcessor{
     
     std::vector<std::vector<Spike*> > obs_spikes_;
     
-    std::vector< mlpack::gmm::GMM<> > gmm_;
+    std::vector< mlpack::gmm::GMM > gmm_;
     
     // whether thread clustering job is over and can be joined
     bool *gmm_fitted_;
@@ -52,11 +52,11 @@ class GMMClusteringProcessor : public virtual LFPProcessor{
     std::vector<std::thread*> clustering_jobs_;
     std::vector<bool> clustering_job_running_;
     
-    mlpack::gmm::GMM<> fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
+    mlpack::gmm::GMM fit_gmm(arma::mat observations_train, const unsigned int& max_clusters);
 
 
-    void saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode);
-    mlpack::gmm::GMM<> loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename);
+    void saveGMM(mlpack::gmm::GMM gmm, const unsigned int tetrode);
+    mlpack::gmm::GMM loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename);
     
     void fit_gmm_thread(const unsigned int& tetr);
     void gmm_task(int *ptr);

@@ -13,12 +13,12 @@
 
 using namespace mlpack::gmm;
 
-mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename){
-    mlpack::gmm::GMM<> gmm;
+mlpack::gmm::GMM GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, const std::string& gmm_path_basename){
+    mlpack::gmm::GMM gmm;
 
     std::string gmm_file_name = gmm_path_basename + Utils::NUMBERS[tetrode] + ".xml";
     if (Utils::FS::FileExists(gmm_file_name)){
-    	gmm.Load(gmm_file_name);
+    	//gmm. .Load(gmm_file_name);
     	gmm_fitted_[tetrode] = true;
 
     	std::vector<arma::vec> means;
@@ -34,8 +34,8 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
 
     		if (w > EPS){
     			ngauss ++;
-    			means.push_back(gmm.Means()[c]);
-    			covs.push_back(gmm.Covariances()[c]);
+    			//means.push_back(gmm.Means()[c]);
+    			//covs.push_back(gmm.Covariances()[c]);
     			weights.resize(weights.size() + 1);
     			weights(ngauss - 1) = w;
     		}
@@ -43,7 +43,7 @@ mlpack::gmm::GMM<> GMMClusteringProcessor::loadGMM(const unsigned int& tetrode, 
     	buffer->log_string_stream_ << "\n";
     	buffer->Log();
 
-    	gmm = mlpack::gmm::GMM<>(means, covs, weights);
+    	//gmm = mlpack::gmm::GMM(means, covs, weights);
     	buffer->Log(std::string("Number of clusters after filtering: ") + Utils::NUMBERS[gmm.Gaussians()]);
     }
     else{
@@ -120,7 +120,7 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     // iterate over number of clusters
     // !!! TODO: models with non-full covariance matrix ???
     double BIC_min = (double)(1 << 30);
-    mlpack::gmm::GMM<> gmm_best;
+    mlpack::gmm::GMM gmm_best;
     // PROFILING
     clock_t start_all = clock();
     
@@ -130,13 +130,13 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     
     printf("# of observations = %u\n", observations_train.n_cols);
     for (unsigned int nclust = 1; nclust <= max_clusters_; nclust += nclust_step_) {
-        mlpack::gmm::GMM<> gmmn(nclust, dimensionality);
+        mlpack::gmm::GMM gmmn(nclust, dimensionality);
 
         // PROFILING
         clock_t start = clock();
         double likelihood = std::numeric_limits<double>::infinity();
         try{
-        	likelihood = gmmn.Estimate(observations_train);
+        	likelihood = 0; // gmmn.Estimate(observations_train);
         }
         catch(...){
         	buffer->Log(std::string("Exception occurred during GMM fit for tetrode #") + Utils::NUMBERS[tetr] + " with " + Utils::NUMBERS[nclust] + " clusters");
@@ -183,8 +183,8 @@ void GMMClusteringProcessor::fit_gmm_thread(const unsigned int& tetr){
     buffer->Log("");
 }
 
-void GMMClusteringProcessor::saveGMM(mlpack::gmm::GMM<> gmm, const unsigned int tetrode){
-    gmm.Save(gmm_path_basename_ + Utils::NUMBERS[tetrode] + ".xml");
+void GMMClusteringProcessor::saveGMM(mlpack::gmm::GMM gmm, const unsigned int tetrode){
+    //gmm.Save(gmm_path_basename_ + Utils::NUMBERS[tetrode] + ".xml");
 }
 
 
@@ -266,7 +266,7 @@ void GMMClusteringProcessor::process(){
             if (total_observations_[tetr] >= classification_rate_){
                 arma::Col<size_t> labels_;
                 // redraw !!
-                gmm_[tetr].Classify(observations_[tetr].cols(0, total_observations_[tetr] - 1), labels_);
+                // gmm_[tetr].Classify(observations_[tetr].cols(0, total_observations_[tetr] - 1), labels_);
                 
                 // UPDATE window population vector in BUFFER
 
