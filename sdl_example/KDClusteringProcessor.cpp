@@ -339,7 +339,7 @@ void KDClusteringProcessor::dump_hmm_prediction() {
 
 	int t = hmm_traj_[0].size() - 1;
 	// best last x,y
-	unsigned int x, y;
+	long long unsigned int x, y;
 	double pmax = hmm_prediction_.max(x, y);
 
 //	swr_dec_dump_ << hmm_prediction_ << "\n";
@@ -375,7 +375,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 	arma::fmat hmm_upd_(NBINSX, NBINSY, arma::fill::zeros);
 
 	// TODO CONTROLLED reset, PARAMETRIZE
-	unsigned int prevmaxx = 0, prevmaxy = 0;
+	long long unsigned int prevmaxx = 0, prevmaxy = 0;
 
 	bool reset = buffer->last_preidction_window_ends_[processor_number_] - last_hmm_reset_ > HMM_RESET_RATE;
 	if (reset) {
@@ -457,7 +457,7 @@ void KDClusteringProcessor::update_hmm_prediction() {
 
 		int t = hmm_traj_[0].size() - 1;
 		// best last x,y
-		unsigned int x, y;
+		long long unsigned int x, y;
 		hmm_prediction_.max(x, y);
 		while (t >= 0) {
 			dec_hmm << BIN_SIZE * (x + 0.5) << " " << BIN_SIZE * (y + 0.5) << " ";
@@ -584,7 +584,7 @@ void KDClusteringProcessor::dump_prediction_if_needed(unsigned int groupid) {
 
 			double mx = dpos_pred.max();
 
-			unsigned int xm1, ym1, xm2, ym2;
+			long long unsigned int xm1, ym1, xm2, ym2;
 			double mx1 = sub1.max(xm1, ym1);
 			double mx2 = sub2.max(xm2, ym2);
 			xm2 += NBINSX / 2 + 1;
@@ -1006,7 +1006,7 @@ void KDClusteringProcessor::process() {
 				}
 
 				// DUMP decoded coordinate
-				unsigned int mx = 0, my = 0;
+				long long unsigned int mx = 0, my = 0;
 				pos_pred_.max(mx, my);
 
 				dump_positoins_if_needed(mx, my);

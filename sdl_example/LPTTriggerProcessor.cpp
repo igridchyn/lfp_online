@@ -428,10 +428,10 @@ double LPTTriggerProcessor::environment_dominance_confidence_() {
 	const arma::fmat & pred = buffer->last_predictions_[0];
 
 	if (use_inhibition_map_){
-		unsigned int maxy, maxx;
+		long long unsigned int maxy, maxx;
 		double maxprob = pred.max(maxy, maxx);
-		Log("Inh maxx: ", maxx);
-		Log("Inh maxy: ", maxy);
+		Log("Inh maxx: ", (unsigned int)maxx);
+		Log("Inh maxy: ", (unsigned int)maxy);
 		return (inhibition_map_(maxx, maxy) - 0.5) * maxprob;
 	}
 

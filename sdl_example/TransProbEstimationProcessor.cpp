@@ -59,7 +59,7 @@ TransProbEstimationProcessor::TransProbEstimationProcessor(LFPBuffer *buf)
 
 		unsigned int dim2 = NBINSY > 1 ? NEIGHB_SIZE :1;
 
-		Log("TPS number of cols: ", tps.n_cols);
+		Log("TPS number of cols: ", (int)tps.n_cols);
 
 		for (unsigned int b = 0; b < NBINSX * NBINSY; ++b) {
 			// extract

@@ -352,7 +352,7 @@ void PlaceFieldProcessor::drawOccupancy(){
 void PlaceFieldProcessor::drawPlaceField(){
     const PlaceField& pf = place_fields_smoothed_[display_tetrode_][display_cluster_][selected_session_];
     arma::mat dv = pf.Mat() / occupancy_smoothed_[selected_session_].Mat();
-    unsigned int mx = 0, my = 0;
+    long long unsigned int mx = 0, my = 0;
     pf.Mat().max(mx, my);
     std::vector<std::string> lines = {Utils::Converter::Combine("# of spikes in max bin: ", int(place_fields_[display_tetrode_][display_cluster_][selected_session_](mx, my))), Utils::Converter::Combine("Total nuber of spikes accounted for: ", int(arma::sum(arma::sum(place_fields_[display_tetrode_][display_cluster_][selected_session_].Mat()))))};
     drawMat(dv, lines);
@@ -695,7 +695,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     }
 
     //  find the coordinates (and write to pos?)
-    unsigned int rmax, cmax;
+    long long unsigned int rmax, cmax;
     reconstructed_position_.max(rmax, cmax);
 
 	buffer->positions_buf_[buffer->pos_buf_pos_].Init(float((cmax + 0.5) * bin_size_ + (rand() - RAND_MAX / 2) * (bin_size_) / 2 / RAND_MAX),

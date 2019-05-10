@@ -1526,10 +1526,10 @@ void SDLPCADisplayProcessor::splitIntoGuassians(){
 		}
 	}
 
-	mlpack::gmm::GMM<> gmm2(2, 8);
-	gmm2.Estimate(clumat.t());
+	mlpack::gmm::GMM gmm2(2, 8);
+	//gmm2.Estimate(clumat.t());
 	arma::Col<size_t> labels_;
-	gmm2.Classify(clumat.t(), labels_);
+	//	gmm2.Classify(clumat.t(), labels_);
 
 	// second pass: split into 2
 	// TODO: keep reference to spikes for faster access
