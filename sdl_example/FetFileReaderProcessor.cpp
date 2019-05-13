@@ -195,7 +195,7 @@ void cluster_thread(unsigned int job, unsigned int start_idx){
 		clus_[start_idx + i] = minclu;
 		dists_[start_idx + i] = mindist;
 	}
-	std::cout << std::setprecision(3) << "Done job # " << job << " in " << (clock() - start) / (float)CLOCKS_PER_SEC << " sec\n";
+	std::cout << std::setprecision((int)3) << "Done job # " << job << " in " << (clock() - start) / (float)CLOCKS_PER_SEC << " sec\n";
 	std::cout << "Assigned in first pass: " << found_first_pass_ << " / " << JOBSIZE << "\n";
 }
 
