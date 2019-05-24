@@ -304,7 +304,7 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 	}
 
 	// open first session streams for given tetrode
-	fws.open(buffer->config_->spike_files_[0] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
+	fws.open(buffer->config_->spike_files_[0] + "spkb." + Utils::NUMBERS[buffer->config_->tetrodes[0]]);
 	// iterate over all spikes, seek and read if need to draw
 
 	for (unsigned int s=0; s < buffer->spike_buf_pos; ++s){
@@ -318,7 +318,7 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 			spike_shift = sp_tetr;
 			current_session ++;
 			fws.close();
-			fws.open(buffer->config_->spike_files_[current_session] + "spkb." + Utils::NUMBERS[targ_tetrode_]);
+			fws.open(buffer->config_->spike_files_[current_session] + "spkb." + Utils::NUMBERS[buffer->config_->tetrodes[0]]);
 		}
 
 		if (spike->cluster_id_<=0 ||
@@ -430,7 +430,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
         		{
         			// iterate through all spikes in buffer and assign 0 (artefact) clusters
 
-        				if (x2_ < x2_){
+        				if (x1_ < x2_){
         					int swap = x1_;
         					x1_ = x2_;
         					x2_ = swap;
