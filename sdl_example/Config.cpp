@@ -165,6 +165,10 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 			ReadList<unsigned int>(fconf, kd_tetrodes_);
 			continue;
 		}
+		if (line == std::string("tetrode.nums")){
+			ReadList<unsigned int>(fconf, tetrode_nums_);
+			continue;
+		}
 		if (line == std::string("#include")){
 			std::string confPath;
 			std::getline(fconf, confPath);
@@ -454,9 +458,23 @@ void Config::setTetrodes(const unsigned int& tetrodes_count){
 		log_string_stream_ << "WARNING: tetrodes list not empty. Overriding old entries.\n";
 		Log();
 	}
-	for (unsigned int t=0; t < tetrodes_count; ++t){
-		tetrodes.push_back(t);
+
+	if (tetrode_nums_.size() > 0){
+		if (tetrodes_count != tetrode_nums_.size()){
+			log_string_stream_ << "ERROR: number of tetrodes in tetrode.nums list is different from number of tetrodes in the tetrode config ...";
+			Log();
+			exit(1);
+		}
+
+		for (unsigned int t=0; t < tetrodes_count; ++t){
+				tetrodes.push_back(tetrode_nums_[t]);
+		}
 	}
+	else
+		for (unsigned int t=0; t < tetrodes_count; ++t){
+			tetrodes.push_back(t);
+		}
+
 	log_string_stream_ << "Added number of tetrodes: " << tetrodes_count << "\n";
 	Log();
 }

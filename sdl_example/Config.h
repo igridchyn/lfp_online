@@ -50,6 +50,8 @@ public:
 
 	std::vector<unsigned int> parallel_;
 
+	std::vector<unsigned int> tetrode_nums_;
+
 	std::vector<std::string> spike_files_;
 
 	std::string config_path_;
