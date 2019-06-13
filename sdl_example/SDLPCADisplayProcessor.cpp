@@ -42,6 +42,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 , poly_path_(buffer->config_->getOutPath("pcadisp.poly.path", "poly.dat"))
 , num_pc_(buffer->config_->getInt("pca.num.pc"))
 , power_thold_nstd_(buffer->config_->getInt("spike.detection.nstd"))
+, MAX_CLUST(buffer->config_->getInt("pcadisp.max.clust", 201))
 , gaussian_distance_threshold_(buffer->config_->getFloat("pcadisp.gaussian.thold"))
 {
     nchan_ = buffer->tetr_info_->channels_number(target_tetrode);
