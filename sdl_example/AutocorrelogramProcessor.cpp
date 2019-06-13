@@ -270,11 +270,11 @@ void AutocorrelogramProcessor::process(){
 
 // center if the cluster autocorrelograms
 unsigned int AutocorrelogramProcessor::getXShift(int clust) {
-	return (unsigned int)(((BWIDTH + 1) * NBINS * 2 + 15) * (clust % (XCLUST / 2) + 0.5));
+	return (unsigned int)(((BWIDTH + 1) * NBINS * 2 + 15) * (clust % XCLUST + 0.5));
 }
 
 unsigned int AutocorrelogramProcessor::getYShift(int clust) {
-	return ((clust % 20) / (XCLUST / 2)) * ypix_ + 100;
+	return ((clust % 20) / XCLUST ) * ypix_ + 100;
 }
 
 
@@ -302,8 +302,8 @@ void AutocorrelogramProcessor::drawClusterRect(int clust) {
 }
 
 void AutocorrelogramProcessor::getPairByCoords(const unsigned int& x, const unsigned int& y, unsigned int & c1, unsigned int & c2) {
-	int cx = x /  ((CC_BWIDTH + 1) * NBINS * 2 + 15) + shift_xx_x_ * XCLUST_CC;
-	int cy = y / ypix_ + shift_xx_y_ * YCLUST_CC;
+	int cx = x /  ((CC_BWIDTH + 1) * NBINS * 2 + 15) + page_x_ * XCLUST_CC;
+	int cy = y / ypix_ + page_y_ * YCLUST_CC;
 
 	c1 = (unsigned int)cx;
 	c2 = (unsigned int)cy;
@@ -314,16 +314,18 @@ int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x, co
 	int cx = (int)round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
 
-	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST / 2 : XCLUST) + cx + (display_mode_ == AC_DISPLAY_MODE_AC ? shift_xx_x_ * 20 : 0);
+	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST : (2 * XCLUST)) + cx + (display_mode_ == AC_DISPLAY_MODE_AC ? page_x_ * 20 : 0);
 }
 
 void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
 	if (display_mode_ == AC_DISPLAY_MODE_AC){
-		plotAC(tetrode, cluster + shift_xx_x_ * 20);
+		// only if withing range
+		// if ((cluster >= (int)page_x_ * XCLUST * YCLUST) && (cluster < ((int)page_x_ + 1) * XCLUST * YCLUST))
+		plotAC(tetrode, cluster + page_x_ * XCLUST * YCLUST);
 	}
 	else{
-		for (int c = 0; c < std::min<int>(YCLUST_CC, MAX_CLUST - shift_xx_y_ * YCLUST_CC); ++c){
-			plotCC(tetrode, cluster + shift_xx_x_ * XCLUST_CC, c + shift_xx_y_ * YCLUST_CC);
+		for (int c = 0; c < std::min<int>(YCLUST_CC, MAX_CLUST - page_y_ * YCLUST_CC); ++c){
+			plotCC(tetrode, cluster + page_x_ * XCLUST_CC, c + page_y_ * YCLUST_CC);
 		}
 	}
 }
@@ -353,21 +355,23 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 	SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
 	SDL_RenderClear(renderer_);
 
-	const unsigned int YCLUST = (window_height_)/ ypix_;
-	int limit = (display_mode_ == AC_DISPLAY_MODE_AC ? (unsigned int)(XCLUST / 2 * YCLUST ) : (std::min<int>(XCLUST_CC, (int)MAX_CLUST - XCLUST_CC * shift_xx_x_)));
+	// const unsigned int YCLUST = (window_height_)/ ypix_;
+	int limit = (display_mode_ == AC_DISPLAY_MODE_AC ? (unsigned int)(XCLUST * YCLUST ) : (std::min<int>(XCLUST_CC, (int)MAX_CLUST - XCLUST_CC * page_x_)));
 	for (int c=0; c < limit; ++c) {
 		plotACorCCs(display_tetrode_, c);
 	}
 
 	if (display_mode_ == AC_DISPLAY_MODE_AC){
-		if (user_context_.SelectedCluster1() >= 0){
+		int sc1 = user_context_.SelectedCluster1();
+		if ((sc1 >= XCLUST * YCLUST * (int)page_x_) && (sc1 < XCLUST * YCLUST * ((int)page_x_+ 1))){
 			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
-			drawClusterRect(user_context_.SelectedCluster1());
+			drawClusterRect(sc1);
 		}
 
-		if (user_context_.SelectedCluster2() >= 0){
+		int sc2 = user_context_.SelectedCluster2();
+		if ((sc2 >= XCLUST * YCLUST * (int)page_x_) && (sc2 < XCLUST * YCLUST * ((int)page_x_+ 1))){
 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-			drawClusterRect(user_context_.SelectedCluster2());
+			drawClusterRect(sc2);
 		}
 	}
 
@@ -446,29 +450,27 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			}
 			SetDisplayTetrode(display_tetrode_);
 
-
-
 			break;
 
 		case SDLK_RIGHT:
-			shift_xx_x_ += 1;
+			page_x_ += 1;
 			SetDisplayTetrode(display_tetrode_);
 			break;
 
 		case SDLK_LEFT:
-			if(shift_xx_x_ > 0)
-				shift_xx_x_ -= 1;
+			if(page_x_ > 0)
+				page_x_ -= 1;
 			SetDisplayTetrode(display_tetrode_);
 			break;
 
 		case SDLK_UP:
-			if(shift_xx_y_ > 0)
-				shift_xx_y_ -= 1;
+			if(page_y_ > 0)
+				page_y_ -= 1;
 			SetDisplayTetrode(display_tetrode_);
 			break;
 
 		case SDLK_DOWN:
-			shift_xx_y_ ++;
+			page_y_ ++;
 			SetDisplayTetrode(display_tetrode_);
 			break;
 
@@ -600,7 +602,8 @@ void AutocorrelogramProcessor::Resize() {
 	SDLSingleWindowDisplay::Resize();
 
 	// default size 800 X 500
-	XCLUST = (int)round(window_width_ / 100.0);    // 8
+	XCLUST = (int)round(window_width_ / 200.0);    // 8
+	YCLUST = (int)round(window_height_ / ypix_);
 	XCLUST_CC = (int)round(window_width_ * 3 / 400.0);; // 6
 	YCLUST_CC = (int)round(window_height_ / 100.0);; // 5
 
