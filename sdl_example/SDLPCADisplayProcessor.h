@@ -57,7 +57,7 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
     int refractory_display_cluster_ = -1;
     // time of last spike in the given cluster
     unsigned int refractory_last_time_ = 0;
-    unsigned int refractory_period_ = 48;
+    const unsigned int refractory_period_;
     int refractory_last_x_ = 0;
     int refractory_last_y_ = 0;
 
