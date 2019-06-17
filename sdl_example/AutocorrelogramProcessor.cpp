@@ -314,14 +314,14 @@ int AutocorrelogramProcessor::getClusterNumberByCoords(const unsigned int& x, co
 	int cx = (int)round( ((int)x - (int)(BWIDTH + 1) * (int)NBINS) / float((BWIDTH + 1) * NBINS * 2 + 15));
 	int cy = y / ypix_;
 
-	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST : (2 * XCLUST)) + cx + (display_mode_ == AC_DISPLAY_MODE_AC ? page_x_ * 20 : 0);
+	return cy * (display_mode_ == AC_DISPLAY_MODE_AC ? XCLUST : (2 * XCLUST)) + cx + (display_mode_ == AC_DISPLAY_MODE_AC ? page_x_ac_ * 20 : 0);
 }
 
 void AutocorrelogramProcessor::plotACorCCs(int tetrode, int cluster) {
 	if (display_mode_ == AC_DISPLAY_MODE_AC){
 		// only if withing range
 		// if ((cluster >= (int)page_x_ * XCLUST * YCLUST) && (cluster < ((int)page_x_ + 1) * XCLUST * YCLUST))
-		plotAC(tetrode, cluster + page_x_ * XCLUST * YCLUST);
+		plotAC(tetrode, cluster + page_x_ac_ * XCLUST * YCLUST);
 	}
 	else{
 		for (int c = 0; c < std::min<int>(YCLUST_CC, MAX_CLUST - page_y_ * YCLUST_CC); ++c){
@@ -363,13 +363,13 @@ void AutocorrelogramProcessor::SetDisplayTetrode(const unsigned int& display_tet
 
 	if (display_mode_ == AC_DISPLAY_MODE_AC){
 		int sc1 = user_context_.SelectedCluster1();
-		if ((sc1 >= XCLUST * YCLUST * (int)page_x_) && (sc1 < XCLUST * YCLUST * ((int)page_x_+ 1))){
+		if ((sc1 >= XCLUST * YCLUST * (int)page_x_ac_) && (sc1 < XCLUST * YCLUST * ((int)page_x_ac_+ 1))){
 			SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
 			drawClusterRect(sc1);
 		}
 
 		int sc2 = user_context_.SelectedCluster2();
-		if ((sc2 >= XCLUST * YCLUST * (int)page_x_) && (sc2 < XCLUST * YCLUST * ((int)page_x_+ 1))){
+		if ((sc2 >= XCLUST * YCLUST * (int)page_x_ac_) && (sc2 < XCLUST * YCLUST * ((int)page_x_ac_+ 1))){
 			SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
 			drawClusterRect(sc2);
 		}
@@ -453,13 +453,23 @@ void AutocorrelogramProcessor::process_SDL_control_input(const SDL_Event& e){
 			break;
 
 		case SDLK_RIGHT:
-			page_x_ += 1;
+			if (display_mode_ == AC_DISPLAY_MODE_AC)
+				page_x_ac_ += 1;
+			else
+				page_x_ += 1;
 			SetDisplayTetrode(display_tetrode_);
 			break;
 
 		case SDLK_LEFT:
-			if(page_x_ > 0)
+
+			if (display_mode_ == AC_DISPLAY_MODE_AC)
+			{
+				if(page_x_ac_ > 0)
+					page_x_ac_ -= 1;
+			}
+			else if(page_x_ > 0)
 				page_x_ -= 1;
+
 			SetDisplayTetrode(display_tetrode_);
 			break;
 

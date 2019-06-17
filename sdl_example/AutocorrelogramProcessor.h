@@ -70,6 +70,7 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     // page shifts
     unsigned int page_x_ = 0;
     unsigned int page_y_ = 0;
+    unsigned int page_x_ac_ = 0;
 
     unsigned int getCCXShift(const unsigned int& clust1);
     unsigned int getCCYShift(const unsigned int& clust2);
