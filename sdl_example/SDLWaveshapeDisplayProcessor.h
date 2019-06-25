@@ -13,6 +13,8 @@
 #include "PutativeCell.h"
 
 class SDLWaveshapeDisplayProcessor : virtual public SDLControlInputProcessor, virtual public SDLSingleWindowDisplay {
+	bool mean_mode_ = true;
+
     unsigned last_disp_pkg_id_ = 0;
     
     unsigned int targ_tetrode_ = 0;
@@ -87,6 +89,9 @@ public:
 
     template<class T>
     void drawWS(Spike* spike, T ws);
+    template<class T>
+    void drawWSClu(int clu, T ws);
+
 
     virtual void Resize();
 };

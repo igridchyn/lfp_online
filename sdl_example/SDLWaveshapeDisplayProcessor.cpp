@@ -272,9 +272,23 @@ void SDLWaveshapeDisplayProcessor::process() {
 }
 
 template<class T>
+void SDLWaveshapeDisplayProcessor::drawWSClu(int clu, T ws){
+	int x_scale = display_final_ ? x_mult_final_ : x_mult_reconstructed_; // for final wave shapes
+	for (int chan=0; chan < ws.size(); ++chan) {
+		int prev_smpl = (int)transform((float)ws[chan][0], chan);
+		for (int smpl = 1; smpl < 128; ++smpl) {
+			int tsmpl = (int)transform((float)ws[chan][smpl], chan);
+			SDL_SetRenderDrawColor(renderer_, colpal.getR(clu) ,colpal.getG(clu), colpal.getB(clu),255);
+			SDL_RenderDrawLine(renderer_, smpl * x_scale - (x_scale - 1), prev_smpl, smpl * x_scale + 1, tsmpl);
+			prev_smpl = tsmpl;
+		}
+	}
+}
+
+template<class T>
 void SDLWaveshapeDisplayProcessor::drawWS(Spike* spike, T ws){
 	int x_scale = display_final_ ? x_mult_final_ : x_mult_reconstructed_; // for final wave shapes
-	for (int chan=0; chan < 4; ++chan) {
+	for (int chan=0; chan < spike->num_channels_; ++chan) {
 		int prev_smpl = (int)transform((float)ws[chan][0], chan);
 		for (int smpl = 1; smpl < 128; ++smpl) {
 			int tsmpl = (int)transform((float)ws[chan][smpl], chan);
@@ -303,12 +317,23 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 		ws_tmp[c] = new ws_type[128];
 	}
 
+	unsigned int summed1=0, summed2=0;
+	std::vector<std::vector<long int> > sum_c1, sum_c2;
+	unsigned int channel_number = buffer->tetr_info_->channels_number(targ_tetrode_);
+	sum_c1.resize(channel_number);
+	sum_c2.resize(channel_number);
+	for (unsigned int c = 0; c < channel_number; ++c){
+		sum_c1[c].resize(128);
+		sum_c2[c].resize(128);
+	}
+
 	// open first session streams for given tetrode
 	fws.open(buffer->config_->spike_files_[0] + "spkb." + Utils::NUMBERS[buffer->config_->tetrodes[0]]);
 	// iterate over all spikes, seek and read if need to draw
 
+	Spike* spike = NULL;
 	for (unsigned int s=0; s < buffer->spike_buf_pos; ++s){
-		Spike* spike = buffer->spike_buffer_[s];
+		spike = buffer->spike_buffer_[s];
 		if (spike->tetrode_ != (int)targ_tetrode_){
 			continue;
 		}
@@ -349,10 +374,46 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 			fws.read((char*)ws_tmp[c], 128 * sizeof(ws_type));
 		}
 
+		if(spike->cluster_id_ == disp_cluster_1){
+			for(unsigned int ipc = 0; ipc<channel_number; ++ipc){
+				for (unsigned int iws = 0; iws < 128; ++iws){
+					sum_c1[ipc][iws] += ws_tmp[ipc][iws];
+				}
+			}
+			summed1 ++;
+		}else{
+			for(unsigned int ipc = 0; ipc<channel_number; ++ipc){
+				for (unsigned int iws = 0; iws < 128; ++iws){
+					sum_c2[ipc][iws] += ws_tmp[ipc][iws];
+				}
+			}
+			summed2 ++;
+		}
+
 		sp_tetr ++;
-		drawWS(spike, ws_tmp);
+		if (!mean_mode_)
+			drawWS(spike, ws_tmp);
 	}
+
+	for(unsigned int ipc = 0; ipc<channel_number; ++ipc){
+		// std::cout << "\nChannel " << ipc << "\n";
+		for (unsigned int iws = 0; iws < 128; ++iws){
+			sum_c1[ipc][iws] /= summed1;
+			sum_c2[ipc][iws] /= summed2;
+
+			// std::cout << sum_c1[ipc][iws] << " " << sum_c2[ipc][iws] << " ";
+		}
+	}
+
+	drawWSClu(disp_cluster_1, sum_c1);
+	drawWSClu(disp_cluster_2, sum_c2);
+
 	Render();
+
+	for (unsigned int c=0; c < 4; ++c){
+		delete ws_tmp[c];
+	}
+	delete ws_tmp;
 }
 
 void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e){
@@ -589,6 +650,11 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             		need_redraw = true;
 
             	break;
+
+            case SDLK_z:
+            	mean_mode_ = !mean_mode_;
+            	if (on_demand_)
+            		displayFromFiles();
 
             default:
                 need_redraw = false;
