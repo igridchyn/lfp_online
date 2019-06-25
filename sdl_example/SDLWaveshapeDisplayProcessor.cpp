@@ -260,7 +260,7 @@ void SDLWaveshapeDisplayProcessor::process() {
         	SDL_RenderDrawLine(renderer_, x1_, y1_, x2_, y2_);
         }
 
-        DrawRect(0, window_height_ / buffer->tetr_info_->channels_number(targ_tetrode_) * selected_channel_, window_width_, window_height_ / buffer->tetr_info_->channels_number(targ_tetrode_), 5);
+        DrawRect(0, window_height_* 12/13 / buffer->tetr_info_->channels_number(targ_tetrode_) * selected_channel_, window_width_, window_height_*12/13 / buffer->tetr_info_->channels_number(targ_tetrode_), 5);
 
         // draw cuts
         // TODO 2 colors cuts for 2 clusters
@@ -573,25 +573,25 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             	disp_cluster_2 = 0 + shift;
             	break;
             case SDLK_1:
-            	if (kmod && KMOD_LCTRL)
+            	if (kmod && KMOD_LCTRL != KMOD_NONE)
             		selected_channel_ = 0;
             	else
             		disp_cluster_2 = 1 + shift;
             	break;
             case SDLK_2:
-            	if (kmod && KMOD_LCTRL)
+            	if (kmod && KMOD_LCTRL != KMOD_NONE)
             		selected_channel_ = 1;
             	else
             		disp_cluster_2 = 2 + shift;
             	break;
             case SDLK_3:
-            	if (kmod && KMOD_LCTRL)
+            	if (kmod && KMOD_LCTRL != KMOD_NONE)
             		selected_channel_ = 2;
             	else
             		disp_cluster_2 = 3 + shift;
             	break;
             case SDLK_4:
-            	if (kmod && KMOD_LCTRL)
+            	if (kmod && KMOD_LCTRL != KMOD_NONE)
             	    selected_channel_ = 3;
             	else
             		disp_cluster_2 = 4 + shift;
@@ -655,6 +655,7 @@ void SDLWaveshapeDisplayProcessor::process_SDL_control_input(const SDL_Event& e)
             	mean_mode_ = !mean_mode_;
             	if (on_demand_)
             		displayFromFiles();
+            	break;
 
             default:
                 need_redraw = false;
@@ -685,5 +686,6 @@ void SDLWaveshapeDisplayProcessor::Resize() {
 	SDLSingleWindowDisplay::Resize();
 	x_mult_final_ = (unsigned int) round(window_width_ / 16.25);
 	x_mult_reconstructed_ = (unsigned int) round(window_width_ / 130);;
-	y_mult_ = window_height_ / 4;
+	// TODO properly adjust cluster-cut related usage (more space for last channel)
+	y_mult_ = window_height_ * 3 / 13;
 }
