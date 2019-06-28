@@ -398,8 +398,10 @@ void SDLWaveshapeDisplayProcessor::displayFromFiles(){
 	for(unsigned int ipc = 0; ipc<channel_number; ++ipc){
 		// std::cout << "\nChannel " << ipc << "\n";
 		for (unsigned int iws = 0; iws < 128; ++iws){
-			sum_c1[ipc][iws] /= summed1;
-			sum_c2[ipc][iws] /= summed2;
+			if (summed1 > 0)
+				sum_c1[ipc][iws] /= summed1;
+			if (summed2 > 0)
+				sum_c2[ipc][iws] /= summed2;
 
 			// std::cout << sum_c1[ipc][iws] << " " << sum_c2[ipc][iws] << " ";
 		}
