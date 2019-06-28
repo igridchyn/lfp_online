@@ -583,6 +583,9 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 	for (unsigned int b=0; b < NBINS; ++b) {
 		int height = maxh > 0 ? (autocorrs_[tetr][cluster][b]) * ypix_/ maxh : 0;
 
+		if (height == 0)
+			continue;
+
 		SDL_Rect rect;
 		rect.h = height;
 		rect.w = BWIDTH;
