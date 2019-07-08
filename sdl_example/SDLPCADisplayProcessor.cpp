@@ -742,12 +742,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		break;
 
         	// change power threshold + udpate ACs
-        	case SDLK_EQUALS:
-        		power_threshold_factor_ *= power_threshold_factor_step_;
-        		need_redraw = true;
-        		Log("Power threshold set to: ", power_threshold_factor_);
-        		buffer->ResetAC(target_tetrode_);
-        		break;
+//        	case SDLK_EQUALS:
+//        		power_threshold_factor_ *= power_threshold_factor_step_;
+//        		need_redraw = true;
+//        		Log("Power threshold set to: ", power_threshold_factor_);
+//        		buffer->ResetAC(target_tetrode_);
+//        		break;
 
         	case SDLK_KP_MULTIPLY:
         		// draw subsampling factor control
@@ -764,12 +764,12 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
         		}
         		break;
 
-        	case SDLK_MINUS:
-				power_threshold_factor_ /= power_threshold_factor_step_;
-				need_redraw = true;
-				Log("Power threshold set to: ", power_threshold_factor_);
-				buffer->ResetAC(target_tetrode_);
-        	    break;
+//        	case SDLK_MINUS:
+//				power_threshold_factor_ /= power_threshold_factor_step_;
+//				need_redraw = true;
+//				Log("Power threshold set to: ", power_threshold_factor_);
+//				buffer->ResetAC(target_tetrode_);
+//        	    break;
 
         	// merge clusters
         	case SDLK_m:
