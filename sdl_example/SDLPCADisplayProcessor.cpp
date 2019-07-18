@@ -853,7 +853,42 @@ void SDLPCADisplayProcessor::process_SDL_control_input(const SDL_Event& e){
 
         	// c: clear cluster -> show spikes in the refractory period
         	case SDLK_c:
-        		// caancel  refractory spikes display
+        		// RELOAD THE CLUSTER IDENTITIES
+        		// !!! ASSUMING NO NEW CLUSTERED SPIKES, ONLY CHANGED IDENTITIES !!!
+        		if (kmod & KMOD_LSHIFT){
+
+        			buffer->clu_reset_ = true;
+
+        			// 1-to-1 buffer -> clu files content
+//        			unsigned int current_file = 0;
+//        			unsigned int clu_changed = 0;
+//        			unsigned bufind = 0;
+//        			int clu = -1;
+//        			std::ifstream clu_stream_;
+//
+//        			while (current_file < buffer->config_->spike_files_.size()){
+//						std::string filepath = buffer->config_->spike_files_[current_file] + "clu";
+//						clu_stream_.open(filepath);
+//
+//						while (!clu_stream_.eof()){
+//							clu_stream_ >> clu;
+//							// find next clustered spike and update clu + need to account for cluster number shifts
+//							while (buffer->spike_buffer_[bufind]->cluster_id_ <= 0 || buffer->spike_buffer_[bufind]->discarded_)
+//								bufind ++;
+//
+//							if (buffer->spike_buffer_[bufind]->cluster_id_ != clu - (int)buffer->global_cluster_number_shfit_[buffer->spike_buffer_[bufind]->tetrode_])
+//								clu_changed ++;
+//
+//							// buffer->spike_buffer_[bufind]->cluster_id_ = clu - buffer->global_cluster_number_shfit_[buffer->spike_buffer_[bufind]->tetrode_];
+//							bufind ++;
+//						}
+//						current_file ++;
+//						clu_stream_.close();
+//        			}
+//        			Log("Number of cluster identities changed:", clu_changed);
+        		}
+
+        		// cancel refractory spikes display
         		if (refractory_display_cluster_ >= 0){
         			refractory_display_cluster_ = -1;
         			break;
