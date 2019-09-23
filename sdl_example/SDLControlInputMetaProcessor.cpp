@@ -32,6 +32,8 @@ void SDLControlInputMetaProcessor::process(){
     // SDL_PollEvent took 2/3 of runtime without limitations
     while( SDL_PollEvent( &e ) != 0 )
     {
+    	bool pass_down = true;
+
     	// changed focus -> switch control + redraw
     	 if (e.type == SDL_WINDOWEVENT) {
     		 if( e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ) {
@@ -85,6 +87,7 @@ void SDLControlInputMetaProcessor::process(){
                 	switch( e.key.keysym.sym ){
 
                 	case SDLK_r:
+                	{
                 		// raise all windows
                 		for (unsigned int p=0; p < control_processors_.size(); ++p){
                 			SDLSingleWindowDisplay *disp = dynamic_cast<SDLSingleWindowDisplay*>(control_processors_[p]);
@@ -92,8 +95,9 @@ void SDLControlInputMetaProcessor::process(){
                 				SDL_RaiseWindow(disp->window_);
                 			}
                 		}
+                		pass_down = false;
                 		break;
-
+                	}
 
                 	default:
                 		break;
@@ -159,7 +163,7 @@ void SDLControlInputMetaProcessor::process(){
                 }
             }
             
-            if (control_processor_ != nullptr){
+            if (control_processor_ != nullptr && pass_down){
             	control_processor_->process_SDL_control_input(e);
             }
         }
