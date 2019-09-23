@@ -275,6 +275,8 @@ public:
 	int ac_reset_tetrode_ = -1;
 	int ac_reset_cluster_ = -1;
 
+	bool clu_reset_ = false;
+
 	// POSITION BUFFER
 	SpatialInfo *positions_buf_;
 	// main poiter - where the next position will be put
@@ -465,7 +467,7 @@ public:
 
 	// cause recalculation of autocorrelograms due to change in cluster(s) - from buffer start
 	void ResetAC(const unsigned int& reset_tetrode, const int& reset_cluster);
-	void ResetAC(const unsigned int& reset_tetrode);
+	void ResetAC(const int& reset_tetrode);
 
 	// DEBUG
 	bool CheckPkgIdAndReportTime(const unsigned int pkg_id1, const unsigned int pkg_id2,

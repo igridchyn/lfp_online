@@ -716,7 +716,7 @@ void LFPBuffer::ResetAC(const unsigned int& reset_tetrode,
 	ac_reset_cluster_ = reset_cluster;
 }
 
-void LFPBuffer::ResetAC(const unsigned int& reset_tetrode) {
+void LFPBuffer::ResetAC(const int& reset_tetrode) {
 	ResetAC(reset_tetrode, -1);
 }
 
