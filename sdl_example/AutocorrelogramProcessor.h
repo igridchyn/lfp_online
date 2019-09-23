@@ -54,7 +54,7 @@ class AutocorrelogramProcessor : virtual public SDLControlInputProcessor, virtua
     const unsigned int NBINS;
 
     //unsigned int last_processed_user_action_id_;
-    UserAction const *last_user_action_;
+    UserAction const *last_user_action_ = NULL;
 
     // whether to break on -1 cluster or just skip it
     bool wait_clustering_;

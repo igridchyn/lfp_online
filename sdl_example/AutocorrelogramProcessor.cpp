@@ -65,6 +65,9 @@ void AutocorrelogramProcessor::process(){
 	// IF the ACs on one tetrode have to be recalculated
 	if (buffer->ac_reset_){
 
+		if (buffer->ac_reset_tetrode_ == -1)
+			buffer->ac_reset_tetrode_ = display_tetrode_;
+
 		// reset all
 		if (buffer->ac_reset_cluster_ == -1){
 			for (unsigned int c = 0; c < MAX_CLUST; ++c){
@@ -129,6 +132,9 @@ void AutocorrelogramProcessor::process(){
 			SetDisplayTetrode(display_tetrode_);
 
 			spike_counts_[display_tetrode_][clun] += spike_counts_[display_tetrode_][ua->cluster_number_2_];
+			for (unsigned int c = ua->cluster_number_2_; c < MAX_CLUST - 1; ++c){
+				spike_counts_[display_tetrode_][c] = spike_counts_[display_tetrode_][c + 1];
+			}
 
 			// merge CCs and ACs
 			for(unsigned int i = 0; i < NBINS; ++i){
