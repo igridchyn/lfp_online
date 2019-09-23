@@ -727,15 +727,19 @@ void FetFileReaderProcessor::process() {
 		else{
 			if (buffer->pipeline_status_ != PIPELINE_STATUS_INPUT_OVER){
 				unsigned int spikes_0 = 0;
+				unsigned int spikes_clustered = 0;
 				for (unsigned int i=0; i < buffer->spike_buf_pos; ++i){
 					if (buffer->spike_buffer_[i]->tetrode_ == 0){
 						spikes_0 ++;
 					}
+					if (buffer->spike_buffer_[i]->cluster_id_ > 0)
+						spikes_clustered ++;
 				}
 
 				std::stringstream ss;
 				ss << "End of input files, file duration: " << last_pkg_id_ / buffer->SAMPLING_RATE / 60 << " min " << (last_pkg_id_ / buffer->SAMPLING_RATE) % 60 << " sec \n";
 				ss << "Number of spikes in the buffer: " << buffer->spike_buf_pos <<"\n";
+				ss << "Number of spikes clustered: " << spikes_clustered <<"\n";
 				ss << "Number of spikes in the 0 tetrodes: " << spikes_0 <<"\n";
 				Log(ss.str());
 

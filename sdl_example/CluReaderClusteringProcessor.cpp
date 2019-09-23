@@ -96,6 +96,40 @@ void CluReaderClusteringProcessor::process() {
 		return;
 	}
 
+	if (buffer->clu_reset_){
+		current_session_ = 0;
+		buffer->spike_buf_pos_clust_ = 0;
+		res = 0;
+
+		clu_stream_.close();
+		res_stream_.close();
+		clu_stream_.open(buffer->config_->spike_files_[0] + "clu");
+		res_stream_.open(buffer->config_->spike_files_[0] + "res");
+
+		Log("RE-LOADING CLU...");
+
+		cluster_shifts_.clear();
+		std::ifstream cluster_number_shifts_stream_(buffer->config_->spike_files_[0] + std::string("cluster_shifts"));
+		unsigned i=0;
+		while(!cluster_number_shifts_stream_.eof()){
+			unsigned int shift;
+			cluster_number_shifts_stream_ >> shift;
+
+			if (cluster_number_shifts_stream_.eof())
+				break;
+
+			cluster_shifts_.push_back(shift);
+
+			buffer->global_cluster_number_shfit_[i] = shift;
+
+			if (i > 0){
+				buffer->clusters_in_tetrode_[i-1] = buffer->global_cluster_number_shfit_[i] - buffer->global_cluster_number_shfit_[i-1];
+			}
+
+			i++;
+		}
+	}
+
 	if (clu_stream_.eof() && current_session_ < (int)buffer->session_shifts_.size() - 1){
 		current_session_ ++;
 
@@ -121,8 +155,37 @@ void CluReaderClusteringProcessor::process() {
 		}
 	}
 
+	// for reset
+	unsigned int changed_id = 0;
+
 	while(buffer->spike_buf_pos_clust_ < buffer->spike_buf_pos_unproc_){
 		Spike * spike = buffer->spike_buffer_[buffer->spike_buf_pos_clust_];
+
+		// sorry
+		if (clu_stream_.eof() && current_session_ < (int)buffer->session_shifts_.size() - 1){
+			current_session_ ++;
+
+			clu_path_ = buffer->config_->spike_files_[current_session_] + "clu";
+			res_path_ = buffer->config_->spike_files_[current_session_] + "res";
+			if (!Utils::FS::FileExists(clu_path_) || !Utils::FS::FileExists(res_path_)){
+				Log("WARNING: clu and/or res files doesn't exist!");
+				files_exist_ = false;
+				return;
+			}
+
+			clu_stream_.close();
+			res_stream_.close();
+			clu_stream_.open(clu_path_);
+			res_stream_.open(res_path_);
+
+			// !!!!!!! WORKAROUND CAUSED BY BUG
+			// TODO FIND OUT REASON WHY THIS HAPPENS - EOF?
+			if (res > buffer->session_shifts_[current_session_]){
+				clu_stream_ >> clust;
+				res_stream_ >> res;
+				res += buffer->session_shifts_[current_session_];
+			}
+		}
 
 		while(res < spike->pkg_id_ && !clu_stream_.eof()){
 			clu_stream_ >> clust;
@@ -131,7 +194,12 @@ void CluReaderClusteringProcessor::process() {
 		}
 
 		if (res == spike->pkg_id_ && (spike->tetrode_ == (int)cluster_shifts_.size()-1 || clust <= cluster_shifts_[spike->tetrode_ + 1])){
-			spike->cluster_id_ = std::max<int>(-1, clust - cluster_shifts_[spike->tetrode_]);
+			int newid = std::max<int>(-1, clust - cluster_shifts_[spike->tetrode_]);
+
+			if (spike->cluster_id_ != newid)
+				changed_id ++;
+
+			spike->cluster_id_ = newid;
 //			buffer->UpdateWindowVector(spike);
 //			buffer->cluster_spike_counts_(spike->tetrode_, spike->cluster_id_) += 1;
 
@@ -152,5 +220,11 @@ void CluReaderClusteringProcessor::process() {
 		}
 
 		buffer->spike_buf_pos_clust_++;
+	}
+
+	if (buffer->clu_reset_){
+		buffer->clu_reset_ = false;
+		Log("DONE CLU RESET, ID CHANGED: ", changed_id);
+		// buffer->ResetAC(-1);
 	}
 }
