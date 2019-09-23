@@ -87,7 +87,8 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
     	}
     }
 
-    points_ = new SDL_Point[1000000];
+    //points_ = new SDL_Point[1000000];
+    points_.reserve(1000000);
 
     spikes_to_draw_.resize(MAX_CLUST);
     for (unsigned int c = 0; c < MAX_CLUST; ++c) {
@@ -144,7 +145,7 @@ SDLPCADisplayProcessor::SDLPCADisplayProcessor(LFPBuffer *buffer, std::string wi
 }
 
 SDLPCADisplayProcessor::~SDLPCADisplayProcessor(){
-	delete[] points_;
+	// delete[] points_;
     for (unsigned int c = 0; c < MAX_CLUST; ++c) {
     	delete []spikes_to_draw_[c];
 	}
@@ -1205,7 +1206,6 @@ void SDLPCADisplayProcessor::extractClusterFromMultiple() {
 //	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(clun);
-	int count = 0;
 	for (unsigned int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
 		Spike *spike = buffer->spike_buffer_[s];
 		if (spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ == -1 || !display_cluster_[spike->cluster_id_]){
@@ -1217,10 +1217,10 @@ void SDLPCADisplayProcessor::extractClusterFromMultiple() {
 			getSpikeCoords(spike, x, y);
 			spike->cluster_id_ = clun;
 			//SDL_RenderDrawPoint(renderer_, x, y);
-			points_[count++ ] = {x, y};
+			points_.push_back({x, y});
 		}
 	}
-	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+	SDL_RenderDrawPoints(renderer_, &points_[0], points_.size());
 
 	Render();
 
@@ -1251,7 +1251,6 @@ void SDLPCADisplayProcessor::extractCluster() {
 //	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(clun);
-	int count = 0;
 
 	std::vector<unsigned int> affected_clusters_;
 
@@ -1266,11 +1265,11 @@ void SDLPCADisplayProcessor::extractCluster() {
 			getSpikeCoords(spike, x, y);
 			spike->cluster_id_ = clun;
 			//SDL_RenderDrawPoint(renderer_, x, y);
-			points_[count++ ] = {x, y};
+			points_.push_back({x, y});
 			affected_clusters_.push_back(s);
 		}
 	}
-	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+	SDL_RenderDrawPoints(renderer_, &points_[0], points_.size());
 
 	user_context_.AddExclusiveProjection(new_clust_.projections_inclusive_[0], affected_clusters_);
 
@@ -1366,7 +1365,6 @@ void SDLPCADisplayProcessor::addCluster() {
 //	SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(clun);
-	int count = 0;
 	for (unsigned int s=0; s < buffer->spike_buf_pos_unproc_; ++s){
 		Spike *spike = buffer->spike_buffer_[s];
 		if (spike->discarded_ || spike->tetrode_ != target_tetrode_ || spike->cluster_id_ >= 0){
@@ -1378,10 +1376,10 @@ void SDLPCADisplayProcessor::addCluster() {
 			getSpikeCoords(spike, x, y);
 			spike->cluster_id_ = clun;
 			//SDL_RenderDrawPoint(renderer_, x, y);
-			points_[count++ ] = {x, y};
+			points_.push_back({x, y});
 		}
 	}
-	SDL_RenderDrawPoints(renderer_, points_, count - 1);
+	SDL_RenderDrawPoints(renderer_, &points_[0], points_.size());
 
 	Render();
 
@@ -1405,7 +1403,6 @@ void SDLPCADisplayProcessor::mergeClusters() {
 			buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.begin(), buffer->cells_[target_tetrode_][user_context_.SelectedCluster2()].polygons_.projections_inclusive_.end());
 	buffer->cells_[target_tetrode_][user_context_.SelectedCluster1()].waveshape_cuts_.clear();
 
-	int scount = 0;
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(c1);
 	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
@@ -1417,7 +1414,7 @@ void SDLPCADisplayProcessor::mergeClusters() {
 			spike->cluster_id_ = c1;
 			int x,y;
 			getSpikeCoords(spike, x, y);
-			points_[scount++ ] = {x, y};
+			points_.push_back({x, y});
 		} else {
 			// shify cluster numbers up
 			if (spike->cluster_id_ > c2){
@@ -1436,7 +1433,7 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	}
 	buffer->cells_[target_tetrode_].erase(buffer->cells_[target_tetrode_].begin() + buffer->cells_[target_tetrode_].size() - 1);
 
-	SDL_RenderDrawPoints(renderer_, points_, scount - 1);
+	SDL_RenderDrawPoints(renderer_, &points_[0], points_.size());
 	Render();
 
 	buffer->dumpCluAndRes(true);

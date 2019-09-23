@@ -104,7 +104,8 @@ class SDLPCADisplayProcessor : virtual public SDLControlInputProcessor, virtual 
 	void undoUserAction();
 	void clearPolygon();
 
-	SDL_Point *points_;
+	//SDL_Point *points_;
+	std::vector<SDL_Point> points_;
 
 	std::vector<bool> display_cluster_;
 
