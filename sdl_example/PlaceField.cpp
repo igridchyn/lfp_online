@@ -17,6 +17,8 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
     place_field_ = arma::mat(nbinsy, nbinsx, arma::fill::zeros);
 
     gauss_ = arma::mat(spread_*2 + 1, spread_*2 + 1, arma::fill::zeros);
+    whltime_to_spikes_ = std::vector<std::vector <int> >();
+    whltime_to_spikes_.resize(nbinsx * nbinsy);
 
     double g_sum = .0f;
     for (int dx = -spread_; dx <= spread_; ++dx){
@@ -50,8 +52,29 @@ void PlaceField::Load(const std::string path, arma::file_type ft){
 }
 
 bool PlaceField::AddSpike(Spike *spike){
+	// add spike to list for future sampling
+	int whlt = spike->pkg_id_ / 480;
+
+	// the problem is that spikes may have different bins within the same whlt!
     int xb = (int)round(spike->x / bin_size_ - 0.5);
     int yb = (int)round(spike->y / bin_size_ - 0.5);
+
+	if (whlt > last_whlt){
+		// create new entry in list for this bin
+		whltime_to_spikes_[NBINSX * yb + xb].push_back(1);
+		last_whlt = whlt;
+		last_xb = xb;
+		last_yb = yb;
+	} else {
+		// if still withing same whl sample -> add spike count
+		whltime_to_spikes_[NBINSX * last_yb + last_xb][whltime_to_spikes_[NBINSX * last_yb + last_xb].size() - 1] += 1;
+	}
+
+//	if (whltime_to_spikes_.find(whlt) == whltime_to_spikes_.end())
+//		whltime_to_spikes_[whlt] = 1;
+//	else{
+//		whltime_to_spikes_[whlt] ++;
+//	}
 
     if (yb < 0){
     	yb = 0;
@@ -85,6 +108,31 @@ bool PlaceField::AddSpike(Spike *spike){
     return true;
 }
 
+PlaceField PlaceField::Downsample(PlaceField& occ, int minocc){
+
+	PlaceField spf(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
+
+    for (int x=0; x < (int)place_field_.n_cols; ++x) {
+		for (int y=0; y < (int)place_field_.n_rows; ++y){
+			if(occ(y, x) < minocc)
+				continue;
+
+			// sample if spikes or	no-spikes
+			for (int s=0; s < minocc; ++s){
+				int spikenos = rand() % (int)occ(y, x);
+				if((unsigned int)spikenos >= whltime_to_spikes_[NBINSX * y + x].size()){
+					// no spike sapmled - continue
+					continue;
+				}
+
+				spf(y, x) += whltime_to_spikes_[NBINSX * y + x][spikenos];
+			}
+		}
+    }
+
+	return spf;
+}
+
 PlaceField PlaceField::Smooth(){
     PlaceField spf(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
 
@@ -109,7 +157,7 @@ PlaceField PlaceField::Smooth(){
 //            spf(y, x) /= 1.0 - ignored_part;
 //        }
 //    }
-    
+
     // 2 passes of 1D smoothing
     PlaceField spf2(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
 

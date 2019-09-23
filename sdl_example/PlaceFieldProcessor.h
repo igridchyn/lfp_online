@@ -86,6 +86,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     const double DISPLAY_SCALE;
     bool wait_file_read_ = false;
 
+    bool DOWNSAMPLE;
+
     template <class T>
     void drawMat(const arma::Mat<T>& mat, const std::vector<std::string> text_output = std::vector<std::string>());
     

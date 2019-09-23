@@ -34,6 +34,11 @@ class PlaceField{
     int NBINSX;
     int NBINSY;
 
+    int last_whlt = -1;
+    int last_xb = -1;
+    int last_yb = -1;
+    std::vector< std::vector<int> > whltime_to_spikes_;
+
 public:
     static const int MAX_SPIKES = 20;
     
@@ -52,6 +57,7 @@ public:
     inline const double Max() const { return place_field_.max(); }
     
     PlaceField Smooth();
+    PlaceField Downsample(PlaceField& pf, int minocc);
     
     void CachePDF(const PlaceField& occupancy, const double& occupancy_factor);
 

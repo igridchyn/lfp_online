@@ -91,6 +91,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , SPEED_THOLD(buf->config_->getFloat("pf.speed.threshold"))
 , N_SESSIONS(buf->config_->pf_sessions_.size() + 1)
 , DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
+, DOWNSAMPLE(buf->config_->getFloat("pf.downsample"))
 {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
 
@@ -146,22 +147,24 @@ void PlaceFieldProcessor::AddPos(float x, float y, unsigned int time){
 
     PlaceField& pf = occupancy_[session];
     
-    // pf(yb, xb) += 1.f;
+    if (DOWNSAMPLE){
+    	pf(yb, xb) += 1.f;
+    } else {
+		// overlap with bins around
+		for (int xs=-1;xs<=1;++xs){
+			for (int ys=-1;ys<=1;++ys){
+				if ((int)xb+xs < 0 || (int)yb+ys < 0 || xb+xs == nbinsx_ || yb+ys == nbinsy_)
+					continue;
 
-    // overlap with bins around
-    for (int xs=-1;xs<=1;++xs){
-    	for (int ys=-1;ys<=1;++ys){
-    		if ((int)xb+xs < 0 || (int)yb+ys < 0 || xb+xs == nbinsx_ || yb+ys == nbinsy_)
-    			continue;
+				float dx = MIN(x+0.5, (xb+xs+1)*bin_size_) - MAX(x-0.5, (xb+xs)*bin_size_);
+				float dy = MIN(y+0.5, (yb+ys+1)*bin_size_) - MAX(y-0.5, (yb+ys)*bin_size_);
 
-    		float dx = MIN(x+0.5, (xb+xs+1)*bin_size_) - MAX(x-0.5, (xb+xs)*bin_size_);
-    		float dy = MIN(y+0.5, (yb+ys+1)*bin_size_) - MAX(y-0.5, (yb+ys)*bin_size_);
+				if (dx < 0 || dy < 0)
+					continue;
 
-    		if (dx < 0 || dy < 0)
-    			continue;
-
-    		pf(yb+ys, xb+xs) += dx*dy;
-    	}
+				pf(yb+ys, xb+xs) += dx*dy;
+			}
+		}
     }
 
     // normalizer
@@ -275,9 +278,9 @@ void PlaceFieldProcessor::process(){
 
 
     // TMP - for PFS generation
-//    smoothPlaceFields();
-//    dumpPlaceFields();
-//    exit(0);
+    smoothPlaceFields();
+    dumpPlaceFields();
+    exit(0);
 }
 
 //const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
@@ -421,7 +424,10 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
     
     int shift = 0;
     if (kmod & KMOD_LSHIFT){
-        shift = 10;
+        shift += 10;
+    }
+    if (kmod & KMOD_LCTRL){
+        shift += 20;
     }
     
     bool change_session = ((kmod & KMOD_RSHIFT) != 0);
@@ -536,6 +542,7 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
             	if(kmod & KMOD_LSHIFT){
             		resetFieldsAndPointer();
             	}
+            	break;
 
             default:
                 need_redraw = false;
@@ -557,9 +564,14 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 	Log("Smooth place fields");
 	Log("Minimal occupancy: ", MIN_OCCUPANCY);
 
-	for (size_t s = 0; s < N_SESSIONS; ++s) {
-		occupancy_smoothed_[s] = occupancy_[s].Smooth();
+	if (!DOWNSAMPLE){
+		for (size_t s = 0; s < N_SESSIONS; ++s) {
+			occupancy_smoothed_[s] = occupancy_[s].Smooth();
+		}
+	} else {
+		occupancy_smoothed_ = occupancy_;
 	}
+
 
     std::vector<unsigned int> less_than_min;
     less_than_min.resize(N_SESSIONS);
@@ -569,6 +581,8 @@ void PlaceFieldProcessor::smoothPlaceFields(){
 				if (occupancy_smoothed_[s](y, x) < MIN_OCCUPANCY){
 					occupancy_smoothed_[s](y, x) = .0f;
 					less_than_min[s] ++;
+				} else if (DOWNSAMPLE){
+					occupancy_smoothed_[s](y, x) = MIN_OCCUPANCY;
 				}
     		}
 
@@ -587,10 +601,13 @@ void PlaceFieldProcessor::smoothPlaceFields(){
     for (size_t t=0; t < place_fields_.size(); ++t) {
         for (size_t c = 0; c < place_fields_[t].size(); ++c) {
         	for (size_t s = 0; s < N_SESSIONS; ++s) {
-        		double sum = arma::accu(place_fields_[t][c][s].Mat());
+        		// double sum = arma::accu(place_fields_[t][c][s].Mat());
+        		//if (sum > 1)
 
-        		if (sum > 1)
-        			place_fields_smoothed_[t][c][s] = place_fields_[t][c][s].Smooth();
+        		if (DOWNSAMPLE)
+        			place_fields_[t][c][s] = place_fields_[t][c][s].Downsample(occupancy_[s], MIN_OCCUPANCY);
+
+        		place_fields_smoothed_[t][c][s] = place_fields_[t][c][s].Smooth();
 
 				if (SAVE){
 					place_fields_smoothed_[t][c][s].Mat().save(BASE_PATH + Utils::Converter::int2str(t) + "_" + Utils::Converter::int2str(c) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
@@ -709,8 +726,9 @@ void PlaceFieldProcessor::resetFieldsAndPointer() {
 
 	session_group_ = 0;
 	current_session_ = 0;
-    if (buffer->config_->pf_groups_.size() > 0)
+    if (buffer->config_->pf_groups_.size() > 0){
     	current_session_ = buffer->config_->pf_groups_[0];
+    }
 
 	buffer->spike_buf_pos_pf_ = 0;
 	const unsigned int tetrn = buffer->tetr_info_->tetrodes_number();
