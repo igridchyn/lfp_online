@@ -1,8 +1,8 @@
 #include "IntanInputProcessor.h"
 #include "intan/dataBuffer.h"
-#include "intan/acquisition.h"
 #include "intan/rhd2000datablock.h"
 #include "intan/rhd2000registers.h"
+#include "intan/utils.h"
 #include <iostream>
 #include <filesystem>
 
@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 #define CHIP_ID_RHD2164_B  1000
 #define REGISTER_59_MISO_A  53
 #define REGISTER_59_MISO_B  58
-#define SAMPLES_PER_DATA_BLOCK 60 // also defined in rhd2000DataBlock.h
+// #define SAMPLES_PER_DATA_BLOCK 30 // also defined in rhd2000DataBlock.h
 
 // private namespace, auxiliary functions
 namespace
@@ -26,48 +26,74 @@ Rhd2000EvalBoard::AmplifierSampleRate numToSampleRate(const T& num);
 
 }
 
+constexpr int TEST_PROC_STEPS = 15000;
 IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf)
-                    :LFPProcessor(buf),
-                     _counter(0)
+                    :LFPProcessor(buf)
 {
-    // ktan_buffer = new dataBuffer();
-    // ktan_acquisition = new acquisition(ktan_buffer);
-
     if (openBoard() && uploadBoardConfiguration())
     {
         _board.initialize();
         calibrateBoardADC();
         findConnectedAmplifiers();
         _board.setSampleRate(numToSampleRate(buf->SAMPLING_RATE));
-        // Now that we have set our sampling rate, we can set the MISO sampling delay
-        // which is dependent on the sample rate.
-        _board.setCableLengthMeters(Rhd2000EvalBoard::PortA, std::get<0>(_cable_lengths));
-        _board.setCableLengthMeters(Rhd2000EvalBoard::PortB, std::get<1>(_cable_lengths));
-        _board.setCableLengthMeters(Rhd2000EvalBoard::PortC, std::get<2>(_cable_lengths));
-        _board.setCableLengthMeters(Rhd2000EvalBoard::PortD, std::get<3>(_cable_lengths));
+        //Now that we have set our sampling rate, we can set the MISO sampling delay which is dependent on the sample rate.
         disableBoardExternalDigitalOutControl();
+
+        // allocate local data buffers
+        _amp_buf.reserve(32 * _num_data_streams);
+        //_aux_buf.reserve(3 * _num_data_streams);
+        //_adc_buf.reserve(8);
+
+        _time_diffs.reserve(TEST_PROC_STEPS);
+        _read_success.reserve(TEST_PROC_STEPS);
+        _board.setContinuousRunMode(true);
+        _board.run();
+        std::cout << "Sampling rate: " << _board.getSampleRate() << "Hz" << std::endl;
     }
-    
-    exit(0);
 }
 
 void IntanInputProcessor::process()
 {
-    unsigned char datum;
-    if (_counter % 1000 < 500)
-        datum = 0;
-    else datum = 1;
+    const auto num_blocks = _proc_counter % 10 == 0 ? getBlockNumInFifo() : 1;
+    // const auto num_blocks = getBlockNumInFifo();
 
-    std::vector<unsigned char> data(128, datum);
-    buffer->add_data(data.data(), 128 * sizeof(unsigned char));
-    ++_counter;
-    std::cout << int(datum) << std::endl;
+    if (num_blocks <= 0)
+        return;
+
+    const auto _amp_data_capture = [this](int sample, int timestamp, const unsigned char raw_data[], int data_size) 
+    {
+        intan::utils::convertUsbWords(_amp_buf, raw_data, data_size);
+        std::cout << (_amp_buf[0] - 32768) * 0.195 << std::endl;
+    };
+    auto success = _board.fastReadData(num_blocks, _amp_data_capture);
+
+    _read_success.insert(_read_success.end(), num_blocks, success);
+    _read_blocks.push_back(num_blocks);
+
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto diff = std::chrono::duration_cast<std::chrono::microseconds>(now - _old_time).count();
+    _time_diffs.emplace_back(diff);
+    _old_time = now;
+
+    if (_proc_counter > TEST_PROC_STEPS)
+    {
+        std::cout << _time_diffs.size() << " " << std::accumulate(_time_diffs.begin()+1, _time_diffs.end(), 0.0) / double(_time_diffs.size()-1) << std::endl;
+
+        std::cout << std::boolalpha << std::all_of(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) << " " << std::count_if(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) / double(_read_success.size()) << " " << _read_success.size() << std::endl;
+
+        std::cout << std::accumulate(_read_blocks.begin(), _read_blocks.end(), 0) / double(_read_blocks.size()) << " " << std::endl; //std::count_if(_read_blocks.begin(), _read_blocks.end(), [](const auto&  x){ return x == 0; }) << std::cout;
+
+    std::cout << _board.numWordsInFifo() / double(Rhd2000EvalBoard::fifoCapacityInWords()) << " " << getBlockNumInFifo() << std::endl;
+
+    std::cout << "maxes " << *std::max_element(_time_diffs.begin(), _time_diffs.end()) << " " << *std::max_element(_read_blocks.begin(), _read_blocks.end()) << std::endl;
+
+        exit(0);
+    }
+    ++_proc_counter;
 }
 
 IntanInputProcessor::~IntanInputProcessor()
 {
-    // delete ktan_acquisition;
-    // delete ktan_buffer;
 }
 
 bool IntanInputProcessor::openBoard()
@@ -188,7 +214,6 @@ bool IntanInputProcessor::findConnectedAmplifiers()
             Rhd2000EvalBoard::PortD2Ddr 
     };
 
-    // Set sampling rate to highest value for maximum temporal resolution.
     optimizeMUXSettings();
 
     // Enable all data streams, and set sources to cover one or two chips
@@ -328,15 +353,15 @@ bool IntanInputProcessor::findConnectedAmplifiers()
     // Now that we know which RHD2000 amplifier chips are plugged into each SPI port,
     // add up the total number of amplifier channels on each port and calcualate the number
     // of data streams necessary to convey this data over the USB interface.
-    int num_streams_required = 0;
+    _num_data_streams = 0;
     bool rhd2216ChipPresent = false;
     for (stream = 0; stream < MAX_NUM_DATA_STREAMS; ++stream) 
     {
         if (chip_id_old[stream] == CHIP_ID_RHD2216) 
         {
-            num_streams_required++;
+            _num_data_streams++;
 
-            if (num_streams_required <= MAX_NUM_DATA_STREAMS) 
+            if (_num_data_streams <= MAX_NUM_DATA_STREAMS) 
                 num_channels_on_port[port_index_old[stream]] += 16;
 
             rhd2216ChipPresent = true;
@@ -344,17 +369,17 @@ bool IntanInputProcessor::findConnectedAmplifiers()
 
         if (chip_id_old[stream] == CHIP_ID_RHD2132) 
         {
-            num_streams_required++;
+            _num_data_streams++;
 
-            if (num_streams_required <= MAX_NUM_DATA_STREAMS) 
+            if (_num_data_streams <= MAX_NUM_DATA_STREAMS) 
                 num_channels_on_port[port_index_old[stream]] += 32;
         }
 
         if (chip_id_old[stream] == CHIP_ID_RHD2164) 
         {
-            num_streams_required += 2;
+            _num_data_streams += 2;
 
-            if (num_streams_required <= MAX_NUM_DATA_STREAMS) 
+            if (_num_data_streams <= MAX_NUM_DATA_STREAMS) 
                 num_channels_on_port[port_index_old[stream]] += 64;
         }
     }
@@ -365,11 +390,11 @@ bool IntanInputProcessor::findConnectedAmplifiers()
 
     auto num_amplifier_channels = std::accumulate(num_channels_on_port.begin(), num_channels_on_port.end(), 0);
     std::cout << '\t' << "Total: " << num_amplifier_channels << std::endl;
-    std::cout << "Number of streams required: " << num_streams_required << std::endl;
+    std::cout << "Number of streams required: " << _num_data_streams << std::endl;
 
     // If the user plugs in more chips than the USB interface can support, throw
     // up a warning that not all channels will be displayed.
-    if (num_streams_required > 8) 
+    if (_num_data_streams > 8) 
         std::cerr << "Capacity of USB Interface Exceeded" << std::endl
             << "This RHD2000 USB interface _board.can support only 256  amplifier channels.\n";
 
@@ -407,8 +432,7 @@ bool IntanInputProcessor::findConnectedAmplifiers()
         }
     }
 
-    std::cout << "Number of usb stream enabled: " << stream << "\n";
-    auto _num_streams = stream;
+    std::cout << "Number of usb streams enabled: " << stream << "\n";
 
     // Disable unused data streams.
     for (; stream < MAX_NUM_DATA_STREAMS; ++stream)
@@ -480,15 +504,23 @@ void IntanInputProcessor::optimizeMUXSettings()
     command_sequence_length = chip_registers.createCommandListRegisterConfig(command_list, false);
 
     // Upload version with fast settle enabled to AuxCmd3 RAM Bank 2.
-    _board.uploadCommandList(command_list, Rhd2000EvalBoard::AuxCmd3, 2);
-    _board.selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0, command_sequence_length - 1);
-    chip_registers.setFastSettle(false);
+    // _board.uploadCommandList(command_list, Rhd2000EvalBoard::AuxCmd3, 2);
+    // _board.selectAuxCommandLength(Rhd2000EvalBoard::AuxCmd3, 0, command_sequence_length - 1);
+    // chip_registers.setFastSettle(false);
 
     // select the one with fast settle disabled
-    _board.selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,1);
-    _board.selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,1);
-    _board.selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,1);
-    _board.selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,1);
+    // _board.selectAuxCommandBank(Rhd2000EvalBoard::PortA, Rhd2000EvalBoard::AuxCmd3,1);
+    // _board.selectAuxCommandBank(Rhd2000EvalBoard::PortB, Rhd2000EvalBoard::AuxCmd3,1);
+    // _board.selectAuxCommandBank(Rhd2000EvalBoard::PortC, Rhd2000EvalBoard::AuxCmd3,1);
+    // _board.selectAuxCommandBank(Rhd2000EvalBoard::PortD, Rhd2000EvalBoard::AuxCmd3,1);
+}
+
+void IntanInputProcessor::setBoardCableLengths()
+{
+    _board.setCableLengthMeters(Rhd2000EvalBoard::PortA, std::get<0>(_cable_lengths));
+    _board.setCableLengthMeters(Rhd2000EvalBoard::PortB, std::get<1>(_cable_lengths));
+    _board.setCableLengthMeters(Rhd2000EvalBoard::PortC, std::get<2>(_cable_lengths));
+    _board.setCableLengthMeters(Rhd2000EvalBoard::PortD, std::get<3>(_cable_lengths));
 }
 
 void IntanInputProcessor::disableBoardExternalDigitalOutControl()
@@ -501,6 +533,11 @@ void IntanInputProcessor::disableBoardExternalDigitalOutControl()
     _board.setExternalDigOutChannel(Rhd2000EvalBoard::PortB, 0);
     _board.setExternalDigOutChannel(Rhd2000EvalBoard::PortC, 0);
     _board.setExternalDigOutChannel(Rhd2000EvalBoard::PortD, 0);
+}
+
+unsigned int IntanInputProcessor::getBlockNumInFifo()
+{
+    return _board.numWordsInFifo() / Rhd2000DataBlock::calculateDataBlockSizeInWords(_board.getNumEnabledDataStreams());
 }
 
 namespace

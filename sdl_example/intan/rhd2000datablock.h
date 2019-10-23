@@ -46,6 +46,8 @@ public:
     void print(int stream) const;
     void write(ofstream &saveOut, int numDataStreams) const;
 
+    static bool checkUsbHeader(unsigned char usbBuffer[], int index);
+
 private:
     void allocateIntArray3D(vector<vector<vector<int> > > &array3D, int xSize, int ySize, int zSize);
     void allocateIntArray2D(vector<vector<int> > &array2D, int xSize, int ySize);
@@ -54,7 +56,6 @@ private:
 
     void writeWordLittleEndian(ofstream &outputStream, int dataWord) const;
 
-    bool checkUsbHeader(unsigned char usbBuffer[], int index);
     unsigned int convertUsbTimeStamp(unsigned char usbBuffer[], int index);
     int convertUsbWord(unsigned char usbBuffer[], int index);
 };

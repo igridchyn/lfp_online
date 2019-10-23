@@ -28,6 +28,7 @@
 
 #include "rhd2000evalboard.h"
 #include "rhd2000datablock.h"
+#include "utils.h"
 
 #include "okFrontPanelDLL.h"
 
@@ -1581,6 +1582,76 @@ bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &da
         dataQueue.push(*dataBlock);
     }
     delete dataBlock;
+
+    return true;
+}
+
+bool Rhd2000EvalBoard::fastReadData(const int& numBlocks, const DataCaptureCallback& amp_data_callback, const DataCaptureCallback& aux_data_callback, const DataCaptureCallback& adc_data_callback, const DataCaptureCallback& ttl_in_data_callback, const DataCaptureCallback& ttl_out_data_callback)
+{
+#ifdef DEBUG_EVAL
+  cerr << "Rhd2000EvalBoard::fastReadData()\n";
+#endif
+
+    const auto blockSizeInWords = Rhd2000DataBlock::calculateDataBlockSizeInWords(numDataStreams);
+    unsigned int numWordsToRead = numBlocks * blockSizeInWords;
+    unsigned int numBytesToRead = 2 * numWordsToRead;
+
+    if (numBytesToRead > USB_BUFFER_SIZE) {
+        cerr << "Error in Rhd2000EvalBoard::readDataBlocks: USB buffer size exceeded.  " <<
+                "Increase value of USB_BUFFER_SIZE." << endl;
+        return false;
+    }
+
+    // This is not very secure because we have never checked if there is data in the FIFO (e.g. called numWordsInFifo()), because that check takes > 1ms.
+    // However, we can rely on header to check if we got the correct data.
+    dev->ReadFromPipeOut(PipeOutData, numBytesToRead, usbBuffer);
+    int channel, stream, index;
+
+    unsigned int timestamp;
+    const auto aux_data_size = 2 * 3 * numDataStreams; // in bytes
+    const auto amp_data_size = 2 * 32 * numDataStreams; // in bytes
+    const auto adc_data_size = 2 * 8; // in bytes
+
+    for (int blockIndex = 0; blockIndex < numBlocks; ++blockIndex)
+    {
+        index = blockIndex * 2 * blockSizeInWords;
+        for (int t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t)
+        {
+            if (!Rhd2000DataBlock::checkUsbHeader(usbBuffer, index)) {
+                // cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+                continue;
+            }
+            // done with the header
+            index += 8;
+
+            // read timestamp
+            timestamp = intan::utils::convertUsbWord<unsigned int>(usbBuffer + index);
+            index += 4;
+
+            // Read auxiliary results
+            aux_data_callback(t, timestamp, usbBuffer + index, aux_data_size);
+            index += aux_data_size;
+
+            // Read amplifier channels
+            amp_data_callback(t, timestamp, usbBuffer + index, amp_data_size);
+            index += amp_data_size;
+
+            // skip 36th filler word in each data stream
+            index += 2 * numDataStreams;
+
+            // Read from AD5662 ADCs
+            adc_data_callback(t, timestamp, usbBuffer + index, adc_data_size);
+            index += adc_data_size;
+
+            // Read TTL input values
+            ttl_in_data_callback(t, timestamp, usbBuffer + index, 2);
+            index += 2;
+
+            // Read TTL output values
+            ttl_out_data_callback(t, timestamp, usbBuffer + index, 2);
+            index += 2;
+        }
+    }
 
     return true;
 }

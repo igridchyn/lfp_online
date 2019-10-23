@@ -8,17 +8,31 @@ using CableLengths = std::tuple<double, double, double, double>;
 
 class LFPONLINEAPI IntanInputProcessor : public LFPProcessor
 {
-    int _counter;
     Rhd2000EvalBoard _board;
     CableLengths _cable_lengths;
+    int _num_data_streams;
+    decltype(std::chrono::high_resolution_clock::now()) _old_time;
+
+    // temporary buffers for data converted to 16-bit words
+    std::vector<unsigned short> _amp_buf;
+    //std::vector<unsigned short> _aux_buf;
+    //std::vector<unsigned short> _adc_buf;
+
+    // used for measuring, TODO separate profiler?
+    int _proc_counter = 0;
+    std::vector<int> _time_diffs;
+    std::vector<bool> _read_success;
+    std::vector<int> _read_blocks;
 
     bool openBoard();
     bool uploadBoardConfiguration();
     void calibrateBoardADC();
-    // Find amplifiers and cable lengths.
+    // Find amplifiers, cable lengths and number of required data streams.
     bool findConnectedAmplifiers();
     void optimizeMUXSettings();
+    void setBoardCableLengths();
     void disableBoardExternalDigitalOutControl();
+    unsigned int getBlockNumInFifo();
 
     public:
         IntanInputProcessor(LFPBuffer *buf);
