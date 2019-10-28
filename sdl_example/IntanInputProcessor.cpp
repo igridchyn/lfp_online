@@ -26,7 +26,6 @@ Rhd2000EvalBoard::AmplifierSampleRate numToSampleRate(const T& num);
 
 }
 
-constexpr int TEST_PROC_STEPS = 5000;
 IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf):
                     LFPProcessor(buf),
                     _empty_fifo_step(buffer->config_->getInt("intan.empty_fifo_step", 10)),
@@ -47,13 +46,54 @@ IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf):
         //_aux_buf.reserve(3 * _num_data_streams);
         //_adc_buf.reserve(8);
 
-        _time_diffs.reserve(TEST_PROC_STEPS);
-        _read_success.reserve(TEST_PROC_STEPS);
         _board.setContinuousRunMode(true);
         _board.run();
         std::cout << "Sampling rate: " << _board.getSampleRate() << "Hz" << std::endl;
     }
 }
+
+IntanInputProcessor::~IntanInputProcessor()
+{
+}
+
+
+#ifdef PROFILE_INTAN
+constexpr int TEST_PROC_STEPS = 500;
+#define REPORT_PERFORMANCE(success, num_blocks_to_read) reportPerformance(success, num_blocks_to_read)
+#else
+#define REPORT_PERFORMANCE
+#endif
+
+#ifdef PROFILE_INTAN
+void IntanInputProcessor::reportPerformance(bool read_success, int num_blocks_to_read)
+{
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto diff = std::chrono::duration_cast<std::chrono::microseconds>(now - _old_time).count();
+    _old_time = now;
+
+    _read_success.push_back(read_success);
+    _read_blocks.push_back(num_blocks_to_read);
+    _time_diffs.emplace_back(diff);
+
+    if (_perf_proc_counter > TEST_PROC_STEPS)
+    {
+        std::cout << "Reading time: " << std::endl <<
+            " max: " << *std::max_element(_time_diffs.begin()+1, _time_diffs.end()) <<
+            " avg: " << std::accumulate(_time_diffs.begin()+1, _time_diffs.end(), 0.0) / double(_time_diffs.size()-1) << std::endl;
+
+        std::cout << "Blocks read: " << std::endl <<
+            " max: " << *std::max_element(_read_blocks.begin(), _read_blocks.end()) << 
+            " avg: " << std::accumulate(_read_blocks.begin(), _read_blocks.end(), 0) / double(_read_blocks.size()) << std::endl;
+
+        std::cout << "All readings succesful: " << std::boolalpha << std::all_of(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) << std::endl;
+        std::cout << "Blocks left: " << getBlockNumInFifo() << std::endl;
+
+        exit(0);
+    }
+
+    ++_perf_proc_counter;
+}
+#endif
 
 void IntanInputProcessor::process()
 {
@@ -76,40 +116,9 @@ void IntanInputProcessor::process()
     };
     auto success = _board.readRawData(num_blocks_to_read, _amp_data_capture);
 
-    reportPerformance(success, num_blocks_to_read);
+    REPORT_PERFORMANCE(success, num_blocks_to_read);
 
     ++_proc_counter;
-}
-
-IntanInputProcessor::~IntanInputProcessor()
-{
-}
-
-void IntanInputProcessor::reportPerformance(bool read_success, int num_blocks_to_read)
-{
-    const auto now = std::chrono::high_resolution_clock::now();
-    const auto diff = std::chrono::duration_cast<std::chrono::microseconds>(now - _old_time).count();
-    _old_time = now;
-
-    _read_success.push_back(read_success);
-    _read_blocks.push_back(num_blocks_to_read);
-    _time_diffs.emplace_back(diff);
-
-    if (_proc_counter > TEST_PROC_STEPS)
-    {
-        std::cout << "Reading time: " << std::endl <<
-            " max: " << *std::max_element(_time_diffs.begin()+1, _time_diffs.end()) <<
-            " avg: " << std::accumulate(_time_diffs.begin()+1, _time_diffs.end(), 0.0) / double(_time_diffs.size()-1) << std::endl;
-
-        std::cout << "Blocks read: " << std::endl <<
-            " max: " << *std::max_element(_read_blocks.begin(), _read_blocks.end()) << 
-            " avg: " << std::accumulate(_read_blocks.begin(), _read_blocks.end(), 0) / double(_read_blocks.size()) << std::endl;
-
-        std::cout << "All readings succesful: " << std::boolalpha << std::all_of(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) << std::endl;
-        std::cout << "Blocks left: " << getBlockNumInFifo() << std::endl;
-
-        exit(0);
-    }
 }
 
 bool IntanInputProcessor::openBoard()

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c++17 -g -O2 -Wall -Wextra -Wno-ignored-qualifiers -I/usr/local/include/SDL2 -D_REENTRANT# -DDEBUG_EVAL
+CFLAGS = -std=c++17 -g -O2 -Wall -Wextra -Wno-ignored-qualifiers -I/usr/local/include/SDL2 -D_REENTRANT# -DPROFILE_INTAN
 LDFLAGS = -lm -lstdc++ -lstdc++fs -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem -L/usr/local/lib -Wl,-rpath,/usr/local/lib -ldl -lrt -Wl,--enable-new-dtags -lSDL2 -lSDL2_ttf
 CLFLAGS = -Wl,--rpath=/d1/data/lfpo1/lib/GLIB -Wl,--dynamic-linker=/d1/data/lfpo1/lib/GLIB/ld-linux-x86-64.so.2 -static-libstdc++ --enable-checking
 	
