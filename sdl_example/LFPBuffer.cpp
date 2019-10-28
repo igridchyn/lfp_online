@@ -915,7 +915,7 @@ void LFPBuffer::Rewind() {
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 }
 
-void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
+void LFPBuffer::add_data(const unsigned char* new_data, size_t data_size) {
 #ifdef PIPELINE_THREAD
 	std::lock_guard<std::mutex> lk(chunk_access_mtx_);
 #endif

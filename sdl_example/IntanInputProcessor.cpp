@@ -27,8 +27,10 @@ Rhd2000EvalBoard::AmplifierSampleRate numToSampleRate(const T& num);
 }
 
 constexpr int TEST_PROC_STEPS = 5000;
-IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf)
-                    :LFPProcessor(buf)
+IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf):
+                    LFPProcessor(buf),
+                    _empty_fifo_step(buffer->config_->getInt("intan.empty_fifo_step", 10)),
+                    _proc_counter(0)
 {
     if (openBoard() && uploadBoardConfiguration())
     {
@@ -37,6 +39,7 @@ IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf)
         findConnectedAmplifiers();
         _board.setSampleRate(numToSampleRate(buf->SAMPLING_RATE));
         //Now that we have set our sampling rate, we can set the MISO sampling delay which is dependent on the sample rate.
+        setBoardCableLengths();
         disableBoardExternalDigitalOutControl();
 
         // allocate local data buffers

@@ -11,8 +11,8 @@ class LFPONLINEAPI IntanInputProcessor : public LFPProcessor
     Rhd2000EvalBoard _board;
     CableLengths _cable_lengths;
     int _num_data_streams;
-    int _proc_counter = 0;
-    int _empty_fifo_step = 10; // every _empty_fifo_step steps calculate how many blocks are in board fifo and read them all
+    int _proc_counter;
+    int _empty_fifo_step; // every _empty_fifo_step steps calculate how many blocks are in board fifo and read them all
 
     // temporary buffers for data converted to 16-bit words
     std::vector<unsigned short> _amp_buf;
