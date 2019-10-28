@@ -1586,7 +1586,7 @@ bool Rhd2000EvalBoard::readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &da
     return true;
 }
 
-bool Rhd2000EvalBoard::fastReadData(const int& numBlocks, const DataCaptureCallback& amp_data_callback, const DataCaptureCallback& aux_data_callback, const DataCaptureCallback& adc_data_callback, const DataCaptureCallback& ttl_in_data_callback, const DataCaptureCallback& ttl_out_data_callback)
+bool Rhd2000EvalBoard::readRawData(const int& numBlocks, const DataCaptureCallback& ampDataCallback, const DataCaptureCallback& auxDataCallback, const DataCaptureCallback& adcDataCallback, const DataCaptureCallback& ttlInDataCallback, const DataCaptureCallback& ttlOutDataCallback)
 {
 #ifdef DEBUG_EVAL
   cerr << "Rhd2000EvalBoard::fastReadData()\n";
@@ -1597,8 +1597,8 @@ bool Rhd2000EvalBoard::fastReadData(const int& numBlocks, const DataCaptureCallb
     unsigned int numBytesToRead = 2 * numWordsToRead;
 
     if (numBytesToRead > USB_BUFFER_SIZE) {
-        cerr << "Error in Rhd2000EvalBoard::readDataBlocks: USB buffer size exceeded.  " <<
-                "Increase value of USB_BUFFER_SIZE." << endl;
+        cerr << "Error in Rhd2000EvalBoard::fastReadData: USB buffer size exceeded.  " <<
+                "Num blocks: " << numBlocks << endl;
         return false;
     }
 
@@ -1608,9 +1608,9 @@ bool Rhd2000EvalBoard::fastReadData(const int& numBlocks, const DataCaptureCallb
     int channel, stream, index;
 
     unsigned int timestamp;
-    const auto aux_data_size = 2 * 3 * numDataStreams; // in bytes
-    const auto amp_data_size = 2 * 32 * numDataStreams; // in bytes
-    const auto adc_data_size = 2 * 8; // in bytes
+    const auto auxDataSize = 2 * 3 * numDataStreams; // in bytes
+    const auto ampDataSize = 2 * 32 * numDataStreams; // in bytes
+    const auto adcDataSize = 2 * 8; // in bytes
 
     for (int blockIndex = 0; blockIndex < numBlocks; ++blockIndex)
     {
@@ -1629,26 +1629,26 @@ bool Rhd2000EvalBoard::fastReadData(const int& numBlocks, const DataCaptureCallb
             index += 4;
 
             // Read auxiliary results
-            aux_data_callback(t, timestamp, usbBuffer + index, aux_data_size);
-            index += aux_data_size;
+            auxDataCallback(t, timestamp, usbBuffer + index, auxDataSize);
+            index += auxDataSize;
 
             // Read amplifier channels
-            amp_data_callback(t, timestamp, usbBuffer + index, amp_data_size);
-            index += amp_data_size;
+            ampDataCallback(t, timestamp, usbBuffer + index, ampDataSize);
+            index += ampDataSize;
 
             // skip 36th filler word in each data stream
             index += 2 * numDataStreams;
 
             // Read from AD5662 ADCs
-            adc_data_callback(t, timestamp, usbBuffer + index, adc_data_size);
-            index += adc_data_size;
+            adcDataCallback(t, timestamp, usbBuffer + index, adcDataSize);
+            index += adcDataSize;
 
             // Read TTL input values
-            ttl_in_data_callback(t, timestamp, usbBuffer + index, 2);
+            ttlInDataCallback(t, timestamp, usbBuffer + index, 2);
             index += 2;
 
             // Read TTL output values
-            ttl_out_data_callback(t, timestamp, usbBuffer + index, 2);
+            ttlOutDataCallback(t, timestamp, usbBuffer + index, 2);
             index += 2;
         }
     }

@@ -22,7 +22,7 @@ void convertUsbWords(std::vector<T>& result, const unsigned char usbBuffer[], in
     constexpr auto word_len = sizeof(T);
 
     for (int i = 0; i < size; i += word_len)
-        result[i / word_len] = convertUsbWord<T>(usbBuffer + i);
+        result.emplace_back(convertUsbWord<T>(usbBuffer + i));
 }
 
 }

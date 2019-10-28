@@ -26,7 +26,7 @@ Rhd2000EvalBoard::AmplifierSampleRate numToSampleRate(const T& num);
 
 }
 
-constexpr int TEST_PROC_STEPS = 15000;
+constexpr int TEST_PROC_STEPS = 5000;
 IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf)
                     :LFPProcessor(buf)
 {
@@ -54,46 +54,59 @@ IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf)
 
 void IntanInputProcessor::process()
 {
-    const auto num_blocks = _proc_counter % 10 == 0 ? getBlockNumInFifo() : 1;
-    // const auto num_blocks = getBlockNumInFifo();
+    auto num_blocks_to_read = 1;
+    if(_proc_counter % _empty_fifo_step == 0)
+    {
+       num_blocks_to_read = getBlockNumInFifo();
+       _proc_counter -= _empty_fifo_step; // to prevent overflow possible during very looong sessions
+    }
 
-    if (num_blocks <= 0)
+    if (num_blocks_to_read <= 0)
         return;
 
     const auto _amp_data_capture = [this](int sample, int timestamp, const unsigned char raw_data[], int data_size) 
     {
         intan::utils::convertUsbWords(_amp_buf, raw_data, data_size);
-        std::cout << (_amp_buf[0] - 32768) * 0.195 << std::endl;
+        buffer->add_data(reinterpret_cast<unsigned char*>(_amp_buf.data()), _amp_buf.size() * sizeof(unsigned short));
+        // (_amp_buf[i] - 32768) * 0.195
+        _amp_buf.clear();
     };
-    auto success = _board.fastReadData(num_blocks, _amp_data_capture);
+    auto success = _board.readRawData(num_blocks_to_read, _amp_data_capture);
 
-    _read_success.insert(_read_success.end(), num_blocks, success);
-    _read_blocks.push_back(num_blocks);
+    reportPerformance(success, num_blocks_to_read);
 
-    const auto now = std::chrono::high_resolution_clock::now();
-    const auto diff = std::chrono::duration_cast<std::chrono::microseconds>(now - _old_time).count();
-    _time_diffs.emplace_back(diff);
-    _old_time = now;
-
-    if (_proc_counter > TEST_PROC_STEPS)
-    {
-        std::cout << _time_diffs.size() << " " << std::accumulate(_time_diffs.begin()+1, _time_diffs.end(), 0.0) / double(_time_diffs.size()-1) << std::endl;
-
-        std::cout << std::boolalpha << std::all_of(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) << " " << std::count_if(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) / double(_read_success.size()) << " " << _read_success.size() << std::endl;
-
-        std::cout << std::accumulate(_read_blocks.begin(), _read_blocks.end(), 0) / double(_read_blocks.size()) << " " << std::endl; //std::count_if(_read_blocks.begin(), _read_blocks.end(), [](const auto&  x){ return x == 0; }) << std::cout;
-
-    std::cout << _board.numWordsInFifo() / double(Rhd2000EvalBoard::fifoCapacityInWords()) << " " << getBlockNumInFifo() << std::endl;
-
-    std::cout << "maxes " << *std::max_element(_time_diffs.begin(), _time_diffs.end()) << " " << *std::max_element(_read_blocks.begin(), _read_blocks.end()) << std::endl;
-
-        exit(0);
-    }
     ++_proc_counter;
 }
 
 IntanInputProcessor::~IntanInputProcessor()
 {
+}
+
+void IntanInputProcessor::reportPerformance(bool read_success, int num_blocks_to_read)
+{
+    const auto now = std::chrono::high_resolution_clock::now();
+    const auto diff = std::chrono::duration_cast<std::chrono::microseconds>(now - _old_time).count();
+    _old_time = now;
+
+    _read_success.push_back(read_success);
+    _read_blocks.push_back(num_blocks_to_read);
+    _time_diffs.emplace_back(diff);
+
+    if (_proc_counter > TEST_PROC_STEPS)
+    {
+        std::cout << "Reading time: " << std::endl <<
+            " max: " << *std::max_element(_time_diffs.begin()+1, _time_diffs.end()) <<
+            " avg: " << std::accumulate(_time_diffs.begin()+1, _time_diffs.end(), 0.0) / double(_time_diffs.size()-1) << std::endl;
+
+        std::cout << "Blocks read: " << std::endl <<
+            " max: " << *std::max_element(_read_blocks.begin(), _read_blocks.end()) << 
+            " avg: " << std::accumulate(_read_blocks.begin(), _read_blocks.end(), 0) / double(_read_blocks.size()) << std::endl;
+
+        std::cout << "All readings succesful: " << std::boolalpha << std::all_of(_read_success.begin(), _read_success.end(), [](const auto& x){ return x; }) << std::endl;
+        std::cout << "Blocks left: " << getBlockNumInFifo() << std::endl;
+
+        exit(0);
+    }
 }
 
 bool IntanInputProcessor::openBoard()

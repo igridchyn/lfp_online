@@ -11,18 +11,20 @@ class LFPONLINEAPI IntanInputProcessor : public LFPProcessor
     Rhd2000EvalBoard _board;
     CableLengths _cable_lengths;
     int _num_data_streams;
-    decltype(std::chrono::high_resolution_clock::now()) _old_time;
+    int _proc_counter = 0;
+    int _empty_fifo_step = 10; // every _empty_fifo_step steps calculate how many blocks are in board fifo and read them all
 
     // temporary buffers for data converted to 16-bit words
     std::vector<unsigned short> _amp_buf;
     //std::vector<unsigned short> _aux_buf;
     //std::vector<unsigned short> _adc_buf;
 
-    // used for measuring, TODO separate profiler?
-    int _proc_counter = 0;
+    // used for measuring performance, TODO separate profiler?
+    decltype(std::chrono::high_resolution_clock::now()) _old_time;
     std::vector<int> _time_diffs;
     std::vector<bool> _read_success;
     std::vector<int> _read_blocks;
+    void reportPerformance(bool read_success, int num_blocks_to_read);
 
     bool openBoard();
     bool uploadBoardConfiguration();

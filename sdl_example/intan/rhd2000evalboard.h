@@ -35,7 +35,7 @@ class okCFrontPanel;
 class Rhd2000DataBlock;
                                             // sample, timestamp, raw data, data size in bytes
 using DataCaptureCallback =  std::function<void(int, int, const unsigned char[], int)>;
-const DataCaptureCallback empty_data_capture_callback = [](int sample, int timestamp, const unsigned char raw_data[], int data_size){};
+const DataCaptureCallback emptyDataCaptureCallback = [](int sample, int timestamp, const unsigned char raw_data[], int data_size){};
 
 class Rhd2000EvalBoard
 {
@@ -153,12 +153,12 @@ public:
     void flush();
     bool readDataBlock(Rhd2000DataBlock *dataBlock);
     bool readDataBlocks(int numBlocks, queue<Rhd2000DataBlock> &dataQueue);
-    bool fastReadData(const int& numBlocks,
-                      const DataCaptureCallback& amp_data_callback = empty_data_capture_callback,
-                      const DataCaptureCallback& aux_data_callback = empty_data_capture_callback,
-                      const DataCaptureCallback& adc_data_callback = empty_data_capture_callback,
-                      const DataCaptureCallback& ttl_in_data_callback = empty_data_capture_callback,
-                      const DataCaptureCallback& ttl_out_data_callback = empty_data_capture_callback);
+    bool readRawData(const int& numBlocks,
+                      const DataCaptureCallback& ampDataCallback = emptyDataCaptureCallback,
+                      const DataCaptureCallback& auxDataCallback = emptyDataCaptureCallback,
+                      const DataCaptureCallback& adcDataCallback = emptyDataCaptureCallback,
+                      const DataCaptureCallback& ttlInDataCallback = emptyDataCaptureCallback,
+                      const DataCaptureCallback& ttloutDataCallback = emptyDataCaptureCallback);
     int queueToFile(queue<Rhd2000DataBlock> &dataQueue, std::ofstream &saveOut);
     int getBoardMode() const;
     int getCableDelay(BoardPort port) const;
