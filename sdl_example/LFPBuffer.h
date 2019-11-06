@@ -498,7 +498,7 @@ public:
 	Spike *head_start_, *tail_start_;
 
 	// just add the data and move along
-	void add_data(unsigned char* new_data, size_t data_size);
+	void add_data(const unsigned char* new_data, size_t data_size);
 
 	void estimate_firing_rates();
 
