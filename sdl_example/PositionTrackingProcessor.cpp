@@ -56,11 +56,10 @@ void PositionTrackingProcessor::process()
         _detection_thread.detach();
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     {
         std::lock_guard _position_detector_guard(_position_detector_mutex);
-        const auto num_pos = _animal_positions.size();
         while (!_animal_positions.empty())
         {
             const auto& pos = _animal_positions.front();
@@ -72,7 +71,6 @@ void PositionTrackingProcessor::process()
             _animal_positions.pop();
         }
     }
-
 }
 
 void PositionTrackingProcessor::detect_positions()
