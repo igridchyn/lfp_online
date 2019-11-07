@@ -109,7 +109,7 @@ FirewireCamera::FirewireCamera(unsigned int width, unsigned int height, unsigned
     if (_err != DC1394_SUCCESS)
         throw std::runtime_error("Could not setup camera - make sure that the video mode and framerate are supported by your camera.");
 
-    _rgb_frame = std::unique_ptr<dc1394video_frame_t>(new dc1394video_frame_t);
+    _rgb_frame = new dc1394video_frame_t();
     _rgb_frame->color_coding = DC1394_COLOR_CODING_RGB8;
 
     dc1394_video_set_transmission(_camera.get(), DC1394_ON);
@@ -120,14 +120,25 @@ FirewireCamera::~FirewireCamera()
     dc1394_video_set_transmission(_camera.get(), DC1394_OFF);
     dc1394_capture_stop(_camera.get());
     dc1394_camera_free(_camera.get());
+    delete _rgb_frame;
 }
 
-const dc1394video_frame_t* FirewireCamera::captureFrame()
+const dc1394video_frame_t* FirewireCamera::captureFrame(bool rgb)
 {
     if (_frame)
         dc1394_capture_enqueue(_camera.get(), _frame);
 
-    return dc1394_capture_dequeue(_camera.get(), DC1394_CAPTURE_POLICY_WAIT, &_frame) == DC1394_SUCCESS ? _frame : nullptr;
+    const auto capture_success = dc1394_capture_dequeue(_camera.get(), DC1394_CAPTURE_POLICY_WAIT, &_frame) == DC1394_SUCCESS;
+
+    if (!capture_success)
+        return nullptr;
+
+    if (!rgb)
+        return _frame;
+
+    const auto debayer_success = dc1394_debayer_frames(_frame, _rgb_frame, DC1394_BAYER_METHOD_BILINEAR) == DC1394_SUCCESS;
+
+    return debayer_success ? _rgb_frame : nullptr;
 }
 
 }
