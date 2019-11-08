@@ -87,7 +87,7 @@ FirewireCamera::FirewireCamera(unsigned int width, unsigned int height, unsigned
     if (_err != DC1394_SUCCESS)
         throw std::runtime_error("Could not set format7 image position.");
 
-    _err = dc1394_video_set_iso_speed(_camera.get(), DC1394_ISO_SPEED_1600);
+    _err = dc1394_video_set_iso_speed(_camera.get(), DC1394_ISO_SPEED_800);
     if (_err != DC1394_SUCCESS)
         throw std::runtime_error("Could not set ISO speed 800.");
 

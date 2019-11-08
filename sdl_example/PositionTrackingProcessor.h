@@ -5,7 +5,7 @@
 #include "camera/FirewireCamera.h"
 #include <opencv2/imgproc.hpp>
 
-#define PROFILE_POS_TRACKING
+// #define PROFILE_POS_TRACKING
 
 class LFPONLINEAPI PositionTrackingProcessor : public LFPProcessor
 {
@@ -17,14 +17,19 @@ class LFPONLINEAPI PositionTrackingProcessor : public LFPProcessor
 
     std::queue<SpatialInfo> _animal_positions;
 
-    int _binary_threshold;
+    int _binary_threshold_1;
+    int _binary_threshold_2;
+    bool _rgb_mode;
+    // relevant only when _rgb_mode is true
+    int _first_led_channel;
+    int _second_led_channel;
+
 
     // used for measuring performance, TODO separate profiler?
 #ifdef PROFILE_POS_TRACKING
     decltype(std::chrono::high_resolution_clock::now()) _old_time;
     std::vector<int> _time_diffs;
-    std::vector<int> _num_spots_detected;
-    void reportPerformance(unsigned int detected_spots);
+    void reportPerformance();
     int _perf_proc_counter = 0;
 #endif
 

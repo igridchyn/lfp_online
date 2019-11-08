@@ -85,7 +85,7 @@ public:
 	float dirvar_ = nanf("");
 	// valid if at least one LED is known
 	bool valid = false;
-    unsigned long long timestamp_;
+    long long timestamp_;
 
 public:
 
@@ -93,8 +93,8 @@ public:
 	float y_pos() const;
 
 	SpatialInfo();
-	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts = -1);
-	void Init(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts = -1);
+	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts = -1);
+	void Init(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts = -1);
 
     friend std::ostream& operator<<(std::ostream& out, const SpatialInfo& si);
 };
@@ -337,6 +337,9 @@ public:
 
 	size_t chunk_buf_len_ = 0;
 	size_t chunk_buf_ptr_in_ = 0;
+
+    std::atomic_int last_sample_timestamp_ = -1;
+    std::atomic_bool has_last_sample_timestamp_ = false;
 
 	std::vector<OnlineEstimator<float, float>* > powerEstimators_;
 	std::vector<OnlineEstimator<float, float>* > powerEstimatorsMap_;

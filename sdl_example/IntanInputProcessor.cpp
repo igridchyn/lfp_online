@@ -112,9 +112,15 @@ void IntanInputProcessor::process()
         intan::utils::convertUsbWords(_amp_buf, raw_data, data_size);
         buffer->add_data(reinterpret_cast<unsigned char*>(_amp_buf.data()), _amp_buf.size() * sizeof(unsigned short));
         // (_amp_buf[i] - 32768) * 0.195
+        last_sample_timestamp_ = timestamp;
         _amp_buf.clear();
     };
     auto success = _board.readRawData(num_blocks_to_read, _amp_data_capture);
+    if (success)
+    {
+        buffer->has_last_sample_timestamp_ = true;
+        buffer->last_sample_timestamp_ = last_sample_timestamp_;
+    }
 
     REPORT_PERFORMANCE(success, num_blocks_to_read);
 

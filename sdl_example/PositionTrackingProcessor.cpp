@@ -2,6 +2,7 @@
 #include <iostream>
 #include <filesystem>
 #include <future>
+#include <cctype>
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
 
@@ -15,20 +16,15 @@ constexpr int DEFAULT_TOP_POS = 0;
 
 namespace
 {
-    const cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, {5, 5});
-    const cv::Mat erode_kernel = cv::getStructuringElement(cv::MORPH_RECT, {7, 7});
-
-    cv::Mat& preprocess(cv::Mat& frame, int bin_thr);
-    void find_contours(std::vector<std::vector<cv::Point>>& contours, std::vector<cv::Vec4i>& hierarchy, const cv::Mat& frame);
-    void find_centroids(std::vector<cv::Point2f>& centroids, const std::vector<std::vector<cv::Point>>& contours);
-    SpatialInfo get_position_from_centroids(const std::vector<cv::Point2f>& centroids, const unsigned long long timestamp);
+    int getLEDChannel(std::string&& channel);
+    SpatialInfo detectPosition(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp);
 }
 
 #ifdef PROFILE_POS_TRACKING
 constexpr int TEST_PROC_STEPS = 100;
-#define REPORT_PERFORMANCE(num_detected) reportPerformance(num_detected)
+#define REPORT_PERFORMANCE() reportPerformance()
 #else
-#define REPORT_PERFORMANCE
+#define REPORT_PERFORMANCE()
 #endif
 
 PositionTrackingProcessor::PositionTrackingProcessor(LFPBuffer *buf):
@@ -37,7 +33,12 @@ PositionTrackingProcessor::PositionTrackingProcessor(LFPBuffer *buf):
                             buffer->config_->getInt("pos_track.im_height", DEFAULT_HEIGHT), 
                             buffer->config_->getInt("pos_track.im_pos_left", DEFAULT_LEFT_POS), 
                             buffer->config_->getInt("pos_track.im_pos_top", DEFAULT_TOP_POS)),
-                    _binary_threshold(buffer->config_->getInt("pos_track.bin_thr", 20))
+                    _binary_threshold_1(buffer->config_->getInt("pos_track.bin_thr_1", 200)),
+                    _binary_threshold_2(buffer->config_->getInt("pos_track.bin_thr_2", 100)),
+                    _rgb_mode(buffer->config_->getBool("pos_track.rgb_mode", false)),
+                    _first_led_channel(getLEDChannel(buffer->config_->getString("pos_track.first_led_channel", "red"))),
+                    _second_led_channel(getLEDChannel(buffer->config_->getString("pos_track.second_led_channel", "green"))),
+                    _detection_on(false)
 {
 }
 
@@ -66,7 +67,7 @@ void PositionTrackingProcessor::process()
 
             memcpy(reinterpret_cast<void*>(buffer->positions_buf_ + buffer->pos_buf_pos_), &pos, sizeof(SpatialInfo));
             buffer->AdvancePositionBufferPointer();
-            std::cout << pos << std::endl;
+            // std::cout << pos << std::endl;
 
             _animal_positions.pop();
         }
@@ -75,42 +76,60 @@ void PositionTrackingProcessor::process()
 
 void PositionTrackingProcessor::detect_positions()
 {
-    std::vector<cv::Point2f> centroids;
-    std::vector<std::vector<cv::Point>> contours;
-    std::vector<cv::Vec4i> hierarchy;
+    const auto frame_type = _rgb_mode ? CV_8UC3 : CV_8UC1;
 
     while(_detection_on)
     {
-        centroids.clear();
-        const auto raw_frame = _camera.captureFrame();
+        const auto raw_frame = _camera.captureFrame(_rgb_mode);
 
         cv::Mat frame(raw_frame->size[1], raw_frame->size[0],  // height, width
-                      CV_8U, raw_frame->image,
-                      raw_frame->stride);
+                frame_type, raw_frame->image,
+                raw_frame->stride);
+        const int timestamp = buffer->has_last_sample_timestamp_.load() ? buffer->last_sample_timestamp_.load() : raw_frame->timestamp;
+        // cv::imshow("frame", frame);
 
-        preprocess(frame, _binary_threshold);
-        find_contours(contours, hierarchy, frame);
-        find_centroids(centroids, contours);
-        const auto pos = get_position_from_centroids(centroids, raw_frame->timestamp);
+        SpatialInfo pos;
+        pos.timestamp_ = timestamp;
+        if (_rgb_mode)
+        {
+            std::array<cv::Mat, 3> frame_channels;
+            cv::split(frame, frame_channels);
 
-        // std::cout << pos << std::endl;
-        // cv::imshow("Live", frame);
+            pos = detectPosition(frame_channels[_first_led_channel], 
+                                 frame_channels[_second_led_channel], 
+                                 _binary_threshold_1, 
+                                 _binary_threshold_2, 
+                                 timestamp);
+        }
+        else
+        {
+            cv::Mat first_led_frame;
+            cv::Mat second_led_frame;
+            cv::threshold(frame, first_led_frame, _binary_threshold_1, 255, cv::THRESH_BINARY);
+            // cv::threshold(frame, second_led_frame, _binary_threshold_2, 255, cv::THRESH_BINARY);
+            cv::inRange(frame, cv::Scalar(_binary_threshold_2), cv::Scalar(1.5 * _binary_threshold_2), second_led_frame);
+            pos = detectPosition(first_led_frame, 
+                                 second_led_frame, 
+                                 _binary_threshold_1, 
+                                 _binary_threshold_2, 
+                                 timestamp);
+        }
+
         // cv::waitKey(1);
 
-        REPORT_PERFORMANCE(contours.size());
         std::lock_guard<std::mutex> _position_detector_guard(_position_detector_mutex);
         _animal_positions.push(pos);
+        REPORT_PERFORMANCE();
     }
 }
 
 #ifdef PROFILE_POS_TRACKING
-void PositionTrackingProcessor::reportPerformance(unsigned int detected_spots)
+void PositionTrackingProcessor::reportPerformance()
 {
     const auto now = std::chrono::high_resolution_clock::now();
     const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - _old_time).count();
     _old_time = now;
 
-    _num_spots_detected.push_back(detected_spots);
     _time_diffs.push_back(diff);
 
     if (_perf_proc_counter > TEST_PROC_STEPS)
@@ -119,11 +138,6 @@ void PositionTrackingProcessor::reportPerformance(unsigned int detected_spots)
             " max: " << *std::max_element(_time_diffs.begin()+1, _time_diffs.end()) <<
             " min: " << *std::min_element(_time_diffs.begin()+1, _time_diffs.end()) <<
             " avg: " << std::accumulate(_time_diffs.begin()+1, _time_diffs.end(), 0.0) / double(_time_diffs.size()-1) << std::endl;
-
-        std::cout << "Spots detected: " << std::endl <<
-            " max: " << *std::max_element(_num_spots_detected.begin(), _num_spots_detected.end()) << 
-            " min: " << *std::min_element(_num_spots_detected.begin(), _num_spots_detected.end()) << 
-            " avg: " << std::accumulate(_num_spots_detected.begin(), _num_spots_detected.end(), 0) / double(_num_spots_detected.size()) << std::endl;
 
         exit(0);
     }
@@ -134,27 +148,32 @@ void PositionTrackingProcessor::reportPerformance(unsigned int detected_spots)
 
 namespace
 {
+    const cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, {5, 5});
+    const cv::Mat erode_kernel = cv::getStructuringElement(cv::MORPH_RECT, {7, 7});
+
+    // auxiliary vars used for processing
+    std::vector<cv::Point2f> centroids;
+    std::vector<std::vector<cv::Point>> contours;
+    const cv::Point2f unknown_pos(-1, -1);
+
     cv::Mat& preprocess(cv::Mat& frame, int bin_thr)
     {
         cv::threshold(frame, frame, bin_thr, 255, cv::THRESH_BINARY);
         cv::dilate(frame, frame, dilate_kernel);
         cv::erode(frame, frame, erode_kernel);
-        cv::dilate(frame, frame, dilate_kernel);
-        cv::erode(frame, frame, erode_kernel);
         return frame;
     }
 
-    void find_contours(std::vector<std::vector<cv::Point>>& contours, std::vector<cv::Vec4i>& hierarchy, const cv::Mat& frame)
+    void findContours(std::vector<std::vector<cv::Point>>& contours, const cv::Mat& frame)
     {
         contours.clear();
-        hierarchy.clear();
-        cv::findContours(frame, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
+        cv::findContours(frame, contours, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
         std::sort(contours.begin(), contours.end(), 
-                [](const auto& c1, const auto& c2) { return c1.size() > c2.size(); });
+                [](const auto& c1, const auto& c2) { return cv::contourArea(c1) > cv::contourArea(c2); });
                  // sort contours in descending order by size
     }
 
-    void find_centroids(std::vector<cv::Point2f>& centroids, const std::vector<std::vector<cv::Point>>& contours)
+    void findCentroids(std::vector<cv::Point2f>& centroids, const std::vector<std::vector<cv::Point>>& contours)
     {
         centroids.clear();
         cv::Moments m;
@@ -166,24 +185,62 @@ namespace
         }
     }
 
-    SpatialInfo get_position_from_centroids(const std::vector<cv::Point2f>& centroids, const unsigned long long timestamp)
+    SpatialInfo getPositionFromCentroids(const cv::Point2f& centroid_first_led, const cv::Point2f& centroid_second_led, int timestamp)
     {
         SpatialInfo pos;
         pos.timestamp_ = timestamp;
-
-        if (!centroids.empty())
-        {
-            const bool two_spots = centroids.size() >= 2;
-
-            const auto& big_x = centroids[0].x;
-            const auto& big_y = centroids[0].y;
-            const auto& small_x = two_spots ? centroids[1].x : -1.;
-            const auto& small_y = two_spots ? centroids[1].y : -1.;
-
-            pos.Init(big_x, big_y, small_x, small_y, timestamp);
-            pos.valid = true;
-        }
+        pos.Init(centroid_second_led.x, centroid_second_led.y, 
+                 centroid_first_led.x, centroid_first_led.y, 
+                 timestamp);
+        pos.valid = true;
 
         return pos;
+    }
+
+    int getLEDChannel(std::string&& channel)
+    {
+        switch (std::tolower(channel[0]))
+        { // because of BGR format in opencv
+            case 'r':
+                return 0;
+            case 'g':
+                return 1;
+            case 'b':
+                return 2;
+            default:
+                return -1;
+        }
+    }
+
+    void getCentroids(std::vector<cv::Point2f>& centroids, cv::Mat& frame, int bin_thr)
+    {
+        preprocess(frame, bin_thr);
+        findContours(contours, frame);
+        findCentroids(centroids, contours);
+    }
+
+    SpatialInfo detectPosition(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp)
+    {
+        // cv::imshow("frame_1", first_led_frame);
+        getCentroids(centroids, first_led_frame, bin_thr_1);
+        // cv::imshow("preprocessed_frame_1", first_led_frame);
+        const auto c1 = centroids.empty() ? unknown_pos : centroids[0];
+
+        // cv::imshow("frame_1", second_led_frame);
+        getCentroids(centroids, second_led_frame, bin_thr_2);
+        // cv::imshow("preprocessed_frame_2", second_led_frame);
+        const auto c2 = centroids.empty() ?  unknown_pos : centroids[0];
+
+        return getPositionFromCentroids(c1, c2, timestamp);
+    }
+
+    SpatialInfo detectPosition(cv::Mat& frame, int bin_thr, int timestamp)
+    {
+        getCentroids(centroids, frame, bin_thr);
+        // cv::imshow("preprocessed_frame", frame);
+        const auto c1 = centroids.empty() ? unknown_pos : centroids[0];
+        const auto c2 = centroids.size() < 2 ?  unknown_pos : centroids[1];
+
+        return getPositionFromCentroids(c1, c2, timestamp);
     }
 }

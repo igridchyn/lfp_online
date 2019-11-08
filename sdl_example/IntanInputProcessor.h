@@ -15,6 +15,7 @@ class LFPONLINEAPI IntanInputProcessor : public LFPProcessor
     int _proc_counter;
     int _empty_fifo_step; // every _empty_fifo_step steps calculate how many blocks are in board fifo and read them all
 
+    int last_sample_timestamp_;
     // temporary buffers for data converted to 16-bit words
     std::vector<unsigned short> _amp_buf;
     //std::vector<unsigned short> _aux_buf;
