@@ -25,6 +25,7 @@ Two tracking modes are possible:
     2. Brightness - LEDs are discriminated based on light intensity
 
 Configuration params:
+
     1. pos_track.im_width - image width (in pixels), default 1280
     2. pos_track.im_height - image height (in pixels), default 720
     3. pos_track.im_pos_left - horizontal image offset (in pixels), default 0
@@ -40,6 +41,7 @@ Writing tracked animal positions to a file.
 File is written to in a specified time interval.
 
 Configuration params:
+
     1. pos_writer.out_file - output file path
     2. pos_writer.writing_interval - write to the file every 'n' seconds, default 10
 
