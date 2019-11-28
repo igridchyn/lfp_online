@@ -787,11 +787,12 @@ float SpatialInfo::y_pos() const{
 	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
 }
 
-SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb)
+SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts)
 	: x_small_LED_(xs)
 	, y_small_LED_(ys)
 	, x_big_LED_(xb)
 	, y_big_LED_(yb)
+	, timestamp_(ts)
 { }
 
 SpatialInfo::SpatialInfo()
@@ -803,13 +804,21 @@ SpatialInfo::SpatialInfo()
 , valid(false)
 {}
 
-void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb){
+void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts){
 	x_small_LED_ = xs;
 	y_small_LED_ = ys;
 	x_big_LED_ = xb;
 	y_big_LED_ = yb;
+    timestamp_ = ts;
 }
 
+std::ostream& operator<<(std::ostream& out, const SpatialInfo& si)
+{
+    // const auto ts = std::chrono::microseconds(si.timestamp_);
+    // display(out, ts, false);
+    out << si.timestamp_ << ',' << si.x_big_LED_ << ',' << si.y_big_LED_ << ',' << si.x_small_LED_ << ',' << si.y_small_LED_;
+    return out;
+}
 
 // multiple pools implementation
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
@@ -1157,3 +1166,4 @@ void LFPBuffer::dumpCluAndRes(bool recalculateClusterNumbers){
 		}
 	}
 }
+
