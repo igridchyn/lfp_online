@@ -21,7 +21,7 @@ namespace
 }
 
 #ifdef PROFILE_POS_TRACKING
-constexpr int TEST_PROC_STEPS = 100;
+constexpr int TEST_PROC_STEPS = 10000;
 #define REPORT_PERFORMANCE() reportPerformance()
 #else
 #define REPORT_PERFORMANCE()
@@ -33,11 +33,11 @@ PositionTrackingProcessor::PositionTrackingProcessor(LFPBuffer *buf):
                             buffer->config_->getInt("pos_track.im_height", DEFAULT_HEIGHT), 
                             buffer->config_->getInt("pos_track.im_pos_left", DEFAULT_LEFT_POS), 
                             buffer->config_->getInt("pos_track.im_pos_top", DEFAULT_TOP_POS)),
-                    _binary_threshold_1(buffer->config_->getInt("pos_track.bin_thr_1", 200)),
-                    _binary_threshold_2(buffer->config_->getInt("pos_track.bin_thr_2", 100)),
-                    _rgb_mode(buffer->config_->getBool("pos_track.rgb_mode", false)),
+                    _binary_threshold_1(buffer->config_->getInt("pos_track.bin_thr_1", 75)),
+                    _binary_threshold_2(buffer->config_->getInt("pos_track.bin_thr_2", 15)),
+                    _rgb_mode(buffer->config_->getBool("pos_track.rgb_mode", true)),
                     _first_led_channel(getLEDChannel(buffer->config_->getString("pos_track.first_led_channel", "red"))),
-                    _second_led_channel(getLEDChannel(buffer->config_->getString("pos_track.second_led_channel", "green"))),
+                    _second_led_channel(getLEDChannel(buffer->config_->getString("pos_track.second_led_channel", "blue"))),
                     _detection_on(false)
 {
 }
@@ -65,7 +65,7 @@ void PositionTrackingProcessor::process()
         {
             const auto& pos = _animal_positions.front();
 
-            memcpy(reinterpret_cast<void*>(buffer->positions_buf_ + buffer->pos_buf_pos_), &pos, sizeof(SpatialInfo));
+            buffer->positions_buf_[buffer->pos_buf_pos_] = pos;
             buffer->AdvancePositionBufferPointer();
             // std::cout << pos << std::endl;
 

@@ -73,6 +73,7 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 	// with commend lines starting with '//'
 	std::string line;
 
+	known_processors_.push_back("PositionWriterProcessor");
 	known_processors_.push_back("PositionTrackingProcessor");
 	known_processors_.push_back("IntanInputProcessor");
 	known_processors_.push_back("PackageExtractor");

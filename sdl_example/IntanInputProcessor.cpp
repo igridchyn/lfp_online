@@ -28,7 +28,7 @@ Rhd2000EvalBoard::AmplifierSampleRate numToSampleRate(const T& num);
 
 IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf):
                     LFPProcessor(buf),
-                    _empty_fifo_step(buffer->config_->getInt("intan.empty_fifo_step", 10)),
+                    _empty_fifo_step(buffer->config_->getInt("intan.empty_fifo_step", 5)),
                     _proc_counter(0)
 {
     if (openBoard() && uploadBoardConfiguration())

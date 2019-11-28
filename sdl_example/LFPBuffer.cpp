@@ -814,9 +814,9 @@ void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const 
 
 std::ostream& operator<<(std::ostream& out, const SpatialInfo& si)
 {
-    const auto ts = std::chrono::microseconds(si.timestamp_);
-    display(out, ts, false);
-    out << "(" << si.timestamp_ << "): [" << si.x_big_LED_ << ", " << si.y_big_LED_ << "] [" << si.x_small_LED_ << ", " << si.y_small_LED_ << "]";
+    // const auto ts = std::chrono::microseconds(si.timestamp_);
+    // display(out, ts, false);
+    out << si.timestamp_ << ',' << si.x_big_LED_ << ',' << si.y_big_LED_ << ',' << si.x_small_LED_ << ',' << si.y_small_LED_;
     return out;
 }
 
