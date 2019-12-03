@@ -17,7 +17,8 @@ constexpr int DEFAULT_TOP_POS = 0;
 namespace
 {
     int getLEDChannel(std::string&& channel);
-    SpatialInfo detectPosition(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp);
+    SpatialInfo detectPositionRGB(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp);
+    SpatialInfo detectPositionGreyscale(cv::Mat& frame, int bin_thr, int timestamp);
 }
 
 #ifdef PROFILE_POS_TRACKING
@@ -87,40 +88,47 @@ void PositionTrackingProcessor::detect_positions()
                 raw_frame->stride);
         const int timestamp = buffer->has_last_sample_timestamp_.load() ? buffer->last_sample_timestamp_.load() : raw_frame->timestamp;
         // cv::imshow("frame", frame);
-
-        SpatialInfo pos;
-        pos.timestamp_ = timestamp;
-        if (_rgb_mode)
-        {
-            std::array<cv::Mat, 3> frame_channels;
-            cv::split(frame, frame_channels);
-
-            pos = detectPosition(frame_channels[_first_led_channel], 
-                                 frame_channels[_second_led_channel], 
-                                 _binary_threshold_1, 
-                                 _binary_threshold_2, 
-                                 timestamp);
-        }
-        else
-        {
-            cv::Mat first_led_frame;
-            cv::Mat second_led_frame;
-            cv::threshold(frame, first_led_frame, _binary_threshold_1, 255, cv::THRESH_BINARY);
-            // cv::threshold(frame, second_led_frame, _binary_threshold_2, 255, cv::THRESH_BINARY);
-            cv::inRange(frame, cv::Scalar(_binary_threshold_2), cv::Scalar(1.5 * _binary_threshold_2), second_led_frame);
-            pos = detectPosition(first_led_frame, 
-                                 second_led_frame, 
-                                 _binary_threshold_1, 
-                                 _binary_threshold_2, 
-                                 timestamp);
-        }
-
+        const auto pos = detectPosition(frame, timestamp);
         // cv::waitKey(1);
 
         std::lock_guard<std::mutex> _position_detector_guard(_position_detector_mutex);
         _animal_positions.push(pos);
         REPORT_PERFORMANCE();
     }
+}
+
+SpatialInfo PositionTrackingProcessor::detectPosition(cv::Mat& frame, int timestamp)
+{
+    SpatialInfo pos;
+    pos.timestamp_ = timestamp;
+    if (_rgb_mode)
+    {
+        std::array<cv::Mat, 3> frame_channels;
+        cv::split(frame, frame_channels);
+
+        pos = detectPositionRGB(frame_channels[_first_led_channel], 
+                             frame_channels[_second_led_channel], 
+                             _binary_threshold_1, 
+                             _binary_threshold_2, 
+                             timestamp);
+    }
+    else
+    {
+        pos = detectPositionGreyscale(frame, _binary_threshold_1, timestamp);
+        /*
+        cv::Mat first_led_frame;
+        cv::Mat second_led_frame;
+        cv::threshold(frame, first_led_frame, _binary_threshold_1, 255, cv::THRESH_BINARY);
+        // cv::threshold(frame, second_led_frame, _binary_threshold_2, 255, cv::THRESH_BINARY);
+        cv::inRange(frame, cv::Scalar(_binary_threshold_2), cv::Scalar(1.5 * _binary_threshold_2), second_led_frame);
+        pos = detectPosition(first_led_frame, 
+                             second_led_frame, 
+                             _binary_threshold_1, 
+                             _binary_threshold_2, 
+                             timestamp);
+                             */
+    }
+    return pos;
 }
 
 #ifdef PROFILE_POS_TRACKING
@@ -148,8 +156,8 @@ void PositionTrackingProcessor::reportPerformance()
 
 namespace
 {
-    const cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, {5, 5});
-    const cv::Mat erode_kernel = cv::getStructuringElement(cv::MORPH_RECT, {7, 7});
+    const cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, {3, 3});
+    const cv::Mat erode_kernel = cv::getStructuringElement(cv::MORPH_RECT, {3, 3});
 
     // auxiliary vars used for processing
     std::vector<cv::Point2f> centroids;
@@ -159,8 +167,8 @@ namespace
     cv::Mat& preprocess(cv::Mat& frame, int bin_thr)
     {
         cv::threshold(frame, frame, bin_thr, 255, cv::THRESH_BINARY);
-        cv::dilate(frame, frame, dilate_kernel);
         cv::erode(frame, frame, erode_kernel);
+        cv::dilate(frame, frame, dilate_kernel);
         return frame;
     }
 
@@ -219,7 +227,7 @@ namespace
         findCentroids(centroids, contours);
     }
 
-    SpatialInfo detectPosition(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp)
+    SpatialInfo detectPositionRGB(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp)
     {
         // cv::imshow("frame_1", first_led_frame);
         getCentroids(centroids, first_led_frame, bin_thr_1);
@@ -234,7 +242,7 @@ namespace
         return getPositionFromCentroids(c1, c2, timestamp);
     }
 
-    SpatialInfo detectPosition(cv::Mat& frame, int bin_thr, int timestamp)
+    SpatialInfo detectPositionGreyscale(cv::Mat& frame, int bin_thr, int timestamp)
     {
         getCentroids(centroids, frame, bin_thr);
         // cv::imshow("preprocessed_frame", frame);
