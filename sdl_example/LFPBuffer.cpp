@@ -787,7 +787,7 @@ float SpatialInfo::y_pos() const{
 	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
 }
 
-SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts)
+SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts)
 	: x_small_LED_(xs)
 	, y_small_LED_(ys)
 	, x_big_LED_(xb)
@@ -804,7 +804,7 @@ SpatialInfo::SpatialInfo()
 , valid(false)
 {}
 
-void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts){
+void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts){
 	x_small_LED_ = xs;
 	y_small_LED_ = ys;
 	x_big_LED_ = xb;

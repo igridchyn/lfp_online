@@ -85,7 +85,7 @@ public:
 	float dirvar_ = nanf("");
 	// valid if at least one LED is known
 	bool valid = false;
-    long long timestamp_;
+    unsigned long long timestamp_;
 
 public:
 
@@ -93,8 +93,8 @@ public:
 	float y_pos() const;
 
 	SpatialInfo();
-	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts = -1);
-	void Init(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts = -1);
+	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts = -1);
+	void Init(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts = -1);
 
     friend std::ostream& operator<<(std::ostream& out, const SpatialInfo& si);
 };

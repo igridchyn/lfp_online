@@ -17,8 +17,8 @@ constexpr int DEFAULT_TOP_POS = 0;
 namespace
 {
     int getLEDChannel(std::string&& channel);
-    SpatialInfo detectPositionRGB(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp);
-    SpatialInfo detectPositionGreyscale(cv::Mat& frame, int bin_thr, int timestamp);
+    SpatialInfo detectPositionRGB(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, unsigned long long timestamp);
+    SpatialInfo detectPositionGreyscale(cv::Mat& frame, int bin_thr, unsigned long long timestamp);
 }
 
 #ifdef PROFILE_POS_TRACKING
@@ -86,7 +86,8 @@ void PositionTrackingProcessor::detect_positions()
         cv::Mat frame(raw_frame->size[1], raw_frame->size[0],  // height, width
                 frame_type, raw_frame->image,
                 raw_frame->stride);
-        const int timestamp = buffer->has_last_sample_timestamp_.load() ? buffer->last_sample_timestamp_.load() : raw_frame->timestamp;
+        const unsigned long long timestamp = buffer->has_last_sample_timestamp_.load() ? buffer->last_sample_timestamp_.load() : raw_frame->timestamp;
+
         // cv::imshow("frame", frame);
         const auto pos = detectPosition(frame, timestamp);
         // cv::waitKey(1);
@@ -97,10 +98,11 @@ void PositionTrackingProcessor::detect_positions()
     }
 }
 
-SpatialInfo PositionTrackingProcessor::detectPosition(cv::Mat& frame, int timestamp)
+SpatialInfo PositionTrackingProcessor::detectPosition(cv::Mat& frame, unsigned long long timestamp)
 {
     SpatialInfo pos;
     pos.timestamp_ = timestamp;
+
     if (_rgb_mode)
     {
         std::array<cv::Mat, 3> frame_channels;
@@ -227,7 +229,7 @@ namespace
         findCentroids(centroids, contours);
     }
 
-    SpatialInfo detectPositionRGB(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, int timestamp)
+    SpatialInfo detectPositionRGB(cv::Mat& first_led_frame, cv::Mat& second_led_frame, int bin_thr_1, int bin_thr_2, unsigned long long timestamp)
     {
         // cv::imshow("frame_1", first_led_frame);
         getCentroids(centroids, first_led_frame, bin_thr_1);
@@ -242,7 +244,7 @@ namespace
         return getPositionFromCentroids(c1, c2, timestamp);
     }
 
-    SpatialInfo detectPositionGreyscale(cv::Mat& frame, int bin_thr, int timestamp)
+    SpatialInfo detectPositionGreyscale(cv::Mat& frame, int bin_thr, unsigned long long timestamp)
     {
         getCentroids(centroids, frame, bin_thr);
         // cv::imshow("preprocessed_frame", frame);
