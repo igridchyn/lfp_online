@@ -1,61 +1,40 @@
 #include "PositionWriterProcessor.h"
 
-namespace
-{
-    void write_positions(std::queue<SpatialInfo>& positions, std::ostream& output);
-}
-
 PositionWriterProcessor::PositionWriterProcessor(LFPBuffer* buf):
-                         LFPProcessor(buf),
-                         _last_written_pos(0),
-                         _writing_interval(buf->config_->getInt("pos_writer.writing_interval", 10)),
-                         _output_file(buf->config_->getString("pos_writer.out_file")),
-                         _writing_on(true)
+                         AbstractWriterProcessor(buf, 
+                                                 std::chrono::seconds(
+                                                     buf->config_->getInt("pos_writer.writing_interval", 10))),
+                         _last_written_pos(0)
 {
-    _output_file << "timestamp,first_led_x,first_led_y,second_led_x,second_led_y" << std::endl; // header
-    _writing_thread = std::thread(&PositionWriterProcessor::write_positions_to_file, this);
-    _writing_thread.detach();
+    _output.open(buf->config_->getString("pos_writer.out_file"));
+    _output << "timestamp,first_led_x,first_led_y,second_led_x,second_led_y" << std::endl; // header
 }
 
 PositionWriterProcessor::~PositionWriterProcessor()
 {
-    _writing_on = false;
-    _writing_thread.join();
-    write_positions(_positions, _output_file);
+    write_buffer();
 }
 
-void PositionWriterProcessor::process()
+void PositionWriterProcessor::read_to_buffer()
 {
     if (_last_written_pos > buffer->pos_buf_pos_)
         _last_written_pos = buffer->pos_buf_pos_;
 
-    std::lock_guard<std::mutex> _lg(_positions_mutex);
     while (_last_written_pos < buffer->pos_buf_pos_)
     {
         //std::cerr << _last_written_pos << " " << buffer->positions_buf_[_last_written_pos] << std::endl;
-        _positions.push(buffer->positions_buf_[_last_written_pos++]);
+        _writing_buffer.push(buffer->positions_buf_[_last_written_pos++]);
     }
 }
 
-void PositionWriterProcessor::write_positions_to_file()
+void PositionWriterProcessor::write_buffer()
 {
-    while (_writing_on)
+    while (!_writing_buffer.empty())
     {
-        write_positions(_positions, _output_file);
-        std::this_thread::sleep_for(_writing_interval);
+        const auto& pos = _writing_buffer.front();
+        if (pos.valid && pos.timestamp_ > 0)
+            _output << pos << std::endl;
+        _writing_buffer.pop();
     }
 }
 
-namespace
-{
-    void write_positions(std::queue<SpatialInfo>& positions, std::ostream& output)
-    {
-        while (!positions.empty())
-        {
-            const auto& pos = positions.front();
-            if (pos.valid && pos.timestamp_ > 0)
-                output << pos << std::endl;
-            positions.pop();
-        }
-    }
-}
