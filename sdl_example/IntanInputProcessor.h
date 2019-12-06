@@ -17,7 +17,8 @@ class LFPONLINEAPI IntanInputProcessor : public LFPProcessor
 
     int last_sample_timestamp_;
     // temporary buffers for data converted to 16-bit words
-    std::vector<unsigned short> _amp_buf;
+    std::vector<unsigned short> _amp_buf; // data in ADC steps
+    std::vector<short> _amp_buf_v; // data in microvolts
     //std::vector<unsigned short> _aux_buf;
     //std::vector<unsigned short> _adc_buf;
 

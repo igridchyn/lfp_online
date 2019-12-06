@@ -7,16 +7,21 @@
 
 // #define PROFILE_RAW_DATA_WRITER
 
-class LFPONLINEAPI RawDataWriterProcessor : public AbstractWriterProcessor<std::vector<unsigned short>, 
+class LFPONLINEAPI RawDataWriterProcessor : public AbstractWriterProcessor<std::vector<short>,
                                                                             std::chrono::milliseconds,
                                                                             std::ofstream>
 {
 #ifdef PROFILE_RAW_DATA_WRITER
     int _perf_proc_counter = 0;
-    std::vector<int> _num_written;
+    std::vector<int> _num_written_data;
+    std::vector<int> _num_written_timestamps;
     static constexpr int TEST_STEPS = 10;
 #endif
-    void reportPerformance(int num_written);
+    void reportPerformance(int num_written, int num_written_timestamps);
+    using DataType = decltype(_writing_buffer)::value_type;
+
+    std::vector<int> _timestamps_buffer;
+    std::ofstream _timestamps_file;
 
     protected:
         virtual void write_buffer();

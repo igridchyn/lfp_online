@@ -17,6 +17,7 @@
 #include <string>
 #include <mutex>
 #include <map>
+#include <limits>
 
 #include "LFPOnline.h"
 #include "TetrodesInfo.h"
@@ -340,6 +341,8 @@ public:
 
     std::atomic_int last_sample_timestamp_ = -1;
     std::atomic_bool has_last_sample_timestamp_ = false;
+    int timestamp_buf_len;
+    std::vector<int> timestamp_buf_;
 
 	std::vector<OnlineEstimator<float, float>* > powerEstimators_;
 	std::vector<OnlineEstimator<float, float>* > powerEstimatorsMap_;
@@ -504,7 +507,7 @@ public:
 	Spike *head_start_, *tail_start_;
 
 	// just add the data and move along
-	void add_data(const unsigned char* new_data, size_t data_size);
+	void add_data(const unsigned char* new_data, size_t data_size, int timestamp = std::numeric_limits<int>::min());
 
 	void estimate_firing_rates();
 
