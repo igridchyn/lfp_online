@@ -61,14 +61,17 @@ Each raw contains following fields:
 
 ### RawDataWriterProcessor
 Writing raw electrophysiological data to a binary file.
-This processor buffers data and writes to the file in a specified time interval.
+Outputs are two binary files, one with electrophysiological data and one with timestamps for each sample in the first file.
+This processor buffers data and writes to the files in a specified time interval.
 
 Configuration params:
 
-    1. raw_data_writer.out_file - output file path
-    2. raw_data_writer.writing_interval - write to the file every 'n' milliseconds, default 100
+    1. raw_data_writer.data_file - electrophysiological data file path
+    2. raw_data_writer.timestamps_file - timestamps file path
+    3. raw_data_writer.writing_interval - write to the file every 'n' milliseconds, default 100
 
-For each channel datum is represented as a two byte unsigned integer.
+For each channel datum is represented as a 2-byte integer (microvolts).
 For each sample all channels are written together. 
 E.g. in a case of 128 channels first group of 256 bytes represent data from first sample, second group of 256 bytes represent data from second sample etc.
+Timestamps are 4-byte integers and are associated to each sample in the data file.
 
