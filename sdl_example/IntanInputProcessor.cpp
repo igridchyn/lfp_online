@@ -21,6 +21,10 @@ namespace
 {
 
 int getDeviceId(Rhd2000DataBlock *dataBlock, int stream, int &register59Value);
+
+template <typename I, typename O>
+void adcStepsToMicrovolts(std::vector<O>& output, const std::vector<I>& input);
+
 template <typename T>
 Rhd2000EvalBoard::AmplifierSampleRate numToSampleRate(const T& num);
 
@@ -36,13 +40,14 @@ IntanInputProcessor::IntanInputProcessor(LFPBuffer *buf):
         _board.initialize();
         calibrateBoardADC();
         findConnectedAmplifiers();
-        _board.setSampleRate(numToSampleRate(buf->SAMPLING_RATE));
+        _board.setSampleRate(numToSampleRate(buffer->config_->getInt("sampling.rate")));
         //Now that we have set our sampling rate, we can set the MISO sampling delay which is dependent on the sample rate.
         setBoardCableLengths();
         disableBoardExternalDigitalOutControl();
 
         // allocate local data buffers
         _amp_buf.reserve(32 * _num_data_streams);
+        _amp_buf_v.reserve(32 * _num_data_streams);
         //_aux_buf.reserve(3 * _num_data_streams);
         //_adc_buf.reserve(8);
 
@@ -110,10 +115,13 @@ void IntanInputProcessor::process()
     const auto _amp_data_capture = [this](int sample, int timestamp, const unsigned char raw_data[], int data_size) 
     {
         intan::utils::convertUsbWords(_amp_buf, raw_data, data_size);
-        buffer->add_data(reinterpret_cast<unsigned char*>(_amp_buf.data()), _amp_buf.size() * sizeof(unsigned short));
-        // (_amp_buf[i] - 32768) * 0.195
+        adcStepsToMicrovolts(_amp_buf_v, _amp_buf);
+
+        buffer->add_data(reinterpret_cast<unsigned char*>(_amp_buf_v.data()), _amp_buf_v.size() * sizeof(short), timestamp);
+
         last_sample_timestamp_ = timestamp;
         _amp_buf.clear();
+        _amp_buf_v.clear();
     };
     auto success = _board.readRawData(num_blocks_to_read, _amp_data_capture);
     if (success)
@@ -594,6 +602,13 @@ int getDeviceId(Rhd2000DataBlock *data_block, int stream, int &register_59_value
 
     register_59_value = intanChipPresent ? data_block->auxiliaryData[stream][2][23] : -1; // Register 59
     return intanChipPresent ? data_block->auxiliaryData[stream][2][19] : -1; // chip ID (Register 63)
+}
+
+template <typename I, typename O>
+void adcStepsToMicrovolts(std::vector<O>& output, const std::vector<I>& input)
+{
+    for (const auto& datum : input)
+        output.push_back(short((float(datum) - 32768.f) * 0.195f));
 }
 
 template <typename T>

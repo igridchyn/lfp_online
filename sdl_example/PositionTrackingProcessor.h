@@ -34,6 +34,7 @@ class LFPONLINEAPI PositionTrackingProcessor : public LFPProcessor
 #endif
 
     void detect_positions();
+    SpatialInfo detectPosition(cv::Mat& frame, unsigned long long timestamp);
 
     public:
         PositionTrackingProcessor(LFPBuffer *buf);

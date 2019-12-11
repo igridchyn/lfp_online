@@ -17,6 +17,7 @@
 #include <string>
 #include <mutex>
 #include <map>
+#include <limits>
 
 #include "LFPOnline.h"
 #include "TetrodesInfo.h"
@@ -85,7 +86,7 @@ public:
 	float dirvar_ = nanf("");
 	// valid if at least one LED is known
 	bool valid = false;
-    long long timestamp_;
+    unsigned long long timestamp_;
 
 public:
 
@@ -93,8 +94,8 @@ public:
 	float y_pos() const;
 
 	SpatialInfo();
-	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts = -1);
-	void Init(const float& xs, const float& ys, const float& xb, const float& yb, const long long& ts = -1);
+	SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts = -1);
+	void Init(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts = -1);
 
     friend std::ostream& operator<<(std::ostream& out, const SpatialInfo& si);
 };
@@ -340,6 +341,8 @@ public:
 
     std::atomic_int last_sample_timestamp_ = -1;
     std::atomic_bool has_last_sample_timestamp_ = false;
+    int timestamp_buf_len;
+    std::vector<int> timestamp_buf_;
 
 	std::vector<OnlineEstimator<float, float>* > powerEstimators_;
 	std::vector<OnlineEstimator<float, float>* > powerEstimatorsMap_;
@@ -504,7 +507,7 @@ public:
 	Spike *head_start_, *tail_start_;
 
 	// just add the data and move along
-	void add_data(const unsigned char* new_data, size_t data_size);
+	void add_data(const unsigned char* new_data, size_t data_size, int timestamp = std::numeric_limits<int>::min());
 
 	void estimate_firing_rates();
 
