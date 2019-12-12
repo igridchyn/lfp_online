@@ -1,10 +1,19 @@
 # LFP online
 Software system for closed-loop experiments.
-Processing is separated in different purpouse-specific 'processors'.
+Processing is separated in different purpose-specific 'processors'.
 Data flows downstream from source to sink processor.
 All processors share single preallocated buffer, e.g. processor takes it's inputs from the shared buffer and writes results back to the buffer.
 Together processors form a processing pipeline.
 The pipeline is configured through a simple configuration file.
+
+## Installation
+
+Install all dependencies listed in [sdl_example/deps-fedora](sdl_example/deps-fedora).
+
+```
+cd sdl_example/Debug
+make lfp_online
+```
 
 ## Processors
 This is a (still) non-exhaustive list of available processors.
