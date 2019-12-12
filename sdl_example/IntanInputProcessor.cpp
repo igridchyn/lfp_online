@@ -1,5 +1,4 @@
 #include "IntanInputProcessor.h"
-#include "intan/dataBuffer.h"
 #include "intan/rhd2000datablock.h"
 #include "intan/rhd2000registers.h"
 #include "intan/utils.h"

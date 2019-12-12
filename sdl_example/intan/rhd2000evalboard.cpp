@@ -1618,7 +1618,7 @@ bool Rhd2000EvalBoard::readRawData(const int& numBlocks, const DataCaptureCallba
         for (int t = 0; t < SAMPLES_PER_DATA_BLOCK; ++t)
         {
             if (!Rhd2000DataBlock::checkUsbHeader(usbBuffer, index)) {
-                // cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
+                cerr << "Error in Rhd2000EvalBoard::readDataBlock: Incorrect header." << endl;
                 continue;
             }
             // done with the header
