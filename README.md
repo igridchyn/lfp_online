@@ -15,6 +15,13 @@ cd sdl_example/Debug
 make lfp_online
 ```
 
+## Running
+
+```
+cd sdl_example/Debug
+./lfp_online path_to_config_file
+```
+
 ## Processors
 This is a (still) non-exhaustive list of available processors.
 
