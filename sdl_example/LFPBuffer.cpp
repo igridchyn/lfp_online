@@ -407,6 +407,8 @@ LFPBuffer::LFPBuffer(Config* config)
 
     chunk_buf_ = new unsigned char[chunk_buf_len_];
     chunk_buf_ptr_in_ = 0;
+    timestamp_buf_len = chunk_buf_len_ / CHANNEL_NUM * 2;
+    timestamp_buf_.reserve(timestamp_buf_len); // just optimization
 
     // TODO !!! PARAMETRIZE
     synchronyThresholdAdapter_ = new Utils::NewtonSolver(TARGET_SYNC_RATE, 24000*60, -0.5, high_synchrony_factor_);
@@ -787,11 +789,12 @@ float SpatialInfo::y_pos() const{
 	return AverageLEDs(y_small_LED_, y_big_LED_, valid);
 }
 
-SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb)
+SpatialInfo::SpatialInfo(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts)
 	: x_small_LED_(xs)
 	, y_small_LED_(ys)
 	, x_big_LED_(xb)
 	, y_big_LED_(yb)
+	, timestamp_(ts)
 { }
 
 SpatialInfo::SpatialInfo()
@@ -803,13 +806,21 @@ SpatialInfo::SpatialInfo()
 , valid(false)
 {}
 
-void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb){
+void SpatialInfo::Init(const float& xs, const float& ys, const float& xb, const float& yb, const unsigned long long& ts){
 	x_small_LED_ = xs;
 	y_small_LED_ = ys;
 	x_big_LED_ = xb;
 	y_big_LED_ = yb;
+    timestamp_ = ts;
 }
 
+std::ostream& operator<<(std::ostream& out, const SpatialInfo& si)
+{
+    // const auto ts = std::chrono::microseconds(si.timestamp_);
+    // display(out, ts, false);
+    out << si.timestamp_ << ',' << si.x_big_LED_ << ',' << si.y_big_LED_ << ',' << si.x_small_LED_ << ',' << si.y_small_LED_;
+    return out;
+}
 
 // multiple pools implementation
 void LFPBuffer::AllocateWaveshapeMemory(Spike *spike) {
@@ -915,7 +926,7 @@ void LFPBuffer::Rewind() {
 	spike_buf_pos = SPIKE_BUF_HEAD_LEN;
 }
 
-void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
+void LFPBuffer::add_data(const unsigned char* new_data, size_t data_size, int timestamp) {
 #ifdef PIPELINE_THREAD
 	std::lock_guard<std::mutex> lk(chunk_access_mtx_);
 #endif
@@ -926,6 +937,13 @@ void LFPBuffer::add_data(unsigned char* new_data, size_t data_size) {
 	}
 
 	memcpy(chunk_buf_ + chunk_buf_ptr_in_, new_data, data_size);
+
+    if (timestamp_buf_.size() > timestamp_buf_len)
+        timestamp_buf_.clear(); // if no processor consumes timestamps this buffer may grow too large
+
+    if (timestamp != std::numeric_limits<int>::min())
+        timestamp_buf_.push_back(timestamp);
+
 	chunk_buf_ptr_in_ += data_size;
 }
 
@@ -1157,3 +1175,4 @@ void LFPBuffer::dumpCluAndRes(bool recalculateClusterNumbers){
 		}
 	}
 }
+

@@ -6,6 +6,7 @@
 #include <math.h>
 #include <boost/filesystem.hpp>
 #include "LFPOnline.h"
+#include <chrono>
 #ifdef _WIN32
 	#define M_PI 3.14159265358979323846
 #endif
@@ -89,6 +90,37 @@ public:
     	bool NeedUpdate(const unsigned int & time);
     	inline const double & Current_x() { return current_x_; };
     };
+};
+
+template<typename Rep, typename Period = std::ratio<1>>
+std::ostream& display(std::ostream& out, std::chrono::duration<Rep, Period> dur, bool display_date = true, bool display_time = true)
+{
+    using d = std::chrono::duration<int, std::ratio<86400>>;
+    using m = std::chrono::duration<int, std::ratio<2629746>>;
+    using y = std::chrono::duration<int, std::ratio<31556952>>;
+
+    auto years = std::chrono::duration_cast<y>(dur);
+    dur -= years;
+    auto months = std::chrono::duration_cast<m>(dur);
+    dur -= months;
+    auto days = std::chrono::duration_cast<d>(dur);
+    dur -= days;
+    auto hours = std::chrono::duration_cast<std::chrono::hours>(dur);
+    dur -= hours;
+    auto minutes = std::chrono::duration_cast<std::chrono::minutes>(dur);
+    dur -= minutes;
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(dur);
+    dur -= seconds;
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+    dur -= milliseconds;
+
+    if (display_date)
+        out << days.count() << '.' << months.count() << '.' << years.count() << ' ';
+
+    if (display_time)
+        out << hours.count() << ':' << minutes.count() << ':' << seconds.count() << '.' << milliseconds.count();
+
+    return out;
 };
 
 #endif

@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -std=c++0x -g -O0 -Wall -Wextra -Wno-ignored-qualifiers -I/usr/local/include/SDL2 -D_REENTRANT
-LDFLAGS = -lm -lstdc++ -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem -L/usr/local/lib -Wl,-rpath,/usr/local/lib -Wl,--enable-new-dtags -lSDL2 -lSDL2_ttf
+CFLAGS = -std=c++17 -g -O2 -Wall -Wextra -Wno-ignored-qualifiers -I/usr/local/include/SDL2 -D_REENTRANT
+LDFLAGS = -lm -lstdc++ -lstdc++fs -lmlpack -larmadillo -lpthread -lboost_system -lboost_filesystem -L/usr/local/lib -Wl,-rpath,/usr/local/lib -ldl -lrt -Wl,--enable-new-dtags -lSDL2 -lSDL2_ttf -ldc1394 -lopencv_core -lopencv_videoio -lopencv_highgui -lopencv_features2d -lopencv_imgproc
 CLFLAGS = -Wl,--rpath=/d1/data/lfpo1/lib/GLIB -Wl,--dynamic-linker=/d1/data/lfpo1/lib/GLIB/ld-linux-x86-64.so.2 -static-libstdc++ --enable-checking
 	
 AutocorrelogramProcessor.o: ../AutocorrelogramProcessor.cpp ../AutocorrelogramProcessor.h UserContext.o LFPBuffer.o
@@ -116,15 +116,42 @@ WaveshapeReconstructionProcessor.o: ../WaveshapeReconstructionProcessor.cpp User
 		
 WhlFileReaderProcessor.o: ../WhlFileReaderProcessor.cpp ../WhlFileReaderProcessor.h LFPBuffer.o
 	${CC} ${CFLAGS} -c ../WhlFileReaderProcessor.cpp
+
+okFrontPanelDLL.o: ../intan/okFrontPanelDLL.cpp ../intan/okFrontPanelDLL.h 
+	${CC} ${CFLAGS} -c ../intan/okFrontPanelDLL.cpp
+
+rhd2000registers.o: ../intan/rhd2000registers.cpp ../intan/rhd2000registers.h 
+	${CC} ${CFLAGS} -c ../intan/rhd2000registers.cpp
+
+rhd2000datablock.o: ../intan/rhd2000datablock.cpp ../intan/rhd2000datablock.h 
+	${CC} ${CFLAGS} -c ../intan/rhd2000datablock.cpp
+
+rhd2000evalboard.o: ../intan/rhd2000evalboard.cpp ../intan/rhd2000evalboard.h okFrontPanelDLL.o rhd2000datablock.o 
+	${CC} ${CFLAGS} -c ../intan/rhd2000evalboard.cpp
+
+IntanInputProcessor.o: ../IntanInputProcessor.cpp ../IntanInputProcessor.h LFPBuffer.o 
+	${CC} ${CFLAGS} -c ../IntanInputProcessor.cpp
+
+FirewireCamera.o: ../camera/FirewireCamera.cpp ../camera/FirewireCamera.h
+	${CC} ${CFLAGS} -c ../camera/FirewireCamera.cpp
+
+PositionTrackingProcessor.o: ../PositionTrackingProcessor.cpp ../PositionTrackingProcessor.h LFPBuffer.o FirewireCamera.o
+	${CC} ${CFLAGS} -c ../PositionTrackingProcessor.cpp
+	
+PositionWriterProcessor.o: ../PositionWriterProcessor.cpp ../PositionWriterProcessor.h  ../AbstractWriterProcessor.h ../AbstractWriterProcessor.cpp LFPBuffer.o
+	${CC} ${CFLAGS} -c ../PositionWriterProcessor.cpp
+	
+RawDataWriterProcessor.o: ../RawDataWriterProcessor.cpp ../RawDataWriterProcessor.h  ../AbstractWriterProcessor.h ../AbstractWriterProcessor.cpp LFPBuffer.o
+	${CC} ${CFLAGS} -c ../RawDataWriterProcessor.cpp
 	
 main.o: ../main.cpp
 	${CC} ${CFLAGS} -c ../main.cpp
 		
-lfp_online: main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
-	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online
+lfp_online: main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o FirewireCamera.o PositionTrackingProcessor.o PositionWriterProcessor.o RawDataWriterProcessor.o IntanInputProcessor.o rhd2000evalboard.o rhd2000datablock.o rhd2000registers.o okFrontPanelDLL.o
+	${CC} ${CFLAGS} -lANN main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o FirewireCamera.o PositionTrackingProcessor.o PositionWriterProcessor.o RawDataWriterProcessor.o IntanInputProcessor.o rhd2000evalboard.o rhd2000datablock.o rhd2000registers.o okFrontPanelDLL.o ${LDFLAGS} -o lfp_online
 
-lfp_online_clib: main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o 
-	${CC} ${CFLAGS} ${CLFLAGS} -lANN main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o ${LDFLAGS} -o lfp_online_clib
+lfp_online_clib: main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o CluReaderClusteringProcessor.o Config.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PlaceField.o PCAExtractionProcessor.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLControlInputMetaProcessor.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLSingleWindowDisplay.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o IntanInputProcessor.o
+	${CC} ${CFLAGS} ${CLFLAGS} -lANN main.o AutocorrelogramProcessor.o BinFileReaderProcessor.o Config.o CluReaderClusteringProcessor.o FetFileReaderProcessor.o FetFileWriterProcessor.o FrequencyPowerBandProcessor.o GMMClusteringProcessor.o KDClusteringProcessor.o LFPBuffer.o LFPPipeline.o LFPProcessor.o LPTTriggerProcessor.o PackageExractorProcessor.o ParallelPipelineProcessor.o PCAExtractionProcessor.o PlaceField.o PlaceFieldProcessor.o PolygonCluster.o PositionDisplayProcessor.o PutativeCell.o SDLPCADisplayProcessor.o SDLSignalDisplayProcessor.o SDLWaveshapeDisplayProcessor.o SlowDownProcessor.o SpeedEstimationProcessor.o SpikeAlignmentProcessor.o SpikeDetectorProcessor.o SwReaderProcessor.o TetrodesInfo.o TransProbEstimationProcessor.o UnitTestingProcessor.o UserContext.o Utils.o WaveshapeReconstructionProcessor.o WhlFileReaderProcessor.o SDLSingleWindowDisplay.o SDLControlInputMetaProcessor.o IntanInputProcessor.o ${LDFLAGS} -o lfp_online_clib
 
 	
 clean:

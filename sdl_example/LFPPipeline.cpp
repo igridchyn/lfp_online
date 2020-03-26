@@ -34,6 +34,10 @@
 #include "PackageExtractorProcessor.h"
 #include "BinFileReaderProcessor.h"
 #include "ParallelPipelineProcessor.h"
+#include "IntanInputProcessor.h"
+#include "PositionTrackingProcessor.h"
+#include "PositionWriterProcessor.h"
+#include "RawDataWriterProcessor.h"
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
@@ -102,6 +106,14 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new BinFileReaderProcessor(buf));
 		} else if (proc_name == "BinaryPopulationClassifier"){
 			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
+		} else if (proc_name == "IntanInputProcessor"){
+			processors.push_back(new IntanInputProcessor(buf));
+		} else if (proc_name == "PositionTrackingProcessor"){
+			processors.push_back(new PositionTrackingProcessor(buf));
+		} else if (proc_name == "PositionWriterProcessor"){
+			processors.push_back(new PositionWriterProcessor(buf));
+		} else if (proc_name == "RawDataWriterProcessor"){
+			processors.push_back(new RawDataWriterProcessor(buf));
 		} else if (proc_name == "ParallelPipeline"){
 			if (sub_pipe_starts.size() == sub_pipe_ends.size()){
 				// the entry indicated the START of parallel sub-pipeline
