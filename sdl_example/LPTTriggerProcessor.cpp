@@ -284,8 +284,10 @@ void LPTTriggerProcessor::process() {
 					if (buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_ >= buffer->swrs_[swr_ptr_][0] + sync_max_duration_){
 						// have to decide now
 						buffer->Log("TIMEOUT for classification decision is reached with a spike at ", buffer->spike_buffer_[spike_buf_limit_ptr_ - 1]->pkg_id_);
+						timeout_ = true;
 
 						double env_dom_conf_ = environment_dominance_confidence_();
+						timeout_ = false;
 
 						if (env_dom_conf_ > confidence_avg_ || inhibit_nonconf_){
 							buffer->Log("\t decision: INHIBIT, start at ", buffer->last_pkg_id);
@@ -445,6 +447,26 @@ double LPTTriggerProcessor::environment_dominance_confidence_() {
 
 	double prob1 = pred1.max();
 	double prob2 = pred2.max();
+
+	long double s1 = .0, s2 = .0;
+	for(unsigned int r=0; r < pred.n_rows; ++r)
+		for(unsigned int c=0; c < pred.n_cols; ++c){
+			s1 += exp((long double)pred(r,c) - (long double)prob1);
+			s2 += exp((long double)pred(r,c) - (long double)prob2);
+		}
+	s1 = 1.0/s1;
+	s2 = 1.0/s2;
+
+	long double pcon = s2, ptar = s1;
+	if (swap_environments_){
+		pcon = s1;
+		ptar = s2;
+	}
+
+	if (timeout_){
+		Log("LCON ", (double)pcon);
+		Log("LTAR ", (double)ptar);
+	}
 
 	return swap_environments_ ? prob2 - prob1 : prob1 - prob2;
 }

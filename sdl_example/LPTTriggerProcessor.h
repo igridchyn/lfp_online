@@ -98,6 +98,8 @@ class LPTTriggerProcessor: public virtual LFPProcessor {
 	// 0-non-inhibited, 1 - inhibited
 	std::vector<unsigned char> inhibition_history_;
 
+	bool timeout_ = false;
+
 #ifdef _WIN32
 	typedef void(__stdcall *lpOut32)(short, short);
 	typedef short(__stdcall *lpInp32)(short);
