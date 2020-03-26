@@ -48,9 +48,14 @@ SwReaderProcessor::SwReaderProcessor(LFPBuffer *buf, std::string path)
 		case SWR_FORMAT_SYNCHRONY_START:
 			unsigned int ss;
 			swr_stream >> ss;
-			swrs_[swrs_.size() - 1].push_back(ss > start_to_peak_ ? ss - start_to_peak_ : 0);
-			swrs_[swrs_.size() - 1].push_back(ss);
-			swrs_[swrs_.size() - 1].push_back(ss + peak_to_end_);
+
+			if(ss > 300000){
+				swrs_[swrs_.size() - 1].push_back(ss > start_to_peak_ ? ss - start_to_peak_ : 0);
+				swrs_[swrs_.size() - 1].push_back(ss);
+				swrs_[swrs_.size() - 1].push_back(ss + peak_to_end_);
+			} else {
+				Log("Skip timestamp < 300000");
+			}
 			break;
 		}
 	}
