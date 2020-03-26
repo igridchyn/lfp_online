@@ -30,14 +30,14 @@ class PlaceField{
     arma::mat gauss_;
     arma::mat gauss_1d_;
 
-    int NBINS;
     int NBINSX;
     int NBINSY;
 
     int last_whlt = -1;
     int last_xb = -1;
     int last_yb = -1;
-    std::vector< std::vector<int> > whltime_to_spikes_;
+    unsigned int current_spike_number_ = 0;
+//    std::vector< std::vector<unsigned int> > whltime_to_spikes_;
 
 public:
     static const int MAX_SPIKES = 20;

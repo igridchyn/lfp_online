@@ -91,7 +91,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , SPEED_THOLD(buf->config_->getFloat("pf.speed.threshold"))
 , N_SESSIONS(buf->config_->pf_sessions_.size() + 1)
 , DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
-, DOWNSAMPLE(buf->config_->getFloat("pf.downsample"))
+, DOWNSAMPLE(false)//buf->config_->getFloat("pf.downsample"))
 {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
 

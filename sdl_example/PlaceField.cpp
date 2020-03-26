@@ -17,8 +17,8 @@ PlaceField::PlaceField(const double& sigma, const double& bin_size, const unsign
     place_field_ = arma::mat(nbinsy, nbinsx, arma::fill::zeros);
 
     gauss_ = arma::mat(spread_*2 + 1, spread_*2 + 1, arma::fill::zeros);
-    whltime_to_spikes_ = std::vector<std::vector <int> >();
-    whltime_to_spikes_.resize(nbinsx * nbinsy);
+//    whltime_to_spikes_ = std::vector<std::vector <unsigned int> >();
+//    whltime_to_spikes_.resize(nbinsx * nbinsy);
 
     double g_sum = .0f;
     for (int dx = -spread_; dx <= spread_; ++dx){
@@ -53,22 +53,33 @@ void PlaceField::Load(const std::string path, arma::file_type ft){
 
 bool PlaceField::AddSpike(Spike *spike){
 	// add spike to list for future sampling
-	int whlt = spike->pkg_id_ / 480;
+//	int whlt = spike->pkg_id_ / 480;
 
 	// the problem is that spikes may have different bins within the same whlt!
     int xb = (int)round(spike->x / bin_size_ - 0.5);
     int yb = (int)round(spike->y / bin_size_ - 0.5);
 
-	if (whlt > last_whlt){
-		// create new entry in list for this bin
-		whltime_to_spikes_[NBINSX * yb + xb].push_back(1);
-		last_whlt = whlt;
-		last_xb = xb;
-		last_yb = yb;
-	} else {
-		// if still withing same whl sample -> add spike count
-		whltime_to_spikes_[NBINSX * last_yb + last_xb][whltime_to_spikes_[NBINSX * last_yb + last_xb].size() - 1] += 1;
-	}
+//	if (whlt > last_whlt){
+//		// create new entry in list for this bin
+//		if (whltime_to_spikes_[NBINSX * last_yb + last_xb].size() < current_spike_number_ + 1){
+//			//for (unsigned int d = 0; d < (current_spike_number_ + 1) - whltime_to_spikes_[NBINSX * last_yb + last_xb].size(); ++d)
+//				//whltime_to_spikes_[NBINSX * last_yb + last_xb].push_back(0);
+//			whltime_to_spikes_[NBINSX * last_yb + last_xb].resize(current_spike_number_ + 1);
+//			std::cout << "Resize to: " << current_spike_number_ << "\n";
+//		}
+//
+//		whltime_to_spikes_[NBINSX * last_yb + last_xb][current_spike_number_] += 1;
+//
+//		current_spike_number_ = 1;
+//
+//		last_whlt = whlt;
+//		last_xb = xb;
+//		last_yb = yb;
+//	} else {
+//		// if still withing same whl sample -> add spike count
+//		// whltime_to_spikes_[NBINSX * last_yb + last_xb][whltime_to_spikes_[NBINSX * last_yb + last_xb].size() - 1] += 1;
+//		current_spike_number_ += 1;
+//	}
 
 //	if (whltime_to_spikes_.find(whlt) == whltime_to_spikes_.end())
 //		whltime_to_spikes_[whlt] = 1;
@@ -111,24 +122,42 @@ bool PlaceField::AddSpike(Spike *spike){
 PlaceField PlaceField::Downsample(PlaceField& occ, int minocc){
 
 	PlaceField spf(sigma_, bin_size_, place_field_.n_cols, place_field_.n_rows, spread_);
-
-    for (int x=0; x < (int)place_field_.n_cols; ++x) {
-		for (int y=0; y < (int)place_field_.n_rows; ++y){
-			if(occ(y, x) < minocc)
-				continue;
+//
+//    for (int x=0; x < (int)place_field_.n_cols; ++x) {
+//		for (int y=0; y < (int)place_field_.n_rows; ++y){
+//			if(occ(y, x) < minocc)
+//				continue;
+//
+//			// calculate number of 0 occurrences from occupancy and counts histogram
+//			unsigned int totsum = 0;
+//			for (unsigned int ns = 0; ns < whltime_to_spikes_[NBINSX * y + x].size(); ++ns)
+//				totsum += whltime_to_spikes_[NBINSX * y + x][ns];
+//			if (whltime_to_spikes_[NBINSX * y + x].size() > 0)
+//					whltime_to_spikes_[NBINSX * y + x][0] = occ(y,x) - totsum;
+//			else
+//				whltime_to_spikes_[NBINSX * y + x].push_back(occ(y,x) - totsum);
 
 			// sample if spikes or	no-spikes
-			for (int s=0; s < minocc; ++s){
-				int spikenos = rand() % (int)occ(y, x);
-				if((unsigned int)spikenos >= whltime_to_spikes_[NBINSX * y + x].size()){
-					// no spike sapmled - continue
-					continue;
-				}
+//			for (int s=0; s < minocc; ++s){
+//				int spikenos = rand() % (int)occ(y, x);
+//
+//				int cumsum = whltime_to_spikes_[NBINSX * y + x][0];
+//				int ispiken = 0;
+//				while (cumsum < spikenos){
+//					ispiken ++;
+//					cumsum += whltime_to_spikes_[NBINSX * y + x][ispiken];
+//				}
+//				spf(y, x) += ispiken;
 
-				spf(y, x) += whltime_to_spikes_[NBINSX * y + x][spikenos];
-			}
-		}
-    }
+				// old way - with every window counted
+//				if((unsigned int)spikenos >= whltime_to_spikes_[NBINSX * y + x].size()){
+//					// no spike sampled - continue
+//					continue;
+//				}
+//				spf(y, x) += whltime_to_spikes_[NBINSX * y + x][spikenos];
+//			}
+//		}
+//    }
 
 	return spf;
 }
