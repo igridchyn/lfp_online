@@ -278,9 +278,9 @@ void PlaceFieldProcessor::process(){
 
 
     // TMP - for PFS generation
-    smoothPlaceFields();
-    dumpPlaceFields();
-    exit(0);
+    //smoothPlaceFields();
+    //dumpPlaceFields();
+    //exit(0);
 }
 
 //const arma::mat& PlaceFieldProcessor::GetSmoothedOccupancy() {
