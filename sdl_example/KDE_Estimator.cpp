@@ -742,8 +742,8 @@ int main(int argc, char **argv){
 //	}
 
 	// save features of the filtered out spikes (to plot for validation)
-	arma::Col<unsigned int> columns_all(obs_mat.n_cols);
-	arma::Col<unsigned int> rows_dense(dense_ids_.size());
+	arma::ucolvec columns_all(obs_mat.n_cols);
+	arma::ucolvec rows_dense(dense_ids_.size());
 	for (unsigned int c = 0; c < obs_mat.n_cols; ++c){
 		columns_all[c] = c;
 	}
@@ -759,7 +759,7 @@ int main(int argc, char **argv){
 	// construct and save the reduced tree
 	ANNpointArray tree_points = kdtree_->thePoints();
 	ANNpointArray reduced_array = annAllocPts(used_ids_.size(), DIM);
-	arma::Col<unsigned int> rows_pivot(used_ids_.size());
+	arma::ucolvec rows_pivot(used_ids_.size());
 	for (size_t i=0; i < used_ids_.size(); ++i){
 		for (int f=0; f < DIM; ++f){
 			reduced_array[i][f] = tree_points[used_ids_[i]][f];
