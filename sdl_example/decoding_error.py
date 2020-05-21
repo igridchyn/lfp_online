@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from math import *
 from sys import argv, path
 import os, time
@@ -9,22 +11,22 @@ import datetime
 import random
 
 path.append('/home/igor/bin/source/')
-from call_log import log_call, log_and_print
+#from call_log import log_call, log_and_print
 
 def load_dic(path, fl = False):
-        dic = {}
-        for line in open(path):
-                if len(line) < 2:
-                        continue
-                ws = line.split(' ')
-                if fl:
-                        dic[ws[0]] = float(ws[1][:-1])
-                else:
-                        dic[ws[0]] = ws[1][:-1]
-        return dic
+	dic = {}
+	for line in open(path):
+		if len(line) < 2:
+			continue
+		ws = line.split(' ')
+		if fl:
+			dic[ws[0]] = float(ws[1][:-1])
+		else:
+			dic[ws[0]] = ws[1][:-1]
+	return dic
 
 def decoding_errors():
-	print 'File Creation time: %s' % time.ctime(os.path.getctime(argv[1])) 
+	print('File Creation time: %s' % time.ctime(os.path.getctime(argv[1])))
 
 	f = open(argv[1])
 	sum = 0
@@ -61,7 +63,7 @@ def decoding_errors():
 			goal1y = float(dic_about['g1y'])
 			goal2x = float(dic_about['g2x'])
 			goal2y = float(dic_about['g2y'])
-			print 'Goal coordinates loaded: %.2f / %.2f / %.2f / %.2f' % (goal1x, goal1y, goal2x, goal2y)
+			print('Goal coordinates loaded: %.2f / %.2f / %.2f / %.2f' % (goal1x, goal1y, goal2x, goal2y))
 			continue
 
 		if 'nan' in line:
@@ -104,7 +106,7 @@ def decoding_errors():
 
 		# only if predicted location is in the same environment
 		if (gtx - envlimit)*(px - envlimit) > 0:
-			print gtyb, nbinsy, gtxb, nbinsx
+			print(gtyb, nbinsy, gtxb, nbinsx)
 			occmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += 1
 			errmap[min(gtyb, nbinsy-1), min(gtxb, nbinsx-1)] += dist
 
@@ -114,7 +116,7 @@ def decoding_errors():
 		if xpb < predmap.shape[1]:
 			predmap[ypb, xpb] += 1
 		else:
-			print 'WARNING: skipping predicted location', xpb
+			print('WARNING: skipping predicted location', xpb)
 
 		errb += sqrt((xb-gtx)**2 + (yb-gty)**2)
 
@@ -137,7 +139,7 @@ def decoding_errors():
 		#if abs(gtx - envlimit) < 20:
 		#	classn -= 1
 		#	if (edec - egt) % 2 == 0:
-                #       	classcorr -= 1	
+		#       	classcorr -= 1	
 
 	return (sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb)
 #========================================================================================================
@@ -159,8 +161,8 @@ def run_model_and_decoding(pnames, pvals):
 
 #========================================================================================================
 def log(s):
-	# print s
-	log_and_print(logdir, s)
+	print(s)
+	# log_and_print(logdir, s)
 	if GD:
 		flog.write(s + '\n')
 		flog.flush()
@@ -182,15 +184,15 @@ def gradient_descent():
 		psteps.append(float(fpar.readline()))
 
 	log('Optimize params: ' + str(pnames))
-	print os.getcwd()
+	print(os.getcwd())
 	# exit(0)
 
 	psteps_min = psteps[:]
 
 	run_model_and_decoding(pnames, pvals)
-        sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
+	sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 	mederr = np.median(np.array(errs))
-        classprec = classcorr * 100 / classn
+	classprec = classcorr * 100 / classn
 	log('BASELINE (starting precision): %.2f / %.1f%%' %(mederr, classprec))
 	log('Number of error records: %d' % len(errs))
 	log('Criteria multipliers: ACC = %.2f, ERR = %.2f' % (ma, me))
@@ -243,7 +245,7 @@ def gradient_descent():
 						precbest = classprec
 						parbest = pvals[:]
 						errbest = mederr
-					        psteps = psteps_min[:]
+						psteps = psteps_min[:]
 						stepfac = 1
 						log('OLD BEST CRIT VALUE: %.3f, NEW BEST CRIT VALUE: %.3f' % (crit_best, crit))
 						crit_best = ma * classprec - me * mederr
@@ -271,8 +273,8 @@ def gradient_descent():
 			exit(0) # while True
 #============================================================================================================
 if len(argv) < 6:
-	print 'Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not> (6)<bin size>'
-	print 'Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size> (9)<stochastic: 0/1> (10)<weight : ERROR> (11)<weight : ACCURACY>'
+	print('Usage: decoding_error.py (1)<decoder_output_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<plot distribution or not> (6)<bin size>')
+	print('Or:    decoding_error.py (1)<error_file_name> (2)<nbinsx> (3)<nbinsy> (4)<environment border> (5)<opt_config> (6)<initial_build_model_config> (7)<initial_decoding_config> (8)<bin size> (9)<stochastic: 0/1> (10)<weight : ERROR> (11)<weight : ACCURACY>')
 	exit(0)
 
 nbinsx = int(argv[2])
@@ -283,7 +285,12 @@ predmap = np.zeros((nbinsy, nbinsx))
 occmap = np.zeros((nbinsy, nbinsx))
 errmap = np.zeros((nbinsy, nbinsx))
 
-logdir = log_call(argv)
+#logdir = log_call(argv)
+
+# false-positive env classification
+fp_env = [0, 0]
+# occupancy
+envocc = [0, 0]
 
 GD = False
 if len(argv) == 12:
@@ -295,15 +302,10 @@ if len(argv) == 12:
 	flog.write('\n\nOPTIMIZATION SESSION: ' + str(dt) + '\n')
 	gradient_descent()
 
-# false-positive env classification
-fp_env = [0, 0]
-# occupancy
-envocc = [0, 0]
-
 sum, ndist, errs, sumnosb, nnosb, classcorr, classn, errb = decoding_errors()
 
-sume1 = np.sum(errmap[:, 0:nbinsx/2]) / np.sum(occmap[:, 0:nbinsx/2])
-sume2 = np.sum(errmap[:, nbinsx/2:]) / np.sum(occmap[:, nbinsx/2:])
+sume1 = np.sum(errmap[:, 0:nbinsx//2]) / np.sum(occmap[:, 0:nbinsx//2])
+sume2 = np.sum(errmap[:, nbinsx//2:]) / np.sum(occmap[:, nbinsx//2:])
 
 errmap = np.divide(errmap, occmap)
 errmap = np.nan_to_num(errmap)
@@ -314,7 +316,7 @@ log("Median error: %.2f" % np.median(np.array(errs)))
 log("Average error outside of SB: %.2f" % (sumnosb/nnosb))
 log("Classification precision: %.2f%%" % (classcorr * 100 / classn))
 log("Binning error: %.2f" % (errb/ndist))
-log("Environments occupancy: %d / %d" % (np.sum(occmap[:, 0:nbinsx/2]), np.sum(occmap[:, nbinsx/2:])))
+log("Environments occupancy: %d / %d" % (np.sum(occmap[:, 0:nbinsx//2]), np.sum(occmap[:, nbinsx//2:])))
 
 plot_distr = int(argv[5])
 if plot_distr:
