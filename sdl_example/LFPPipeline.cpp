@@ -108,8 +108,8 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
 		} else if (proc_name == "IntanInputProcessor"){
 			processors.push_back(new IntanInputProcessor(buf));
-		} else if (proc_name == "PositionTrackingProcessor"){
-			processors.push_back(new PositionTrackingProcessor(buf));
+		//} else if (proc_name == "PositionTrackingProcessor"){
+		//	processors.push_back(new PositionTrackingProcessor(buf));
 		} else if (proc_name == "PositionWriterProcessor"){
 			processors.push_back(new PositionWriterProcessor(buf));
 		} else if (proc_name == "RawDataWriterProcessor"){
