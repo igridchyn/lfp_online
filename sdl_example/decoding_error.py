@@ -151,12 +151,13 @@ def run_model_and_decoding(pnames, pvals):
 	
 	# run model build
 	log('Start model build with params ' + str(parstring))
-	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
+	subp=Popen(parstring, cwd = '/home/igor/eclipse-workspace/lfp_online/sdl_example/Debug')
+	
 	subp.wait()
 	# run decoding
 	parstring[1] = argv[7]
 	log('Start decoding with params ' + str(parstring))
-	subp=Popen(parstring, cwd = '/home/igor/code/ews/lfp_online/sdl_example/Debug')
+	subp=Popen(parstring, cwd = '/home/igor/eclipse-workspace/lfp_online/sdl_example/Debug')
 	subp.wait()
 
 #========================================================================================================
@@ -234,7 +235,11 @@ def gradient_descent():
 					log('Crit = %.2f, best crit = %.2f' % (crit, crit_best))
 					prob = exp((crit - crit_best) / 10)
 					r = random.random()
-					log('Transition probability = %.2f, random value = %.2f, decision = %s' % (prob, r, 'TRANSITION' if (r > prob) else 'NO TRANSITION'))
+					log('[test] Transition probability = %.2f, random value = %.2f, decision = %s' % (prob, r, 'TRANSITION' if (r > prob) else 'NO TRANSITION'))
+					# TODO: IMPLEMENT SIMMULATED ANNEALING ALGO
+					# 	1. HAVE TEMPERATURE PARAMETER T DECREASING WITH TIME
+					# 	2. DEFINE ACCEPTANCE PROBABILITYT P = EXP(-(E'-E)/T)
+					# 	3. CHOOSE NEIGHBOUR RANDOMLY!
 	
 					if crit > crit_best:
 					# if classprec > precbest and mederr < errthold:
