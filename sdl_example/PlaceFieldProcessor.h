@@ -63,6 +63,8 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
 
     bool display_prediction_;
 
+    const unsigned int PRED_START;
+
     const unsigned int prediction_rate_;
 
     float POS_SAMPLING_RATE = 0.0;
@@ -77,7 +79,7 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     unsigned int session_group_ = 0;
 
     // user-selected session for display
-    unsigned int selected_session_ = 0;
+    unsigned int selected_session_ = 3;
 
     bool text_color_black_ = true;
 
@@ -113,7 +115,7 @@ public:
     PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy,
     		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
     		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior,
-    		const unsigned int& processors_number);
+    		const unsigned int& processors_number, const unsigned int& pred_start);
     
     // call the constructor above after reading params from config
     PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& processors_number);

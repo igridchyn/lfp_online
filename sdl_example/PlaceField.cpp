@@ -221,12 +221,12 @@ PlaceField PlaceField::Smooth(){
     return spf2;
 }
 
-void PlaceField::CachePDF(const PlaceField& occupancy, const double& occupancy_factor){
+void PlaceField::CachePDF(const double& occupancy_factor){
     pdf_cache_ = arma::cube(place_field_.n_rows, place_field_.n_cols, MAX_SPIKES, arma::fill::zeros);
     
     for (size_t r=0; r < place_field_.n_rows; ++r) {
         for (size_t c=0; c < place_field_.n_cols; ++c) {
-            const double& lambda = occupancy(r, c) > 0 ? (place_field_(r, c) / occupancy(r, c) * occupancy_factor) : 0;
+        	const double& lambda = place_field_(r, c) * occupancy_factor; // EXPECTED SPIKES IN POPULATION VECTOR TIMEWINDOW
             double logp = -lambda;
             pdf_cache_(r, c, 0) = logp;
             

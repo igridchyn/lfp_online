@@ -54,12 +54,13 @@ public:
     inline size_t Width() const { return place_field_.n_cols; }
     inline size_t Height() const { return place_field_.n_rows; }
     
-    inline const double Max() const { return place_field_.max(); }
+    //inline const double Max() const { return place_field_.max(); }
+    inline const double Max() const { return arma::max(place_field_.elem(arma::find_finite(place_field_))); }
     
     PlaceField Smooth();
     PlaceField Downsample(PlaceField& pf, int minocc);
     
-    void CachePDF(const PlaceField& occupancy, const double& occupancy_factor);
+    void CachePDF(const double& occupancy_factor);
 
     inline const double& Prob(unsigned int r, unsigned int c, unsigned int s) { return pdf_cache_(r, c, s); }
     

@@ -29,6 +29,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 			buf->config_->getFloat("pf.prediction.firing.rate.threshold"),
 			buf->config_->getInt("pf.min.pkg.id"),
 			buf->config_->getBool("pf.use.prior"),
+			buf->config_->getInt("pf.pred.start", 0),
 			processors_number)
 {
 }
@@ -37,21 +38,37 @@ void PlaceFieldProcessor::initArrays(){
 	N_SESSIONS = buffer->config_->pf_sessions_.size() + 1;
 
 	const unsigned int tetrn = buffer->tetr_info_->tetrodes_number();
-	const unsigned int MAX_CLUST = 100;
 
 	occupancy_.resize(N_SESSIONS, PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 	occupancy_smoothed_.resize(N_SESSIONS, PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 
+	// TODO: FIX
+	// find out number of clusters in the last tetrode
+	if (LOAD){
+		int ct = buffer->global_cluster_number_shfit_[tetrn-1];
+		std::string tpath = BASE_PATH + Utils::Converter::int2str(ct) + "_0.mat";
+		while (Utils::FS::FileExists(tpath)){
+			ct ++;
+			tpath = BASE_PATH + Utils::Converter::int2str(ct) + "_0.mat";
+		}
+		buffer->clusters_in_tetrode_[tetrn-1] = ct - 1 - buffer->global_cluster_number_shfit_[tetrn-1];
+		std::cout << "Number of clusters in last tetrode: " << buffer->clusters_in_tetrode_[tetrn-1] << "\n";
+	}
+
 	for (size_t t=0; t < tetrn; ++t) {
-		place_fields_[t].resize(MAX_CLUST);
-		place_fields_smoothed_[t].resize(MAX_CLUST);
-		// TODO !! CLUTSERS IN TETRODE
-		for (size_t c=0; c < MAX_CLUST; ++c) {
+		for (size_t c=0; c < 100; ++c) {
+
+			place_fields_[t].push_back(std::vector<PlaceField>());
+			place_fields_smoothed_[t].push_back(std::vector<PlaceField>());
+
 			for (size_t s=0; s < N_SESSIONS; ++s) {
 				place_fields_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				place_fields_smoothed_[t][c].push_back(PlaceField(sigma_, bin_size_, nbinsx_, nbinsy_, spread_));
 				if (LOAD){
-					place_fields_smoothed_[t][c][s].Load(BASE_PATH + Utils::Converter::int2str(c + buffer->global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
+					std::string path = BASE_PATH + Utils::Converter::int2str(c + buffer->global_cluster_number_shfit_[t]) + "_" + Utils::Converter::int2str(s) + ".mat";
+					if (Utils::FS::FileExists(path)){
+						place_fields_smoothed_[t][c][s].Load(path, arma::raw_ascii);
+					}
 				}
 			}
 		}
@@ -63,13 +80,13 @@ void PlaceFieldProcessor::initArrays(){
 			occupancy_smoothed_[s].Load(BASE_PATH + "occ_" +  Utils::Converter::int2str(s) + ".mat", arma::raw_ascii);
 		}
 		// pos sampling rate is unknown in the beginning
-		//cachePDF();
+		cachePDF();
 	}
 }
 
 PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, const double& bin_size, const unsigned int& nbinsx, const unsigned int& nbinsy,
 		const unsigned int& spread, const bool& load, const bool& save, const std::string& base_path,
-		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number)
+		const float& prediction_fr_thold, const unsigned int& min_pkg_id, const bool& use_prior, const unsigned int& processors_number, const unsigned int& pred_start)
 : LFPProcessor(buf, processors_number)
 , SDLControlInputProcessor(buf, processors_number)
 , SDLSingleWindowDisplay(buf, "Place Fields", buf->config_->getInt("pf.window.width"), buf->config_->getInt("pf.window.height"))
@@ -92,6 +109,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , N_SESSIONS(buf->config_->pf_sessions_.size() + 1)
 , DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
 , DOWNSAMPLE(false)//buf->config_->getFloat("pf.downsample"))
+, PRED_START(pred_start)
 {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
 
@@ -101,10 +119,13 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
     // WORKAROUND
     // SPECIAL CASES: 0 : opened files are 9f/2 + 9l/4 + 14post/2 + 16l/4
 //    if (buffer->config_->pf_sessions_.size() == 1 && buffer->config_->pf_sessions_[0] == 0){
-    wait_file_read_ = true;
+    wait_file_read_ = ! LOAD;
 //    } else {
 //    	initArrays();
 //    }
+    if (!wait_file_read_){
+    	initArrays();
+    }
 
     palette_ = ColorPalette::MatlabJet256;
     Log("WARNING: processor assumes chronological order of spikes");
@@ -270,9 +291,15 @@ void PlaceFieldProcessor::process(){
     }
 
     // if prediction display requested and at least prediction_rate_ time has passed since last prediction
-    if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_){
-    	arma::fmat pred = arma::exp(buffer->last_predictions_[processor_number_].t() * DISPLAY_SCALE);
-    	drawMat(pred);
+    if (display_prediction_ && buffer->last_pkg_id - last_predicted_pkg_ > prediction_rate_ && buffer->last_pkg_id > PRED_START){
+
+    	// external prediction
+    	//arma::fmat pred = arma::exp(buffer->last_predictions_[processor_number_].t() * DISPLAY_SCALE);
+    	//drawMat(pred);
+
+    	ReconstructPosition(buffer->population_vector_window_);
+    	drawPrediction();
+
     	last_predicted_pkg_ = buffer->last_pkg_id;
     }
 
@@ -324,13 +351,14 @@ void PlaceFieldProcessor::drawMat(const arma::Mat<T>& mat, const std::vector<std
     }
 
     // draw actual position tail
-    unsigned int end = (unsigned int)MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
+    //unsigned int end = (unsigned int)MIN(buffer->last_preidction_window_ends_[processor_number_] / POS_SAMPLING_RATE, buffer->pos_buf_pos_);
+    unsigned int end = buffer->pos_buf_pos_;
     for (unsigned int pos = end - 100; pos < end; ++pos) {
     	FillRect(int(buffer->positions_buf_[pos].x_pos() * binw / bin_size_), int(buffer->positions_buf_[pos].y_pos() * binh / bin_size_), 0, 2, 2);
     }
 
-    if (!display_prediction_){
 		ResetTextStack();
+    if (!display_prediction_){
 		int textCol = text_color_black_ ? 0xFFFFFF : 0x000000;
 		TextOut(Utils::Converter::Combine("Tetrode: ", (int)display_tetrode_), textCol, true);
 		TextOut(Utils::Converter::Combine("Cluster: ", display_cluster_), textCol, true);
@@ -363,6 +391,8 @@ void PlaceFieldProcessor::drawPlaceField(){
 
 void PlaceFieldProcessor::drawPrediction(){
     drawMat(reconstructed_position_);
+    // debug
+    //reconstructed_position_.save("recpos.mat", arma::raw_ascii);
 }
 
 void PlaceFieldProcessor::switchSession(const unsigned int& session){
@@ -512,10 +542,10 @@ void PlaceFieldProcessor::process_SDL_control_input(const SDL_Event& e){
                 //dumpPlaceFields();
                 //exit(0);
 
-                cachePDF();
+                //cachePDF();
                 break;
             case SDLK_c:
-                cachePDF();
+                //cachePDF();
                 break;
             case SDLK_p:
                 display_prediction_ = true;
@@ -629,15 +659,17 @@ void PlaceFieldProcessor::cachePDF(){
 	// factor - number by which the
 
 	// TODO:FIX TO USE SESSION-WISE PFS !!! introduce counter (in case of buffer rewind)
-//	float pos_sampling_rate = buffer->pos_buf_pos_ / (float)buffer->last_pkg_id * buffer->SAMPLING_RATE;
-//	float factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000.0f;
-//    for (size_t t=0; t < place_fields_.size(); ++t) {
-//        for (size_t c = 0; c < place_fields_[t].size(); ++c) {
-//        	for (size_t s = 0; s < buffer->config_->pf_sessions_.size(); ++c) {
-//        		place_fields_smoothed_[t][c][s].CachePDF(PlaceField::PDFType::Poisson, occupancy_smoothed_[s], factor);
-//        	}
-//        }
-//    }
+	//float pos_sampling_rate = buffer->pos_buf_pos_ / (float)buffer->last_pkg_id * buffer->SAMPLING_RATE;
+	float pos_sampling_rate = 50;
+
+	double factor = buffer->POP_VEC_WIN_LEN * pos_sampling_rate / 1000.0f;
+    for (size_t t=0; t < place_fields_.size(); ++t) {
+        for (size_t c = 0; c < place_fields_[t].size(); ++c) {
+        	for (size_t s = 0; s < buffer->config_->pf_groups_.size(); ++s) {
+        		place_fields_smoothed_[t][c][s].CachePDF(factor);
+        	}
+        }
+    }
 }
 
 void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned int> > pop_vec){
@@ -648,9 +680,14 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
     // TODO: build cache in LFP buffer, configurableize
     arma::mat firing_rates(buffer->tetr_info_->tetrodes_number(), 40);
     int fr_cnt = 0;
+
+
     for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-		for (size_t cl = 0; cl < pop_vec[t].size(); ++cl) {
-			firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * buffer->SAMPLING_RATE;
+		for (size_t cl = 2; cl < pop_vec[t].size(); ++cl) {
+			//firing_rates(t, cl) = buffer->cluster_spike_counts_(t, cl) / buffer->last_pkg_id * buffer->SAMPLING_RATE;
+			// TODO - PROPER THRESHOLDING AND SELECTION!
+			firing_rates(t, cl) = place_fields_smoothed_[t][cl-1][selected_session_].Max() * 50 / 3.0;
+
 			if (firing_rates(t, cl) > RREDICTION_FIRING_RATE_THRESHOLD){
 				fr_cnt ++;
 			}
@@ -673,21 +710,21 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
         for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
             
         	// apply occupancy threshold
-        	if (occupancy_smoothed_[current_session_](r, c)/occ_sum < 0.001){
-        		reconstructed_position_(r, c) = -1000000000;
-        		continue;
-        	}
+//        	if (occupancy_smoothed_[current_session_](r, c)/occ_sum < 0.001){
+//        		reconstructed_position_(r, c) = -1000000000;
+//        		continue;
+//        	}
 
             // estimate log-prob of being in (r,c) - for all tetrodes / clusters (under independence assumption)
             for (size_t t=0; t < buffer->tetr_info_->tetrodes_number(); ++t) {
-                for (size_t cl = 0; cl < pop_vec[t].size(); ++cl) {
+                for (size_t cl = 2; cl < pop_vec[t].size(); ++cl) {
                 	if (firing_rates(t, cl) < RREDICTION_FIRING_RATE_THRESHOLD){
                 		continue;
                 	}
 
                 	int spikes = MIN(PlaceField::MAX_SPIKES - 1, pop_vec[t][cl]);
                 	// TODO: choose section properly if the method is to be used
-                	double logprob = place_fields_smoothed_[t][cl][selected_session_].Prob(r, c, spikes);
+                	double logprob = place_fields_smoothed_[t][cl-1][selected_session_].Prob(r, c, spikes);
                     reconstructed_position_(r, c) += logprob;
                 }
             }
@@ -706,7 +743,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 //    double lpmax = -reconstructed_position_.min();
     for (size_t r=0; r < reconstructed_position_.n_rows; ++r) {
             for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
-            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c)/100);
+            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c)/30); // 100
 //            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
             }
     }
