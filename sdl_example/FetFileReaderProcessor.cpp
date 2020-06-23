@@ -849,7 +849,7 @@ void FetFileReaderProcessor::process() {
 //			last_spikies_[earliest_spike_tetrode_] = rspike;
 //		}
 
-		buffer->UpdateWindowVector(bspike);
+		//buffer->UpdateWindowVector(bspike);
 
 		// DEBUG
 		buffer->CheckPkgIdAndReportTime(earliest_spike_time_, "Spike 12049131 read\n", true);
@@ -879,7 +879,7 @@ void FetFileReaderProcessor::process() {
 
 	buffer->last_pkg_id = last_pkg_id_;
 
-	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
+	//buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
 
 	if (last_spike_pkg_id - last_reported_ > report_rate_){
 		buffer->log_string_stream_ << "Loaded spikes for the first " << last_spike_pkg_id / report_rate_ * 2 << " minutes of recording...\n";

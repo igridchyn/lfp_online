@@ -219,8 +219,12 @@ void CluReaderClusteringProcessor::process() {
 		else{
 		}
 
+		buffer->UpdateWindowVector(spike);
+
 		buffer->spike_buf_pos_clust_++;
 	}
+
+	buffer->RemoveSpikesOutsideWindow(buffer->last_pkg_id);
 
 	if (buffer->clu_reset_){
 		buffer->clu_reset_ = false;
