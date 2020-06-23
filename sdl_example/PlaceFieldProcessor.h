@@ -63,8 +63,6 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
 
     bool display_prediction_;
 
-    const unsigned int PRED_START;
-
     const unsigned int prediction_rate_;
 
     float POS_SAMPLING_RATE = 0.0;
@@ -86,6 +84,11 @@ class PlaceFieldProcessor : virtual public LFPProcessor, virtual public SDLContr
     //================================
     
     const double DISPLAY_SCALE;
+
+    const unsigned int PRED_START;
+
+    const double PRED_OCC_THOLD;
+
     bool wait_file_read_ = false;
 
     bool DOWNSAMPLE;

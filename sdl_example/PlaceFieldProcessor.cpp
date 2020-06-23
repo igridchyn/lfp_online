@@ -29,8 +29,8 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const unsigned int& pro
 			buf->config_->getFloat("pf.prediction.firing.rate.threshold"),
 			buf->config_->getInt("pf.min.pkg.id"),
 			buf->config_->getBool("pf.use.prior"),
-			buf->config_->getInt("pf.pred.start", 0),
-			processors_number)
+			processors_number,
+			buf->config_->getInt("pf.pred.start", 0))
 {
 }
 
@@ -110,6 +110,7 @@ PlaceFieldProcessor::PlaceFieldProcessor(LFPBuffer *buf, const double& sigma, co
 , DISPLAY_SCALE(buf->config_->getFloat("pf.display.scale"))
 , DOWNSAMPLE(false)//buf->config_->getFloat("pf.downsample"))
 , PRED_START(pred_start)
+, PRED_OCC_THOLD(buf->config_->getFloat("pf.pred.occ.thold", 0.0001))
 {
     const unsigned int tetrn = buf->tetr_info_->tetrodes_number();
 
@@ -710,7 +711,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
         for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
             
         	// apply occupancy threshold
-//        	if (occupancy_smoothed_[current_session_](r, c)/occ_sum < 0.001){
+//        	if (occupancy_smoothed_[current_session_](r, c)/occ_sum < PRED_OCC_THOLD){
 //        		reconstructed_position_(r, c) = -1000000000;
 //        		continue;
 //        	}
@@ -730,7 +731,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
             }
             
             if (USE_PRIOR){
-            	reconstructed_position_(r, c) += occupancy_smoothed_[current_session_](r, c) > 0 ? (fr_cnt * log(occupancy_smoothed_[current_session_](r, c) / occ_sum)) : -100000.0;
+            	reconstructed_position_(r, c) += occupancy_smoothed_[current_session_](r, c) > 0 ? (log(occupancy_smoothed_[current_session_](r, c) / occ_sum)) : -100000.0;
             }
         }
     }
@@ -743,7 +744,7 @@ void PlaceFieldProcessor::ReconstructPosition(std::vector<std::vector<unsigned i
 //    double lpmax = -reconstructed_position_.min();
     for (size_t r=0; r < reconstructed_position_.n_rows; ++r) {
             for (size_t c=0; c < reconstructed_position_.n_cols; ++c) {
-            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c)/30); // 100
+            	reconstructed_position_(r, c) = exp(reconstructed_position_(r, c)/DISPLAY_SCALE); // 100
 //            	reconstructed_position_(r, c) = lpmax + reconstructed_position_(r, c);
             }
     }
