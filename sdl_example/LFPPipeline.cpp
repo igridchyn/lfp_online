@@ -34,10 +34,13 @@
 #include "PackageExtractorProcessor.h"
 #include "BinFileReaderProcessor.h"
 #include "ParallelPipelineProcessor.h"
-#include "IntanInputProcessor.h"
-#include "PositionTrackingProcessor.h"
 #include "PositionWriterProcessor.h"
 #include "RawDataWriterProcessor.h"
+#include "IntanInputProcessor.h"
+
+#ifdef INTAN
+	#include "PositionTrackingProcessor.h"
+#endif
 
 LFPPipeline::LFPPipeline(LFPBuffer *buf)
 	:buf_(buf){
@@ -108,8 +111,10 @@ LFPPipeline::LFPPipeline(LFPBuffer *buf)
 			processors.push_back(new BinaryPopulationClassifierProcessor(buf));
 		} else if (proc_name == "IntanInputProcessor"){
 			processors.push_back(new IntanInputProcessor(buf));
-		//} else if (proc_name == "PositionTrackingProcessor"){
-		//	processors.push_back(new PositionTrackingProcessor(buf));
+#ifdef INTAN
+		} else if (proc_name == "PositionTrackingProcessor"){
+			processors.push_back(new PositionTrackingProcessor(buf));
+#endif
 		} else if (proc_name == "PositionWriterProcessor"){
 			processors.push_back(new PositionWriterProcessor(buf));
 		} else if (proc_name == "RawDataWriterProcessor"){
