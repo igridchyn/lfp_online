@@ -22,8 +22,11 @@ void UserContext::SelectCluster2(const int& clu) {
 	selected_cluster2_ = clu;
 }
 
-void UserContext::MergeClusters(PolygonCluster& clu1, PolygonCluster& clu2) {
-	action_list_.push_back(UserAction(UA_MERGE_CLUSTERS, selected_cluster1_, selected_cluster2_, clu1, clu2));
+void UserContext::MergeClusters(PolygonCluster& clu1, PolygonCluster& clu2, const std::vector<unsigned int>& ids) {
+	UserAction ua(UA_MERGE_CLUSTERS, selected_cluster1_, selected_cluster2_, clu1, clu2);
+	ua.spike_ids_ = ids;
+
+	action_list_.push_back(ua);
 	clu2.Invalidate();
 
 	selected_cluster2_ = -1;

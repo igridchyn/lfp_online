@@ -1405,18 +1405,20 @@ void SDLPCADisplayProcessor::mergeClusters() {
 
 	SDL_SetRenderTarget(renderer_, texture_);
 	SetDrawColor(c1);
+	std::vector<unsigned int> affected_ids;
 	for(unsigned int sind = 0; sind < buffer->spike_buf_no_disp_pca; ++sind){
 		Spike *spike = buffer->spike_buffer_[sind];
 		if (spike->tetrode_ != target_tetrode_)
 			continue;
 
 		if (spike->cluster_id_ == c2){
+			affected_ids.push_back(sind);
 			spike->cluster_id_ = c1;
 			int x,y;
 			getSpikeCoords(spike, x, y);
 			points_.push_back({x, y});
 		} else {
-			// shify cluster numbers up
+			// shift cluster numbers up
 			if (spike->cluster_id_ > c2){
 				spike->cluster_id_ --;
 			}
@@ -1424,7 +1426,7 @@ void SDLPCADisplayProcessor::mergeClusters() {
 	}
 
 	// remove cluster from list of tetrode poly clusters
-	user_context_.MergeClusters(buffer->cells_[target_tetrode_][c1].polygons_, buffer->cells_[target_tetrode_][c2].polygons_);
+	user_context_.MergeClusters(buffer->cells_[target_tetrode_][c1].polygons_, buffer->cells_[target_tetrode_][c2].polygons_, affected_ids);
 	buffer->ResetPopulationWindow();
 
 	// move polygon clusters up

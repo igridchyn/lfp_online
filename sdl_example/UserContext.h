@@ -85,7 +85,7 @@ public:
 
 	void SelectCluster1(const int& clu);
 	void SelectCluster2(const int& clu);
-	void MergeClusters(PolygonCluster& clu1, PolygonCluster& clu2);
+	void MergeClusters(PolygonCluster& clu1, PolygonCluster& clu2, const std::vector<unsigned int>&);
 	void CutSpikes(const int& clu);
 	int CreateClsuter(const int& maxclu, PolygonClusterProjection proj);
 	void DelleteCluster(PolygonCluster& cluster);
