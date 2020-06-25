@@ -611,10 +611,16 @@ void AutocorrelogramProcessor::plotAC(const unsigned int tetr, const unsigned in
 
 	// double crate = std::accumulate(autocorrs_[tetr][cluster].begin(), autocorrs_[tetr][cluster].end(), 0) / double(buffer->last_pkg_id) * buffer->SAMPLING_RATE;
 	double crate = spike_counts_[tetr][cluster] / double(buffer->last_pkg_id) * buffer->SAMPLING_RATE;
-	std::stringstream ss;
+	std::stringstream ss, ss2;
 	ss.precision(2);
 	ss << cluster << ", " << crate << " Hz";
-	TextOut(ss.str(), xsh, ysh - ypix_ / 2, 0xFFFFFF, false);
+	// ss << "\n" << spike_counts_[tetr][cluster];
+	ss2 << spike_counts_[tetr][cluster];
+	if (spike_counts_[tetr][cluster] > 0){
+		TextOut(ss.str(), xsh, ysh - ypix_ / 2, 0xFFFFFF, false);
+		//TextOut(ss2.str(), xsh, ysh - ypix_ / 2 + 15, 0xFFFFFF, false);
+		TextOut(ss2.str(), xsh + NBINS*BWIDTH-40, ysh - ypix_, 0xFFFFFF, false);
+	}
 }
 
 void AutocorrelogramProcessor::Resize() {
