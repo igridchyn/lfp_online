@@ -565,6 +565,17 @@ void SDLPCADisplayProcessor::undoUserAction(){
 			buffer->spike_buffer_[lastAction.spike_ids_[i]]->cluster_id_ = lastAction.cluster_number_1_;
 		}
 		user_context_.action_list_.pop_back();
+	} else if (lastAction.action_type_ == UA_MERGE_CLUSTERS){
+		unsigned int clun = 0;
+		PolygonCluster new_clust_ = createNewCluster(clun);
+		buffer->Log("Undo merge");
+
+		for (unsigned int i=0; i < lastAction.spike_ids_.size(); ++i){
+			buffer->spike_buffer_[lastAction.spike_ids_[i]]->cluster_id_ = clun;
+		}
+
+		buffer->ResetAC(target_tetrode_, clun);
+		buffer->ResetPopulationWindow();
 	} else {
 		Log("CANNOT UNDO ACTION OF THIS TYPE");
 	}
