@@ -1,6 +1,8 @@
 boost-devel
 armadillo-devel
 SDL2_ttf-devel
+SDL2-devel
 mlpack-devel
 ann-devel
+libdc1394-devel
 opencv-devel
