@@ -25,11 +25,11 @@ cd sdl_example/Debug
 ## Configuration
 Config files are text files that contain:
 
-    1. parameter definitions in form *'variable_name=variable_value'*
-    2. sub-config references: *#include* followed by path to sub-config in next line
-    3. pipeline composition: word *pipeline* followed by number of processors in the next line, followed by list of processors, one per line
+    1. parameter definitions in form 'variable_name=variable_value'
+    2. sub-config references: '#include' followed by path to sub-config in next line
+    3. pipeline composition: keyword 'pipeline' followed by number of processors in the next line, followed by list of processors, one per line
     4. lists: list name followed by line with number of elements in the list and all elements, separated by space
-    5. references to previously defined parameters: *${parameter_name}*
+    5. references to previously defined parameters: ${parameter_name}
     
 Commenting: all lines, starting with *//* are ignored.
 
