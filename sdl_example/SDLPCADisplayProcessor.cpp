@@ -565,8 +565,7 @@ void SDLPCADisplayProcessor::undoUserAction(){
 			buffer->spike_buffer_[lastAction.spike_ids_[i]]->cluster_id_ = lastAction.cluster_number_1_;
 		}
 		user_context_.action_list_.pop_back();
-		buffer->ResetAC(target_tetrode_, lastAction.cluster_number_1_);
-		buffer->ResetAC(target_tetrode_, lastAction.cluster_number_2_);
+		buffer->ResetAC(target_tetrode_);
 	} else if (lastAction.action_type_ == UA_MERGE_CLUSTERS){
 		unsigned int clun = 0;
 		PolygonCluster new_clust_ = createNewCluster(clun);
