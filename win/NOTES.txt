@@ -1,1 +1,2 @@
 prject files and project direcotry have been moved, may need to readjsut xcodeproj files
+third-pary source code was removed, might add back if compiling under windows again
