@@ -199,25 +199,31 @@ Config::Config(std::string path, unsigned int nparams, char **params, std::map<s
 			}
 			if (includedConf.lfp_disp_channels_.size() > 0){
 				if (lfp_disp_channels_.size() > 0){
-					Log("WARNING: override list content");
+					Log("WARNING: override displayed lfp channels list content");
 				}
 				lfp_disp_channels_ = includedConf.lfp_disp_channels_;
 			}
 			if (includedConf.discriminators_.size() > 0){
 				if (discriminators_.size() > 0){
-					Log("WARNING: override list content");
+					Log("WARNING: override discriminators list content");
 				}
 				discriminators_ = includedConf.discriminators_;
 			}
 			if (includedConf.pf_sessions_.size() > 0){
 				if (pf_sessions_.size() > 0){
-					Log("WARNING: override list content");
+					Log("WARNING: override sesions list content");
 				}
 				pf_sessions_ = includedConf.pf_sessions_;
 			}
+			if (includedConf.pf_groups_.size() > 0){
+				if (pf_groups_.size() > 0){
+					Log("WARNING: override groups list content");
+				}
+				pf_groups_ = includedConf.pf_groups_;
+			}
 			if ( includedConf.spike_files_.size() > 0){
 				if (spike_files_.size() > 0){
-					Log("WARNING: override list content");
+					Log("WARNING: override spike files list content");
 				}
 				spike_files_ = includedConf.spike_files_;
 			}
