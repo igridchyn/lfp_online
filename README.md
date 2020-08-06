@@ -1,5 +1,11 @@
 # LFP online
-Software system for closed-loop experiments.
+
+This software package serves dual purpose:
+
+1. ** Brain-machine interface for realtime decoding of spike trains. **
+Main purpose of the software is to decode neural population activity in real-time using either population vector decoder or a cluster-less spike wave shape based method first described in [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3921373/). Sequence decoding is possible using HMM in combination with the deocding methods. A closed-loop feedback can be provided through the LPT port. This software was used to build the first ever brain-machine interface for real-time decoding of hippocampal reactivation [(Gridchyn et al., 2020](https://www.sciencedirect.com/science/article/pii/S0896627320300477?via%3Dihub).
+
+** Architecture summary **
 Processing is separated in different purpose-specific 'processors'.
 Data flows downstream from source to sink processor.
 All processors share single preallocated buffer, e.g. processor takes it's inputs from the shared buffer and writes results back to the buffer.
