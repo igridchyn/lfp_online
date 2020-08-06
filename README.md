@@ -1,5 +1,23 @@
 # LFP online
-Software system for closed-loop experiments.
+
+This software package serves dual purpose:
+
+1. **Brain-machine interface for realtime decoding of spike trains.**
+
+Main purpose of the software is to decode neural population activity in real-time from LFP(local field potential) signal using either population vector decoder or a cluster-less spike wave shape based method first described in [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3921373/). Sequence decoding is possible using HMM in combination with the deocding methods. A closed-loop feedback can be provided through the LPT port. This software was used to build the first ever brain-machine interface for real-time decoding of hippocampal reactivation [(Gridchyn et al., 2020)](https://www.sciencedirect.com/science/article/pii/S0896627320300477?via%3Dihub).
+
+This figure from [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3921373/) summarizes the brain-machine interface architecture and decoding method on which this software package is based:
+![Kloosterman BMI diagram](docs/Kloosterman2013Diagram.jpg)
+
+
+2. **Analysis of tetrode recordings data**
+
+This sofware also provides tools for analysis of neurophysiological data through detection, feature extraction and sorting of spikes from LFP signal. Cell waveshapes, spike features, spike auto- and cross- correlogram functions, power spectrum of the LFP can be calculated and visualized. In addition, if the tracking information is available, spike locations, rate maps and occupancy maps can be analyzed.
+
+![LFP Online - Analysis View](/docs/LFPO_ANALYSIS.png)
+
+**Architecture summary**
+
 Processing is separated in different purpose-specific 'processors'.
 Data flows downstream from source to sink processor.
 All processors share single preallocated buffer, e.g. processor takes it's inputs from the shared buffer and writes results back to the buffer.
@@ -21,6 +39,21 @@ make lfp_online
 cd sdl_example/Debug
 ./lfp_online path_to_config_file
 ```
+
+## Configuration
+Config files are text files that contain:
+
+    1. parameter definitions in form 'variable_name=variable_value'
+    2. sub-config references: '#include' followed by path to sub-config in next line
+    3. pipeline composition: keyword 'pipeline' followed by number of processors in the next line, followed by list of processors, one per line
+    4. lists: list name followed by line with number of elements in the list and all elements, separated by space
+    5. references to previously defined parameters: ${parameter_name}
+    
+Commenting: all lines, starting with *//* are ignored.
+
+Some parameters have default values, some are required be in the config, otherwise lfpo will report error and exit
+
+Parameters can be overriden in the commandline by providing additional arguments in the form *variable_name=variable_value* after the config path
 
 ## Processors
 This is a (still) non-exhaustive list of available processors.
