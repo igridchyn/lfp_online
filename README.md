@@ -125,3 +125,37 @@ For each sample all channels are written together.
 E.g. in a case of 128 channels first group of 256 bytes represent data from first sample, second group of 256 bytes represent data from second sample etc.
 Timestamps are 4-byte integers and are associated to each sample in the data file.
 
+### Examples of pipelines for different purposes ###
+#### Spike dump - detect and alignt spikes, extract PCA features, interpolate wave shapes ####
+* BinFileReader
+* PackageExtractor
+* SpikeDetector
+* SpikeAlignment
+* WaveshapeReconstruction
+* PCAExtraction
+* FetFileWriter
+
+#### Spike display - show features, wave shapes, auto/cross-correlograms, rate maps ####
+* FetFileReader
+* SDLPCADisplay
+* CluReaderClustering
+* Autocorrelogram
+* SpeedEstimation
+* SDLWaveshapeDisplay
+* PlaceField
+* SDLControlInputMeta
+
+#### Build encoding model based on joint distribution of waveshapes and spatial features / decode using a model ####
+* FetFileReader
+* KDClustering
+* SpeedEstimation
+
+#### Real-time decoding with closed loop trigger - experimental BMI setup ####
+* PackageExtractor
+* SpikeDetector
+* SpikeAlignment
+* WaveshapeReconstruction
+* PCAExtraction
+* KDClustering
+* LPTTrigger
+
