@@ -26,7 +26,7 @@ The pipeline is configured through a simple configuration file.
 
 ## Installation
 
-Install all dependencies listed in [sdl_example/deps-fedora](sdl_example/deps-fedora).
+Install all dependencies listed in [lfp_online/deps-fedora](lfp_online/deps-fedora).
 For CentOS 8, SDL2_ttf and ann libraries have to be compiled from source.
 
 ```
