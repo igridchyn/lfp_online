@@ -146,16 +146,16 @@ Timestamps are 4-byte integers and are associated to each sample in the data fil
 * SDLControlInputMeta
 
 #### Build encoding model based on joint distribution of waveshapes and spatial features / decode using a model ####
-FetFileReader
-KDClustering
-SpeedEstimation
+* FetFileReader
+* KDClustering
+* SpeedEstimation
 
 #### Real-time decoding with closed loop trigger - experimental BMI setup ####
-PackageExtractor
-SpikeDetector
-SpikeAlignment
-WaveshapeReconstruction
-PCAExtraction
-KDClustering
-LPTTrigger
+* PackageExtractor
+* SpikeDetector
+* SpikeAlignment
+* WaveshapeReconstruction
+* PCAExtraction
+* KDClustering
+* LPTTrigger
 
