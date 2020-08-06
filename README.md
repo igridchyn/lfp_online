@@ -59,6 +59,29 @@ Parameters can be overriden in the commandline by providing additional arguments
 ## Processors
 This is a (still) non-exhaustive list of available processors.
 
+### BinFileReaderProcessor
+Read binary recording files in AXONA format and stream LFP signal data and tracking to the internal buffer.
+Configuration params:
+
+    1. bin.path - path to binary file in AXONA format
+    2. bin.path.[N] - path to N-th binary file, N>=2
+    3. chunk.size - size of full single AXONA package, currently 432 and should not be changed unless the format changes
+    4. bin.nblock - number of packages read at a time; default = 1
+
+### AutocorrelogramProcessor
+Calculate and display auto/cross-correlograms of putative units.
+Configuration params:
+
+    1. ac.bin.size.ms - time interval of a single bin measured in data samples (e.g. 48 for 2ms interval @24kHz sampling)
+    2. ac.n.bins - number of bins in every auto/cross-correlogramm
+    3. ac.window.width - starting window width
+    4. ac.window.height - starting window height
+    5. ac.wait.clust - binary variable, don't process until spikes get cluster identity; default = 0
+
+### CluReaderClusteringProcessor
+Read clu/res files and assign cluster identity to spikes in the buffer (based on timestamp match).
+No parameters, only uses shared list parameter 'spike.files'
+
 ### IntanInputProcessor
 Source processor for data acquisition using Intan RHD2000 board.
 Reads data from all available channels and puts it to the shared buffer.
