@@ -2,7 +2,7 @@
 
 This software package serves dual purpose:
 
-1. **Brain-machine interface for realtime decoding of spike trains.**
+## 1. **Brain-machine interface for realtime decoding of spike trains.**
 
 Main purpose of the software is to decode neural population activity in real-time from LFP(local field potential) signal using either population vector decoder or a cluster-less spike wave shape based method first described in [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3921373/). Sequence decoding is possible using HMM in combination with the deocding methods. A closed-loop feedback can be provided through the LPT port. This software was used to build the first ever brain-machine interface for real-time decoding of hippocampal reactivation [(Gridchyn et al., 2020)](https://www.sciencedirect.com/science/article/pii/S0896627320300477?via%3Dihub).
 
@@ -10,7 +10,7 @@ This figure from [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/a
 ![Kloosterman BMI diagram](docs/Kloosterman2013Diagram.jpg)
 
 
-2. **Analysis of tetrode recordings data**
+## 2. **Analysis of tetrode recordings data**
 
 This sofware also provides tools for analysis of neurophysiological data through detection, feature extraction and sorting of spikes from LFP signal. Cell waveshapes, spike features, spike auto- and cross- correlogram functions, power spectrum of the LFP can be calculated and visualized. In addition, if the tracking information is available, spike locations, rate maps and occupancy maps can be analyzed.
 
