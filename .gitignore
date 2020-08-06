@@ -1,7 +1,7 @@
 .cproject
 .project
 
-sdl_example/spike_speed.txt
+lfp_online/spike_speed.txt
 
 out/
 third/LogicAnalyzer 1.5/*.cpp
