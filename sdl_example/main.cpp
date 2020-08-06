@@ -86,8 +86,7 @@ void usleep(__int64 usec)
     	config = new Config(argv[1], argc - 2, argv + 2);
     } else {
 
-//    	config = new Config("tmp_spike_display.conf");
-    	config = new Config("../Res/assembly_inhibition.conf");
+//    	config = new Config("../Res/assembly_inhibition.conf");
 //    	config = new Config("../Res/EXPERIMENTAL_assembly_inhibition_presleep.conf");
 //    	config = new Config("../Res/assembly_inhibition_dump.conf");
 //    	config = new Config("../Res/build_model.conf");
@@ -100,7 +99,7 @@ void usleep(__int64 usec)
 //    	config = new Config("../Res/EXPERIMENTAL_spike_dump.conf");
 //    	config = new Config("../Res/spike_dump.conf");
 //    	config = new Config("../Res/synchrony_detection.conf");
-//    	config = new Config("/hdr/data/processing/jc184/0304/13ssi_RECON/SSI.CONF");
+    	config = new Config("../Res/spike_display_mountainsort_arch.conf");
     }
 
 #endif
