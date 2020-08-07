@@ -52,11 +52,29 @@ Config files are text files that contain:
     
 Commenting: all lines, starting with *//* are ignored.
 
-Some parameters have default values, some are required be in the config, otherwise lfpo will report error and exit
+Some parameters have default values specified in the descriptions below. If no default value exists, lfp_online will report error and exit.
 
-Parameters can be overriden in the commandline by providing additional arguments in the form *variable_name=variable_value* after the config path
+Parameters can be overriden in the commandline by providing additional arguments in the form *variable_name=variable_value* after the config path.
 
-## Processors
+## Lists
+Part configuration is represented as list of values. When a name of configuration list is specified in a config file, it's values must be provided in the next line, preceded by the count of those values, for example, list pf.groups with 6 values is specified as:
+
+    pf.groups
+    6 0 1 0 2 0 3
+
+Unless specified otherwise, list indexing is 0-based, i.e. 0 refers to first element in the groups list.
+Two configuration lists are shared across processors and are specified below:
+
+    synchrony - list of tetrode numbers, used for synchrony detection (normally, tetrode with good yield and ideally no interneurons
+    tetrode.nums - list of tetrode numbers in case not all tetrodes from the dump are loaded into pipeline; must correspond to number of tetrodes in tetrode config
+
+## Common configuration parameters
+Most configuration parameters are specific to a single processor, but these two affect functionality of the whole pipeline:
+
+    out.path.base - this is working directory where spike files and other files are written to and read from
+    tetr.conf.path - path to the tetrode configuration file
+    
+## Processors - definitions and configuration
 This is a (still) non-exhaustive list of available processors.
 
 ### BinFileReaderProcessor
@@ -67,6 +85,7 @@ Configuration params:
     2. bin.path.[N] - path to N-th binary file, N>=2
     3. chunk.size - size of full single AXONA package, currently 432 and should not be changed unless the format changes
     4. bin.nblock - number of packages read at a time; default = 1
+    5. bin.format - format of the binary file: "axona" for files recorded with AXONA recording system, or "matrix" for binary unsigned short matrix of size NSAMPLES X NCHANNELS
 
 ### AutocorrelogramProcessor
 Calculate and display auto/cross-correlograms of putative units.
