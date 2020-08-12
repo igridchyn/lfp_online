@@ -2,7 +2,7 @@
 
 This software package serves dual purpose:
 
-1. **Brain-machine interface for realtime decoding of spike trains.**
+## 1. **Brain-machine interface for realtime decoding of spike trains.**
 
 Main purpose of the software is to decode neural population activity in real-time from LFP(local field potential) signal using either population vector decoder or a cluster-less spike wave shape based method first described in [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3921373/). Sequence decoding is possible using HMM in combination with the deocding methods. A closed-loop feedback can be provided through the LPT port. This software was used to build the first ever brain-machine interface for real-time decoding of hippocampal reactivation [(Gridchyn et al., 2020)](https://www.sciencedirect.com/science/article/pii/S0896627320300477?via%3Dihub).
 
@@ -10,7 +10,7 @@ This figure from [(Kloosterman et al., 2013)](https://www.ncbi.nlm.nih.gov/pmc/a
 ![Kloosterman BMI diagram](docs/Kloosterman2013Diagram.jpg)
 
 
-2. **Analysis of tetrode recordings data**
+## 2. **Analysis of tetrode recordings data**
 
 This sofware also provides tools for analysis of neurophysiological data through detection, feature extraction and sorting of spikes from LFP signal. Cell waveshapes, spike features, spike auto- and cross- correlogram functions, power spectrum of the LFP can be calculated and visualized. In addition, if the tracking information is available, spike locations, rate maps and occupancy maps can be analyzed.
 
@@ -26,7 +26,7 @@ The pipeline is configured through a simple configuration file.
 
 ## Installation
 
-Install all dependencies listed in [sdl_example/deps-fedora](sdl_example/deps-fedora).
+Install all dependencies listed in [lfp_online/deps-fedora](lfp_online/deps-fedora).
 For CentOS 8, SDL2_ttf and ann libraries have to be compiled from source.
 
 ```
@@ -52,12 +52,54 @@ Config files are text files that contain:
     
 Commenting: all lines, starting with *//* are ignored.
 
-Some parameters have default values, some are required be in the config, otherwise lfpo will report error and exit
+Some parameters have default values specified in the descriptions below. If no default value exists, lfp_online will report error and exit.
 
-Parameters can be overriden in the commandline by providing additional arguments in the form *variable_name=variable_value* after the config path
+Parameters can be overriden in the commandline by providing additional arguments in the form *variable_name=variable_value* after the config path.
 
-## Processors
+## Lists
+Part configuration is represented as list of values. When a name of configuration list is specified in a config file, it's values must be provided in the next line, preceded by the count of those values, for example, list pf.groups with 6 values is specified as:
+
+    pf.groups
+    6 0 1 0 2 0 3
+
+Unless specified otherwise, list indexing is 0-based, i.e. 0 refers to first element in the groups list.
+Two configuration lists are shared across processors and are specified below:
+
+    synchrony - list of tetrode numbers, used for synchrony detection (normally, tetrode with good yield and ideally no interneurons
+    tetrode.nums - list of tetrode numbers in case not all tetrodes from the dump are loaded into pipeline; must correspond to number of tetrodes in tetrode config
+
+## Common configuration parameters
+Most configuration parameters are specific to a single processor, but these two affect functionality of the whole pipeline:
+
+    out.path.base - this is working directory where spike files and other files are written to and read from
+    tetr.conf.path - path to the tetrode configuration file
+    
+## Processors - definitions and configuration
 This is a (still) non-exhaustive list of available processors.
+
+### BinFileReaderProcessor
+Read binary recording files in AXONA format and stream LFP signal data and tracking to the internal buffer.
+Configuration params:
+
+    1. bin.path - path to binary file in AXONA format
+    2. bin.path.[N] - path to N-th binary file, N>=2
+    3. chunk.size - size of full single AXONA package, currently 432 and should not be changed unless the format changes
+    4. bin.nblock - number of packages read at a time; default = 1
+    5. bin.format - format of the binary file: "axona" for files recorded with AXONA recording system, or "matrix" for binary unsigned short matrix of size NSAMPLES X NCHANNELS
+
+### AutocorrelogramProcessor
+Calculate and display auto/cross-correlograms of putative units.
+Configuration params:
+
+    1. ac.bin.size.ms - time interval of a single bin measured in data samples (e.g. 48 for 2ms interval @24kHz sampling)
+    2. ac.n.bins - number of bins in every auto/cross-correlogramm
+    3. ac.window.width - starting window width
+    4. ac.window.height - starting window height
+    5. ac.wait.clust - binary variable, don't process until spikes get cluster identity; default = 0
+
+### CluReaderClusteringProcessor
+Read clu/res files and assign cluster identity to spikes in the buffer (based on timestamp match).
+No parameters, only uses shared list parameter 'spike.files'
 
 ### IntanInputProcessor
 Source processor for data acquisition using Intan RHD2000 board.
