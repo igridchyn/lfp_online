@@ -9,7 +9,7 @@
 
 BinFileReaderProcessor::BinFileReaderProcessor(LFPBuffer* buf)
 	: LFPProcessor(buf)
-	, file_path_(buf->config_->getString("bin.path", ""))
+	, file_path_(buf->config_->getString("bin.path"))
 	, chunk_size_(getInt("chunk.size"))
 	, nblock_(buf->config_->getInt("bin.nblock", 1))
 	, x_shift_upon_file_change_(buf->config_->getFloat("bin.x.shift"))
