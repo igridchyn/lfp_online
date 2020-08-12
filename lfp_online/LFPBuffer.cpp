@@ -445,17 +445,6 @@ LFPBuffer::LFPBuffer(Config* config)
 
     clusters_in_tetrode_.resize(tetr_info_->tetrodes_number());
 
-
-	std::string bff = config_->getString("bin.format", "axona");
-	if (bff == "axona"){
-		bin_file_format_ = BFF_AXONA;
-	} else if (bff == "matrix"){
-		bin_file_format_ = BFF_MATRIX;
-	} else {
-		Log("ERROR: UNKNOWN BIN FILE FORMAT. Allowed values are: axona, matrix");
-		exit(826734);
-	}
-
 	shared_values_int_[SHARED_VALUE_LAST_TRIGGERED_SWR] = -1;
 	shared_values_int_[SHARED_VALUE_LAST_TRIGGER_PKG] = -1;
 }

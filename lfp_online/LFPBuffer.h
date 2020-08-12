@@ -231,6 +231,7 @@ public:
 
 	Spike *spike_pool_ = nullptr;
 
+	// TODO !!! buffer pointers must be internalized to their processors with buffer providing const ref to the pointer by processor id
 	Spike* *tmp_spike_buf_ = nullptr;
 	// spikes buffer and POINTERS [all have to be reset at buffer rewind]
 	Spike* *spike_buffer_ = nullptr;
