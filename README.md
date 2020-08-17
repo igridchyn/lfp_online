@@ -74,6 +74,18 @@ Most configuration parameters are specific to a single processor, but these two 
     out.path.base - this is working directory where spike files and other files are written to and read from
     tetr.conf.path - path to the tetrode configuration file
     
+## 64/128 channels configuration
+Two parameters are different for 64 and 128 channel configuration.
+For 64 channels:
+
+    channel.num=64
+    pack.extr.128mode=0
+    
+For 128 channels:
+
+    channel.num=128
+    pack.extr.128mode=1
+    
 ## Processors - definitions and configuration
 This is a (still) non-exhaustive list of available processors.
 
