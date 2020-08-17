@@ -85,6 +85,17 @@ For 128 channels:
 
     channel.num=128
     pack.extr.128mode=1
+   
+## Tetrode config file
+First line - number of tetrodes. After that - 2 lines per tetrode: line with number of channels and line with channel numbers separated by space.
+Example:
+
+    2
+    3
+    12 13 14
+    2
+    68 69
+
     
 ## Processors - definitions and configuration
 This is a (still) non-exhaustive list of available processors.
