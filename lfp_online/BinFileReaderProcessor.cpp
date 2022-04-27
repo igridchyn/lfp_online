@@ -164,7 +164,8 @@ std::string BinFileReaderProcessor::binFileDuration(std::string file_path) {
 		return binFileDurationFromNSampes(fsize / 2 / buffer->CHANNEL_NUM);
 	}
 
-	return 0;
+    // return 0; --  bug?: int -> null pointer -> string (undefined behaviour)
+	return "0"; // just a quickfix for now, the function should return a number
 }
 
 std::string BinFileReaderProcessor::binFilesDuration(

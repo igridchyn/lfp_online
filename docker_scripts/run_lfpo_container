@@ -1,0 +1,22 @@
+help()
+{
+    echo "Usage:"
+    echo "      run_docker_lfpo.sh - runs lfpo container and attaches to it"
+    echo "      run_docker_lfpo.sh CONF_FILE INPUT_DIR OUTPUT_DIR - runs lfp_online in a docker container."
+}
+
+while getopts ":h" option; do
+   case $option in
+      h)
+         help
+         exit;;
+   esac
+done
+
+CONT_NAME=lfpo
+
+if [ "$#" -eq 0 ]; then
+    sudo docker run -it $CONT_NAME bash
+else
+    docker run --rm -it -e DISPLAY=$DISPLAY -v $2/:/usr/input -v $3:/usr/output -v $(dirname $1):/usr/conf $CONT_NAME lfp_online /usr/conf/$(basename $1)
+fi
